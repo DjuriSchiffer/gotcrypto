@@ -4,10 +4,10 @@ const Dashboard = () => {
     const { currencies } = useGlobalState();
 
     return (
-        <ul>
+        <ul className="container mx-auto bg-gray-200 rounded-xl shadow border p-8 m-10">
             {currencies && currencies.map((currency, index) => {
                 return (
-                    <li
+                    <li className="text-3xl font-bold underline test"
                         key={index}
                     >
                         {currency.name}
