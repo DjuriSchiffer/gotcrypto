@@ -3,6 +3,9 @@ import LinkButton from "../components/LinkButton";
 
 const Dashboard = () => {
     const { currencies } = useGlobalState();
+    const { data } = useGlobalState();
+
+    console.log(data);
 
     return (
         <ul>

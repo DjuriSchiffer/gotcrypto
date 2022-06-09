@@ -15,22 +15,30 @@ const Bootstrap = () => {
         if (data.error) {
           dispatch({type: "SET_ERROR"});
         } else {
-          let currensiesArr = [];
+          let currenciesArr = [];
+          let assetsArr = [];
           Object.keys(data.data).map(key => {
             const slug = /[^-]*/.exec(data.data[key].slug)[0];
             const price = parseFloat(data.data[key].quote.EUR.price.toFixed(2));
             const name = data.data[key].name;
 
-            currensiesArr[key] = {
+            currenciesArr[key] = {
               name : name,
               price : price,
               slug : slug
             };
+
+            assetsArr[slug] = [];
           });
 
           dispatch({
             type: "SET_INITIAL_CURRENCIES",
-            payload: currensiesArr
+            payload: currenciesArr
+          });
+
+          dispatch({
+            type: "SET_INITIAL_DATA",
+            payload: assetsArr
           });
         }
       }
