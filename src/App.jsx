@@ -40,7 +40,6 @@ const Bootstrap = () => {
   return null;
 };
 
-
 function App() {
   return (
       <Suspense fallback="">
@@ -48,7 +47,9 @@ function App() {
           <BrowserRouter>
             <Bootstrap />
             <Routes>
-              <Route path="/" element={<Dashboard />}/>
+              <Route path="/" element={<Dashboard />}>
+                  <Route path=":currencySlug" element={<Dashboard />}/>
+              </Route>
             </Routes>
           </BrowserRouter>
         </ReducerProvider>
