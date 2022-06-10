@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import { getCurrencies } from "./api";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ReducerProvider, { useDispatch } from "./hooks/useReducer";
@@ -50,18 +50,16 @@ const Bootstrap = () => {
 
 function App() {
   return (
-      <Suspense fallback="">
         <ReducerProvider>
           <BrowserRouter>
             <Bootstrap />
             <Routes>
               <Route path="/" element={<Dashboard />}>
-                  <Route path=":currencySlug" element={<Dashboard />}/>
+
               </Route>
             </Routes>
           </BrowserRouter>
         </ReducerProvider>
-      </Suspense>
   );
 }
 
