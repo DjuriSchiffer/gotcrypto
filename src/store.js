@@ -1,17 +1,10 @@
 export const initialStore = {
-    data: null,
     currencies: null,
     error: false
 };
 
 export const reducer = (state, action) => {
     switch (action.type) {
-        /*
-         * Initial data load
-         */
-        case "SET_INITIAL_DATA":
-            return { ...state, data: action.payload };
-
         /*
          * Initial prices load
          */
