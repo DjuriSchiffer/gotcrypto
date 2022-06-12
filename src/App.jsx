@@ -3,7 +3,7 @@ import { getCurrencies } from "./api";
 import localForage from "localforage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ReducerProvider, { useDispatch } from "./hooks/useReducer";
-import CurrencyOverview from "./pages/CurrencyOverview";
+import Overview from "./pages/Overview";
 import Dashboard from "./pages/Dashboard";
 import Error from "./components/Error";
 
@@ -54,10 +54,8 @@ function App() {
             <BrowserRouter>
                 <Bootstrap />
                 <Routes>
-                    <Route path="/" element={<Dashboard />}>
-
-                    </Route>
-                    <Route path=":overviewSlug" element={<CurrencyOverview />}/>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path=":overviewSlug" element={<Overview />}/>
                 </Routes>
             </BrowserRouter>
         </ReducerProvider>
