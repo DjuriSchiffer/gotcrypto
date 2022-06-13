@@ -18,6 +18,7 @@ const Bootstrap = () => {
                     dispatch({type: "SET_ERROR"});
                 } else {
                     let currenciesArr = [];
+                    let assetsArr = [];
                     Object.keys(data.data).map(key => {
                         const slug = /[^-]*/.exec(data.data[key].slug)[0];
                         const price = parseFloat(data.data[key].quote.EUR.price.toFixed(2));
@@ -28,6 +29,7 @@ const Bootstrap = () => {
                             price: price,
                             slug: slug
                         };
+                        assetsArr[slug] = [];
 
                         localForage.getItem(slug).then(val => {
                             if (val === null) {
@@ -35,10 +37,15 @@ const Bootstrap = () => {
                             }
                         });
                     });
+                    console.log(assetsArr);
 
                     dispatch({
                         type: "SET_INITIAL_CURRENCIES",
                         payload: currenciesArr
+                    });
+                    dispatch({
+                        type: "SET_ASSETS",
+                        payload: assetsArr
                     });
                 }
             }

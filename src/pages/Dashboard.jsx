@@ -13,6 +13,7 @@ const Dashboard = () => {
                         <LinkButton to={currency.slug}>{currency.name}</LinkButton>
                         {currency.price}
                     </li>
+
                 );
             })}
         </ul>

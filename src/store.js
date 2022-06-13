@@ -1,4 +1,5 @@
 export const initialStore = {
+    assets: null,
     currencies: null,
     error: false
 };
@@ -10,6 +11,9 @@ export const reducer = (state, action) => {
          */
         case "SET_INITIAL_CURRENCIES":
             return { ...state, currencies: action.payload };
+
+        case "SET_ASSETS":
+            return { ...state, assets: action.payload };
 
         /*
          * Initial error handling

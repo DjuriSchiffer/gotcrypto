@@ -1,6 +1,8 @@
+import { useEffect, useState, useCallback } from "react";
 import { PercentageDifference, PercentageFormat, CurrencyFormat, AveragePurchasePrice, Profit, CurrentValue, DateFormat } from '../utils/CalculateHelpers';
+import localForage from "localforage";
 
-const OverviewRow = ({asset, currentCurrency}) => {
+const OverviewRow = ({asset, currentCurrency, children}) => {
     const amount = asset.amount;
     const purchasePrice = asset.purchasePrice;
     const purchaseDate = DateFormat(asset.date);
@@ -16,6 +18,7 @@ const OverviewRow = ({asset, currentCurrency}) => {
             {CurrencyFormat(currentValue)}
             {CurrencyFormat(averagePurchasePrice)}
             {PercentageFormat(percentageDifference)}
+            {children}
         </div>
     );
 };
