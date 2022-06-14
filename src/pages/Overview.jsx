@@ -42,7 +42,7 @@ const Overview = () => {
     const handleChange = (event) => {
         const name = event.target.name;
         const value = event.target.value;
-        setInputs(values => ({...values, [name]: value}))
+        setInputs(values => ({...values, [name]: name === 'date' ? new Date(value) : value}))
     };
 
     const handleSubmit = (event) => {
@@ -51,7 +51,7 @@ const Overview = () => {
         localForage.getItem(overviewSlug)
             .then(data => {
                 data.push(inputs);
-                localForage.setItem(overviewSlug, data).then((data => {
+                localForage.setItem(overviewSlug, data.sort((a, b) => a.date - b.date)).then((data => {
                     assets[overviewSlug] = data;
                     dispatch({
                         type: "SET_ASSETS",
