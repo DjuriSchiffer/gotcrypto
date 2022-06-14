@@ -59,7 +59,10 @@ const Overview = () => {
                     });
                 })).catch(function(err) {
                     // This code runs if there were any errors
-                    dispatch({type: "SET_ERROR"});
+                    dispatch({
+                        type: "SET_ERROR",
+                        payload: err
+                    });
                 });
             });
 
@@ -75,7 +78,10 @@ const Overview = () => {
             });
         })).catch(function(err) {
             // This code runs if there were any errors
-            dispatch({type: "SET_ERROR"});
+            dispatch({
+                type: "SET_ERROR",
+                payload: err
+            });
         });
     }, [assets]);
 
@@ -88,7 +94,10 @@ const Overview = () => {
             });
         })).catch(function(err) {
             // This code runs if there were any errors
-            dispatch({type: "SET_ERROR"});
+            dispatch({
+                type: "SET_ERROR",
+                payload: err
+            });
         });
     }, [assets]);
 

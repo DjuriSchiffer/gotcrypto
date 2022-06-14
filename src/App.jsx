@@ -15,7 +15,10 @@ const Bootstrap = () => {
         currenciesQuery.then((data) => {
             if (data.data !== undefined || data.status.error_code !== 0) {
                 if (data.error) {
-                    dispatch({type: "SET_ERROR"});
+                    dispatch({
+                        type: "SET_ERROR",
+                        payload: data.error
+                    });
                 } else {
                     let currenciesArr = [];
                     let assetsArr = [];
@@ -47,7 +50,10 @@ const Bootstrap = () => {
                             }
                         }).catch(function(err) {
                             // This code runs if there were any errors
-                            dispatch({type: "SET_ERROR"});
+                            dispatch({
+                                type: "SET_ERROR",
+                                payload: err
+                            });
                         });
                     });
 
@@ -72,6 +78,7 @@ function App() {
                     <Route path="/" element={<Dashboard />} />
                     <Route path=":overviewSlug" element={<Overview />}/>
                 </Routes>
+                <Error />
             </BrowserRouter>
         </ReducerProvider>
     );
