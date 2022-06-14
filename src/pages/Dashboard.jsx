@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import {useState as useGlobalState} from "../hooks/useReducer";
 import LinkButton from "../components/LinkButton";
+import OverviewTotals from "../components/OverviewTotals.jsx";
 
 const Dashboard = () => {
-    const { currencies } = useGlobalState();
+    const { currencies, assets } = useGlobalState();
 
     return (
         <ul>
@@ -12,6 +13,9 @@ const Dashboard = () => {
                     <li className="container mx-auto bg-gray-200 rounded-xl shadow border p-8 m-10" key={index}>
                         <LinkButton to={currency.slug}>{currency.name}</LinkButton>
                         {currency.price}
+                        {assets && assets[currency.slug] && assets[currency.slug].length > 0 &&
+                        <OverviewTotals assets={assets[currency.slug]} currentCurrency={currency}/>
+                        }
                     </li>
 
                 );

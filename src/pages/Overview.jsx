@@ -4,13 +4,14 @@ import Button from "../components/Button";
 import OverviewHeader from "../components/OverviewHeader"
 import OverviewRow from "../components/OverviewRow"
 import OverviewTotals from "../components/OverviewTotals"
+import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
 import { useParams } from 'react-router-dom';
 
 const Overview = () => {
-    const { currencies } = useGlobalState();
+    const { currencies, assets } = useGlobalState();
+    const dispatch = useDispatch();
     const { overviewSlug } = useParams();
-    const [assets, setAssets] = useState([]);
     const [currentCurrency, setCurrentCurrency ] = useState({});
     const [inputs, setInputs] = useState({});
 
@@ -25,13 +26,18 @@ const Overview = () => {
     useEffect(() => {
         if (currentCurrency !== undefined) {
             localForage.getItem(overviewSlug)
-                .then(val => {
-                    setAssets(val);
-                });
+                .then(data => {
+                    assets[overviewSlug] = data;
+                    dispatch({
+                        type: "SET_ASSETS",
+                        payload: assets
+                    });
+                }).catch(function(err) {
+                // This code runs if there were any errors
+                dispatch({type: "SET_ERROR"});
+            });
         }
-
     }, [overviewSlug]);
-
 
     const handleChange = (event) => {
         const name = event.target.name;
@@ -43,20 +49,34 @@ const Overview = () => {
         event.preventDefault();
 
         localForage.getItem(overviewSlug)
-            .then(val => {
-                val.push(inputs);
-                localForage.setItem(overviewSlug, val).then((val => {
-                    setAssets(val);
-                }));
+            .then(data => {
+                data.push(inputs);
+                localForage.setItem(overviewSlug, data).then((data => {
+                    assets[overviewSlug] = data;
+                    dispatch({
+                        type: "SET_ASSETS",
+                        payload: assets
+                    });
+                })).catch(function(err) {
+                    // This code runs if there were any errors
+                    dispatch({type: "SET_ERROR"});
+                });
             });
 
         event.target.reset();
     };
 
     const handleRemoveAsset = useCallback((asset) => {
-        localForage.setItem(overviewSlug, assets.filter(item => item !== asset)).then((val => {
-            setAssets(val);
-        }));
+        localForage.setItem(overviewSlug, assets.filter(item => item !== asset)).then((data => {
+            assets[overviewSlug] = data;
+            dispatch({
+                type: "SET_ASSETS",
+                payload: assets
+            });
+        })).catch(function(err) {
+            // This code runs if there were any errors
+            dispatch({type: "SET_ERROR"});
+        });
     }, [assets]);
 
     return (
@@ -70,15 +90,15 @@ const Overview = () => {
                 <input name="date" type="date" placeholder="date" onChange={handleChange} required/>
                 <input type="submit" value="add asset"/>
             </OverviewHeader>
-            {assets && assets.map((asset, index) => {
+            {assets[currentCurrency.slug] && assets[currentCurrency.slug].map((asset, index) => {
                 return (
                     <OverviewRow key={index} asset={asset} currentCurrency={currentCurrency}>
                         <Button onClick={() => handleRemoveAsset(asset)}>Remove asset</Button>
                     </OverviewRow>
                 )
             })}
-            {assets.length > 0 &&
-                <OverviewTotals assets={assets} currentCurrency={currentCurrency}/>
+            {assets[currentCurrency.slug] && assets[currentCurrency.slug].length > 0 &&
+                <OverviewTotals assets={assets[currentCurrency.slug]} currentCurrency={currentCurrency}/>
             }
         </div>
     );

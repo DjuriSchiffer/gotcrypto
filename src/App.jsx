@@ -31,21 +31,29 @@ const Bootstrap = () => {
                         };
                         assetsArr[slug] = [];
 
-                        localForage.getItem(slug).then(val => {
-                            if (val === null) {
+                        localForage.getItem(slug).then(data => {
+                            if (data === null) {
                                 localForage.setItem(slug, []);
+                                dispatch({
+                                    type: "SET_ASSETS",
+                                    payload: assetsArr
+                                });
+                            } else {
+                                assetsArr[slug] = data;
+                                dispatch({
+                                    type: "SET_ASSETS",
+                                    payload: assetsArr
+                                });
                             }
+                        }).catch(function(err) {
+                            // This code runs if there were any errors
+                            dispatch({type: "SET_ERROR"});
                         });
                     });
-                    console.log(assetsArr);
 
                     dispatch({
                         type: "SET_INITIAL_CURRENCIES",
                         payload: currenciesArr
-                    });
-                    dispatch({
-                        type: "SET_ASSETS",
-                        payload: assetsArr
                     });
                 }
             }
