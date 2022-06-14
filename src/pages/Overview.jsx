@@ -67,8 +67,21 @@ const Overview = () => {
     };
 
     const handleRemoveAsset = useCallback((asset) => {
-        localForage.setItem(overviewSlug, assets.filter(item => item !== asset)).then((data => {
+        localForage.setItem(overviewSlug, assets[overviewSlug].filter(item => item !== asset)).then((data => {
             assets[overviewSlug] = data;
+            dispatch({
+                type: "SET_ASSETS",
+                payload: assets
+            });
+        })).catch(function(err) {
+            // This code runs if there were any errors
+            dispatch({type: "SET_ERROR"});
+        });
+    }, [assets]);
+
+    const handleRemoveAllAssets = useCallback((assets) => {
+        localForage.setItem(overviewSlug, []).then((data => {
+            assets[overviewSlug] = [];
             dispatch({
                 type: "SET_ASSETS",
                 payload: assets
@@ -89,6 +102,7 @@ const Overview = () => {
                        required/>
                 <input name="date" type="date" placeholder="date" onChange={handleChange} required/>
                 <input type="submit" value="add asset"/>
+                <Button onClick={() => handleRemoveAllAssets(assets)}>Remove all assets</Button>
             </OverviewHeader>
             {assets[currentCurrency.slug] && assets[currentCurrency.slug].map((asset, index) => {
                 return (
