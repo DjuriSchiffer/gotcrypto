@@ -6,6 +6,7 @@ import ReducerProvider, { useDispatch } from "./hooks/useReducer";
 import Overview from "./pages/Overview";
 import Dashboard from "./pages/Dashboard";
 import Error from "./components/Error";
+import totals from "./utils/totals"
 
 const Bootstrap = () => {
     const currenciesQuery = getCurrencies();
@@ -15,6 +16,7 @@ const Bootstrap = () => {
         currenciesQuery.then((data) => {
             if (data.data !== undefined || data.status.error_code !== 0) {
                 if (data.error) {
+                    console.log(err)
                     dispatch({
                         type: "SET_ERROR",
                         payload: data.error
@@ -32,11 +34,14 @@ const Bootstrap = () => {
                             price: price,
                             slug: slug
                         };
-                        assetsArr[slug] = [];
-
+                        assetsArr[slug] = {
+                            assets : [],
+                            totals : totals([], currenciesArr[slug])
+                        }
+                            
                         localForage.getItem(slug).then(data => {
                             if (data === null) {
-                                localForage.setItem(slug, []);
+                                localForage.setItem(slug, assetsArr[slug]);
                                 dispatch({
                                     type: "SET_ASSETS",
                                     payload: assetsArr
@@ -49,6 +54,7 @@ const Bootstrap = () => {
                                 });
                             }
                         }).catch(function(err) {
+                            console.log(err)
                             // This code runs if there were any errors
                             dispatch({
                                 type: "SET_ERROR",

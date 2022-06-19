@@ -1,6 +1,6 @@
 const Button = ({onClick, children}) => {
     return (
-        <button onClick={onClick}>
+        <button className="bg-rose-800 p-2 rounded-md shadow text-white" onClick={onClick}>
             {children}
         </button>
     );

@@ -3,10 +3,11 @@ import {useState as useGlobalState} from "../hooks/useReducer";
 import Button from "../components/Button";
 import OverviewHeader from "../components/OverviewHeader"
 import OverviewRow from "../components/OverviewRow"
-import OverviewTotals from "../components/OverviewTotals"
+import LinkButton from "../components/LinkButton";
 import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
 import { useParams } from 'react-router-dom';
+import totals from "../utils/totals"
 
 const Overview = () => {
     const { currencies, assets } = useGlobalState();
@@ -15,24 +16,24 @@ const Overview = () => {
     const [currentCurrency, setCurrentCurrency ] = useState({});
     const [inputs, setInputs] = useState({});
 
-
     useEffect(() => {
         if (currencies !== null) {
             setCurrentCurrency(currencies[overviewSlug]);
         }
     }, [currencies]);
 
-
     useEffect(() => {
-        if (currentCurrency !== undefined) {
+        if (overviewSlug !== null && currentCurrency !== undefined) {            
             localForage.getItem(overviewSlug)
                 .then(data => {
-                    assets[overviewSlug] = data;
+                    assets[overviewSlug].assets = data.assets;
+                    assets.totals = totals(data.assets, currentCurrency);
                     dispatch({
                         type: "SET_ASSETS",
                         payload: assets
                     });
                 }).catch(function(err) {
+                    console.log(err)
                 // This code runs if there were any errors
                 dispatch({type: "SET_ERROR"});
             });
@@ -50,15 +51,18 @@ const Overview = () => {
 
         localForage.getItem(overviewSlug)
             .then(data => {
-                data.push(inputs);
-                localForage.setItem(overviewSlug, data.sort((a, b) => a.date - b.date)).then((data => {
-                    assets[overviewSlug] = data;
+                data.assets.push(inputs);
+                assets[overviewSlug].assets = data.assets
+                assets[overviewSlug].totals = totals(data.assets, currentCurrency);
+
+                localForage.setItem(overviewSlug, assets[overviewSlug]).then((data => {
                     dispatch({
                         type: "SET_ASSETS",
                         payload: assets
                     });
                 })).catch(function(err) {
                     // This code runs if there were any errors
+                    console.log(err)
                     dispatch({
                         type: "SET_ERROR",
                         payload: err
@@ -70,39 +74,52 @@ const Overview = () => {
     };
 
     const handleRemoveAsset = useCallback((asset) => {
-        localForage.setItem(overviewSlug, assets[overviewSlug].filter(item => item !== asset)).then((data => {
-            assets[overviewSlug] = data;
-            dispatch({
-                type: "SET_ASSETS",
-                payload: assets
-            });
-        })).catch(function(err) {
-            // This code runs if there were any errors
-            dispatch({
-                type: "SET_ERROR",
-                payload: err
-            });
-        });
+        localForage.getItem(overviewSlug)
+            .then(data => {
+                assets[overviewSlug].assets = assets[overviewSlug].assets.filter(item => item !== asset);
+                assets[overviewSlug].totals = totals(assets[overviewSlug].assets, currentCurrency);
+
+                localForage.setItem(overviewSlug, assets[overviewSlug]).then((data => {
+                    dispatch({
+                        type: "SET_ASSETS",
+                        payload: assets
+                    });
+                })).catch(function(err) {
+                    // This code runs if there were any errors
+                    console.log(err)
+                    dispatch({
+                        type: "SET_ERROR",
+                        payload: err
+                    });
+                });
+            });   
     }, [assets]);
 
-    const handleRemoveAllAssets = useCallback((assets) => {
-        localForage.setItem(overviewSlug, []).then((data => {
-            assets[overviewSlug] = [];
-            dispatch({
-                type: "SET_ASSETS",
-                payload: assets
+    const handleRemoveAllAssets = useCallback((overviewSlug) => {
+        localForage.getItem(overviewSlug)
+        .then(data => {
+            assets[overviewSlug].assets = [];
+            assets[overviewSlug].totals = totals([], currentCurrency);
+
+            localForage.setItem(overviewSlug, assets[overviewSlug]).then((data => {
+                dispatch({
+                    type: "SET_ASSETS",
+                    payload: assets
+                });
+            })).catch(function(err) {
+                // This code runs if there were any errors
+                console.log(err)
+                dispatch({
+                    type: "SET_ERROR",
+                    payload: err
+                });
             });
-        })).catch(function(err) {
-            // This code runs if there were any errors
-            dispatch({
-                type: "SET_ERROR",
-                payload: err
-            });
-        });
-    }, [assets]);
+        });  
+    }, [overviewSlug]);
 
     return (
         <div className="container mx-auto bg-gray-200 rounded-xl shadow border p-8 m-10">
+            <LinkButton to="/">Return to dashboard</LinkButton>
             {currentCurrency.name}
             {currentCurrency.price}
             <OverviewHeader onSubmit={handleSubmit}>
@@ -110,19 +127,16 @@ const Overview = () => {
                 <input name="purchasePrice" type="number" placeholder="purchase price" onChange={handleChange}
                        required/>
                 <input name="date" type="date" placeholder="date" onChange={handleChange} required/>
-                <input type="submit" value="add asset"/>
-                <Button onClick={() => handleRemoveAllAssets(assets)}>Remove all assets</Button>
+                <input className="bg-green-800 p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
+                <Button onClick={() => handleRemoveAllAssets(overviewSlug)}>Remove all assets</Button>
             </OverviewHeader>
-            {assets[currentCurrency.slug] && assets[currentCurrency.slug].map((asset, index) => {
+            {assets && currentCurrency && assets[currentCurrency.slug]?.assets && assets[currentCurrency.slug].assets.map((asset, index) => {
                 return (
                     <OverviewRow key={index} asset={asset} currentCurrency={currentCurrency}>
                         <Button onClick={() => handleRemoveAsset(asset)}>Remove asset</Button>
                     </OverviewRow>
                 )
             })}
-            {assets[currentCurrency.slug] && assets[currentCurrency.slug].length > 0 &&
-                <OverviewTotals assets={assets[currentCurrency.slug]} currentCurrency={currentCurrency}/>
-            }
         </div>
     );
 };
