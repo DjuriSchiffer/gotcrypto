@@ -3,35 +3,57 @@ import {useState as useGlobalState} from "../hooks/useReducer";
 import Button from "../components/Button";
 import OverviewHeader from "../components/OverviewHeader"
 import OverviewRow from "../components/OverviewRow"
+import OverviewTotals from "../components/OverviewTotals"
 import LinkButton from "../components/LinkButton";
 import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
 import { useParams } from 'react-router-dom';
 import totals from "../utils/totals"
+import _ from "lodash"
 
 const Overview = () => {
-    const { currencies, assets } = useGlobalState();
+    const { currencies } = useGlobalState();
     const dispatch = useDispatch();
     const { overviewSlug } = useParams();
     const [currentCurrency, setCurrentCurrency ] = useState({});
+    const [currentSelectedCurrency, setCurrentSelectedCurrency ] = useState({});
     const [inputs, setInputs] = useState({});
+    const [submit, setSubmit] = useState(false);
+    const setSelectedCurrencyData = (data, currIndex) => {
+        localForage.setItem('selectedCurrencies', data).then((data => {
+            dispatch({
+                type: "SET_SELECTED_CURRENCIES",
+                payload: data
+            });
+            setCurrentSelectedCurrency(data[currIndex]);
+        })).catch(function(err) {
+            // This code runs if there were any errors
+            console.log(err)
+            dispatch({
+                type: "SET_ERROR",
+                payload: err
+            });
+        });
+    }
 
     useEffect(() => {
         if (currencies !== null) {
-            setCurrentCurrency(currencies[overviewSlug]);
+            const currIndex = currencies.findIndex(
+                (e) => {
+                    if(e && e.name === overviewSlug) {
+                        return e
+                    }
+                }
+              );
+            setCurrentCurrency(currencies[currIndex]);
         }
-    }, [currencies]);
+    }, [currencies, overviewSlug]);
 
     useEffect(() => {
-        if (overviewSlug !== null && currentCurrency !== undefined) {            
-            localForage.getItem(overviewSlug)
+        if (overviewSlug) {            
+            localForage.getItem('selectedCurrencies')
                 .then(data => {
-                    assets[overviewSlug].assets = data.assets;
-                    assets.totals = totals(data.assets, currentCurrency);
-                    dispatch({
-                        type: "SET_ASSETS",
-                        payload: assets
-                    });
+                    setCurrentSelectedCurrency(data.find(e => e.name === overviewSlug));
                 }).catch(function(err) {
                     console.log(err)
                 // This code runs if there were any errors
@@ -40,89 +62,72 @@ const Overview = () => {
         }
     }, [overviewSlug]);
 
+    useEffect(() => {
+        if(submit){
+           localForage.getItem('selectedCurrencies').then(data => {
+                 const currIndex = data.findIndex(
+                    (e) => e.name === currentCurrency.name
+                  );
+                data[currIndex].assets.push(inputs);
+                data[currIndex].totals = totals(data[currIndex].assets, currentCurrency);
+                setSelectedCurrencyData(data, currIndex);
+            }).catch(function(err) {
+                console.log(err)
+            // This code runs if there were any errors
+            dispatch({type: "SET_ERROR"});
+        });
+
+        }
+        setSubmit(false);
+    }, [submit, inputs, currentCurrency])
+
     const handleChange = (event) => {
         const name = event.target.name;
         const value = event.target.value;
-        setInputs(values => ({...values, [name]: name === 'date' ? new Date(value) : value}))
+
+        setInputs(values => ({
+            ...values, 
+            [name]: name === 'date' ? new Date(value) : value,
+            id : _.uniqueId()
+        }))
     };
 
     const handleSubmit = (event) => {
         event.preventDefault();
-
-        localForage.getItem(overviewSlug)
-            .then(data => {
-                data.assets.push(inputs);
-                assets[overviewSlug].assets = data.assets
-                assets[overviewSlug].totals = totals(data.assets, currentCurrency);
-
-                localForage.setItem(overviewSlug, assets[overviewSlug]).then((data => {
-                    dispatch({
-                        type: "SET_ASSETS",
-                        payload: assets
-                    });
-                })).catch(function(err) {
-                    // This code runs if there were any errors
-                    console.log(err)
-                    dispatch({
-                        type: "SET_ERROR",
-                        payload: err
-                    });
-                });
-            });
-
+        setSubmit(true);
         event.target.reset();
     };
 
     const handleRemoveAsset = useCallback((asset) => {
-        localForage.getItem(overviewSlug)
-            .then(data => {
-                assets[overviewSlug].assets = assets[overviewSlug].assets.filter(item => item !== asset);
-                assets[overviewSlug].totals = totals(assets[overviewSlug].assets, currentCurrency);
+        localForage.getItem('selectedCurrencies').then(data => {
+            const currIndex = data.findIndex(
+                (e) => e.name === overviewSlug
+              );
 
-                localForage.setItem(overviewSlug, assets[overviewSlug]).then((data => {
-                    dispatch({
-                        type: "SET_ASSETS",
-                        payload: assets
-                    });
-                })).catch(function(err) {
-                    // This code runs if there were any errors
-                    console.log(err)
-                    dispatch({
-                        type: "SET_ERROR",
-                        payload: err
-                    });
-                });
-            });   
-    }, [assets]);
+            data[currIndex].assets = data[currIndex].assets.filter(item => item.id !== asset.id);
+            data[currIndex].totals = totals(data[currIndex].assets, currentCurrency);
+            setSelectedCurrencyData(data, currIndex);
+        });   
+    }, [overviewSlug]);
 
     const handleRemoveAllAssets = useCallback((overviewSlug) => {
-        localForage.getItem(overviewSlug)
-        .then(data => {
-            assets[overviewSlug].assets = [];
-            assets[overviewSlug].totals = totals([], currentCurrency);
-
-            localForage.setItem(overviewSlug, assets[overviewSlug]).then((data => {
-                dispatch({
-                    type: "SET_ASSETS",
-                    payload: assets
-                });
-            })).catch(function(err) {
-                // This code runs if there were any errors
-                console.log(err)
-                dispatch({
-                    type: "SET_ERROR",
-                    payload: err
-                });
-            });
+        localForage.getItem('selectedCurrencies').then(data => {
+            const currIndex = data.findIndex(
+                (e) => e.name === overviewSlug
+              );
+            data[currIndex].assets = [];           
+            data[currIndex].totals = totals(data[currIndex].assets, currentCurrency);
+            setSelectedCurrencyData(data, currIndex);
         });  
     }, [overviewSlug]);
 
     return (
         <div className="container mx-auto bg-gray-200 rounded-xl shadow border p-8 m-10">
-            <LinkButton to="/">Return to dashboard</LinkButton>
-            {currentCurrency.name}
-            {currentCurrency.price}
             <OverviewHeader onSubmit={handleSubmit}>
+                <LinkButton to="/">Return to dashboard</LinkButton>
+                {currentCurrency && 
+                    <div>{currentCurrency.name} {currentCurrency.price}</div>
+                }
                 <input name="amount" type="number" placeholder="amount" onChange={handleChange} required/>
                 <input name="purchasePrice" type="number" placeholder="purchase price" onChange={handleChange}
                        required/>
@@ -130,13 +135,16 @@ const Overview = () => {
                 <input className="bg-green-800 p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
                 <Button onClick={() => handleRemoveAllAssets(overviewSlug)}>Remove all assets</Button>
             </OverviewHeader>
-            {assets && currentCurrency && assets[currentCurrency.slug]?.assets && assets[currentCurrency.slug].assets.map((asset, index) => {
+            {currentCurrency && currentSelectedCurrency && currentSelectedCurrency?.assets && currentSelectedCurrency.assets.map((asset, index) => {
                 return (
                     <OverviewRow key={index} asset={asset} currentCurrency={currentCurrency}>
                         <Button onClick={() => handleRemoveAsset(asset)}>Remove asset</Button>
                     </OverviewRow>
                 )
             })}
+            {currentCurrency && currentSelectedCurrency && currentSelectedCurrency?.totals &&
+                <OverviewTotals totals={currentSelectedCurrency.totals} currentCurrency={currentCurrency}/>
+            }
         </div>
     );
 };

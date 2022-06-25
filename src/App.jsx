@@ -23,49 +23,38 @@ const Bootstrap = () => {
                     });
                 } else {
                     let currenciesArr = [];
-                    let assetsArr = [];
-                    Object.keys(data.data).map(key => {
-                        const slug = /[^-]*/.exec(data.data[key].slug)[0];
-                        const price = parseFloat(data.data[key].quote.EUR.price.toFixed(2));
-                        const name = data.data[key].name;
 
-                        currenciesArr[slug] = {
-                            name: name,
-                            price: price,
-                            slug: slug
+                    data.data.map((item) => {
+                        currenciesArr[item.cmc_rank] = {
+                            name: item.slug,
+                            price: parseFloat(item.quote.USD.price.toFixed(2)),
+                            slug: item.name
                         };
-                        assetsArr[slug] = {
-                            assets : [],
-                            totals : totals([], currenciesArr[slug])
-                        }
-                            
-                        localForage.getItem(slug).then(data => {
-                            if (data === null) {
-                                localForage.setItem(slug, assetsArr[slug]);
-                                dispatch({
-                                    type: "SET_ASSETS",
-                                    payload: assetsArr
-                                });
-                            } else {
-                                assetsArr[slug] = data;
-                                dispatch({
-                                    type: "SET_ASSETS",
-                                    payload: assetsArr
-                                });
-                            }
-                        }).catch(function(err) {
-                            console.log(err)
-                            // This code runs if there were any errors
-                            dispatch({
-                                type: "SET_ERROR",
-                                payload: err
-                            });
-                        });
-                    });
-
+                    })
                     dispatch({
                         type: "SET_INITIAL_CURRENCIES",
                         payload: currenciesArr
+                    });
+                    localForage.getItem('selectedCurrencies').then(values => {
+                        if (values === null) {
+                            localForage.setItem('selectedCurrencies', []);
+                            dispatch({
+                                type: "SET_SELECTED_CURRENCIES",
+                                payload: []
+                            });
+                        } else {
+                            dispatch({
+                                type: "SET_SELECTED_CURRENCIES",
+                                payload: values
+                            });
+                        }
+                    }).catch(function(err) {
+                        console.log(err)
+                        // This code runs if there were any errors
+                        dispatch({
+                            type: "SET_ERROR",
+                            payload: err
+                        });
                     });
                 }
             }

@@ -1,6 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
 import { PercentageDifference, PercentageFormat, CurrencyFormat, AveragePurchasePrice, Profit, CurrentValue, DateFormat } from '../utils/CalculateHelpers';
-import localForage from "localforage";
 
 const OverviewRow = ({asset, currentCurrency, children}) => {
     const amount = asset.amount;

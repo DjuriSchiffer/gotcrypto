@@ -1,11 +1,11 @@
-import { PercentageDifference, PercentageFormat, CurrencyFormat, AveragePurchasePrice, Profit, CurrentValue, DateFormat } from '../utils/CalculateHelpers';
+import { PercentageFormat, CurrencyFormat } from '../utils/CalculateHelpers';
 
-const OverviewTotals = ({ assets, currentCurrency }) => {
-    const totalAmount = assets.reduce((acc, asset) => acc + parseInt(asset.amount), 0);
-    const totalPurchasePrice = assets.reduce((acc, asset) => acc + parseInt(asset.purchasePrice), 0);
-    const totalValue = CurrentValue(totalAmount, currentCurrency.price);
-    const totalAveragePurchasePrice = AveragePurchasePrice(totalPurchasePrice, totalAmount);
-    const totalPercentageDifference = PercentageDifference(totalPurchasePrice, totalValue);
+const OverviewTotals = ({ totals }) => {
+    const totalAmount = totals.totalAmount;
+    const totalPurchasePrice = totals.totalPurchasePrice;
+    const totalValue = totals.totalValue;
+    const totalAveragePurchasePrice = totals.totalAveragePurchasePrice;
+    const totalPercentageDifference = totals.totalPercentageDifference;
 
     return (
         <div className="flex mt-5 pt-1 border-t-2 border-black">

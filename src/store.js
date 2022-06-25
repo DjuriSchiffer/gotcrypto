@@ -12,6 +12,9 @@ export const reducer = (state, action) => {
         case "SET_INITIAL_CURRENCIES":
             return { ...state, currencies: action.payload };
 
+        case "SET_SELECTED_CURRENCIES":
+            return { ...state, selectedCurrencies: action.payload };
+
         case "SET_ASSETS":
             return { ...state, assets: action.payload };
 
