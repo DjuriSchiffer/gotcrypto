@@ -8,6 +8,7 @@ import DashboardTableCell from "../components/DashboardTableCell";
 import DashboardTableHead from "../components/DashboardTableHead";
 import { PercentageFormat, CurrencyFormat} from '../utils/CalculateHelpers';
 import _ from "lodash"
+import totals from "../utils/totals";
 
 const Dashboard = () => {
     const { currencies, selectedCurrencies } = useGlobalState();
@@ -18,12 +19,18 @@ const Dashboard = () => {
     useEffect(() => {
         if(submit && inputs){
             localForage.getItem('selectedCurrencies').then(data => {
-                if(data.filter(e => e.name === inputs).length > 0) return
+                if(data.filter(item => item.name === inputs).length > 0) return;
+                const currIndex = currencies.findIndex((item) => {
+                    if(item && item.name === inputs) {
+                        return item
+                    }
+                });
 
                 const object = {
                     name: inputs,
+                    index: currIndex,
                     assets : [],
-                    totals: {}
+                    totals: totals([], currencies[currIndex])
                 }
                 data.push(object);
                 localForage.setItem('selectedCurrencies', data).then(data => {
@@ -87,17 +94,7 @@ const Dashboard = () => {
                 </select>
                 <input className="bg-green-800 p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
             </form>
-            {selectedCurrencies && selectedCurrencies.map((selectedCurrency, index ) => {
-                return (
-                    <div key={index}>
-                        {selectedCurrency.name} 
-                        <LinkButton to={selectedCurrency.name}>+</LinkButton>
-                        <Button onClick={() => handleRemoveCurrency(selectedCurrency)}>-</Button>
-                    </div>
-                )
-            })}
-
-            {/* {currencies && assets && Object.values(currencies).map((currency, index) => {
+            {currencies && selectedCurrencies && selectedCurrencies.map((selectedCurrency, index ) => {
                 return (
                     <table key={index} className="container mx-auto bg-gray-200 shadow border p-8 m-10" >
                         <DashboardTableHead>
@@ -111,29 +108,32 @@ const Dashboard = () => {
                         </DashboardTableHead>
                         <tbody>
                             <tr>
-                                <DashboardTableCell>{currency.name}</DashboardTableCell>
-                                <DashboardTableCell>{CurrencyFormat(currency.price)}</DashboardTableCell>
+                                <DashboardTableCell>{selectedCurrency.name}</DashboardTableCell>
+                                <DashboardTableCell>{CurrencyFormat(currencies[selectedCurrency.index].price)}</DashboardTableCell>
                                 <DashboardTableCell>
-                                    {assets && assets[currency.slug] && assets[currency.slug].totals &&
+                                    {selectedCurrency.totals &&
                                         <div className="flex">
-                                            {CurrencyFormat(assets[currency.slug].totals.totalValue)}
-                                            {assets[currency.slug].totals.totalAmount}
+                                            {CurrencyFormat(selectedCurrency.totals.totalValue)}
+                                            {selectedCurrency.totals.totalAmount}
                                         </div>
                                     }
                                 </DashboardTableCell>
                                 <DashboardTableCell>
-                                {assets && assets[currency.slug] && assets[currency.slug].totals &&
+                                    {selectedCurrency.totals &&
                                         <div className="flex">
-                                            {PercentageFormat(assets[currency.slug].totals.totalPercentageDifference)}
+                                            {PercentageFormat(selectedCurrency.totals.totalPercentageDifference)}
                                         </div>
                                     }
                                 </DashboardTableCell>
-                                <DashboardTableCell><LinkButton to={currency.slug}>+</LinkButton></DashboardTableCell>
+                                <DashboardTableCell>
+                                    <LinkButton to={selectedCurrency.name}>+</LinkButton>
+                                    <Button onClick={() => handleRemoveCurrency(selectedCurrency)}>-</Button>
+                                </DashboardTableCell>
                             </tr>
                         </tbody>
                     </table>
-                );
-            })} */}
+                )
+            })}
         </>
     );
 };
