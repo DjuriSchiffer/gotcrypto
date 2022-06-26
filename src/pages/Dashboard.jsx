@@ -3,9 +3,11 @@ import { useEffect, useState, useCallback } from "react";
 import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
 import LinkButton from "../components/LinkButton";
+import Button from "../components/Button";
 import DashboardTableCell from "../components/DashboardTableCell";
 import DashboardTableHead from "../components/DashboardTableHead";
 import { PercentageFormat, CurrencyFormat} from '../utils/CalculateHelpers';
+import _ from "lodash"
 
 const Dashboard = () => {
     const { currencies, selectedCurrencies } = useGlobalState();
@@ -14,14 +16,7 @@ const Dashboard = () => {
     const [submit, setSubmit] = useState(false)
 
     useEffect(() => {
-        if(selectedCurrencies){
-            console.log('check' ,selectedCurrencies);
-        }
-    }, [selectedCurrencies])
-
-    useEffect(() => {
         if(submit && inputs){
-            console.log(inputs);
             localForage.getItem('selectedCurrencies').then(data => {
                 if(data.filter(e => e.name === inputs).length > 0) return
 
@@ -30,7 +25,6 @@ const Dashboard = () => {
                     assets : [],
                     totals: {}
                 }
-
                 data.push(object);
                 localForage.setItem('selectedCurrencies', data).then(data => {
                     dispatch({
@@ -61,6 +55,25 @@ const Dashboard = () => {
         event.target.reset();
     };
 
+    const handleRemoveCurrency = (selectedCurrency) => {
+        localForage.getItem('selectedCurrencies').then(data => {
+            data = data.filter( item => !_.isEqual(item, selectedCurrency));
+            localForage.setItem('selectedCurrencies', data).then((data => {
+                dispatch({
+                    type: "SET_SELECTED_CURRENCIES",
+                    payload: data
+                });
+            })).catch(function(err) {
+                // This code runs if there were any errors
+                console.log(err)
+                dispatch({
+                    type: "SET_ERROR",
+                    payload: err
+                });
+            });
+        });   
+    }
+
     return (
         <>
             <form onSubmit={handleSubmit}>
@@ -76,7 +89,11 @@ const Dashboard = () => {
             </form>
             {selectedCurrencies && selectedCurrencies.map((selectedCurrency, index ) => {
                 return (
-                    <div key={index}>{selectedCurrency.name} <LinkButton to={selectedCurrency.name}>+</LinkButton></div>
+                    <div key={index}>
+                        {selectedCurrency.name} 
+                        <LinkButton to={selectedCurrency.name}>+</LinkButton>
+                        <Button onClick={() => handleRemoveCurrency(selectedCurrency)}>-</Button>
+                    </div>
                 )
             })}
 
