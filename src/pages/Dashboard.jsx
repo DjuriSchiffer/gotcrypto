@@ -9,25 +9,27 @@ import DashboardTableHead from "../components/DashboardTableHead";
 import { PercentageFormat, CurrencyFormat} from '../utils/CalculateHelpers';
 import _ from "lodash"
 import totals from "../utils/totals";
+import Select from 'react-select'
 
 const Dashboard = () => {
     const { currencies, selectedCurrencies } = useGlobalState();
     const dispatch = useDispatch();
-    const [inputs, setInputs] = useState({});
-    const [submit, setSubmit] = useState(false)
+    const [input, setInput] = useState({});
+    const [submit, setSubmit] = useState(false);
+    const [options, setOptions] = useState([]);
 
     useEffect(() => {
-        if(submit && inputs){
+        if(submit && input){
             localForage.getItem('selectedCurrencies').then(data => {
-                if(data.filter(item => item.name === inputs).length > 0) return;
+                if(data.filter(item => item.name === input).length > 0) return;
                 const currIndex = currencies.findIndex((item) => {
-                    if(item && item.name === inputs) {
+                    if(item && item.name === input) {
                         return item
                     }
                 });
 
                 const object = {
-                    name: inputs,
+                    name: input,
                     index: currIndex,
                     assets : [],
                     totals: totals([], currencies[currIndex])
@@ -49,10 +51,31 @@ const Dashboard = () => {
             })
         }
         setSubmit(false);
-    }, [submit, inputs])
+    }, [submit, input]);
+
+    useEffect(() => {
+        if(currencies !== null && selectedCurrencies !== null){
+            let optionsArr = [];
+            currencies.map((currency, i) => {
+                let isDisabled = false;
+                selectedCurrencies.forEach(element => {
+                    if(element.name === currency.name){
+                        isDisabled =  true;
+                    } 
+                });
+
+                optionsArr.push({
+                    value: currency.name,
+                    label: currency.slug,
+                    disabled: isDisabled
+                });
+            });
+            setOptions(optionsArr);
+        }
+    }, [currencies, selectedCurrencies]);
 
     const handleChange = (event) => {
-        setInputs(event.target.value);
+        setInput(event.value);
     };
 
     const handleSubmit = (event) => {
@@ -78,20 +101,13 @@ const Dashboard = () => {
                     payload: err
                 });
             });
-        });   
+        });  
     }
 
     return (
         <>
             <form onSubmit={handleSubmit}>
-                <select onChange={handleChange}>
-                    <option value="" key="0">Select currency:</option>  
-                    {currencies && currencies.map( (currency, i) => {
-                        return (
-                            <option value={currency.name} key={i}>{currency.slug}</option>
-                        )
-                    })}
-                </select>
+                <Select onChange={handleChange} options={options} isOptionDisabled={(option) => option.disabled}/>                    
                 <input className="bg-green-800 p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
             </form>
             {currencies && selectedCurrencies && selectedCurrencies.map((selectedCurrency, index ) => {
