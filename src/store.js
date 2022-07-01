@@ -1,7 +1,7 @@
 export const initialStore = {
-    assets: null,
     currencies: null,
-    error: false
+    error: false,
+    selectedCurrencies: []
 };
 
 export const reducer = (state, action) => {
@@ -12,11 +12,11 @@ export const reducer = (state, action) => {
         case "SET_INITIAL_CURRENCIES":
             return { ...state, currencies: action.payload };
 
+        /*
+        * Initial selected currencies
+        */
         case "SET_SELECTED_CURRENCIES":
             return { ...state, selectedCurrencies: action.payload };
-
-        case "SET_ASSETS":
-            return { ...state, assets: action.payload };
 
         /*
          * Initial error handling
