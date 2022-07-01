@@ -54,7 +54,7 @@ const Dashboard = () => {
     }, [submit, input]);
 
     useEffect(() => {
-        if(currencies !== null && selectedCurrencies !== null){
+        if(currencies !== null && selectedCurrencies){
             let optionsArr = [];
             currencies.map((currency, i) => {
                 let isDisabled = false;
@@ -81,7 +81,6 @@ const Dashboard = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
         setSubmit(true);
-
         event.target.reset();
     };
 
