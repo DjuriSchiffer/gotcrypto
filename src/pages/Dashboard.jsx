@@ -7,7 +7,7 @@ import Button from "../components/Button";
 import DashboardTableCell from "../components/DashboardTableCell";
 import DashboardTableHead from "../components/DashboardTableHead";
 import { PercentageFormat, CurrencyFormat} from '../utils/CalculateHelpers';
-import _ from "lodash"
+import isEqual from "lodash.isequal"
 import totals from "../utils/totals";
 import Select from 'react-select'
 
@@ -88,7 +88,7 @@ const Dashboard = () => {
 
     const handleRemoveCurrency = (selectedCurrency) => {
         localForage.getItem('selectedCurrencies').then(data => {
-            data = data.filter( item => !_.isEqual(item, selectedCurrency));
+            data = data.filter( item => !isEqual(item, selectedCurrency));
             localForage.setItem('selectedCurrencies', data).then((data => {
                 dispatch({
                     type: "SET_SELECTED_CURRENCIES",
@@ -177,7 +177,6 @@ const Dashboard = () => {
                 </DashboardTableHead>
                 <tbody>
                 {currencies && selectedCurrencies && selectedCurrencies.map((selectedCurrency, index ) => {
-                    console.log(index);
                 return ( 
                     <tr key={index}>
                         <DashboardTableCell>{selectedCurrency.label}</DashboardTableCell>
@@ -197,8 +196,8 @@ const Dashboard = () => {
                                 </div>
                             }
                         </DashboardTableCell>
-                        <DashboardTableCell>
-                            <LinkButton to={selectedCurrency.name}>+</LinkButton>
+                        <DashboardTableCell align={"right"}>
+                            <LinkButton to={selectedCurrency.name}>Add assets</LinkButton>
                             {index > 0 && <Button onClick={() => handleOrderCurrencyUp(selectedCurrency)}>Up</Button> }
                             {index + 1 < selectedCurrencies.length && <Button onClick={() => handleOrderCurrencyDown(selectedCurrency)}>Down</Button> } 
                             <Button onClick={() => handleRemoveCurrency(selectedCurrency)}>Remove Currency</Button>

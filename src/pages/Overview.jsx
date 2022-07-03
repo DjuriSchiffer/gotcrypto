@@ -9,7 +9,7 @@ import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
 import { useParams } from 'react-router-dom';
 import totals from "../utils/totals"
-import _ from "lodash"
+import uniqueId from "lodash.uniqueid"
 
 const Overview = () => {
     const { currencies } = useGlobalState();
@@ -88,7 +88,7 @@ const Overview = () => {
         setInputs(values => ({
             ...values, 
             [name]: name === 'date' ? new Date(value) : value,
-            id : _.uniqueId()
+            id : uniqueId()
         }))
     };
 

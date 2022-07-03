@@ -1,6 +1,10 @@
-const DashboardTableCell = ({children}) => {
+import classNames from 'classnames';
+
+const DashboardTableCell = ({children, align = "left"}) => {
     return (
-        <td className="py-2">{children}</td>
+        <td className={classNames('py-2', {
+            'text-right' : align !== 'left'
+        })} >{children}</td>
     )
 }
 
