@@ -45,10 +45,8 @@ const Dashboard = () => {
                         payload: data
                     });
                 });
-
-                setSubmit(false);
                 selectInputRef.current.setValue(defaultValue);
-                
+        
             }).catch(function(err) {
                 // This code runs if there were any errors
                 dispatch({
@@ -57,6 +55,8 @@ const Dashboard = () => {
                 });
             })
         }
+        setSubmit(false);
+
     }, [submit, input]);
 
     useEffect(() => {
@@ -105,52 +105,109 @@ const Dashboard = () => {
         });  
     }
 
+    const handleOrderCurrencyUp = (selectedCurrency) => {
+        localForage.getItem('selectedCurrencies').then(data => {
+            const currIndex = data.findIndex((item) => {
+                if(item && item.name === selectedCurrency.name) {
+                    return item
+                }
+            });
+            const toIndex = currIndex - 1;
+            const element = data.splice(currIndex, 1)[0];
+            data.splice(toIndex, 0, element);
+
+            localForage.setItem('selectedCurrencies', data).then((data => {
+                dispatch({
+                    type: "SET_SELECTED_CURRENCIES",
+                    payload: data
+                });
+            })).catch(function(err) {
+                // This code runs if there were any errors
+                console.log(err)
+                dispatch({
+                    type: "SET_ERROR",
+                    payload: err
+                });
+            });
+        });
+    }
+
+    const handleOrderCurrencyDown = (selectedCurrency) => {
+        localForage.getItem('selectedCurrencies').then(data => {
+            const currIndex = data.findIndex((item) => {
+                if(item && item.name === selectedCurrency.name) {
+                    return item
+                }
+            });
+            const toIndex = currIndex + 1;
+            const element = data.splice(currIndex, 1)[0];
+            data.splice(toIndex, 0, element);
+
+            localForage.setItem('selectedCurrencies', data).then((data => {
+                dispatch({
+                    type: "SET_SELECTED_CURRENCIES",
+                    payload: data
+                });
+            })).catch(function(err) {
+                // This code runs if there were any errors
+                console.log(err)
+                dispatch({
+                    type: "SET_ERROR",
+                    payload: err
+                });
+            });
+        });
+    }
+
     return (
         <>
             <form onSubmit={handleSubmit}>
                 <Select ref={selectInputRef} setValue={input} defaultValue={defaultValue} onChange={setInput} options={options} isOptionDisabled={(option) => option.disabled}/>                    
                 <input className="bg-green-800 p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
             </form>
-            {currencies && selectedCurrencies && selectedCurrencies.map((selectedCurrency, index ) => {
-                return (
-                    <table key={index} className="container mx-auto bg-gray-200 shadow border p-8 m-10" >
-                        <DashboardTableHead>
-                            <tr>
-                                <th className="text-left py-2">Name</th>
-                                <th className="text-left py-2">Current Price</th>
-                                <th className="text-left py-2">Holdings</th>
-                                <th className="text-left py-2">Profit/loss</th>
-                                <th className="text-right py-2">Actions</th>     
-                            </tr>   
-                        </DashboardTableHead>
-                        <tbody>
-                            <tr>
-                                <DashboardTableCell>{selectedCurrency.label}</DashboardTableCell>
-                                <DashboardTableCell>{CurrencyFormat(currencies[selectedCurrency.index].price)}</DashboardTableCell>
-                                <DashboardTableCell>
-                                    {selectedCurrency.totals &&
-                                        <div className="flex">
-                                            {CurrencyFormat(selectedCurrency.totals.totalValue)}
-                                            {selectedCurrency.totals.totalAmount}
-                                        </div>
-                                    }
-                                </DashboardTableCell>
-                                <DashboardTableCell>
-                                    {selectedCurrency.totals &&
-                                        <div className="flex">
-                                            {PercentageFormat(selectedCurrency.totals.totalPercentageDifference)}
-                                        </div>
-                                    }
-                                </DashboardTableCell>
-                                <DashboardTableCell>
-                                    <LinkButton to={selectedCurrency.name}>+</LinkButton>
-                                    <Button onClick={() => handleRemoveCurrency(selectedCurrency)}>-</Button>
-                                </DashboardTableCell>
-                            </tr>
-                        </tbody>
-                    </table>
-                )
-            })}
+            <table className="container mx-auto bg-gray-200 shadow border p-8 m-10" >
+                <DashboardTableHead>
+                    <tr>
+                        <th className="text-left py-2">Name</th>
+                        <th className="text-left py-2">Current Price</th>
+                        <th className="text-left py-2">Holdings</th>
+                        <th className="text-left py-2">Profit/loss</th>
+                        <th className="text-right py-2">Actions</th>     
+                    </tr>   
+                </DashboardTableHead>
+                <tbody>
+                {currencies && selectedCurrencies && selectedCurrencies.map((selectedCurrency, index ) => {
+                    console.log(index);
+                return ( 
+                    <tr key={index}>
+                        <DashboardTableCell>{selectedCurrency.label}</DashboardTableCell>
+                        <DashboardTableCell>{CurrencyFormat(currencies[selectedCurrency.index].price)}</DashboardTableCell>
+                        <DashboardTableCell>
+                            {selectedCurrency.totals &&
+                                <div className="flex">
+                                    {CurrencyFormat(selectedCurrency.totals.totalValue)}
+                                    {selectedCurrency.totals.totalAmount}
+                                </div>
+                            }
+                        </DashboardTableCell>
+                        <DashboardTableCell>
+                            {selectedCurrency.totals &&
+                                <div className="flex">
+                                    {PercentageFormat(selectedCurrency.totals.totalPercentageDifference)}
+                                </div>
+                            }
+                        </DashboardTableCell>
+                        <DashboardTableCell>
+                            <LinkButton to={selectedCurrency.name}>+</LinkButton>
+                            {index > 0 && <Button onClick={() => handleOrderCurrencyUp(selectedCurrency)}>Up</Button> }
+                            {index + 1 < selectedCurrencies.length && <Button onClick={() => handleOrderCurrencyDown(selectedCurrency)}>Down</Button> } 
+                            <Button onClick={() => handleRemoveCurrency(selectedCurrency)}>Remove Currency</Button>
+                        </DashboardTableCell>
+                    </tr>
+                    )
+                })}
+                </tbody>
+            </table>
         </>
     );
 };
