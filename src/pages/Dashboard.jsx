@@ -1,5 +1,5 @@
 import {useState as useGlobalState} from "../hooks/useReducer";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
 import LinkButton from "../components/LinkButton";
@@ -17,19 +17,23 @@ const Dashboard = () => {
     const [input, setInput] = useState({});
     const [submit, setSubmit] = useState(false);
     const [options, setOptions] = useState([]);
+    const defaultValue = {
+        label: "Select currency", value: null
+    }
+    const selectInputRef = useRef();
 
     useEffect(() => {
-        if(submit && input){
+        if(submit && input && input.value !== null){
             localForage.getItem('selectedCurrencies').then(data => {
-                if(data.filter(item => item.name === input).length > 0) return;
+                if(data.filter(item => item.name === input.value).length > 0) return;
                 const currIndex = currencies.findIndex((item) => {
-                    if(item && item.name === input) {
+                    if(item && item.name === input.value) {
                         return item
                     }
                 });
-
                 const object = {
-                    name: input,
+                    name: input.value,
+                    label: input.label,
                     index: currIndex,
                     assets : [],
                     totals: totals([], currencies[currIndex])
@@ -41,6 +45,9 @@ const Dashboard = () => {
                         payload: data
                     });
                 });
+
+                setSubmit(false);
+                selectInputRef.current.setValue(defaultValue);
                 
             }).catch(function(err) {
                 // This code runs if there were any errors
@@ -50,7 +57,6 @@ const Dashboard = () => {
                 });
             })
         }
-        setSubmit(false);
     }, [submit, input]);
 
     useEffect(() => {
@@ -74,14 +80,10 @@ const Dashboard = () => {
         }
     }, [currencies, selectedCurrencies]);
 
-    const handleChange = (event) => {
-        setInput(event.value);
-    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
         setSubmit(true);
-        event.target.reset();
     };
 
     const handleRemoveCurrency = (selectedCurrency) => {
@@ -106,7 +108,7 @@ const Dashboard = () => {
     return (
         <>
             <form onSubmit={handleSubmit}>
-                <Select onChange={handleChange} options={options} isOptionDisabled={(option) => option.disabled}/>                    
+                <Select ref={selectInputRef} setValue={input} defaultValue={defaultValue} onChange={setInput} options={options} isOptionDisabled={(option) => option.disabled}/>                    
                 <input className="bg-green-800 p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
             </form>
             {currencies && selectedCurrencies && selectedCurrencies.map((selectedCurrency, index ) => {
@@ -123,7 +125,7 @@ const Dashboard = () => {
                         </DashboardTableHead>
                         <tbody>
                             <tr>
-                                <DashboardTableCell>{selectedCurrency.name}</DashboardTableCell>
+                                <DashboardTableCell>{selectedCurrency.label}</DashboardTableCell>
                                 <DashboardTableCell>{CurrencyFormat(currencies[selectedCurrency.index].price)}</DashboardTableCell>
                                 <DashboardTableCell>
                                     {selectedCurrency.totals &&
