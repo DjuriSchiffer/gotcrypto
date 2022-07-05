@@ -8,11 +8,12 @@ import DashboardTableCell from "../components/DashboardTableCell";
 import DashboardTableHead from "../components/DashboardTableHead";
 import { PercentageFormat, CurrencyFormat} from '../utils/CalculateHelpers';
 import isEqual from "lodash.isequal"
-import totals from "../utils/totals";
+import totals, { getGlobalTotals  } from "../utils/totals";
 import Select from 'react-select'
 
+
 const Dashboard = () => {
-    const { currencies, selectedCurrencies } = useGlobalState();
+    const { currencies, selectedCurrencies, globalTotals } = useGlobalState();
     const dispatch = useDispatch();
     const [input, setInput] = useState({});
     const [submit, setSubmit] = useState(false);
@@ -21,6 +22,13 @@ const Dashboard = () => {
         label: "Select currency", value: null
     }
     const selectInputRef = useRef();
+
+    useEffect(() => {
+        dispatch({
+            type: "SET_GLOBAL_TOTALS",
+            payload: getGlobalTotals(selectedCurrencies)
+        });
+    }, [selectedCurrencies, dispatch])
 
     useEffect(() => {
         if(submit && input && input.value !== null){
@@ -161,10 +169,13 @@ const Dashboard = () => {
 
     return (
         <>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="container mx-auto bg-gray-200 shadow border p-8 m-10">
                 <Select ref={selectInputRef} setValue={input} defaultValue={defaultValue} onChange={setInput} options={options} isOptionDisabled={(option) => option.disabled}/>                    
                 <input className="bg-green-800 p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
             </form>
+            {globalTotals && 
+                <div className="container mx-auto bg-gray-200 shadow border p-8 m-10">{globalTotals.totalValue} {globalTotals.totalPercentageDifference}</div>
+            }
             <table className="container mx-auto bg-gray-200 shadow border p-8 m-10" >
                 <DashboardTableHead>
                     <tr>

@@ -6,7 +6,6 @@ import ReducerProvider, { useDispatch } from "./hooks/useReducer";
 import Overview from "./pages/Overview";
 import Dashboard from "./pages/Dashboard";
 import Error from "./components/Error";
-import totals from "./utils/totals"
 
 const Bootstrap = () => {
     const currenciesQuery = getCurrencies();

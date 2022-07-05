@@ -16,4 +16,17 @@ const totals = (assets = [], currentCurrency = {}) => {
     }
 }
 
+export const getGlobalTotals = (assets = []) => {
+    const totalValue = assets.reduce((acc, asset) => acc + parseInt(asset.totals.totalValue), 0);
+    const totalPurchasePrice = assets.reduce((acc, asset) => acc + parseInt(asset.totals.totalPurchasePrice), 0);
+    const totalPercentageDifference = PercentageDifference(totalPurchasePrice, totalValue);
+
+    return {
+        totalValue : assets.length > 0 ? totalValue : 0,
+        totalPurchasePrice: assets.length > 0 ? totalPurchasePrice : 0,
+        totalPercentageDifference: assets.length > 0 ? totalPercentageDifference : 0
+    }
+
+}
+
 export default totals;
