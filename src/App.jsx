@@ -27,7 +27,8 @@ const Bootstrap = () => {
                         currenciesArr[item.cmc_rank] = {
                             name: item.slug,
                             price: parseFloat(item.quote.USD.price.toFixed(2)),
-                            slug: item.name
+                            slug: item.name,
+                            cmc_id: item.id    
                         };
                     })
                     dispatch({

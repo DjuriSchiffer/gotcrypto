@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from "react";
 import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
 import LinkButton from "../components/LinkButton";
+import IconButton from "../components/IconButton";
+import Icon from "../components/Icon";
 import Button from "../components/Button";
 import DashboardTableCell from "../components/DashboardTableCell";
 import DashboardTableHead from "../components/DashboardTableHead";
@@ -10,7 +12,6 @@ import { PercentageFormat, CurrencyFormat} from '../utils/CalculateHelpers';
 import isEqual from "lodash.isequal"
 import totals, { getGlobalTotals  } from "../utils/totals";
 import Select from 'react-select'
-
 
 const Dashboard = () => {
     const { currencies, selectedCurrencies, globalTotals } = useGlobalState();
@@ -81,6 +82,7 @@ const Dashboard = () => {
                 optionsArr.push({
                     value: currency.name,
                     label: currency.slug,
+                    image: `https://s2.coinmarketcap.com/static/img/coins/32x32/${currency.cmc_id}.png`,
                     disabled: isDisabled
                 });
             });
@@ -170,11 +172,16 @@ const Dashboard = () => {
     return (
         <>
             <form onSubmit={handleSubmit} className="container mx-auto bg-gray-200 shadow border p-8 m-10">
-                <Select ref={selectInputRef} setValue={input} defaultValue={defaultValue} onChange={setInput} options={options} isOptionDisabled={(option) => option.disabled}/>                    
+                <Select ref={selectInputRef} setValue={input} defaultValue={defaultValue} onChange={setInput} options={options} isOptionDisabled={(option) => option.disabled} formatOptionLabel={item => (
+                    <div>
+                    <img width={32} height={32} src={item.image}/>
+                    <span>{item.label}</span>
+                    </div>
+            )}/>                    
                 <input className="bg-green-800 p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
             </form>
             {globalTotals && 
-                <div className="container mx-auto bg-gray-200 shadow border p-8 m-10">{globalTotals.totalValue} {globalTotals.totalPercentageDifference}</div>
+                <div className="container mx-auto bg-gray-200 shadow border p-8 m-10">{CurrencyFormat(globalTotals.totalValue)} {PercentageFormat(globalTotals.totalPercentageDifference)}</div>
             }
             <table className="container mx-auto bg-gray-200 shadow border p-8 m-10" >
                 <DashboardTableHead>
@@ -190,7 +197,7 @@ const Dashboard = () => {
                 {currencies && selectedCurrencies && selectedCurrencies.map((selectedCurrency, index ) => {
                 return ( 
                     <tr key={index}>
-                        <DashboardTableCell>{selectedCurrency.label}</DashboardTableCell>
+                        <DashboardTableCell><img width={32} height={32} src={`https://s2.coinmarketcap.com/static/img/coins/32x32/${currencies[selectedCurrency.index].cmc_id}.png`} /> {selectedCurrency.label}</DashboardTableCell>
                         <DashboardTableCell>{CurrencyFormat(currencies[selectedCurrency.index].price)}</DashboardTableCell>
                         <DashboardTableCell>
                             {selectedCurrency.totals &&
@@ -209,8 +216,8 @@ const Dashboard = () => {
                         </DashboardTableCell>
                         <DashboardTableCell align={"right"}>
                             <LinkButton to={selectedCurrency.name}>Add assets</LinkButton>
-                            {index > 0 && <Button onClick={() => handleOrderCurrencyUp(selectedCurrency)}>Up</Button> }
-                            {index + 1 < selectedCurrencies.length && <Button onClick={() => handleOrderCurrencyDown(selectedCurrency)}>Down</Button> } 
+                            {index > 0 && <IconButton onClick={() => handleOrderCurrencyUp(selectedCurrency)}><Icon id="Up" /></IconButton> }
+                            {index + 1 < selectedCurrencies.length && <IconButton onClick={() => handleOrderCurrencyDown(selectedCurrency)}><Icon id="Down" /></IconButton> } 
                             <Button onClick={() => handleRemoveCurrency(selectedCurrency)}>Remove Currency</Button>
                         </DashboardTableCell>
                     </tr>
