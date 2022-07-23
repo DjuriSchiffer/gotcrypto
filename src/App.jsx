@@ -24,7 +24,7 @@ const Bootstrap = () => {
                     let currenciesArr = [];
 
                     data.data.map((item) => {
-                        currenciesArr[item.cmc_rank] = {
+                        currenciesArr[item.id] = {
                             name: item.slug,
                             price: parseFloat(item.quote.USD.price.toFixed(2)),
                             slug: item.name,

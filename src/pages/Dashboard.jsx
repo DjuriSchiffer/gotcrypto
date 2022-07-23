@@ -173,9 +173,11 @@ const Dashboard = () => {
         <>
             <form onSubmit={handleSubmit} className="container mx-auto bg-gray-200 shadow border p-8 m-10">
                 <Select ref={selectInputRef} setValue={input} defaultValue={defaultValue} onChange={setInput} options={options} isOptionDisabled={(option) => option.disabled} formatOptionLabel={item => (
-                    <div>
-                    <img width={32} height={32} src={item.image}/>
-                    <span>{item.label}</span>
+                    <div className="flex">
+                        {item.image && 
+                            <img width={32} height={32} src={item.image}/>
+                        }
+                        <span>{item.label}</span>
                     </div>
             )}/>                    
                 <input className="bg-green-800 p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
@@ -197,7 +199,12 @@ const Dashboard = () => {
                 {currencies && selectedCurrencies && selectedCurrencies.map((selectedCurrency, index ) => {
                 return ( 
                     <tr key={index}>
-                        <DashboardTableCell><img width={32} height={32} src={`https://s2.coinmarketcap.com/static/img/coins/32x32/${currencies[selectedCurrency.index].cmc_id}.png`} /> {selectedCurrency.label}</DashboardTableCell>
+                        <DashboardTableCell>
+                            <div className="flex">
+                                <img width={32} height={32} src={`https://s2.coinmarketcap.com/static/img/coins/32x32/${currencies[selectedCurrency.index].cmc_id}.png`} /> 
+                                {selectedCurrency.label}
+                            </div>
+                        </DashboardTableCell>
                         <DashboardTableCell>{CurrencyFormat(currencies[selectedCurrency.index].price)}</DashboardTableCell>
                         <DashboardTableCell>
                             {selectedCurrency.totals &&
