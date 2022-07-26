@@ -1,12 +1,12 @@
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 
-const Icon = ({id}) => {
+const Icon = ({color, id}) => {
     switch (id) {
         case "Up":
-          return <FaArrowUp />;
+          return <FaArrowUp color={color} />;
           
         case "Down":
-        return <FaArrowDown />;
+        return <FaArrowDown color={color} />;
 
         default:
         return null;

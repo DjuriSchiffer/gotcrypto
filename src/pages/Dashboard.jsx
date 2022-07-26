@@ -170,8 +170,8 @@ const Dashboard = () => {
     }
 
     return (
-        <>
-            <form onSubmit={handleSubmit} className="container mx-auto bg-gray-200 shadow border p-8 m-10">
+        <div className="bg-gray-dark p-8 min-h-screen">
+            <form onSubmit={handleSubmit} className="container mx-auto shadow border">
                 <Select ref={selectInputRef} setValue={input} defaultValue={defaultValue} onChange={setInput} options={options} isOptionDisabled={(option) => option.disabled} formatOptionLabel={item => (
                     <div className="flex">
                         {item.image && 
@@ -180,19 +180,19 @@ const Dashboard = () => {
                         <span>{item.label}</span>
                     </div>
             )}/>                    
-                <input className="bg-green-800 p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
+                <input className="bg-green p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
             </form>
             {globalTotals && 
-                <div className="container mx-auto bg-gray-200 shadow border p-8 m-10">{CurrencyFormat(globalTotals.totalValue)} {PercentageFormat(globalTotals.totalPercentageDifference)}</div>
+                <div className="container mx-auto bg-gray-dark shadow border p-8 m-10">{CurrencyFormat(globalTotals.totalValue)} {PercentageFormat(globalTotals.totalPercentageDifference)}</div>
             }
-            <table className="container mx-auto bg-gray-200 shadow border p-8 m-10" >
+            <table className="container mx-auto bg-gray-dark shadow border p-8 m-10" >
                 <DashboardTableHead>
                     <tr>
-                        <th className="text-left py-2">Name</th>
-                        <th className="text-left py-2">Current Price</th>
-                        <th className="text-left py-2">Holdings</th>
-                        <th className="text-left py-2">Profit/loss</th>
-                        <th className="text-right py-2">Actions</th>     
+                        <th className="text-left py-2 px-5">Name</th>
+                        <th className="text-left py-2 px-5">Current Price</th>
+                        <th className="text-left py-2 px-5">Holdings</th>
+                        <th className="text-left py-2 px-5">Profit/loss</th>
+                        <th className="text-right py-2 px-5">Actions</th>     
                     </tr>   
                 </DashboardTableHead>
                 <tbody>
@@ -200,9 +200,9 @@ const Dashboard = () => {
                 return ( 
                     <tr key={index}>
                         <DashboardTableCell>
-                            <div className="flex">
+                            <div className="flex items-center">
                                 <img width={32} height={32} src={`https://s2.coinmarketcap.com/static/img/coins/32x32/${currencies[selectedCurrency.index].cmc_id}.png`} /> 
-                                {selectedCurrency.label}
+                                <div className="pl-2">{selectedCurrency.label}</div>
                             </div>
                         </DashboardTableCell>
                         <DashboardTableCell>{CurrencyFormat(currencies[selectedCurrency.index].price)}</DashboardTableCell>
@@ -223,8 +223,8 @@ const Dashboard = () => {
                         </DashboardTableCell>
                         <DashboardTableCell align={"right"}>
                             <LinkButton to={selectedCurrency.name}>Add assets</LinkButton>
-                            {index > 0 && <IconButton onClick={() => handleOrderCurrencyUp(selectedCurrency)}><Icon id="Up" /></IconButton> }
-                            {index + 1 < selectedCurrencies.length && <IconButton onClick={() => handleOrderCurrencyDown(selectedCurrency)}><Icon id="Down" /></IconButton> } 
+                            {index > 0 && <IconButton onClick={() => handleOrderCurrencyUp(selectedCurrency)}><Icon id="Up" color="white" /></IconButton> }
+                            {index + 1 < selectedCurrencies.length && <IconButton onClick={() => handleOrderCurrencyDown(selectedCurrency)}><Icon id="Down" color="white" /></IconButton> } 
                             <Button onClick={() => handleRemoveCurrency(selectedCurrency)}>Remove Currency</Button>
                         </DashboardTableCell>
                     </tr>
@@ -232,7 +232,7 @@ const Dashboard = () => {
                 })}
                 </tbody>
             </table>
-        </>
+        </div>
     );
 };
 
