@@ -1,6 +1,6 @@
-const OverviewHeader = ({onSubmit, children}) => {
+const OverviewHeader = ({onSubmit, children, className}) => {
     return (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} className={className} >
             {children}
         </form>
     )

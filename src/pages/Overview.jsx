@@ -10,6 +10,9 @@ import localForage from "localforage";
 import { useParams } from 'react-router-dom';
 import totals from "../utils/totals"
 import uniqueId from "lodash.uniqueid"
+import { CurrencyFormat } from "../utils/CalculateHelpers"
+import IconButton from "../components/IconButton";
+import Icon from "../components/Icon"
 
 const Overview = () => {
     const { currencies } = useGlobalState();
@@ -122,29 +125,44 @@ const Overview = () => {
     }, [overviewSlug]);
 
     return (
-        <div className="container mx-auto bg-gray-200 rounded-xl shadow border p-8 m-10">
-            <OverviewHeader onSubmit={handleSubmit}>
-                <LinkButton to="/">Return to dashboard</LinkButton>
+        <div className="bg-gray-dark p-8 min-h-screen">
+            <div className="container mx-auto">
+                <div className="mb-5">
+                    <LinkButton to="/">Return to dashboard</LinkButton>
+                </div>
                 {currentCurrency && 
-                    <div>{currentCurrency.name} {currentCurrency.price}</div>
+                    <div>
+                        <div className="text-4xl flex mb-1 items-center">
+                            <img className="inline-block mr-2" width={32} height={32} src={`https://s2.coinmarketcap.com/static/img/coins/32x32/${currentCurrency.cmc_id}.png`} />
+                            {currentCurrency.name}
+                        </div>
+                        <div className='text-xl'>
+                            {CurrencyFormat(currentCurrency.price)}
+                            <span className='text-sm ml-1'>current price</span>
+                        </div>
+                    </div>
                 }
-                <input name="amount" type="number" placeholder="amount" onChange={handleChange} required/>
-                <input name="purchasePrice" type="number" placeholder="purchase price" onChange={handleChange}
-                       required/>
-                <input name="date" type="date" placeholder="date" onChange={handleChange} required/>
-                <input className="bg-green-800 p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
                 <Button onClick={() => handleRemoveAllAssets(overviewSlug)}>Remove all assets</Button>
-            </OverviewHeader>
-            {currentCurrency && currentSelectedCurrency && currentSelectedCurrency?.assets && currentSelectedCurrency.assets.map((asset, index) => {
-                return (
-                    <OverviewRow key={index} asset={asset} currentCurrency={currentCurrency}>
-                        <Button onClick={() => handleRemoveAsset(asset)}>Remove asset</Button>
-                    </OverviewRow>
-                )
-            })}
-            {currentCurrency && currentSelectedCurrency && currentSelectedCurrency?.totals &&
-                <OverviewTotals totals={currentSelectedCurrency.totals} currentCurrency={currentCurrency}/>
-            }
+            </div>
+            <div className="container mx-auto m-10">
+                <OverviewHeader onSubmit={handleSubmit} className={"flex flex-col bg-red p-2"}>   
+                    <input className="text-black mb-2"  name="amount" type="number" placeholder="amount" onChange={handleChange} required/>
+                    <input className="text-black mb-2"  name="purchasePrice" type="number" placeholder="purchase price" onChange={handleChange}
+                        required/>
+                    <input className="text-black mb-2" name="date" type="date" placeholder="date" onChange={handleChange} required/>
+                    <input className="bg-green p-2 rounded-md" type="submit" value="add asset"/>
+                </OverviewHeader>
+                {currentCurrency && currentSelectedCurrency && currentSelectedCurrency?.assets && currentSelectedCurrency.assets.map((asset, index) => {
+                    return (
+                        <OverviewRow key={index} asset={asset} currentCurrency={currentCurrency}>
+                            <IconButton id="action" onClick={() => handleRemoveAsset(asset)}><Icon id="Remove" color="white" /></IconButton> 
+                        </OverviewRow>
+                    )
+                })}
+                {currentCurrency && currentSelectedCurrency && currentSelectedCurrency?.totals &&
+                    <OverviewTotals totals={currentSelectedCurrency.totals} currentCurrency={currentCurrency}/>
+                }
+            </div>
         </div>
     );
 };
