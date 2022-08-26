@@ -7,7 +7,8 @@ import Icon from "../components/Icon";
 import DashboardTableCell from "../components/DashboardTableCell";
 import DashboardTableHead from "../components/DashboardTableHead";
 import { PercentageFormat, CurrencyFormat} from '../utils/CalculateHelpers';
-import isEqual from "lodash.isequal"
+import isEqual from "lodash.isequal";
+import isEmpty  from "lodash.isempty";
 import totals, { getGlobalTotals  } from "../utils/totals";
 import Select from 'react-select';
 import classNames from 'classnames';
@@ -168,6 +169,22 @@ const Dashboard = () => {
         });
     }
 
+    const form = (className) => {
+        return (
+            <form onSubmit={handleSubmit} className={className}>
+                    <Select ref={selectInputRef} setValue={input} defaultValue={defaultValue} onChange={setInput} options={options} isOptionDisabled={(option) => option.disabled} formatOptionLabel={item => (
+                        <div className="flex items-center">
+                            {item.image && 
+                                <img width={32} height={32} src={item.image}/>
+                            }
+                            <span className="text-black ml-2">{item.label}</span>
+                        </div>
+                )}/>                    
+                    <input className="bg-green p-2 rounded-md shadow text-white ml-2 disabled:bg-gray-light" type="submit" value="add new" disabled={!input.value}/>
+                </form>
+        )
+    }
+
     return (
         <div className="bg-gray-dark p-8 min-h-screen">
             <div className="container mx-auto bg-gray-dark shadow m-10 flex items-center">
@@ -181,21 +198,11 @@ const Dashboard = () => {
                                 {PercentageFormat(globalTotals.totalPercentageDifference)}
                     </div>
                 </div>
-                     
             }
-            <form onSubmit={handleSubmit} className="flex ml-auto">
-                <Select ref={selectInputRef} setValue={input} defaultValue={defaultValue} onChange={setInput} options={options} isOptionDisabled={(option) => option.disabled} formatOptionLabel={item => (
-                    <div className="flex items-center">
-                        {item.image && 
-                            <img width={32} height={32} src={item.image}/>
-                        }
-                        <span className="text-black ml-2">{item.label}</span>
-                    </div>
-            )}/>                    
-                <input className="bg-green p-2 rounded-md shadow text-white ml-2" type="submit" value="add new"/>
-            </form>
+            {!isEmpty(selectedCurrencies) && form('flex ml-auto')}    
             </div>
-            <table className="container mx-auto bg-gray-dark shadow border p-8 m-10" >
+            {!isEmpty(selectedCurrencies) && 
+                <table className="container mx-auto bg-gray-dark shadow border p-8 m-10" >
                 <DashboardTableHead>
                     <tr>
                         <th className="text-left py-2 pl-3">Name</th>
@@ -249,6 +256,13 @@ const Dashboard = () => {
                 })}
                 </tbody>
             </table>
+            }
+            {isEmpty(selectedCurrencies) && 
+                <div className="container mx-auto flex flex-col items-center">
+                    <span className="mb-2">No currencies selected yet</span>
+                    { form('flex') }
+                </div>
+            }
         </div>
     );
 };
