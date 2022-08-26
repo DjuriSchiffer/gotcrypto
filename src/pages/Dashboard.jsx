@@ -2,10 +2,8 @@ import {useState as useGlobalState} from "../hooks/useReducer";
 import { useEffect, useState, useRef } from "react";
 import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
-import LinkButton from "../components/LinkButton";
 import IconButton from "../components/IconButton";
 import Icon from "../components/Icon";
-import Button from "../components/Button";
 import DashboardTableCell from "../components/DashboardTableCell";
 import DashboardTableHead from "../components/DashboardTableHead";
 import { PercentageFormat, CurrencyFormat} from '../utils/CalculateHelpers';
@@ -172,20 +170,31 @@ const Dashboard = () => {
 
     return (
         <div className="bg-gray-dark p-8 min-h-screen">
+            <div className="container mx-auto bg-gray-dark shadow m-10 flex items-center">
             {globalTotals && 
-                <div className="container mx-auto bg-gray-dark shadow border p-8 m-10">{CurrencyFormat(globalTotals.totalValue)} {PercentageFormat(globalTotals.totalPercentageDifference)}</div>
+                <div>
+                    <div className="text-4xl">{CurrencyFormat(globalTotals.totalValue)}</div>
+                    <div className={classNames('text-xl', {
+                                'text-green' : globalTotals.totalPercentageDifference  > 0,
+                                'text-red' : globalTotals.totalPercentageDifference  < 0,
+                            })}>
+                                {PercentageFormat(globalTotals.totalPercentageDifference)}
+                    </div>
+                </div>
+                     
             }
-            <form onSubmit={handleSubmit} className="container mx-auto shadow flex">
+            <form onSubmit={handleSubmit} className="flex ml-auto">
                 <Select ref={selectInputRef} setValue={input} defaultValue={defaultValue} onChange={setInput} options={options} isOptionDisabled={(option) => option.disabled} formatOptionLabel={item => (
-                    <div className="flex">
+                    <div className="flex items-center">
                         {item.image && 
                             <img width={32} height={32} src={item.image}/>
                         }
-                        <span>{item.label}</span>
+                        <span className="text-black ml-2">{item.label}</span>
                     </div>
             )}/>                    
-                <input className="bg-green p-2 rounded-md shadow text-white" type="submit" value="add new"/>
+                <input className="bg-green p-2 rounded-md shadow text-white ml-2" type="submit" value="add new"/>
             </form>
+            </div>
             <table className="container mx-auto bg-gray-dark shadow border p-8 m-10" >
                 <DashboardTableHead>
                     <tr>
@@ -230,9 +239,9 @@ const Dashboard = () => {
                             }
                         </DashboardTableCell>
                         <DashboardTableCell align={"right"} position={"last"}>
-                            <IconButton id="link" to={selectedCurrency.name}><Icon id="Edit" color="white" /></IconButton>
                             {index > 0 && <IconButton id="action" onClick={() => handleOrderCurrencyUp(selectedCurrency)}><Icon id="Up" color="white" /></IconButton> }
                             {index + 1 < selectedCurrencies.length && <IconButton onClick={() => handleOrderCurrencyDown(selectedCurrency)}><Icon id="Down" color="white" /></IconButton> } 
+                            <IconButton id="link" to={selectedCurrency.name}><Icon id="Edit" color="white" /></IconButton>
                             <IconButton id="action" onClick={() => handleRemoveCurrency(selectedCurrency)}><Icon id="Remove" color="white" /></IconButton> 
                         </DashboardTableCell>
                     </tr>
