@@ -11,7 +11,8 @@ import DashboardTableHead from "../components/DashboardTableHead";
 import { PercentageFormat, CurrencyFormat} from '../utils/CalculateHelpers';
 import isEqual from "lodash.isequal"
 import totals, { getGlobalTotals  } from "../utils/totals";
-import Select from 'react-select'
+import Select from 'react-select';
+import classNames from 'classnames';
 
 const Dashboard = () => {
     const { currencies, selectedCurrencies, globalTotals } = useGlobalState();
@@ -171,7 +172,10 @@ const Dashboard = () => {
 
     return (
         <div className="bg-gray-dark p-8 min-h-screen">
-            <form onSubmit={handleSubmit} className="container mx-auto shadow border">
+            {globalTotals && 
+                <div className="container mx-auto bg-gray-dark shadow border p-8 m-10">{CurrencyFormat(globalTotals.totalValue)} {PercentageFormat(globalTotals.totalPercentageDifference)}</div>
+            }
+            <form onSubmit={handleSubmit} className="container mx-auto shadow flex">
                 <Select ref={selectInputRef} setValue={input} defaultValue={defaultValue} onChange={setInput} options={options} isOptionDisabled={(option) => option.disabled} formatOptionLabel={item => (
                     <div className="flex">
                         {item.image && 
@@ -180,26 +184,23 @@ const Dashboard = () => {
                         <span>{item.label}</span>
                     </div>
             )}/>                    
-                <input className="bg-green p-2 rounded-md shadow text-white" type="submit" value="add asset"/>
+                <input className="bg-green p-2 rounded-md shadow text-white" type="submit" value="add new"/>
             </form>
-            {globalTotals && 
-                <div className="container mx-auto bg-gray-dark shadow border p-8 m-10">{CurrencyFormat(globalTotals.totalValue)} {PercentageFormat(globalTotals.totalPercentageDifference)}</div>
-            }
             <table className="container mx-auto bg-gray-dark shadow border p-8 m-10" >
                 <DashboardTableHead>
                     <tr>
-                        <th className="text-left py-2 px-5">Name</th>
-                        <th className="text-left py-2 px-5">Current Price</th>
-                        <th className="text-left py-2 px-5">Holdings</th>
-                        <th className="text-left py-2 px-5">Profit/loss</th>
-                        <th className="text-right py-2 px-5">Actions</th>     
+                        <th className="text-left py-2 pl-4">Name</th>
+                        <th className="text-left py-2">Current Price</th>
+                        <th className="text-left py-2">Holdings</th>
+                        <th className="text-left py-2">Profit/loss</th>
+                        <th className="text-right py-2 pr-3">Actions</th>     
                     </tr>   
                 </DashboardTableHead>
                 <tbody>
                 {currencies && selectedCurrencies && selectedCurrencies.map((selectedCurrency, index ) => {
                 return ( 
                     <tr key={index}>
-                        <DashboardTableCell>
+                        <DashboardTableCell position={"first"}>
                             <div className="flex items-center">
                                 <img width={32} height={32} src={`https://s2.coinmarketcap.com/static/img/coins/32x32/${currencies[selectedCurrency.index].cmc_id}.png`} /> 
                                 <div className="pl-2">{selectedCurrency.label}</div>
@@ -208,24 +209,31 @@ const Dashboard = () => {
                         <DashboardTableCell>{CurrencyFormat(currencies[selectedCurrency.index].price)}</DashboardTableCell>
                         <DashboardTableCell>
                             {selectedCurrency.totals &&
-                                <div className="flex">
-                                    {CurrencyFormat(selectedCurrency.totals.totalValue)}
-                                    {selectedCurrency.totals.totalAmount}
+                                <div className="flex flex-col">
+                                    <div>
+                                        {CurrencyFormat(selectedCurrency.totals.totalValue)}
+                                    </div>  
+                                    <div className="text-sm">
+                                        {selectedCurrency.totals.totalAmount}
+                                    </div>  
                                 </div>
                             }
                         </DashboardTableCell>
                         <DashboardTableCell>
                             {selectedCurrency.totals &&
-                                <div className="flex">
+                                <div className={classNames('flex', {
+                                'text-green' : selectedCurrency.totals.totalPercentageDifference  > 0,
+                                'text-red' : selectedCurrency.totals.totalPercentageDifference  < 0,
+                            })} >
                                     {PercentageFormat(selectedCurrency.totals.totalPercentageDifference)}
                                 </div>
                             }
                         </DashboardTableCell>
-                        <DashboardTableCell align={"right"}>
-                            <LinkButton to={selectedCurrency.name}>Add assets</LinkButton>
-                            {index > 0 && <IconButton onClick={() => handleOrderCurrencyUp(selectedCurrency)}><Icon id="Up" color="white" /></IconButton> }
+                        <DashboardTableCell align={"right"} position={"last"}>
+                            <IconButton id="link" to={selectedCurrency.name}><Icon id="Edit" color="white" /></IconButton>
+                            {index > 0 && <IconButton id="action" onClick={() => handleOrderCurrencyUp(selectedCurrency)}><Icon id="Up" color="white" /></IconButton> }
                             {index + 1 < selectedCurrencies.length && <IconButton onClick={() => handleOrderCurrencyDown(selectedCurrency)}><Icon id="Down" color="white" /></IconButton> } 
-                            <Button onClick={() => handleRemoveCurrency(selectedCurrency)}>Remove Currency</Button>
+                            <IconButton id="action" onClick={() => handleRemoveCurrency(selectedCurrency)}><Icon id="Remove" color="white" /></IconButton> 
                         </DashboardTableCell>
                     </tr>
                     )
