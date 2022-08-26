@@ -189,7 +189,7 @@ const Dashboard = () => {
             <table className="container mx-auto bg-gray-dark shadow border p-8 m-10" >
                 <DashboardTableHead>
                     <tr>
-                        <th className="text-left py-2 pl-4">Name</th>
+                        <th className="text-left py-2 pl-3">Name</th>
                         <th className="text-left py-2">Current Price</th>
                         <th className="text-left py-2">Holdings</th>
                         <th className="text-left py-2">Profit/loss</th>
