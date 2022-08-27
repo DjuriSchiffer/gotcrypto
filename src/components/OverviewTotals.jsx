@@ -8,13 +8,13 @@ const OverviewTotals = ({ totals }) => {
     const totalPercentageDifference = totals.totalPercentageDifference;
 
     return (
-        <div className="flex mt-5 pt-1 border-t-2 border-black">
-            <div className="mr-2">{totalAmount}</div>
-            <div className="mr-2">{CurrencyFormat(totalPurchasePrice)}</div>
-            <div className="mr-2">{CurrencyFormat(totalValue)}</div>
-            <div className="mr-2">{CurrencyFormat(totalAveragePurchasePrice)}</div>
-            <div className="mr-2">{PercentageFormat(totalPercentageDifference)}</div>
-        </div>
+        <tr className="border-t-2">
+            <td className="mr-2">{totalAmount}</td>
+            <td className="mr-2">{CurrencyFormat(totalPurchasePrice)}</td>
+            <td className="mr-2">{CurrencyFormat(totalValue)}</td>
+            <td className="mr-2">{CurrencyFormat(totalAveragePurchasePrice)}</td>
+            <td className="mr-2">{PercentageFormat(totalPercentageDifference)}</td>
+        </tr>
     );
 };
 

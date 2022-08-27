@@ -152,17 +152,32 @@ const Overview = () => {
                     <input className="text-black mb-2" name="date" type="date" placeholder="date" onChange={handleChange} required/>
                     <input className="bg-green p-2 rounded-md" type="submit" value="add asset"/>
                 </OverviewHeader>
-                {currentCurrency && currentSelectedCurrency && currentSelectedCurrency?.assets && currentSelectedCurrency.assets.map((asset, index) => {
-                    return (
-                        <OverviewRow key={index} asset={asset} currentCurrency={currentCurrency}>
-                            <IconButton id="action" onClick={() => handleRemoveAsset(asset)}><Icon id="Remove" color="white" /></IconButton> 
-                        </OverviewRow>
-                    )
-                })}
-                {currentCurrency && currentSelectedCurrency && currentSelectedCurrency?.totals &&
-                    <OverviewTotals totals={currentSelectedCurrency.totals} currentCurrency={currentCurrency}/>
-                }
             </div>
+            <table className="container mx-auto bg-gray-dark shadow border p-8 m-10" >
+                <thead className="border-b-2">
+                    <tr>
+                        <th className="text-left py-2 pl-3">Amount</th>
+                        <th className="text-left py-2">Purchase price</th>
+                        <th className="text-left py-2">purchaseDate</th>
+                        <th className="text-left py-2">currentValue</th>
+                        <th className="text-right py-2 pr-3">averagePurchasePrice</th>     
+                        <th className="text-right py-2 pr-3">averagePurchaseDifference</th>     
+                        <th className="text-right py-2 pr-3">actions</th>     
+                    </tr> 
+                </thead>
+                <tbody>
+                    {currentCurrency && currentSelectedCurrency && currentSelectedCurrency?.assets && currentSelectedCurrency.assets.map((asset, index) => {
+                        return (
+                            <OverviewRow key={index} asset={asset} currentCurrency={currentCurrency}>
+                                <IconButton id="action" onClick={() => handleRemoveAsset(asset)}><Icon id="Remove" color="white" /></IconButton> 
+                            </OverviewRow>
+                        )
+                    })}
+                    {currentCurrency && currentSelectedCurrency && currentSelectedCurrency?.totals &&
+                        <OverviewTotals totals={currentSelectedCurrency.totals} currentCurrency={currentCurrency}/>
+                    }   
+                </tbody>
+            </table>
         </div>
     );
 };

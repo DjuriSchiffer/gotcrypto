@@ -9,15 +9,15 @@ const OverviewRow = ({asset, currentCurrency, children}) => {
     const percentageDifference = PercentageDifference(purchasePrice, currentValue);
 
     return (
-        <div>
-            {asset.amount}
-            {CurrencyFormat(purchasePrice)}
-            {purchaseDate}
-            {CurrencyFormat(currentValue)}
-            {CurrencyFormat(averagePurchasePrice)}
-            {PercentageFormat(percentageDifference)}
-            {children}
-        </div>
+        <tr>
+            <td>{asset.amount}</td>
+            <td>{CurrencyFormat(purchasePrice)}</td>
+            <td>{purchaseDate}</td>
+            <td>{CurrencyFormat(currentValue)}</td>
+            <td>{CurrencyFormat(averagePurchasePrice)}</td>
+            <td>{PercentageFormat(percentageDifference)}</td>
+            <td>{children}</td>
+        </tr>
     );
 };
 
