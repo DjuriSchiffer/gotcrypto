@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useState as useGlobalState } from "../hooks/useReducer";
 import Button from "../components/Button";
-import OverviewHeader from "../components/OverviewHeader";
+import AddAssetForm from "../components/AddAssetForm";
 import LinkButton from "../components/LinkButton";
 import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
@@ -15,6 +15,7 @@ import Table from "../components/Table";
 import TableHead from "../components/TableHead";
 import TableBody from "../components/TableBody";
 import TableRow from "../components/TableRow";
+import Modal from "../components/Modal";
 
 const Overview = () => {
   const { currencies } = useGlobalState();
@@ -24,6 +25,7 @@ const Overview = () => {
   const [currentSelectedCurrency, setCurrentSelectedCurrency] = useState({});
   const [inputs, setInputs] = useState({});
   const [submit, setSubmit] = useState(false);
+  const [open, setOpen] = useState(false);
   const setSelectedCurrencyData = (data, currIndex) => {
     localForage
       .setItem("selectedCurrencies", data)
@@ -84,6 +86,7 @@ const Overview = () => {
             currentCurrency
           );
           setSelectedCurrencyData(data, currIndex);
+          setOpen(false);
         })
         .catch(function (err) {
           console.log(err);
@@ -144,6 +147,13 @@ const Overview = () => {
     [overviewSlug]
   );
 
+  const handleOpenModal = () => {
+    setOpen(true);
+  };
+  const handleCloseModal = () => {
+    setOpen(false);
+  };
+
   return (
     <div className="bg-gray-dark p-8 min-h-screen">
       <div className="container mx-auto">
@@ -171,13 +181,12 @@ const Overview = () => {
           Remove all assets
         </Button>
       </div>
-      <div className="container mx-auto m-10">
-        <OverviewHeader
-          onSubmit={handleSubmit}
-          className={"flex flex-col bg-red p-2"}
-        >
+
+      <Button onClick={() => handleOpenModal()}>Add Asset</Button>
+      <Modal onClose={() => handleCloseModal()} open={open} title={"Add asset"}>
+        <AddAssetForm onSubmit={handleSubmit} className={"flex flex-col"}>
           <input
-            className="text-black mb-2"
+            className="text-black mb-2 p-2 shadow-line rounded"
             name="amount"
             type="number"
             placeholder="amount"
@@ -185,7 +194,7 @@ const Overview = () => {
             required
           />
           <input
-            className="text-black mb-2"
+            className="text-black mb-2 p-2 shadow-line rounded"
             name="purchasePrice"
             type="number"
             placeholder="purchase price"
@@ -193,7 +202,7 @@ const Overview = () => {
             required
           />
           <input
-            className="text-black mb-2"
+            className="text-black mb-2 p-2 shadow-line rounded"
             name="date"
             type="date"
             placeholder="date"
@@ -205,12 +214,10 @@ const Overview = () => {
             type="submit"
             value="add asset"
           />
-        </OverviewHeader>
-      </div>
-      <Table
-        className={"container mx-auto bg-gray-dark shadow border p-8 m-10"}
-      >
-        <TableHead className={"border-b-2"} type={"overview"} />
+        </AddAssetForm>
+      </Modal>
+      <Table className={"container mx-auto bg-gray-dark shadow-line p-8 m-10"}>
+        <TableHead className={"shadow-line"} type={"overview"} />
         <TableBody>
           {currentCurrency &&
             currentSelectedCurrency &&

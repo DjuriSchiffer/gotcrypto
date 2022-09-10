@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const IconButton = ({id = "action", children, onClick, to}) => {    
+const IconButton = ({id = "action", children, onClick, to, className}) => {    
     if(id === 'action'){
         return (
             <button className="p-2 rounded-md text-black" onClick={onClick}>

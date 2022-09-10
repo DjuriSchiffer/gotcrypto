@@ -72,17 +72,13 @@ const TableRow = ({
     );
     return (
       <tr>
-        <td className="py-2 pl-2 border-white">{amount}</td>
-        <td className="py-2 border-white">{CurrencyFormat(purchasePrice)}</td>
-        <td className="py-2 border-white">{purchaseDate}</td>
-        <td className="py-2 border-white">{CurrencyFormat(currentValue)}</td>
-        <td className="py-2 border-white">
-          {CurrencyFormat(averagePurchasePrice)}
-        </td>
-        <td className="py-2 border-white">
-          {PercentageFormat(percentageDifference)}
-        </td>
-        <td className="py-2 pr-2 border-white text-right flex items-center justify-end">
+        <td className="py-2 pl-2">{amount}</td>
+        <td className="py-2">{CurrencyFormat(purchasePrice)}</td>
+        <td className="py-2">{purchaseDate}</td>
+        <td className="py-2">{CurrencyFormat(currentValue)}</td>
+        <td className="py-2">{CurrencyFormat(averagePurchasePrice)}</td>
+        <td className="py-2">{PercentageFormat(percentageDifference)}</td>
+        <td className="py-2 pr-2 text-right flex items-center justify-end">
           {children}
         </td>
       </tr>
@@ -97,19 +93,13 @@ const TableRow = ({
     const totalPercentageDifference = item.totalPercentageDifference;
 
     return (
-      <tr className="border-t-2">
-        <td className="py-2 pl-2 border-white">{totalAmount}</td>
-        <td className="py-2 border-white">
-          {CurrencyFormat(totalPurchasePrice)}
-        </td>
+      <tr className="shadow-line">
+        <td className="py-2 pl-2">{totalAmount}</td>
+        <td className="py-2">{CurrencyFormat(totalPurchasePrice)}</td>
         <td></td>
-        <td className="py-2 border-white">{CurrencyFormat(totalValue)}</td>
-        <td className="py-2 border-white">
-          {CurrencyFormat(totalAveragePurchasePrice)}
-        </td>
-        <td className="py-2 border-white">
-          {PercentageFormat(totalPercentageDifference)}
-        </td>
+        <td className="py-2 Z">{CurrencyFormat(totalValue)}</td>
+        <td className="py-2 ">{CurrencyFormat(totalAveragePurchasePrice)}</td>
+        <td className="py-2 ">{PercentageFormat(totalPercentageDifference)}</td>
       </tr>
     );
   }
