@@ -1,9 +1,29 @@
-const Button = ({onClick, children}) => {
+import { Link } from "react-router-dom";
+
+const IconButton = ({
+  id = "action",
+  children,
+  onClick,
+  to,
+  className,
+  text = "",
+}) => {
+  if (id === "action") {
     return (
-        <button className="bg-red p-2 rounded-md shadow text-white" onClick={onClick}>
-            {children}
-        </button>
+      <button className={className} onClick={onClick}>
+        {text && <span className="mr-1">{text}</span>}
+        {children}
+      </button>
     );
+  }
+  if (id === "link") {
+    return (
+      <Link className={className} to={to}>
+        {text && <span className="mr-1">{text}</span>}
+        {children}
+      </Link>
+    );
+  }
 };
 
-export default Button;
+export default IconButton;

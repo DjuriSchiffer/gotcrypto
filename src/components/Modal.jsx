@@ -1,9 +1,9 @@
 import classNames from "classnames";
-import IconButton from "../components/IconButton";
+import IconButton from "./Button";
 import Icon from "../components/Icon";
 
 const Modal = ({
-  title = "Dit is een test",
+  title = "Modal",
   children,
   open = false,
   onClose,

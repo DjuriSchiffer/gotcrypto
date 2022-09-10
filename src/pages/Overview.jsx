@@ -1,15 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { useState as useGlobalState } from "../hooks/useReducer";
-import Button from "../components/Button";
 import AddAssetForm from "../components/AddAssetForm";
-import LinkButton from "../components/LinkButton";
 import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
 import { useParams } from "react-router-dom";
 import totals from "../utils/totals";
 import uniqueId from "lodash.uniqueid";
 import { CurrencyFormat } from "../utils/CalculateHelpers";
-import IconButton from "../components/IconButton";
+import Button from "../components/Button";
 import Icon from "../components/Icon";
 import Table from "../components/Table";
 import TableHead from "../components/TableHead";
@@ -25,7 +23,11 @@ const Overview = () => {
   const [currentSelectedCurrency, setCurrentSelectedCurrency] = useState({});
   const [inputs, setInputs] = useState({});
   const [submit, setSubmit] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [openAddAssetModal, setOpenAddAssetModal] = useState(false);
+  const [openRemoveAssetModal, setRemoveAssetModal] = useState(false);
+  const [openRemoveAllAssetsModal, setOpenRemoveAllAssetsModal] =
+    useState(false);
+  const [currentItem, setCurrentItem] = useState({});
   const setSelectedCurrencyData = (data, currIndex) => {
     localForage
       .setItem("selectedCurrencies", data)
@@ -86,7 +88,7 @@ const Overview = () => {
             currentCurrency
           );
           setSelectedCurrencyData(data, currIndex);
-          setOpen(false);
+          setOpenAddAssetModal(false);
         })
         .catch(function (err) {
           console.log(err);
@@ -127,6 +129,7 @@ const Overview = () => {
           currentCurrency
         );
         setSelectedCurrencyData(data, currIndex);
+        setRemoveAssetModal(false);
       });
     },
     [overviewSlug]
@@ -142,48 +145,101 @@ const Overview = () => {
           currentCurrency
         );
         setSelectedCurrencyData(data, currIndex);
+        setOpenRemoveAllAssetsModal(false);
       });
     },
     [overviewSlug]
   );
 
-  const handleOpenModal = () => {
-    setOpen(true);
-  };
-  const handleCloseModal = () => {
-    setOpen(false);
+  const handleOpenRemoveAssetModal = (item) => {
+    setCurrentItem(item);
+    setRemoveAssetModal(true);
   };
 
   return (
     <div className="bg-gray-dark p-8 min-h-screen">
       <div className="container mx-auto">
         <div className="mb-5">
-          <LinkButton to="/">Return to dashboard</LinkButton>
+          <Button id="link" to="/" text="Return to dashboard"></Button>
         </div>
         {currentCurrency && (
-          <div>
-            <div className="text-4xl flex mb-1 items-center">
-              <img
-                className="inline-block mr-2"
-                width={32}
-                height={32}
-                src={`https://s2.coinmarketcap.com/static/img/coins/32x32/${currentCurrency.cmc_id}.png`}
-              />
-              {currentCurrency.name}
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-4xl flex mb-1 items-center">
+                <img
+                  className="inline-block mr-2"
+                  width={32}
+                  height={32}
+                  src={`https://s2.coinmarketcap.com/static/img/coins/32x32/${currentCurrency.cmc_id}.png`}
+                />
+                {currentCurrency.name}
+              </div>
+              <div className="text-xl">
+                {CurrencyFormat(currentCurrency.price)}
+                <span className="text-sm ml-1">current price</span>
+              </div>
             </div>
-            <div className="text-xl">
-              {CurrencyFormat(currentCurrency.price)}
-              <span className="text-sm ml-1">current price</span>
+            <div className="flex">
+              <Button
+                id="action"
+                onClick={() => setOpenAddAssetModal(true)}
+                text="Add Asset"
+                className="bg-green p-2 rounded-md shadow text-white flex items-center"
+              >
+                <Icon id="Plus" color="white" />
+              </Button>
+              <Button
+                id="action"
+                onClick={() => setOpenRemoveAllAssetsModal(true)}
+                text="Remove all assets"
+                className="bg-red p-2 ml-2 rounded-md shadow text-white flex items-center"
+              >
+                <Icon id="Remove" color="white" />
+              </Button>
             </div>
           </div>
         )}
-        <Button onClick={() => handleRemoveAllAssets(overviewSlug)}>
-          Remove all assets
-        </Button>
       </div>
-
-      <Button onClick={() => handleOpenModal()}>Add Asset</Button>
-      <Modal onClose={() => handleCloseModal()} open={open} title={"Add asset"}>
+      <Table className={"container mx-auto bg-gray-dark shadow-line p-8 m-10"}>
+        <TableHead className={"shadow-line"} type={"overview"} />
+        <TableBody>
+          {currentCurrency &&
+            currentSelectedCurrency &&
+            currentSelectedCurrency?.assets &&
+            currentSelectedCurrency.assets.map((item, index) => {
+              return (
+                <TableRow
+                  key={index}
+                  type="overview"
+                  item={item}
+                  currentCurrency={currentCurrency}
+                >
+                  <Button
+                    id="action"
+                    onClick={() => handleOpenRemoveAssetModal(item)}
+                    className="p-2 rounded-md text-black"
+                  >
+                    <Icon id="Remove" color="white" />
+                  </Button>
+                </TableRow>
+              );
+            })}
+          {currentCurrency &&
+            currentSelectedCurrency &&
+            currentSelectedCurrency?.totals && (
+              <TableRow
+                type="overview-totals"
+                item={currentSelectedCurrency.totals}
+                currentCurrency={currentCurrency}
+              ></TableRow>
+            )}
+        </TableBody>
+      </Table>
+      <Modal
+        onClose={() => setOpenAddAssetModal(false)}
+        open={openAddAssetModal}
+        title={"Add asset"}
+      >
         <AddAssetForm onSubmit={handleSubmit} className={"flex flex-col"}>
           <input
             className="text-black mb-2 p-2 shadow-line rounded"
@@ -216,40 +272,34 @@ const Overview = () => {
           />
         </AddAssetForm>
       </Modal>
-      <Table className={"container mx-auto bg-gray-dark shadow-line p-8 m-10"}>
-        <TableHead className={"shadow-line"} type={"overview"} />
-        <TableBody>
-          {currentCurrency &&
-            currentSelectedCurrency &&
-            currentSelectedCurrency?.assets &&
-            currentSelectedCurrency.assets.map((item, index) => {
-              return (
-                <TableRow
-                  key={index}
-                  type="overview"
-                  item={item}
-                  currentCurrency={currentCurrency}
-                >
-                  <IconButton
-                    id="action"
-                    onClick={() => handleRemoveAsset(item)}
-                  >
-                    <Icon id="Remove" color="white" />
-                  </IconButton>
-                </TableRow>
-              );
-            })}
-          {currentCurrency &&
-            currentSelectedCurrency &&
-            currentSelectedCurrency?.totals && (
-              <TableRow
-                type="overview-totals"
-                item={currentSelectedCurrency.totals}
-                currentCurrency={currentCurrency}
-              ></TableRow>
-            )}
-        </TableBody>
-      </Table>
+      <Modal
+        onClose={() => setRemoveAssetModal(false)}
+        open={openRemoveAssetModal}
+        title={"Are you sure you want to remove this asset?"}
+      >
+        <Button
+          id="action"
+          onClick={() => handleRemoveAsset(currentItem)}
+          className="p-2 rounded-md text-white flex items-center bg-red"
+          text="Remove asset"
+        >
+          <Icon id="Remove" color="white" />
+        </Button>
+      </Modal>
+      <Modal
+        onClose={() => setOpenRemoveAllAssetsModal(false)}
+        open={openRemoveAllAssetsModal}
+        title={"Are you sure you want to remove all assets?"}
+      >
+        <Button
+          id="action"
+          onClick={() => handleRemoveAllAssets(overviewSlug)}
+          className="p-2 rounded-md text-white flex items-center bg-red"
+          text="Remove all assets"
+        >
+          <Icon id="Remove" color="white" />
+        </Button>
+      </Modal>
     </div>
   );
 };

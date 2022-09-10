@@ -2,7 +2,7 @@ import { useState as useGlobalState } from "../hooks/useReducer";
 import { useEffect, useState, useRef } from "react";
 import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
-import IconButton from "../components/IconButton";
+import Button from "../components/Button";
 import Icon from "../components/Icon";
 import { PercentageFormat, CurrencyFormat } from "../utils/CalculateHelpers";
 import isEqual from "lodash.isequal";
@@ -14,6 +14,7 @@ import Table from "../components/Table";
 import TableHead from "../components/TableHead";
 import TableBody from "../components/TableBody";
 import TableRow from "../components/TableRow";
+import Modal from "../components/Modal";
 
 const Dashboard = () => {
   const { currencies, selectedCurrencies, globalTotals } = useGlobalState();
@@ -21,6 +22,8 @@ const Dashboard = () => {
   const [input, setInput] = useState({});
   const [submit, setSubmit] = useState(false);
   const [options, setOptions] = useState([]);
+  const [openRemoveAssetModal, setOpenRemoveAssetModal] = useState(false);
+  const [currentCurrency, setCurrentCurrency] = useState({});
   const defaultValue = {
     label: "Select currency",
     value: null,
@@ -110,6 +113,7 @@ const Dashboard = () => {
             type: "SET_SELECTED_CURRENCIES",
             payload: data,
           });
+          setOpenRemoveAssetModal(false);
         })
         .catch(function (err) {
           // This code runs if there were any errors
@@ -182,6 +186,11 @@ const Dashboard = () => {
     });
   };
 
+  const handleOpenRemoveAssetModal = (selectedCurrency) => {
+    setCurrentCurrency(selectedCurrency);
+    setOpenRemoveAssetModal(true);
+  };
+
   const form = (className) => {
     return (
       <form onSubmit={handleSubmit} className={className}>
@@ -231,9 +240,9 @@ const Dashboard = () => {
       </div>
       {!isEmpty(selectedCurrencies) && (
         <Table
-          className={"container mx-auto bg-gray-dark shadow border p-8 m-10"}
+          className={"container mx-auto bg-gray-dark shadow-line p-8 m-10"}
         >
-          <TableHead className={"border-b-2"} type="dashboard" />
+          <TableHead className={"shadow-line"} type="dashboard" />
           <TableBody>
             {currencies &&
               selectedCurrencies &&
@@ -246,31 +255,41 @@ const Dashboard = () => {
                     currencies={currencies}
                   >
                     {index > 0 && (
-                      <IconButton
+                      <Button
                         id="action"
                         onClick={() => handleOrderCurrencyUp(selectedCurrency)}
+                        className={"p-2 rounded-md text-black flex"}
                       >
                         <Icon id="Up" color="white" />
-                      </IconButton>
+                      </Button>
                     )}
                     {index + 1 < selectedCurrencies.length && (
-                      <IconButton
+                      <Button
+                        id="action"
                         onClick={() =>
                           handleOrderCurrencyDown(selectedCurrency)
                         }
+                        className={"p-2 rounded-md text-black flex"}
                       >
                         <Icon id="Down" color="white" />
-                      </IconButton>
+                      </Button>
                     )}
-                    <IconButton id="link" to={selectedCurrency.name}>
+                    <Button
+                      id="link"
+                      to={selectedCurrency.name}
+                      className={"p-2 rounded-md text-black inline-block"}
+                    >
                       <Icon id="Edit" color="white" />
-                    </IconButton>
-                    <IconButton
+                    </Button>
+                    <Button
                       id="action"
-                      onClick={() => handleRemoveCurrency(selectedCurrency)}
+                      onClick={() =>
+                        handleOpenRemoveAssetModal(selectedCurrency)
+                      }
+                      className={"p-2 rounded-md text-black"}
                     >
                       <Icon id="Remove" color="white" />
-                    </IconButton>
+                    </Button>
                   </TableRow>
                 );
               })}
@@ -283,6 +302,22 @@ const Dashboard = () => {
           {form("flex")}
         </div>
       )}
+      <Modal
+        open={openRemoveAssetModal}
+        title={
+          "Are you sure you want to remove this currency and its associated assets?"
+        }
+        onClose={() => setOpenRemoveAssetModal(false)}
+      >
+        <Button
+          id="action"
+          onClick={() => handleRemoveCurrency(currentCurrency)}
+          text="Remove currency"
+          className={"p-2 rounded-md text-white flex items-center bg-red"}
+        >
+          <Icon id="Remove" color="white" />
+        </Button>
+      </Modal>
     </div>
   );
 };
