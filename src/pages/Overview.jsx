@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from "react";
 import { useState as useGlobalState } from "../hooks/useReducer";
 import Button from "../components/Button";
 import OverviewHeader from "../components/OverviewHeader";
-import OverviewTotals from "../components/OverviewTotals";
 import LinkButton from "../components/LinkButton";
 import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
@@ -226,7 +225,7 @@ const Overview = () => {
                 >
                   <IconButton
                     id="action"
-                    onClick={() => handleRemoveAsset(asset)}
+                    onClick={() => handleRemoveAsset(item)}
                   >
                     <Icon id="Remove" color="white" />
                   </IconButton>
@@ -236,10 +235,11 @@ const Overview = () => {
           {currentCurrency &&
             currentSelectedCurrency &&
             currentSelectedCurrency?.totals && (
-              <OverviewTotals
-                totals={currentSelectedCurrency.totals}
+              <TableRow
+                type="overview-totals"
+                item={currentSelectedCurrency.totals}
                 currentCurrency={currentCurrency}
-              />
+              ></TableRow>
             )}
         </TableBody>
       </Table>

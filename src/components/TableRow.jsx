@@ -88,6 +88,31 @@ const TableRow = ({
       </tr>
     );
   }
+
+  if (type === "overview-totals") {
+    const totalAmount = item.totalAmount;
+    const totalPurchasePrice = item.totalPurchasePrice;
+    const totalValue = item.totalValue;
+    const totalAveragePurchasePrice = item.totalAveragePurchasePrice;
+    const totalPercentageDifference = item.totalPercentageDifference;
+
+    return (
+      <tr className="border-t-2">
+        <td className="py-2 pl-2 border-white">{totalAmount}</td>
+        <td className="py-2 border-white">
+          {CurrencyFormat(totalPurchasePrice)}
+        </td>
+        <td></td>
+        <td className="py-2 border-white">{CurrencyFormat(totalValue)}</td>
+        <td className="py-2 border-white">
+          {CurrencyFormat(totalAveragePurchasePrice)}
+        </td>
+        <td className="py-2 border-white">
+          {PercentageFormat(totalPercentageDifference)}
+        </td>
+      </tr>
+    );
+  }
 };
 
 export default TableRow;
