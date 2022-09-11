@@ -22,10 +22,15 @@ const Overview = () => {
   const { overviewSlug } = useParams();
   const [currentCurrency, setCurrentCurrency] = useState({});
   const [currentSelectedCurrency, setCurrentSelectedCurrency] = useState({});
+  const [formType, setFormType] = useState("add");
+  const [amount, setAmount] = useState("");
+  const [price, setPrice] = useState("");
+  const [date, setDate] = useState("");
   const [inputs, setInputs] = useState({});
   const [submit, setSubmit] = useState(false);
   const [openAddAssetModal, setOpenAddAssetModal] = useState(false);
-  const [openRemoveAssetModal, setRemoveAssetModal] = useState(false);
+  const [openRemoveAssetModal, setOpenRemoveAssetModal] = useState(false);
+  const [openEditAssetModal, setOpenEditAssetModal] = useState(false);
   const [openRemoveAllAssetsModal, setOpenRemoveAllAssetsModal] =
     useState(false);
   const [currentItem, setCurrentItem] = useState({});
@@ -83,13 +88,29 @@ const Overview = () => {
           const currIndex = data.findIndex(
             (e) => e.name === currentCurrency.name
           );
-          data[currIndex].assets.push(inputs);
-          data[currIndex].totals = totals(
-            data[currIndex].assets,
-            currentCurrency
-          );
+
+          //ADD
+          if (formType === "add") {
+            data[currIndex].assets.push(inputs);
+            data[currIndex].totals = totals(
+              data[currIndex].assets,
+              currentCurrency
+            );
+            setOpenAddAssetModal(false);
+          }
+
+          // Edit
+          if (formType === "edit") {
+            const foundIndex = data[currIndex].assets.findIndex(
+              (x) => x.id == currentItem.id
+            );
+            data[currIndex].assets[foundIndex] = inputs;
+            setOpenEditAssetModal(false);
+          }
+
           setSelectedCurrencyData(data, currIndex);
-          setOpenAddAssetModal(false);
+          resetAddAssetForm();
+          setCurrentItem({});
         })
         .catch(function (err) {
           console.log(err);
@@ -98,16 +119,26 @@ const Overview = () => {
         });
     }
     setSubmit(false);
-  }, [submit, inputs, currentCurrency]);
+  }, [submit, inputs, currentCurrency, formType, currentItem]);
 
   const handleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
 
+    if (name === "amount") {
+      setAmount(value);
+    }
+    if (name === "purchasePrice") {
+      setPrice(value);
+    }
+    if (name === "date") {
+      setDate(value);
+    }
+
     setInputs((values) => ({
       ...values,
-      [name]: name === "date" ? new Date(value) : value,
-      id: uniqueId(),
+      [name]: value,
+      id: currentItem?.id ? currentItem?.id : uniqueId(),
     }));
   };
 
@@ -130,7 +161,7 @@ const Overview = () => {
           currentCurrency
         );
         setSelectedCurrencyData(data, currIndex);
-        setRemoveAssetModal(false);
+        setOpenRemoveAssetModal(false);
       });
     },
     [overviewSlug]
@@ -152,10 +183,33 @@ const Overview = () => {
     [overviewSlug]
   );
 
+  const handleOpenAddAssetsModal = () => {
+    setFormType("add");
+    setCurrentItem({});
+    setOpenAddAssetModal(true);
+    resetAddAssetForm();
+  };
+
   const handleOpenRemoveAssetModal = (item) => {
     setCurrentItem(item);
-    setRemoveAssetModal(true);
+    setOpenRemoveAssetModal(true);
   };
+
+  const handleOpenEditAssetModal = (item) => {
+    setFormType("edit");
+    setCurrentItem(item);
+    setOpenEditAssetModal(true);
+  };
+  const handleCloseEditAssetModal = () => {
+    setOpenEditAssetModal(false);
+    resetAddAssetForm();
+  };
+
+  function resetAddAssetForm() {
+    setAmount("");
+    setPrice("");
+    setDate("");
+  }
 
   return (
     <div className="bg-gray-dark p-8 min-h-screen">
@@ -185,7 +239,7 @@ const Overview = () => {
                 <div className="flex">
                   <Button
                     id="action"
-                    onClick={() => setOpenAddAssetModal(true)}
+                    onClick={() => handleOpenAddAssetsModal()}
                     text="Add Asset"
                     className="bg-green p-2 rounded-md shadow text-white flex items-center"
                   >
@@ -224,6 +278,13 @@ const Overview = () => {
                     >
                       <Button
                         id="action"
+                        onClick={() => handleOpenEditAssetModal(item)}
+                        className="p-2 rounded-md text-black"
+                      >
+                        <Icon id="Edit" color="white" />
+                      </Button>
+                      <Button
+                        id="action"
                         onClick={() => handleOpenRemoveAssetModal(item)}
                         className="p-2 rounded-md text-black"
                       >
@@ -249,7 +310,7 @@ const Overview = () => {
           <span className="mb-2">No assets added yet</span>
           <Button
             id="action"
-            onClick={() => setOpenAddAssetModal(true)}
+            onClick={() => handleOpenAddAssetsModal()}
             text="Add Asset"
             className="bg-green p-2 rounded-md shadow text-white flex items-center"
           >
@@ -257,7 +318,6 @@ const Overview = () => {
           </Button>
         </div>
       )}
-
       <Modal
         onClose={() => setOpenAddAssetModal(false)}
         open={openAddAssetModal}
@@ -270,6 +330,7 @@ const Overview = () => {
             type="number"
             placeholder="amount"
             onChange={handleChange}
+            value={amount}
             required
           />
           <input
@@ -278,6 +339,7 @@ const Overview = () => {
             type="number"
             placeholder="purchase price"
             onChange={handleChange}
+            value={price}
             required
           />
           <input
@@ -286,6 +348,7 @@ const Overview = () => {
             type="date"
             placeholder="date"
             onChange={handleChange}
+            value={date}
             required
           />
           <input
@@ -296,7 +359,7 @@ const Overview = () => {
         </AddAssetForm>
       </Modal>
       <Modal
-        onClose={() => setRemoveAssetModal(false)}
+        onClose={() => setOpenRemoveAssetModal(false)}
         open={openRemoveAssetModal}
         title={"Are you sure you want to remove this asset?"}
       >
@@ -322,6 +385,46 @@ const Overview = () => {
         >
           <Icon id="Remove" color="white" />
         </Button>
+      </Modal>
+      <Modal
+        onClose={() => handleCloseEditAssetModal()}
+        open={openEditAssetModal}
+        title={"Edit asset"}
+      >
+        <AddAssetForm onSubmit={handleSubmit} className={"flex flex-col"}>
+          <input
+            className="text-black mb-2 p-2 shadow-line rounded"
+            name="amount"
+            type="number"
+            placeholder="amount"
+            onChange={handleChange}
+            value={amount || currentItem.amount}
+            required
+          />
+          <input
+            className="text-black mb-2 p-2 shadow-line rounded"
+            name="purchasePrice"
+            type="number"
+            placeholder="purchase price"
+            onChange={handleChange}
+            value={price || currentItem.purchasePrice}
+            required
+          />
+          <input
+            className="text-black mb-2 p-2 shadow-line rounded"
+            name="date"
+            type="date"
+            placeholder="date"
+            onChange={handleChange}
+            value={date || currentItem.date}
+            required
+          />
+          <input
+            className="bg-green p-2 rounded-md"
+            type="submit"
+            value="edit asset"
+          />
+        </AddAssetForm>
       </Modal>
     </div>
   );
