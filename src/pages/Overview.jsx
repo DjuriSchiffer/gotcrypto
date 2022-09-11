@@ -89,13 +89,9 @@ const Overview = () => {
             (e) => e.name === currentCurrency.name
           );
 
-          //ADD
+          // Add
           if (formType === "add") {
             data[currIndex].assets.push(inputs);
-            data[currIndex].totals = totals(
-              data[currIndex].assets,
-              currentCurrency
-            );
             setOpenAddAssetModal(false);
           }
 
@@ -107,6 +103,11 @@ const Overview = () => {
             data[currIndex].assets[foundIndex] = inputs;
             setOpenEditAssetModal(false);
           }
+
+          data[currIndex].totals = totals(
+            data[currIndex].assets,
+            currentCurrency
+          );
 
           setSelectedCurrencyData(data, currIndex);
           resetAddAssetForm();
