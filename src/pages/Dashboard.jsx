@@ -279,7 +279,7 @@ const Dashboard = () => {
                       to={selectedCurrency.name}
                       className={"p-2 rounded-md text-black inline-block"}
                     >
-                      <Icon id="Edit" color="white" />
+                      <Icon id="Plus" color="white" />
                     </Button>
                     <Button
                       id="action"
