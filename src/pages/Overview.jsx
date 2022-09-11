@@ -30,7 +30,6 @@ const Overview = () => {
   const [submit, setSubmit] = useState(false);
   const [openAddAssetModal, setOpenAddAssetModal] = useState(false);
   const [openRemoveAssetModal, setOpenRemoveAssetModal] = useState(false);
-  const [openEditAssetModal, setOpenEditAssetModal] = useState(false);
   const [openRemoveAllAssetsModal, setOpenRemoveAllAssetsModal] =
     useState(false);
   const [currentItem, setCurrentItem] = useState({});
@@ -92,7 +91,6 @@ const Overview = () => {
           // Add
           if (formType === "add") {
             data[currIndex].assets.push(inputs);
-            setOpenAddAssetModal(false);
           }
 
           // Edit
@@ -101,17 +99,17 @@ const Overview = () => {
               (x) => x.id == currentItem.id
             );
             data[currIndex].assets[foundIndex] = inputs;
-            setOpenEditAssetModal(false);
           }
 
+          // Calculate totals
           data[currIndex].totals = totals(
             data[currIndex].assets,
             currentCurrency
           );
-
           setSelectedCurrencyData(data, currIndex);
-          resetAddAssetForm();
           setCurrentItem({});
+          setOpenAddAssetModal(false);
+          resetAddAssetForm();
         })
         .catch(function (err) {
           console.log(err);
@@ -184,26 +182,24 @@ const Overview = () => {
     [overviewSlug]
   );
 
-  const handleOpenAddAssetsModal = () => {
-    setFormType("add");
-    setCurrentItem({});
+  const handleOpenAddAssetModal = (type, item) => {
+    setFormType(type);
+    if (type === "add") {
+      resetAddAssetForm();
+      setCurrentItem({});
+    }
+    if (type === "edit") {
+      setCurrentItem(item);
+      setAmount(item.amount);
+      setPrice(item.purchasePrice);
+      setDate(item.date);
+    }
     setOpenAddAssetModal(true);
-    resetAddAssetForm();
   };
 
   const handleOpenRemoveAssetModal = (item) => {
     setCurrentItem(item);
     setOpenRemoveAssetModal(true);
-  };
-
-  const handleOpenEditAssetModal = (item) => {
-    setFormType("edit");
-    setCurrentItem(item);
-    setOpenEditAssetModal(true);
-  };
-  const handleCloseEditAssetModal = () => {
-    setOpenEditAssetModal(false);
-    resetAddAssetForm();
   };
 
   function resetAddAssetForm() {
@@ -240,7 +236,7 @@ const Overview = () => {
                 <div className="flex">
                   <Button
                     id="action"
-                    onClick={() => handleOpenAddAssetsModal()}
+                    onClick={() => handleOpenAddAssetModal("add")}
                     text="Add Asset"
                     className="bg-green p-2 rounded-md shadow text-white flex items-center"
                   >
@@ -279,7 +275,7 @@ const Overview = () => {
                     >
                       <Button
                         id="action"
-                        onClick={() => handleOpenEditAssetModal(item)}
+                        onClick={() => handleOpenAddAssetModal("edit", item)}
                         className="p-2 rounded-md text-black"
                       >
                         <Icon id="Edit" color="white" />
@@ -311,7 +307,7 @@ const Overview = () => {
           <span className="mb-2">No assets added yet</span>
           <Button
             id="action"
-            onClick={() => handleOpenAddAssetsModal()}
+            onClick={() => handleOpenAddAssetModal("add")}
             text="Add Asset"
             className="bg-green p-2 rounded-md shadow text-white flex items-center"
           >
@@ -322,11 +318,14 @@ const Overview = () => {
       <Modal
         onClose={() => setOpenAddAssetModal(false)}
         open={openAddAssetModal}
-        title={"Add asset"}
+        title={formType === "add" ? "Add asset" : "Edit asset"}
       >
         <AddAssetForm onSubmit={handleSubmit} className={"flex flex-col"}>
+          <label for="amount" className="text-gray text-sm mb-1">
+            Amount
+          </label>
           <input
-            className="text-black mb-2 p-2 shadow-line rounded"
+            className="text-black mb-3 p-2 shadow-line rounded"
             name="amount"
             type="number"
             placeholder="amount"
@@ -334,8 +333,11 @@ const Overview = () => {
             value={amount}
             required
           />
+          <label for="purchasePrice" className="text-gray text-sm mb-1">
+            Purchase Price - in Euros
+          </label>
           <input
-            className="text-black mb-2 p-2 shadow-line rounded"
+            className="text-black mb-3 p-2 shadow-line rounded"
             name="purchasePrice"
             type="number"
             placeholder="purchase price"
@@ -343,8 +345,11 @@ const Overview = () => {
             value={price}
             required
           />
+          <label for="date" className="text-gray text-sm mb-1">
+            Purchase Date
+          </label>
           <input
-            className="text-black mb-2 p-2 shadow-line rounded"
+            className="text-black mb-4 p-2 shadow-line rounded"
             name="date"
             type="date"
             placeholder="date"
@@ -353,9 +358,9 @@ const Overview = () => {
             required
           />
           <input
-            className="bg-green p-2 rounded-md"
+            className="bg-green p-4 rounded-md"
             type="submit"
-            value="add asset"
+            value={formType === "add" ? "Add asset" : "Edit asset"}
           />
         </AddAssetForm>
       </Modal>
@@ -364,10 +369,15 @@ const Overview = () => {
         open={openRemoveAssetModal}
         title={"Are you sure you want to remove this asset?"}
       >
+        <Icon
+          id="Warning"
+          color="white"
+          className="flex mx-auto mb-4 text-6xl"
+        />
         <Button
           id="action"
           onClick={() => handleRemoveAsset(currentItem)}
-          className="p-2 rounded-md text-white flex items-center bg-red"
+          className="p-2 rounded-md text-white flex items-center bg-red mx-auto"
           text="Remove asset"
         >
           <Icon id="Remove" color="white" />
@@ -378,54 +388,19 @@ const Overview = () => {
         open={openRemoveAllAssetsModal}
         title={"Are you sure you want to remove all assets?"}
       >
+        <Icon
+          id="Warning"
+          color="white"
+          className="flex mx-auto mb-4 text-6xl"
+        />
         <Button
           id="action"
           onClick={() => handleRemoveAllAssets(overviewSlug)}
-          className="p-2 rounded-md text-white flex items-center bg-red"
+          className="p-2 rounded-md text-white flex items-center bg-red mx-auto"
           text="Remove all assets"
         >
           <Icon id="Remove" color="white" />
         </Button>
-      </Modal>
-      <Modal
-        onClose={() => handleCloseEditAssetModal()}
-        open={openEditAssetModal}
-        title={"Edit asset"}
-      >
-        <AddAssetForm onSubmit={handleSubmit} className={"flex flex-col"}>
-          <input
-            className="text-black mb-2 p-2 shadow-line rounded"
-            name="amount"
-            type="number"
-            placeholder="amount"
-            onChange={handleChange}
-            value={amount || currentItem.amount}
-            required
-          />
-          <input
-            className="text-black mb-2 p-2 shadow-line rounded"
-            name="purchasePrice"
-            type="number"
-            placeholder="purchase price"
-            onChange={handleChange}
-            value={price || currentItem.purchasePrice}
-            required
-          />
-          <input
-            className="text-black mb-2 p-2 shadow-line rounded"
-            name="date"
-            type="date"
-            placeholder="date"
-            onChange={handleChange}
-            value={date || currentItem.date}
-            required
-          />
-          <input
-            className="bg-green p-2 rounded-md"
-            type="submit"
-            value="edit asset"
-          />
-        </AddAssetForm>
       </Modal>
     </div>
   );

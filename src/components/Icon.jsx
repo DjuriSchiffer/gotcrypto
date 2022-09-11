@@ -4,9 +4,10 @@ import {
   FaPen,
   FaTrashAlt,
   FaPlus,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 
-const Icon = ({ color, id }) => {
+const Icon = ({ color, id, className }) => {
   switch (id) {
     case "Up":
       return <FaArrowUp color={color} />;
@@ -25,6 +26,9 @@ const Icon = ({ color, id }) => {
 
     case "Close":
       return <FaPlus color={color} className={"rotate-45"} />;
+
+    case "Warning":
+      return <FaExclamationTriangle color={color} className={className} />;
 
     default:
       return null;

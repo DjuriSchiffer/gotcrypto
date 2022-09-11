@@ -72,12 +72,21 @@ const TableRow = ({
     );
     return (
       <tr>
-        <td className="py-2 pl-2">{amount}</td>
+        <td className="py-2 pl-3">{amount}</td>
         <td className="py-2">{CurrencyFormat(purchasePrice)}</td>
         <td className="py-2">{purchaseDate}</td>
         <td className="py-2">{CurrencyFormat(currentValue)}</td>
         <td className="py-2">{CurrencyFormat(averagePurchasePrice)}</td>
-        <td className="py-2">{PercentageFormat(percentageDifference)}</td>
+        <td className="py-2">
+          <div
+            className={classNames("flex", {
+              "text-green": percentageDifference > 0,
+              "text-red": percentageDifference < 0,
+            })}
+          >
+            {PercentageFormat(percentageDifference)}
+          </div>
+        </td>
         <td className="py-2 pr-2 text-right flex items-center justify-end">
           {children}
         </td>
@@ -94,12 +103,21 @@ const TableRow = ({
 
     return (
       <tr className="shadow-line">
-        <td className="py-2 pl-2">{totalAmount}</td>
+        <td className="py-2 pl-3">{totalAmount}</td>
         <td className="py-2">{CurrencyFormat(totalPurchasePrice)}</td>
         <td></td>
         <td className="py-2 Z">{CurrencyFormat(totalValue)}</td>
         <td className="py-2 ">{CurrencyFormat(totalAveragePurchasePrice)}</td>
-        <td className="py-2 ">{PercentageFormat(totalPercentageDifference)}</td>
+        <td className="py-2 ">
+          <div
+            className={classNames("flex", {
+              "text-green": totalPercentageDifference > 0,
+              "text-red": totalPercentageDifference < 0,
+            })}
+          >
+            {PercentageFormat(totalPercentageDifference)}
+          </div>
+        </td>
       </tr>
     );
   }

@@ -309,11 +309,18 @@ const Dashboard = () => {
         }
         onClose={() => setOpenRemoveAssetModal(false)}
       >
+        <Icon
+          id="Warning"
+          color="white"
+          className="flex mx-auto mb-4 text-6xl"
+        />
         <Button
           id="action"
           onClick={() => handleRemoveCurrency(currentCurrency)}
           text="Remove currency"
-          className={"p-2 rounded-md text-white flex items-center bg-red"}
+          className={
+            "p-2 rounded-md text-white flex items-center bg-red mx-auto"
+          }
         >
           <Icon id="Remove" color="white" />
         </Button>
