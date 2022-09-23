@@ -5,6 +5,7 @@ import {
   FaTrashAlt,
   FaPlus,
   FaExclamationTriangle,
+  FaUndoAlt,
 } from "react-icons/fa";
 
 const Icon = ({ color, id, className }) => {
@@ -29,6 +30,9 @@ const Icon = ({ color, id, className }) => {
 
     case "Warning":
       return <FaExclamationTriangle color={color} className={className} />;
+
+    case "Reload":
+      return <FaUndoAlt color={color} className={className} />;
 
     default:
       return null;

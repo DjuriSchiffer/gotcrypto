@@ -1,14 +1,26 @@
 import { useState } from "../hooks/useReducer";
+import Modal from "./Modal";
+import IconButton from "./Button";
+import Icon from "./Icon";
 
 const Error = () => {
-    const { error } = useState();
+  const { error } = useState();
 
-    return (
-        <div className={`${error ? 'block' : 'hidden'} container mx-auto bg-gray-200 rounded-xl shadow border p-8 m-10`}>
-            <div>Error</div>
-            <div>Something has happend</div>
-        </div>
-    );
+  const handleError = () => {
+    window.location.reload(false);
+  };
+
+  return (
+    <Modal title={"Error"} open={error} onClose={() => handleError()}>
+      <Icon id="Warning" color="white" className="flex mx-auto mb-4 text-6xl" />
+      <IconButton
+        id="action"
+        onClick={() => handleError()}
+        text="Reload page"
+        className={"p-2 rounded-md text-white flex items-center bg-red mx-auto"}
+      ></IconButton>
+    </Modal>
+  );
 };
 
 export default Error;
