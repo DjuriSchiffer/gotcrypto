@@ -1,5 +1,5 @@
 import { useState as useGlobalState } from "../hooks/useReducer";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "../hooks/useReducer";
 import localForage from "localforage";
 import Button from "../components/Button";
@@ -7,28 +7,20 @@ import Icon from "../components/Icon";
 import { PercentageFormat, CurrencyFormat } from "../utils/CalculateHelpers";
 import isEqual from "lodash.isequal";
 import isEmpty from "lodash.isempty";
-import totals, { getGlobalTotals } from "../utils/totals";
-import Select from "react-select";
+import { getGlobalTotals } from "../utils/totals";
 import classNames from "classnames";
 import Table from "../components/Table";
 import TableHead from "../components/TableHead";
 import TableBody from "../components/TableBody";
 import TableRow from "../components/TableRow";
 import Modal from "../components/Modal";
+import SelectCurrencies from "../components/SelectCurrencies";
 
 const Dashboard = () => {
   const { currencies, selectedCurrencies, globalTotals } = useGlobalState();
   const dispatch = useDispatch();
-  const [input, setInput] = useState({});
-  const [submit, setSubmit] = useState(false);
-  const [options, setOptions] = useState([]);
   const [openRemoveAssetModal, setOpenRemoveAssetModal] = useState(false);
   const [currentCurrency, setCurrentCurrency] = useState({});
-  const defaultValue = {
-    label: "Select currency",
-    value: null,
-  };
-  const selectInputRef = useRef();
 
   useEffect(() => {
     dispatch({
@@ -36,72 +28,6 @@ const Dashboard = () => {
       payload: getGlobalTotals(selectedCurrencies),
     });
   }, [selectedCurrencies, dispatch]);
-
-  useEffect(() => {
-    if (submit && input && input.value !== null) {
-      localForage
-        .getItem("selectedCurrencies")
-        .then((data) => {
-          if (data.filter((item) => item.name === input.value).length > 0)
-            return;
-          const currIndex = currencies.findIndex((item) => {
-            if (item && item.name === input.value) {
-              return item;
-            }
-          });
-          const object = {
-            name: input.value,
-            label: input.label,
-            index: currIndex,
-            assets: [],
-            totals: totals([], currencies[currIndex]),
-          };
-          data.push(object);
-          localForage.setItem("selectedCurrencies", data).then((data) => {
-            dispatch({
-              type: "SET_SELECTED_CURRENCIES",
-              payload: data,
-            });
-          });
-          selectInputRef.current.setValue(defaultValue);
-        })
-        .catch(function (err) {
-          // This code runs if there were any errors
-          dispatch({
-            type: "SET_ERROR",
-            payload: err,
-          });
-        });
-    }
-    setSubmit(false);
-  }, [submit, input]);
-
-  useEffect(() => {
-    if (currencies !== null && selectedCurrencies) {
-      let optionsArr = [];
-      currencies.map((currency, i) => {
-        let isDisabled = false;
-        selectedCurrencies.forEach((element) => {
-          if (element.name === currency.name) {
-            isDisabled = true;
-          }
-        });
-
-        optionsArr.push({
-          value: currency.name,
-          label: currency.slug,
-          image: `https://s2.coinmarketcap.com/static/img/coins/32x32/${currency.cmc_id}.png`,
-          disabled: isDisabled,
-        });
-      });
-      setOptions(optionsArr);
-    }
-  }, [currencies, selectedCurrencies]);
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setSubmit(true);
-  };
 
   const handleRemoveCurrency = (selectedCurrency) => {
     localForage.getItem("selectedCurrencies").then((data) => {
@@ -191,33 +117,6 @@ const Dashboard = () => {
     setOpenRemoveAssetModal(true);
   };
 
-  const form = (className) => {
-    return (
-      <form onSubmit={handleSubmit} className={className}>
-        <Select
-          ref={selectInputRef}
-          setValue={input}
-          defaultValue={defaultValue}
-          onChange={setInput}
-          options={options}
-          isOptionDisabled={(option) => option.disabled}
-          formatOptionLabel={(item) => (
-            <div className="flex items-center">
-              {item.image && <img width={32} height={32} src={item.image} />}
-              <span className="text-black ml-2">{item.label}</span>
-            </div>
-          )}
-        />
-        <input
-          className="bg-green p-2 rounded-md shadow text-white ml-2 disabled:bg-gray-light"
-          type="submit"
-          value="add new"
-          disabled={!input.value}
-        />
-      </form>
-    );
-  };
-
   return (
     <div className="bg-gray-dark p-8 min-h-screen">
       <div className="container mx-auto bg-gray-dark shadow m-10 flex items-center">
@@ -236,7 +135,9 @@ const Dashboard = () => {
             </div>
           </div>
         )}
-        {!isEmpty(selectedCurrencies) && form("flex ml-auto")}
+        {!isEmpty(selectedCurrencies) && (
+          <SelectCurrencies className={"flex ml-auto"} />
+        )}
       </div>
       {!isEmpty(selectedCurrencies) && (
         <Table
@@ -299,7 +200,7 @@ const Dashboard = () => {
       {isEmpty(selectedCurrencies) && (
         <div className="container mx-auto flex flex-col items-center">
           <span className="mb-2">No currencies selected yet</span>
-          {form("flex")}
+          <SelectCurrencies className={"flex"} />
         </div>
       )}
       <Modal
