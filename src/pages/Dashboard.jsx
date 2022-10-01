@@ -32,23 +32,8 @@ const Dashboard = () => {
   const handleRemoveCurrency = (selectedCurrency) => {
     localForage.getItem("selectedCurrencies").then((data) => {
       data = data.filter((item) => !isEqual(item, selectedCurrency));
-      localForage
-        .setItem("selectedCurrencies", data)
-        .then((data) => {
-          dispatch({
-            type: "SET_SELECTED_CURRENCIES",
-            payload: data,
-          });
-          setOpenRemoveAssetModal(false);
-        })
-        .catch(function (err) {
-          // This code runs if there were any errors
-          console.log(err);
-          dispatch({
-            type: "SET_ERROR",
-            payload: err,
-          });
-        });
+      handleSetLocalForage(data);
+      setOpenRemoveAssetModal(false);
     });
   };
 
@@ -62,23 +47,7 @@ const Dashboard = () => {
       const toIndex = currIndex - 1;
       const element = data.splice(currIndex, 1)[0];
       data.splice(toIndex, 0, element);
-
-      localForage
-        .setItem("selectedCurrencies", data)
-        .then((data) => {
-          dispatch({
-            type: "SET_SELECTED_CURRENCIES",
-            payload: data,
-          });
-        })
-        .catch(function (err) {
-          // This code runs if there were any errors
-          console.log(err);
-          dispatch({
-            type: "SET_ERROR",
-            payload: err,
-          });
-        });
+      handleSetLocalForage(data);
     });
   };
 
@@ -92,29 +61,32 @@ const Dashboard = () => {
       const toIndex = currIndex + 1;
       const element = data.splice(currIndex, 1)[0];
       data.splice(toIndex, 0, element);
-
-      localForage
-        .setItem("selectedCurrencies", data)
-        .then((data) => {
-          dispatch({
-            type: "SET_SELECTED_CURRENCIES",
-            payload: data,
-          });
-        })
-        .catch(function (err) {
-          // This code runs if there were any errors
-          console.log(err);
-          dispatch({
-            type: "SET_ERROR",
-            payload: err,
-          });
-        });
+      handleSetLocalForage(data);
     });
   };
 
   const handleOpenRemoveAssetModal = (selectedCurrency) => {
     setCurrentCurrency(selectedCurrency);
     setOpenRemoveAssetModal(true);
+  };
+
+  const handleSetLocalForage = (data) => {
+    localForage
+      .setItem("selectedCurrencies", data)
+      .then((data) => {
+        dispatch({
+          type: "SET_SELECTED_CURRENCIES",
+          payload: data,
+        });
+      })
+      .catch(function (err) {
+        // This code runs if there were any errors
+        console.log(err);
+        dispatch({
+          type: "SET_ERROR",
+          payload: err,
+        });
+      });
   };
 
   return (
