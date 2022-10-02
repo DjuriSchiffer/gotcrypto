@@ -10,7 +10,6 @@ import isEmpty from "lodash.isempty";
 import { CurrencyFormat } from "../utils/CalculateHelpers";
 import Button from "../components/Button";
 import ButtonWrapper from "../components/ButtonWrapper";
-
 import Icon from "../components/Icon";
 import Table from "../components/Table";
 import TableHead from "../components/TableHead";
@@ -27,10 +26,11 @@ const Overview = () => {
   const [currentCurrency, setCurrentCurrency] = useState({});
   const [currentSelectedCurrency, setCurrentSelectedCurrency] = useState({});
   const [formType, setFormType] = useState("add");
-  const [amount, setAmount] = useState("");
-  const [price, setPrice] = useState("");
-  const [date, setDate] = useState("");
-  const [inputs, setInputs] = useState({});
+  const [inputs, setInputs] = useState({
+    amount: "",
+    purchasePrice: "",
+    date: "",
+  });
   const [submit, setSubmit] = useState(false);
   const [openAddAssetModal, setOpenAddAssetModal] = useState(false);
   const [openRemoveAssetModal, setOpenRemoveAssetModal] = useState(false);
@@ -93,7 +93,7 @@ const Overview = () => {
           setCurrentSelectedCurrency(data[currIndex]);
           setCurrentItem({});
           setOpenAddAssetModal(false);
-          resetAddAssetForm();
+          resetInputs();
         });
       });
     }
@@ -103,17 +103,6 @@ const Overview = () => {
   const handleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
-
-    if (name === "amount") {
-      setAmount(value);
-    }
-    if (name === "purchasePrice") {
-      setPrice(value);
-    }
-    if (name === "date") {
-      setDate(value);
-    }
-
     setInputs((values) => ({
       ...values,
       [name]: value,
@@ -168,14 +157,11 @@ const Overview = () => {
   const handleOpenAddAssetModal = (type, item) => {
     setFormType(type);
     if (type === "add") {
-      resetAddAssetForm();
-      setCurrentItem({});
+      resetInputs();
     }
     if (type === "edit") {
       setCurrentItem(item);
-      setAmount(item.amount);
-      setPrice(item.purchasePrice);
-      setDate(item.date);
+      setInputs(item);
     }
     setOpenAddAssetModal(true);
   };
@@ -185,10 +171,12 @@ const Overview = () => {
     setOpenRemoveAssetModal(true);
   };
 
-  function resetAddAssetForm() {
-    setAmount("");
-    setPrice("");
-    setDate("");
+  function resetInputs() {
+    setInputs({
+      amount: "",
+      purchasePrice: "",
+      date: "",
+    });
   }
 
   const handleGetLocalForage = (callback) => {
@@ -345,9 +333,9 @@ const Overview = () => {
         <AddAssetForm
           onSubmit={handleSubmit}
           className={"flex flex-col"}
-          amount={amount}
-          price={price}
-          date={date}
+          amount={inputs.amount}
+          price={inputs.purchasePrice}
+          date={inputs.date}
           handleChange={handleChange}
           formType={formType}
         />
