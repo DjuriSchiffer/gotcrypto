@@ -30,15 +30,16 @@ const Dashboard = () => {
   }, [selectedCurrencies, dispatch]);
 
   const handleRemoveCurrency = (selectedCurrency) => {
-    localForage.getItem("selectedCurrencies").then((data) => {
+    handleGetLocalForage((data) => {
       data = data.filter((item) => !isEqual(item, selectedCurrency));
-      handleSetLocalForage(data);
-      setOpenRemoveAssetModal(false);
+      handleSetLocalForage(data, () => {
+        setOpenRemoveAssetModal(false);
+      });
     });
   };
 
   const handleOrderCurrencyUp = (selectedCurrency) => {
-    localForage.getItem("selectedCurrencies").then((data) => {
+    handleGetLocalForage((data) => {
       const currIndex = data.findIndex((item) => {
         if (item && item.name === selectedCurrency.name) {
           return item;
@@ -52,7 +53,7 @@ const Dashboard = () => {
   };
 
   const handleOrderCurrencyDown = (selectedCurrency) => {
-    localForage.getItem("selectedCurrencies").then((data) => {
+    handleGetLocalForage((data) => {
       const currIndex = data.findIndex((item) => {
         if (item && item.name === selectedCurrency.name) {
           return item;
@@ -70,7 +71,22 @@ const Dashboard = () => {
     setOpenRemoveAssetModal(true);
   };
 
-  const handleSetLocalForage = (data) => {
+  const handleGetLocalForage = (callback) => {
+    localForage
+      .getItem("selectedCurrencies")
+      .then((data) => {
+        if (typeof callback === "function") {
+          return callback(data);
+        }
+      })
+      .catch(function (err) {
+        console.log(err);
+        // This code runs if there were any errors
+        dispatch({ type: "SET_ERROR" });
+      });
+  };
+
+  const handleSetLocalForage = (data, callback) => {
     localForage
       .setItem("selectedCurrencies", data)
       .then((data) => {
@@ -78,6 +94,9 @@ const Dashboard = () => {
           type: "SET_SELECTED_CURRENCIES",
           payload: data,
         });
+        if (typeof callback === "function") {
+          return callback();
+        }
       })
       .catch(function (err) {
         // This code runs if there were any errors
