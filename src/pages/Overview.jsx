@@ -15,6 +15,8 @@ import TableHead from "../components/TableHead";
 import TableBody from "../components/TableBody";
 import TableRow from "../components/TableRow";
 import Modal from "../components/Modal";
+import Page from "../components/Page";
+import PageContainer from "../components/PageContainer";
 
 const Overview = () => {
   const { currencies } = useGlobalState();
@@ -225,8 +227,8 @@ const Overview = () => {
   };
 
   return (
-    <div className="bg-gray-dark p-8 min-h-screen">
-      <div className="container mx-auto">
+    <Page>
+      <PageContainer className={"container mx-auto"}>
         <div className="mb-5">
           <Button id="link" to="/" text="Return to dashboard"></Button>
         </div>
@@ -270,7 +272,7 @@ const Overview = () => {
               )}
           </div>
         )}
-      </div>
+      </PageContainer>
       {currentSelectedCurrency?.assets &&
         currentSelectedCurrency.assets.length > 0 && (
           <Table
@@ -319,7 +321,9 @@ const Overview = () => {
           </Table>
         )}
       {isEmpty(currentSelectedCurrency?.assets) && (
-        <div className="container mx-auto flex flex-col items-center">
+        <PageContainer
+          className={"container mx-auto flex flex-col items-center"}
+        >
           <span className="mb-2">No assets added yet</span>
           <Button
             id="action"
@@ -329,7 +333,7 @@ const Overview = () => {
           >
             <Icon id="Plus" color="white" />
           </Button>
-        </div>
+        </PageContainer>
       )}
       <Modal
         onClose={() => setOpenAddAssetModal(false)}
@@ -418,7 +422,7 @@ const Overview = () => {
           <Icon id="Remove" color="white" />
         </Button>
       </Modal>
-    </div>
+    </Page>
   );
 };
 

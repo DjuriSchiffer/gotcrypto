@@ -15,6 +15,8 @@ import TableBody from "../components/TableBody";
 import TableRow from "../components/TableRow";
 import Modal from "../components/Modal";
 import SelectCurrencies from "../components/SelectCurrencies";
+import Page from "../components/Page";
+import PageContainer from "../components/PageContainer";
 
 const Dashboard = () => {
   const { currencies, selectedCurrencies, globalTotals } = useGlobalState();
@@ -109,8 +111,12 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="bg-gray-dark p-8 min-h-screen">
-      <div className="container mx-auto bg-gray-dark shadow m-10 flex items-center">
+    <Page>
+      <PageContainer
+        className={
+          "container mx-auto bg-gray-dark shadow m-10 flex items-center"
+        }
+      >
         {globalTotals && (
           <div>
             <div className="text-4xl">
@@ -129,7 +135,7 @@ const Dashboard = () => {
         {!isEmpty(selectedCurrencies) && (
           <SelectCurrencies className={"flex ml-auto"} />
         )}
-      </div>
+      </PageContainer>
       {!isEmpty(selectedCurrencies) && (
         <Table
           className={"container mx-auto bg-gray-dark shadow-line p-8 m-10"}
@@ -189,10 +195,12 @@ const Dashboard = () => {
         </Table>
       )}
       {isEmpty(selectedCurrencies) && (
-        <div className="container mx-auto flex flex-col items-center">
+        <PageContainer
+          className={"container mx-auto flex flex-col items-center"}
+        >
           <span className="mb-2">No currencies selected yet</span>
           <SelectCurrencies className={"flex"} />
-        </div>
+        </PageContainer>
       )}
       <Modal
         open={openRemoveAssetModal}
@@ -217,7 +225,7 @@ const Dashboard = () => {
           <Icon id="Remove" color="white" />
         </Button>
       </Modal>
-    </div>
+    </Page>
   );
 };
 
