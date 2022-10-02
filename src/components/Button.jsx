@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const IconButton = ({
+const Button = ({
   id = "action",
   children,
   onClick,
@@ -26,4 +26,4 @@ const IconButton = ({
   }
 };
 
-export default IconButton;
+export default Button;

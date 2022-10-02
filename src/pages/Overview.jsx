@@ -9,6 +9,8 @@ import uniqueId from "lodash.uniqueid";
 import isEmpty from "lodash.isempty";
 import { CurrencyFormat } from "../utils/CalculateHelpers";
 import Button from "../components/Button";
+import ButtonWrapper from "../components/ButtonWrapper";
+
 import Icon from "../components/Icon";
 import Table from "../components/Table";
 import TableHead from "../components/TableHead";
@@ -251,7 +253,7 @@ const Overview = () => {
             </div>
             {currentSelectedCurrency?.assets &&
               currentSelectedCurrency.assets.length > 0 && (
-                <div className="flex">
+                <ButtonWrapper className={"flex"}>
                   <Button
                     id="action"
                     onClick={() => handleOpenAddAssetModal("add")}
@@ -268,7 +270,7 @@ const Overview = () => {
                   >
                     <Icon id="Remove" color="white" />
                   </Button>
-                </div>
+                </ButtonWrapper>
               )}
           </div>
         )}
