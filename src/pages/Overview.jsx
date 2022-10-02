@@ -33,25 +33,6 @@ const Overview = () => {
   const [openRemoveAllAssetsModal, setOpenRemoveAllAssetsModal] =
     useState(false);
   const [currentItem, setCurrentItem] = useState({});
-  const setSelectedCurrencyData = (data, currIndex) => {
-    localForage
-      .setItem("selectedCurrencies", data)
-      .then((data) => {
-        dispatch({
-          type: "SET_SELECTED_CURRENCIES",
-          payload: data,
-        });
-        setCurrentSelectedCurrency(data[currIndex]);
-      })
-      .catch(function (err) {
-        // This code runs if there were any errors
-        console.log(err);
-        dispatch({
-          type: "SET_ERROR",
-          payload: err,
-        });
-      });
-  };
 
   useEffect(() => {
     if (currencies !== null) {
@@ -66,56 +47,51 @@ const Overview = () => {
 
   useEffect(() => {
     if (overviewSlug) {
-      localForage
-        .getItem("selectedCurrencies")
-        .then((data) => {
+      handleGetLocalForage((data) => {
+        handleSetLocalForage(data, () => {
+          dispatch({
+            type: "SET_SELECTED_CURRENCIES",
+            payload: data,
+          });
           setCurrentSelectedCurrency(data.find((e) => e.name === overviewSlug));
-        })
-        .catch(function (err) {
-          console.log(err);
-          // This code runs if there were any errors
-          dispatch({ type: "SET_ERROR" });
         });
+      });
     }
   }, [overviewSlug]);
 
   useEffect(() => {
     if (submit) {
-      localForage
-        .getItem("selectedCurrencies")
-        .then((data) => {
-          const currIndex = data.findIndex(
-            (e) => e.name === currentCurrency.name
+      handleGetLocalForage((data) => {
+        const currIndex = data.findIndex(
+          (e) => e.name === currentCurrency.name
+        );
+
+        // Add
+        if (formType === "add") {
+          data[currIndex].assets.push(inputs);
+        }
+
+        // Edit
+        if (formType === "edit") {
+          const foundIndex = data[currIndex].assets.findIndex(
+            (x) => x.id == currentItem.id
           );
+          data[currIndex].assets[foundIndex] = inputs;
+        }
 
-          // Add
-          if (formType === "add") {
-            data[currIndex].assets.push(inputs);
-          }
+        // Calculate totals
+        data[currIndex].totals = totals(
+          data[currIndex].assets,
+          currentCurrency
+        );
 
-          // Edit
-          if (formType === "edit") {
-            const foundIndex = data[currIndex].assets.findIndex(
-              (x) => x.id == currentItem.id
-            );
-            data[currIndex].assets[foundIndex] = inputs;
-          }
-
-          // Calculate totals
-          data[currIndex].totals = totals(
-            data[currIndex].assets,
-            currentCurrency
-          );
-          setSelectedCurrencyData(data, currIndex);
+        handleSetLocalForage(data, () => {
+          setCurrentSelectedCurrency(data[currIndex]);
           setCurrentItem({});
           setOpenAddAssetModal(false);
           resetAddAssetForm();
-        })
-        .catch(function (err) {
-          console.log(err);
-          // This code runs if there were any errors
-          dispatch({ type: "SET_ERROR" });
         });
+      });
     }
     setSubmit(false);
   }, [submit, inputs, currentCurrency, formType, currentItem]);
@@ -149,9 +125,8 @@ const Overview = () => {
 
   const handleRemoveAsset = useCallback(
     (asset) => {
-      localForage.getItem("selectedCurrencies").then((data) => {
+      handleGetLocalForage((data) => {
         const currIndex = data.findIndex((e) => e.name === overviewSlug);
-
         data[currIndex].assets = data[currIndex].assets.filter(
           (item) => item.id !== asset.id
         );
@@ -159,8 +134,10 @@ const Overview = () => {
           data[currIndex].assets,
           currentCurrency
         );
-        setSelectedCurrencyData(data, currIndex);
-        setOpenRemoveAssetModal(false);
+        handleSetLocalForage(data, () => {
+          setCurrentSelectedCurrency(data[currIndex]);
+          setOpenRemoveAssetModal(false);
+        });
       });
     },
     [overviewSlug]
@@ -168,15 +145,17 @@ const Overview = () => {
 
   const handleRemoveAllAssets = useCallback(
     (overviewSlug) => {
-      localForage.getItem("selectedCurrencies").then((data) => {
+      handleGetLocalForage((data) => {
         const currIndex = data.findIndex((e) => e.name === overviewSlug);
         data[currIndex].assets = [];
         data[currIndex].totals = totals(
           data[currIndex].assets,
           currentCurrency
         );
-        setSelectedCurrencyData(data, currIndex);
-        setOpenRemoveAllAssetsModal(false);
+        handleSetLocalForage(data, () => {
+          setCurrentSelectedCurrency(data[currIndex]);
+          setOpenRemoveAllAssetsModal(false);
+        });
       });
     },
     [overviewSlug]
@@ -207,6 +186,43 @@ const Overview = () => {
     setPrice("");
     setDate("");
   }
+
+  const handleGetLocalForage = (callback) => {
+    localForage
+      .getItem("selectedCurrencies")
+      .then((data) => {
+        if (typeof callback === "function") {
+          return callback(data);
+        }
+      })
+      .catch(function (err) {
+        console.log(err);
+        // This code runs if there were any errors
+        dispatch({ type: "SET_ERROR" });
+      });
+  };
+
+  const handleSetLocalForage = (data, callback) => {
+    localForage
+      .setItem("selectedCurrencies", data)
+      .then((data) => {
+        dispatch({
+          type: "SET_SELECTED_CURRENCIES",
+          payload: data,
+        });
+        if (typeof callback === "function") {
+          return callback();
+        }
+      })
+      .catch(function (err) {
+        // This code runs if there were any errors
+        console.log(err);
+        dispatch({
+          type: "SET_ERROR",
+          payload: err,
+        });
+      });
+  };
 
   return (
     <div className="bg-gray-dark p-8 min-h-screen">
