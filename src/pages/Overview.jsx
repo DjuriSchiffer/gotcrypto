@@ -231,9 +231,9 @@ const Overview = () => {
   return (
     <Page>
       <PageContainer className={"container mx-auto"}>
-        <div className="mb-5">
+        <ButtonWrapper className={"mb-5"}>
           <Button id="link" to="/" text="Return to dashboard"></Button>
-        </div>
+        </ButtonWrapper>
         {currentCurrency && (
           <div className="flex items-center justify-between">
             <div>
