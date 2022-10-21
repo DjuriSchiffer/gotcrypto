@@ -14,7 +14,6 @@ const totals = (assets = [], currentCurrency = {}) => {
     0
   );
   const totalValue = CurrentValue(totalAmount, currentCurrency.price);
-  console.log("totalValue", totalValue);
   const totalAveragePurchasePrice = AveragePurchasePrice(
     totalPurchasePrice,
     totalAmount

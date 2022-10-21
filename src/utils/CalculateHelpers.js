@@ -1,4 +1,5 @@
 export function PercentageDifference(purchasePrice, currentValue) {
+  if (purchasePrice === 0 || currentValue === 0) return 0;
   return ((currentValue * 100) / purchasePrice - 100).toFixed(2);
 }
 
