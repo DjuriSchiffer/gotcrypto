@@ -5,11 +5,11 @@ const AddAssetForm = ({
   price,
   date,
   handleChange,
-  formType
+  formType,
 }) => {
   return (
     <form onSubmit={onSubmit} className={className}>
-      <label for="amount" className="text-gray text-sm mb-1">
+      <label htmlFor="amount" className="text-gray text-sm mb-1">
         Amount
       </label>
       <input
@@ -21,7 +21,7 @@ const AddAssetForm = ({
         value={amount}
         required
       />
-      <label for="purchasePrice" className="text-gray text-sm mb-1">
+      <label htmlFor="purchasePrice" className="text-gray text-sm mb-1">
         Purchase Price - in Euros
       </label>
       <input
@@ -33,7 +33,7 @@ const AddAssetForm = ({
         value={price}
         required
       />
-      <label for="date" className="text-gray text-sm mb-1">
+      <label htmlFor="date" className="text-gray text-sm mb-1">
         Purchase Date
       </label>
       <input
