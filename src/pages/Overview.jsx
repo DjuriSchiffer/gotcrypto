@@ -219,8 +219,14 @@ const Overview = () => {
   return (
     <Page>
       <PageContainer className={"container mx-auto"}>
-        <ButtonWrapper className={"mb-5"}>
-          <Button id="link" to="/" text="Return to dashboard"></Button>
+        <ButtonWrapper className={"mb-5 flex items-center"}>
+          <Icon id="Left" color="white" />
+          <Button
+            id="link"
+            className="ml-1"
+            to="/"
+            text="Return to dashboard"
+          ></Button>
         </ButtonWrapper>
         {currentCurrency && (
           <div className="flex items-center justify-between">

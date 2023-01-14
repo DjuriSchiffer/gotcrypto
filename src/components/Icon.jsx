@@ -1,6 +1,7 @@
 import {
   FaArrowUp,
   FaArrowDown,
+  FaArrowLeft,
   FaPen,
   FaTrashAlt,
   FaPlus,
@@ -15,6 +16,9 @@ const Icon = ({ color, id, className }) => {
 
     case "Down":
       return <FaArrowDown color={color} />;
+
+    case "Left":
+      return <FaArrowLeft color={color} />;
 
     case "Edit":
       return <FaPen color={color} />;
