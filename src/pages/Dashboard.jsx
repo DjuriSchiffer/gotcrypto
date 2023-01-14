@@ -175,7 +175,9 @@ const Dashboard = () => {
                     <Button
                       id="link"
                       to={selectedCurrency.name}
-                      className={"p-2 rounded-md text-black inline-block"}
+                      className={
+                        "p-2 rounded-md text-black bg-green inline-block"
+                      }
                     >
                       <Icon id="Plus" color="white" />
                     </Button>
@@ -184,7 +186,7 @@ const Dashboard = () => {
                       onClick={() =>
                         handleOpenRemoveAssetModal(selectedCurrency)
                       }
-                      className={"p-2 rounded-md text-black"}
+                      className={"p-2 rounded-md text-black bg-red ml-2"}
                     >
                       <Icon id="Remove" color="white" />
                     </Button>
