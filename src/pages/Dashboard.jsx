@@ -27,9 +27,9 @@ const Dashboard = () => {
   useEffect(() => {
     dispatch({
       type: "SET_GLOBAL_TOTALS",
-      payload: getGlobalTotals(selectedCurrencies),
+      payload: getGlobalTotals(selectedCurrencies, currencies),
     });
-  }, [selectedCurrencies, dispatch]);
+  }, [selectedCurrencies, currencies, dispatch]);
 
   const handleRemoveCurrency = (selectedCurrency) => {
     handleGetLocalForage((data) => {

@@ -16,6 +16,20 @@ const TableRow = ({
   children,
 }) => {
   if (type === "dashboard") {
+    const totalValue = CurrentValue(
+      item.totals.totalAmount,
+      currencies[item.index].price
+    );
+
+    const totalPurchasePrice = item.assets.reduce(
+      (acc, asset) => acc + parseFloat(item.totals.totalPurchasePrice),
+      0
+    );
+    const totalPercentageDifference = PercentageDifference(
+      totalPurchasePrice,
+      totalValue
+    );
+
     return (
       <tr>
         <td className="py-2 pl-2 border-white">
@@ -36,7 +50,7 @@ const TableRow = ({
         <td className="py-2 border-white">
           {item.totals && (
             <div className="flex flex-col">
-              <div>{CurrencyFormat(item.totals.totalValue)}</div>
+              <div>{CurrencyFormat(totalValue)}</div>
               <div className="text-sm">{item.totals.totalAmount}</div>
             </div>
           )}
@@ -45,11 +59,11 @@ const TableRow = ({
           {item.totals && (
             <div
               className={classNames("flex", {
-                "text-green": item.totals.totalPercentageDifference > 0,
-                "text-red": item.totals.totalPercentageDifference < 0,
+                "text-green": totalPercentageDifference > 0,
+                "text-red": totalPercentageDifference < 0,
               })}
             >
-              {PercentageFormat(item.totals.totalPercentageDifference)}
+              {PercentageFormat(totalPercentageDifference)}
             </div>
           )}
         </td>
@@ -97,9 +111,12 @@ const TableRow = ({
   if (type === "overview-totals") {
     const totalAmount = item.totalAmount;
     const totalPurchasePrice = item.totalPurchasePrice;
-    const totalValue = item.totalValue;
+    const totalValue = CurrentValue(totalAmount, currentCurrency.price);
     const totalAveragePurchasePrice = item.totalAveragePurchasePrice;
-    const totalPercentageDifference = item.totalPercentageDifference;
+    const totalPercentageDifference = PercentageDifference(
+      totalPurchasePrice,
+      totalValue
+    );
 
     return (
       <tr className="shadow-line">
