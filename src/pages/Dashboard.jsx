@@ -17,6 +17,7 @@ import Modal from "../components/Modal";
 import SelectCurrencies from "../components/SelectCurrencies";
 import Page from "../components/Page";
 import PageContainer from "../components/PageContainer";
+import Charts from "../components/Charts";
 
 const Dashboard = () => {
   const { currencies, selectedCurrencies, globalTotals } = useGlobalState();
@@ -196,6 +197,14 @@ const Dashboard = () => {
           </TableBody>
         </Table>
       )}
+      {currencies && !isEmpty(selectedCurrencies) && (
+        <PageContainer
+          className={"container mx-auto flex flex-col items-center"}
+        >
+          <Charts data={selectedCurrencies} />
+        </PageContainer>
+      )}
+
       {isEmpty(selectedCurrencies) && (
         <PageContainer
           className={"container mx-auto flex flex-col items-center"}

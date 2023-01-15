@@ -4,6 +4,7 @@ import { useDispatch } from "../hooks/useReducer";
 import totals from "../utils/totals";
 import localForage from "localforage";
 import Select from "react-select";
+import { randomRgbColor } from "../utils/colours";
 
 const SelectCurrencies = ({ className }) => {
   const { currencies, selectedCurrencies } = useGlobalState();
@@ -52,6 +53,7 @@ const SelectCurrencies = ({ className }) => {
             label: input.label,
             index: currIndex,
             assets: [],
+            colour: randomRgbColor(),
             totals: totals([], currencies[currIndex]),
           };
           data.push(object);
