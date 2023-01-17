@@ -18,6 +18,7 @@ import TableRow from "../components/TableRow";
 import Modal from "../components/Modal";
 import Page from "../components/Page";
 import PageContainer from "../components/PageContainer";
+import OverviewChart from "../components/ChartsOverview";
 
 const Overview = () => {
   const { currencies } = useGlobalState();
@@ -87,6 +88,11 @@ const Overview = () => {
         data[currIndex].totals = totals(
           data[currIndex].assets,
           currentCurrency
+        );
+
+        // Sort assets arr by date
+        data[currIndex].assets.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
         );
 
         handleSetLocalForage(data, () => {
@@ -316,6 +322,16 @@ const Overview = () => {
             </TableBody>
           </Table>
         )}
+
+      {currentSelectedCurrency?.assets &&
+        currentSelectedCurrency.assets.length > 0 && (
+          <PageContainer
+            className={"container mx-auto flex flex-col items-center"}
+          >
+            <OverviewChart data={currentSelectedCurrency} />
+          </PageContainer>
+        )}
+
       {isEmpty(currentSelectedCurrency?.assets) && (
         <PageContainer
           className={"container mx-auto flex flex-col items-center"}

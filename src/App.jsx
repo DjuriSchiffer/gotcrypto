@@ -22,15 +22,15 @@ const Bootstrap = () => {
           });
         } else {
           let currenciesArr = [];
-
-          data.data.map((item) => {
-            currenciesArr[item.id] = {
-              name: item.slug,
-              price: parseFloat(item.quote.EUR.price.toFixed(2)),
-              slug: item.name,
-              cmc_id: item.id,
+          console.log(data.data);
+          for (const [key, value] of Object.entries(data.data)) {
+            currenciesArr[key] = {
+              name: value.slug,
+              price: parseFloat(value.quote.EUR.price.toFixed(2)),
+              slug: value.name,
+              cmc_id: value.id,
             };
-          });
+          }
           dispatch({
             type: "SET_INITIAL_CURRENCIES",
             payload: currenciesArr,

@@ -17,7 +17,7 @@ import Modal from "../components/Modal";
 import SelectCurrencies from "../components/SelectCurrencies";
 import Page from "../components/Page";
 import PageContainer from "../components/PageContainer";
-import Charts from "../components/Charts";
+import Charts from "../components/ChartsDashboard";
 
 const Dashboard = () => {
   const { currencies, selectedCurrencies, globalTotals } = useGlobalState();
