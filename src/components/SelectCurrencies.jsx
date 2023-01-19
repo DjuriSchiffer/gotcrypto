@@ -1,5 +1,5 @@
 import { useState as useGlobalState } from "../hooks/useReducer";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useDispatch } from "../hooks/useReducer";
 import totals from "../utils/totals";
 import localForage from "localforage";
@@ -47,14 +47,13 @@ const SelectCurrencies = ({ className }) => {
               return item;
             }
           });
-          const object = {
+          data.push({
             name: input.value,
             label: input.label,
             index: currIndex,
             assets: [],
             totals: totals([], currencies[currIndex]),
-          };
-          data.push(object);
+          });
           localForage.setItem("selectedCurrencies", data).then((data) => {
             dispatch({
               type: "SET_SELECTED_CURRENCIES",
@@ -62,6 +61,7 @@ const SelectCurrencies = ({ className }) => {
             });
           });
           selectInputRef.current.setValue(defaultValue);
+          setSubmit(false);
         })
         .catch(function (err) {
           // This code runs if there were any errors
@@ -71,13 +71,11 @@ const SelectCurrencies = ({ className }) => {
           });
         });
     }
-    setSubmit(false);
   }, [submit, input]);
 
   useEffect(() => {
     if (currencies !== null && selectedCurrencies) {
-      let optionsArr = [];
-      currencies.map((currency, i) => {
+      let optionsArr = currencies.map((currency, i) => {
         let isDisabled = false;
         selectedCurrencies.forEach((element) => {
           if (element.name === currency.name) {
@@ -85,21 +83,24 @@ const SelectCurrencies = ({ className }) => {
           }
         });
 
-        optionsArr.push({
+        return {
           value: currency.name,
           label: currency.slug,
           image: `https://s2.coinmarketcap.com/static/img/coins/32x32/${currency.cmc_id}.png`,
           disabled: isDisabled,
-        });
+        };
       });
       setOptions(optionsArr);
     }
   }, [currencies, selectedCurrencies]);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setSubmit(true);
-  };
+  const handleSubmit = useCallback(
+    (event) => {
+      event.preventDefault();
+      setSubmit(true);
+    },
+    [submit]
+  );
 
   return (
     <form onSubmit={handleSubmit} className={className}>
