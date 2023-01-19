@@ -15,14 +15,12 @@ const Bootstrap = () => {
     currenciesQuery.then((data) => {
       if (data.data !== undefined || data.status.error_code !== 0) {
         if (data.error) {
-          console.log(err);
           dispatch({
             type: "SET_ERROR",
             payload: data.error,
           });
         } else {
           let currenciesArr = [];
-          console.log(data.data);
           for (const [key, value] of Object.entries(data.data)) {
             currenciesArr[key] = {
               name: value.slug,
