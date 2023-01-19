@@ -37,7 +37,7 @@ const Charts = ({ data }) => {
       day: "2-digit",
     });
   });
-  const amount = assets.map((asset) => parseInt(asset.amount));
+  const amount = assets.map((asset) => parseFloat(asset.amount));
   const amountData = amount.map((asset, index) =>
     amount.slice(0, index + 1).reduce((a, b) => a + b)
   );
