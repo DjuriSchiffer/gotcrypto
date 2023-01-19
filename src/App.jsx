@@ -33,34 +33,37 @@ const Bootstrap = () => {
             type: "SET_INITIAL_CURRENCIES",
             payload: currenciesArr,
           });
-          localForage
-            .getItem("selectedCurrencies")
-            .then((values) => {
-              if (values === null) {
-                localForage.setItem("selectedCurrencies", []);
-                dispatch({
-                  type: "SET_SELECTED_CURRENCIES",
-                  payload: [],
-                });
-              } else {
-                dispatch({
-                  type: "SET_SELECTED_CURRENCIES",
-                  payload: values,
-                });
-              }
-            })
-            .catch(function (err) {
-              console.log(err);
-              // This code runs if there were any errors
-              dispatch({
-                type: "SET_ERROR",
-                payload: err,
-              });
-            });
         }
       }
     });
-  }, [currenciesQuery]);
+  }, [currenciesQuery, dispatch]);
+
+  useEffect(() => {
+    localForage
+      .getItem("selectedCurrencies")
+      .then((values) => {
+        if (values === null) {
+          localForage.setItem("selectedCurrencies", []);
+          dispatch({
+            type: "SET_SELECTED_CURRENCIES",
+            payload: [],
+          });
+        } else {
+          dispatch({
+            type: "SET_SELECTED_CURRENCIES",
+            payload: values,
+          });
+        }
+      })
+      .catch(function (err) {
+        console.log(err);
+        // This code runs if there were any errors
+        dispatch({
+          type: "SET_ERROR",
+          payload: err,
+        });
+      });
+  }, []);
 
   return null;
 };
