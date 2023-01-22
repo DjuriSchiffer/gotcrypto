@@ -27,7 +27,7 @@ ChartJS.register(
 
 const Charts = ({ data }) => {
   const { currencies } = useGlobalState();
-  const assets = data.assets.reverse();
+  const assets = JSON.parse(JSON.stringify(data.assets)).reverse();
 
   const labels = assets.map((asset) => {
     const date = new Date(asset.date);
