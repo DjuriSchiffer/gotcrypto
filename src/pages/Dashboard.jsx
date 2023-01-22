@@ -1,7 +1,7 @@
 import { useState as useGlobalState } from "../hooks/useReducer";
 import { useEffect, useState } from "react";
 import { useDispatch } from "../hooks/useReducer";
-import localForage from "localforage";
+import { useLocalForage } from "../hooks/useLocalForage";
 import Button from "../components/Button";
 import Icon from "../components/Icon";
 import { PercentageFormat, CurrencyFormat } from "../utils/CalculateHelpers";
@@ -21,6 +21,7 @@ import Charts from "../components/ChartsDashboard";
 
 const Dashboard = () => {
   const { currencies, selectedCurrencies, globalTotals } = useGlobalState();
+  const [setLocalForage] = useLocalForage();
   const dispatch = useDispatch();
   const [openRemoveAssetModal, setOpenRemoveAssetModal] = useState(false);
   const [currentCurrency, setCurrentCurrency] = useState({});
@@ -33,82 +34,42 @@ const Dashboard = () => {
   }, [selectedCurrencies, currencies, dispatch]);
 
   const handleRemoveCurrency = (selectedCurrency) => {
-    handleGetLocalForage((data) => {
-      data = data.filter((item) => !isEqual(item, selectedCurrency));
-      handleSetLocalForage(data, () => {
+    setLocalForage(
+      "selectedCurrencies",
+      selectedCurrencies.filter((item) => !isEqual(item, selectedCurrency)),
+      () => {
         setOpenRemoveAssetModal(false);
-      });
-    });
+      }
+    );
   };
 
   const handleOrderCurrencyUp = (selectedCurrency) => {
-    handleGetLocalForage((data) => {
-      const currIndex = data.findIndex((item) => {
-        if (item && item.name === selectedCurrency.name) {
-          return item;
-        }
-      });
-      const toIndex = currIndex - 1;
-      const element = data.splice(currIndex, 1)[0];
-      data.splice(toIndex, 0, element);
-      handleSetLocalForage(data);
+    const currIndex = selectedCurrencies.findIndex((item) => {
+      if (item && item.name === selectedCurrency.name) {
+        return item;
+      }
     });
+    const toIndex = currIndex - 1;
+    const element = selectedCurrencies.splice(currIndex, 1)[0];
+    selectedCurrencies.splice(toIndex, 0, element);
+    setLocalForage("selectedCurrencies", selectedCurrencies);
   };
 
   const handleOrderCurrencyDown = (selectedCurrency) => {
-    handleGetLocalForage((data) => {
-      const currIndex = data.findIndex((item) => {
-        if (item && item.name === selectedCurrency.name) {
-          return item;
-        }
-      });
-      const toIndex = currIndex + 1;
-      const element = data.splice(currIndex, 1)[0];
-      data.splice(toIndex, 0, element);
-      handleSetLocalForage(data);
+    const currIndex = selectedCurrencies.findIndex((item) => {
+      if (item && item.name === selectedCurrency.name) {
+        return item;
+      }
     });
+    const toIndex = currIndex + 1;
+    const element = selectedCurrencies.splice(currIndex, 1)[0];
+    selectedCurrencies.splice(toIndex, 0, element);
+    setLocalForage("selectedCurrencies", selectedCurrencies);
   };
 
   const handleOpenRemoveAssetModal = (selectedCurrency) => {
     setCurrentCurrency(selectedCurrency);
     setOpenRemoveAssetModal(true);
-  };
-
-  const handleGetLocalForage = (callback) => {
-    localForage
-      .getItem("selectedCurrencies")
-      .then((data) => {
-        if (typeof callback === "function") {
-          return callback(data);
-        }
-      })
-      .catch(function (err) {
-        console.log(err);
-        // This code runs if there were any errors
-        dispatch({ type: "SET_ERROR" });
-      });
-  };
-
-  const handleSetLocalForage = (data, callback) => {
-    localForage
-      .setItem("selectedCurrencies", data)
-      .then((data) => {
-        dispatch({
-          type: "SET_SELECTED_CURRENCIES",
-          payload: data,
-        });
-        if (typeof callback === "function") {
-          return callback();
-        }
-      })
-      .catch(function (err) {
-        // This code runs if there were any errors
-        console.log(err);
-        dispatch({
-          type: "SET_ERROR",
-          payload: err,
-        });
-      });
   };
 
   return (

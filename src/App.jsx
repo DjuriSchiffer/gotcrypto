@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { getCurrencies } from "./api";
-import localForage from "localforage";
+import { useLocalForage } from "./hooks/useLocalForage";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ReducerProvider, { useDispatch } from "./hooks/useReducer";
 import Overview from "./pages/Overview";
@@ -10,6 +10,7 @@ import Error from "./components/Error";
 const Bootstrap = () => {
   const currenciesQuery = getCurrencies();
   const dispatch = useDispatch();
+  const [setLocalForage, initStore] = useLocalForage();
 
   useEffect(() => {
     currenciesQuery.then((data) => {
@@ -33,37 +34,11 @@ const Bootstrap = () => {
             type: "SET_INITIAL_CURRENCIES",
             payload: currenciesArr,
           });
+          initStore("selectedCurrencies");
         }
       }
     });
   }, [currenciesQuery, dispatch]);
-
-  useEffect(() => {
-    localForage
-      .getItem("selectedCurrencies")
-      .then((values) => {
-        if (values === null) {
-          localForage.setItem("selectedCurrencies", []);
-          dispatch({
-            type: "SET_SELECTED_CURRENCIES",
-            payload: [],
-          });
-        } else {
-          dispatch({
-            type: "SET_SELECTED_CURRENCIES",
-            payload: values,
-          });
-        }
-      })
-      .catch(function (err) {
-        console.log(err);
-        // This code runs if there were any errors
-        dispatch({
-          type: "SET_ERROR",
-          payload: err,
-        });
-      });
-  }, []);
 
   return null;
 };

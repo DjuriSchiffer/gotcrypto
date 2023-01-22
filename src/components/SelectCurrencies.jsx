@@ -1,13 +1,12 @@
 import { useState as useGlobalState } from "../hooks/useReducer";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useDispatch } from "../hooks/useReducer";
+import { useLocalForage } from "../hooks/useLocalForage";
 import totals from "../utils/totals";
-import localForage from "localforage";
 import Select from "react-select";
 
 const SelectCurrencies = ({ className }) => {
   const { currencies, selectedCurrencies } = useGlobalState();
-  const dispatch = useDispatch();
+  const [setLocalForage] = useLocalForage();
   const [input, setInput] = useState({});
   const [submit, setSubmit] = useState(false);
   const [options, setOptions] = useState([]);
@@ -37,62 +36,52 @@ const SelectCurrencies = ({ className }) => {
 
   useEffect(() => {
     if (submit && input && input.value !== null) {
-      localForage
-        .getItem("selectedCurrencies")
-        .then((data) => {
-          if (data.filter((item) => item.name === input.value).length > 0)
-            return;
-          const currIndex = currencies.findIndex((item) => {
-            if (item && item.name === input.value) {
-              return item;
-            }
-          });
-          data.push({
-            name: input.value,
-            label: input.label,
-            index: currIndex,
-            assets: [],
-            totals: totals([], currencies[currIndex]),
-          });
-          localForage.setItem("selectedCurrencies", data).then((data) => {
-            dispatch({
-              type: "SET_SELECTED_CURRENCIES",
-              payload: data,
-            });
-          });
-          selectInputRef.current.setValue(defaultValue);
-          setSubmit(false);
-        })
-        .catch(function (err) {
-          // This code runs if there were any errors
-          dispatch({
-            type: "SET_ERROR",
-            payload: err,
-          });
-        });
+      if (
+        selectedCurrencies.filter((item) => item.name === input.value).length >
+        0
+      )
+        return;
+
+      const currIndex = currencies.findIndex((item) => {
+        if (item && item.name === input.value) {
+          return item;
+        }
+      });
+      selectedCurrencies.push({
+        name: input.value,
+        label: input.label,
+        index: currIndex,
+        assets: [],
+        totals: totals([], currencies[currIndex]),
+      });
+      setLocalForage("selectedCurrencies", selectedCurrencies, () => {
+        selectInputRef.current.setValue(defaultValue);
+        setSubmit(false);
+      });
     }
   }, [submit, input]);
 
   useEffect(() => {
     if (currencies !== null && selectedCurrencies) {
-      let optionsArr = currencies.map((currency, i) => {
-        let isDisabled = false;
-        selectedCurrencies.forEach((element) => {
-          if (element.name === currency.name) {
-            isDisabled = true;
-          }
-        });
-
-        return {
-          value: currency.name,
-          label: currency.slug,
-          image: `https://s2.coinmarketcap.com/static/img/coins/32x32/${currency.cmc_id}.png`,
-          disabled: isDisabled,
-        };
-      });
-      setOptions(optionsArr);
+      // console.log(currencies);
+      setOptions(
+        currencies.map((currency, i) => {
+          let isDisabled = false;
+          selectedCurrencies.forEach((element) => {
+            if (element.name === currency.name) {
+              isDisabled = true;
+            }
+          });
+          return {
+            value: currency.name,
+            label: currency.slug,
+            image: `https://s2.coinmarketcap.com/static/img/coins/32x32/${currency.cmc_id}.png`,
+            disabled: isDisabled,
+          };
+        })
+      );
     }
-  }, [currencies, selectedCurrencies]);
+  }, [currencies, selectedCurrencies, submit]);
 
   const handleSubmit = useCallback(
     (event) => {
