@@ -7,6 +7,7 @@ import {
   DateFormat,
 } from "../utils/CalculateHelpers";
 import classNames from "classnames";
+import { getImage } from "../utils/images";
 
 const TableRow = ({
   item,
@@ -37,9 +38,7 @@ const TableRow = ({
             <img
               width={32}
               height={32}
-              src={`https://s2.coinmarketcap.com/static/img/coins/32x32/${
-                currencies[item.index].cmc_id
-              }.png`}
+              src={getImage(currencies[item.index].cmc_id)}
             />
             <div className="pl-2">{item.label}</div>
           </div>

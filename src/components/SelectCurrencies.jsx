@@ -3,6 +3,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocalForage } from "../hooks/useLocalForage";
 import totals from "../utils/totals";
 import Select from "react-select";
+import { getImage } from "../utils/images";
 
 const SelectCurrencies = ({ className }) => {
   const { currencies, selectedCurrencies } = useGlobalState();
@@ -75,7 +76,7 @@ const SelectCurrencies = ({ className }) => {
           return {
             value: currency.name,
             label: currency.slug,
-            image: `https://s2.coinmarketcap.com/static/img/coins/32x32/${currency.cmc_id}.png`,
+            image: getImage(currency.cmc_id),
             disabled: isDisabled,
           };
         })
