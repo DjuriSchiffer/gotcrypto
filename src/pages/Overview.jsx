@@ -18,6 +18,7 @@ import Modal from "../components/Modal";
 import Page from "../components/Page";
 import PageContainer from "../components/PageContainer";
 import OverviewChart from "../components/ChartsOverview";
+import { getImage } from "../utils/images";
 
 const Overview = () => {
   const { currencies, selectedCurrencies } = useGlobalState();
@@ -196,7 +197,7 @@ const Overview = () => {
                   className="inline-block mr-2"
                   width={32}
                   height={32}
-                  src={`https://s2.coinmarketcap.com/static/img/coins/32x32/${currentCurrency.cmc_id}.png`}
+                  src={getImage(currentCurrency.cmc_id)}
                 />
                 {currentCurrency.name}
               </div>
