@@ -5,8 +5,8 @@ import tether from "../public/images/tether.png";
 import xrp from "../public/images/xrp.png";
 import bnb from "../public/images/bnb.png";
 import hex from "../public/images/hex.png";
-import gold from "../public/images/bitcoin.png";
-import silver from "../public/images/bitcoin.png";
+import gold from "../public/images/gold.png";
+import silver from "../public/images/silver.png";
 
 export const getImage = (id) => {
   return images[id];
@@ -17,8 +17,8 @@ const images = {
   2: litecoin, //litecoin
   3575: gold, // gold
   3574: silver, // silver
-  1839: tether, // tether
-  825: bnb, // bnb
+  825: tether, // tether
+  1839: bnb, // bnb
   52: xrp, // xrp
   1027: ethereum, // eth
   5015: hex, // hex
