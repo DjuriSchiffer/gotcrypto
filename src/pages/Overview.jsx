@@ -10,15 +10,16 @@ import { CurrencyFormat } from "../utils/CalculateHelpers";
 import Button from "../components/Button";
 import ButtonWrapper from "../components/ButtonWrapper";
 import Icon from "../components/Icon";
-import Table from "../components/Table";
-import TableHead from "../components/TableHead";
-import TableBody from "../components/TableBody";
-import TableRow from "../components/TableRow";
 import Modal from "../components/Modal";
 import Page from "../components/Page";
 import PageContainer from "../components/PageContainer";
 import OverviewChart from "../components/ChartsOverview";
 import { getImage } from "../utils/images";
+import { Button as FBButton } from "flowbite-react";
+import { Card } from "flowbite-react";
+import Table from "../components/FBTable";
+import TableRow from "../components/FBTableRow";
+import { Link } from "react-router-dom";
 
 const Overview = () => {
   const { currencies, selectedCurrencies } = useGlobalState();
@@ -179,113 +180,105 @@ const Overview = () => {
 
   return (
     <Page>
-      <PageContainer className={"container mx-auto"}>
-        <ButtonWrapper className={"mb-5 flex items-center"}>
-          <Icon id="Left" color="white" />
-          <Button
-            id="link"
-            className="ml-1"
-            to="/"
-            text="Return to dashboard"
-          ></Button>
-        </ButtonWrapper>
-        {currentCurrency && (
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-4xl flex mb-1 items-center">
-                <img
-                  className="inline-block mr-2"
-                  width={32}
-                  height={32}
-                  src={getImage(currentCurrency.cmc_id)}
-                />
-                {currentCurrency.name}
-              </div>
-              <div className="text-xl">
-                {CurrencyFormat(currentCurrency.price)}
-                <span className="text-sm ml-1">current price</span>
-              </div>
-            </div>
-            {currentSelectedCurrency?.assets &&
-              currentSelectedCurrency.assets.length > 0 && (
-                <ButtonWrapper className={"flex"}>
-                  <Button
-                    id="action"
-                    onClick={() => handleOpenAddAssetModal("add")}
-                    text="Add Asset"
-                    className="bg-green p-2 rounded-md shadow text-white flex items-center"
-                  >
-                    <Icon id="Plus" color="white" />
-                  </Button>
-                  <Button
-                    id="action"
-                    onClick={() => setOpenRemoveAllAssetsModal(true)}
-                    text="Remove all assets"
-                    className="bg-red p-2 ml-2 rounded-md shadow text-white flex items-center"
-                  >
-                    <Icon id="Remove" color="white" />
-                  </Button>
-                </ButtonWrapper>
-              )}
-          </div>
-        )}
-      </PageContainer>
-      {currentSelectedCurrency?.assets &&
-        currentSelectedCurrency.assets.length > 0 && (
-          <Table
-            className={"container mx-auto bg-gray-dark shadow-line p-8 m-10"}
+      <div className={"grid gap-4 xl:grid-cols-2 2xl:grid-cols-6 mb-4"}>
+        <div>
+          <Link
+            to={"/"}
+            className={
+              "mb-4 inline-flex items-center justify-center p-5 text-base font-medium text-gray-500 rounded-lg bg-gray-50 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
+            }
           >
-            <TableHead className={"shadow-line"} type={"overview"} />
-            <TableBody>
-              {currentCurrency &&
-                currentSelectedCurrency &&
-                currentSelectedCurrency?.assets &&
-                currentSelectedCurrency.assets.map((item, index) => {
-                  return (
-                    <TableRow
-                      key={index}
-                      type="overview"
-                      item={item}
-                      currentCurrency={currentCurrency}
-                    >
-                      <Button
-                        id="action"
-                        onClick={() => handleOpenAddAssetModal("edit", item)}
-                        className="p-2 rounded-md text-black"
+            <Icon className={"mr-1"} id="Left" color="white" />
+            Return to dashboard
+          </Link>
+        </div>
+        {currentSelectedCurrency?.assets &&
+          currentSelectedCurrency.assets.length > 0 && (
+            <>
+              <Card className={"2xl:col-span-5"}>
+                {currentCurrency && (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-4xl flex mb-1 items-center text-white">
+                        <img
+                          className="inline-block mr-2"
+                          width={32}
+                          height={32}
+                          src={getImage(currentCurrency.cmc_id)}
+                        />
+                        {currentCurrency.slug}
+                      </div>
+                      <div className="text-xl text-white">
+                        {CurrencyFormat(currentCurrency.price)}
+                        <span className="text-sm ml-1">current price</span>
+                      </div>
+                    </div>
+                    <div className={"ml-auto flex"}>
+                      <FBButton
+                        onClick={() => handleOpenAddAssetModal("add")}
+                        className={"mr-2"}
                       >
-                        <Icon id="Edit" color="white" />
-                      </Button>
-                      <Button
-                        id="action"
-                        onClick={() => handleOpenRemoveAssetModal(item)}
-                        className="p-2 rounded-md text-black"
+                        Add Asset
+                        <Icon id="Plus" color="white" className={"ml-2"} />
+                      </FBButton>
+                      <FBButton
+                        onClick={() => setOpenRemoveAllAssetsModal(true)}
+                        color={"failure"}
                       >
+                        Remove all assets
                         <Icon id="Remove" color="white" />
-                      </Button>
-                    </TableRow>
-                  );
-                })}
-              {currentCurrency &&
-                currentSelectedCurrency &&
-                currentSelectedCurrency?.totals && (
-                  <TableRow
-                    type="overview-totals"
-                    item={currentSelectedCurrency.totals}
-                    currentCurrency={currentCurrency}
-                  ></TableRow>
+                      </FBButton>
+                    </div>
+                  </div>
                 )}
-            </TableBody>
-          </Table>
-        )}
 
-      {currentSelectedCurrency?.assets &&
-        currentSelectedCurrency.assets.length > 0 && (
-          <PageContainer
-            className={"container mx-auto flex flex-col items-center"}
-          >
-            <OverviewChart data={currentSelectedCurrency} />
-          </PageContainer>
-        )}
+                <Table type={"overview"}>
+                  {currentCurrency &&
+                    currentSelectedCurrency &&
+                    currentSelectedCurrency?.assets &&
+                    currentSelectedCurrency.assets.map((item, index) => {
+                      return (
+                        <TableRow
+                          key={index}
+                          type="overview"
+                          item={item}
+                          currentCurrency={currentCurrency}
+                        >
+                          <FBButton
+                            id="action"
+                            onClick={() =>
+                              handleOpenAddAssetModal("edit", item)
+                            }
+                          >
+                            <Icon id="Edit" color="white" />
+                          </FBButton>
+                          <FBButton
+                            onClick={() => handleOpenRemoveAssetModal(item)}
+                            color={"failure"}
+                            className={"ml-2"}
+                          >
+                            <Icon id="Remove" color="white" />
+                          </FBButton>
+                        </TableRow>
+                      );
+                    })}
+                  {currentCurrency &&
+                    currentSelectedCurrency &&
+                    currentSelectedCurrency?.totals && (
+                      <TableRow
+                        type="overview-totals"
+                        item={currentSelectedCurrency.totals}
+                        currentCurrency={currentCurrency}
+                      ></TableRow>
+                    )}
+                </Table>
+              </Card>
+              <Card className={"2xl:col-start-2 2xl:col-span-5"}>
+                <OverviewChart data={currentSelectedCurrency} />
+              </Card>
+            </>
+          )}
+      </div>
 
       {isEmpty(currentSelectedCurrency?.assets) && (
         <PageContainer
@@ -327,14 +320,15 @@ const Overview = () => {
           color="white"
           className="flex mx-auto mb-4 text-6xl"
         />
-        <Button
-          id="action"
-          onClick={() => handleRemoveAsset(currentItem)}
-          className="p-2 rounded-md text-white flex items-center bg-red mx-auto"
-          text="Remove asset"
-        >
-          <Icon id="Remove" color="white" />
-        </Button>
+        <div className="flex justify-center">
+          <FBButton
+            color={"failure"}
+            onClick={() => handleRemoveAsset(currentItem)}
+          >
+            <Icon id="Remove" color="white" />
+            Remove asset
+          </FBButton>
+        </div>
       </Modal>
       <Modal
         onClose={() => setOpenRemoveAllAssetsModal(false)}
@@ -346,14 +340,15 @@ const Overview = () => {
           color="white"
           className="flex mx-auto mb-4 text-6xl"
         />
-        <Button
-          id="action"
-          onClick={() => handleRemoveAllAssets(overviewSlug)}
-          className="p-2 rounded-md text-white flex items-center bg-red mx-auto"
-          text="Remove all assets"
-        >
-          <Icon id="Remove" color="white" />
-        </Button>
+        <div className="flex justify-center">
+          <FBButton
+            onClick={() => handleRemoveAllAssets(overviewSlug)}
+            color={"failure"}
+          >
+            <Icon id="Remove" color="white" />
+            Remove all assets
+          </FBButton>
+        </div>
       </Modal>
     </Page>
   );

@@ -7,6 +7,7 @@ import {
   FaPlus,
   FaExclamationTriangle,
   FaUndoAlt,
+  FaGithub,
 } from "react-icons/fa";
 
 const Icon = ({ color, id, className }) => {
@@ -18,7 +19,7 @@ const Icon = ({ color, id, className }) => {
       return <FaArrowDown color={color} />;
 
     case "Left":
-      return <FaArrowLeft color={color} />;
+      return <FaArrowLeft color={color} className={className} />;
 
     case "Edit":
       return <FaPen color={color} />;
@@ -37,6 +38,9 @@ const Icon = ({ color, id, className }) => {
 
     case "Reload":
       return <FaUndoAlt color={color} className={className} />;
+    
+      case "Github":
+        return <FaGithub color={color} className={className} />;
 
     default:
       return null;

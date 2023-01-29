@@ -52,27 +52,25 @@ const Charts = ({ data }) => {
   };
 
   return (
-    <div className="max-w-sm p-3 shadow-line">
-      <Pie
-        data={{
-          labels: data.map((asset) => asset.name),
-          datasets: [
-            {
-              label: "Total amount per asset",
-              data: data.map((asset) =>
-                CurrentValue(
-                  asset.totals.totalAmount,
-                  currencies[asset.index].price
-                )
-              ),
-              backgroundColor: data.map((asset) => getColour(asset.index)),
-              hoverOffset: 2,
-            },
-          ],
-        }}
-        options={options}
-      />
-    </div>
+    <Pie
+      data={{
+        labels: data.map((asset) => asset.name),
+        datasets: [
+          {
+            label: "Total amount per asset",
+            data: data.map((asset) =>
+              CurrentValue(
+                asset.totals.totalAmount,
+                currencies[asset.index].price
+              )
+            ),
+            backgroundColor: data.map((asset) => getColour(asset.index)),
+            hoverOffset: 2,
+          },
+        ],
+      }}
+      options={options}
+    />
   );
 };
 

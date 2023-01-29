@@ -90,32 +90,30 @@ const Charts = ({ data }) => {
   };
 
   return (
-    <div className="w-9/12 p-3 shadow-line">
-      <Line
-        data={{
-          labels: labels,
-          datasets: [
-            {
-              label: "Amount",
-              data: amountData,
-              borderColor: "rgb(53, 162, 235)",
-              backgroundColor: "rgba(53, 162, 235, 0.5)",
-              yAxisID: "y",
-            },
-            {
-              label: "Holdings",
-              data:
-                currencies &&
-                amountData.map((asset) => asset * currencies[data.index].price),
-              borderColor: "rgb(255, 99, 132)",
-              backgroundColor: "rgba(255, 99, 132, 0.5)",
-              yAxisID: "y1",
-            },
-          ],
-        }}
-        options={options}
-      />
-    </div>
+    <Line
+      data={{
+        labels: labels,
+        datasets: [
+          {
+            label: "Amount",
+            data: amountData,
+            borderColor: "rgb(53, 162, 235)",
+            backgroundColor: "rgba(53, 162, 235, 0.5)",
+            yAxisID: "y",
+          },
+          {
+            label: "Holdings",
+            data:
+              currencies &&
+              amountData.map((asset) => asset * currencies[data.index].price),
+            borderColor: "rgb(255, 99, 132)",
+            backgroundColor: "rgba(255, 99, 132, 0.5)",
+            yAxisID: "y1",
+          },
+        ],
+      }}
+      options={options}
+    />
   );
 };
 

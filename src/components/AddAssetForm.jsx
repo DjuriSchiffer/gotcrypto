@@ -1,3 +1,6 @@
+import { TextInput, Label, Button } from "flowbite-react";
+import Icon from "./Icon";
+
 const AddAssetForm = ({
   onSubmit,
   className,
@@ -8,48 +11,54 @@ const AddAssetForm = ({
   formType,
 }) => {
   return (
-    <form onSubmit={onSubmit} className={className}>
-      <label htmlFor="amount" className="text-gray text-sm mb-1">
-        Amount
-      </label>
-      <input
-        className="text-black mb-3 p-2 shadow-line rounded"
-        name="amount"
-        type="number"
-        placeholder="amount"
-        onChange={handleChange}
-        value={amount}
-        required
-      />
-      <label htmlFor="purchasePrice" className="text-gray text-sm mb-1">
-        Purchase Price - in Euros
-      </label>
-      <input
-        className="text-black mb-3 p-2 shadow-line rounded"
-        name="purchasePrice"
-        type="number"
-        placeholder="purchase price"
-        onChange={handleChange}
-        value={price}
-        required
-      />
-      <label htmlFor="date" className="text-gray text-sm mb-1">
-        Purchase Date
-      </label>
-      <input
-        className="text-black mb-4 p-2 shadow-line rounded"
-        name="date"
-        type="date"
-        placeholder="date"
-        onChange={handleChange}
-        value={date}
-        required
-      />
-      <input
-        className="bg-green p-4 rounded-md"
-        type="submit"
-        value={formType === "add" ? "Add asset" : "Edit asset"}
-      />
+    <form onSubmit={onSubmit} className="flex flex-col gap-4">
+      <div>
+        <div className="mb-2 block">
+          <Label htmlFor="amount" value="Amount" />
+        </div>
+        <TextInput
+          id="amount"
+          type="number"
+          placeholder="0"
+          required={true}
+          onChange={handleChange}
+          value={amount}
+          sizing="lg"
+        />
+      </div>
+      <div>
+        <div className="mb-2 block">
+          <Label htmlFor="purchasePrice" value=" Purchase Price - in Euros" />
+        </div>
+        <TextInput
+          id="purchasePrice"
+          name="purchasePrice"
+          type="number"
+          placeholder="0"
+          required={true}
+          onChange={handleChange}
+          value={price}
+          sizing="lg"
+        />
+      </div>
+      <div>
+        <div className="mb-2 block">
+          <Label htmlFor="date" value="Purchase Date" />
+        </div>
+        <TextInput
+          id="purchasePrice"
+          name="date"
+          type="date"
+          placeholder="date"
+          required={true}
+          onChange={handleChange}
+          value={date}
+          sizing="lg"
+        />
+      </div>
+      <Button type="submit">
+        {formType === "add" ? "Add asset" : "Edit asset"}
+      </Button>
     </form>
   );
 };
