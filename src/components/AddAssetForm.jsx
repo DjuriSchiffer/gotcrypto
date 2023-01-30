@@ -18,6 +18,7 @@ const AddAssetForm = ({
         </div>
         <TextInput
           id="amount"
+          name="amount"
           type="number"
           placeholder="0"
           required={true}
