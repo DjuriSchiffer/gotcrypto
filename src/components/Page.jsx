@@ -18,7 +18,12 @@ const Page = ({ children }) => {
         </Link>
 
         <div className="flex md:order-2">
-          <Button color={"gray"}>
+          <Button
+            href="https://github.com/DjuriSchiffer/finance-portfolio"
+            color={"gray"}
+            target={"_blank"}
+            rel={"noreferer"}
+          >
             <Icon id="Github" />
           </Button>
         </div>
