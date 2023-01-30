@@ -1,14 +1,19 @@
-import { Modal as FBModal } from "flowbite-react";
+import { Modal } from "flowbite-react";
 
-const Modal = ({ title = "Modal", children, open = false, onClose }) => {
+const ModalComponent = ({
+  title = "Modal",
+  children,
+  open = false,
+  onClose,
+}) => {
   return (
-    <FBModal show={open} onClose={onClose}>
-      <FBModal.Header>{title}</FBModal.Header>
-      <FBModal.Body>
+    <Modal show={open} onClose={onClose}>
+      <Modal.Header>{title}</Modal.Header>
+      <Modal.Body>
         <div className="space-y-6">{children}</div>
-      </FBModal.Body>
-    </FBModal>
+      </Modal.Body>
+    </Modal>
   );
 };
 
-export default Modal;
+export default ModalComponent;

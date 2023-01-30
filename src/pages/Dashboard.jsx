@@ -2,12 +2,10 @@ import { useState as useGlobalState } from "../hooks/useReducer";
 import { useEffect, useState } from "react";
 import { useDispatch } from "../hooks/useReducer";
 import { useLocalForage } from "../hooks/useLocalForage";
-import Button from "../components/Button";
 import { Link } from "react-router-dom";
 import Icon from "../components/Icon";
 import { PercentageFormat, CurrencyFormat } from "../utils/CalculateHelpers";
 import isEqual from "lodash.isequal";
-import isEmpty from "lodash.isempty";
 import { getGlobalTotals } from "../utils/totals";
 import classNames from "classnames";
 import { Button as FBButton } from "flowbite-react";
@@ -15,7 +13,6 @@ import { Card } from "flowbite-react";
 import Modal from "../components/Modal";
 import SelectCurrencies from "../components/SelectCurrencies";
 import Page from "../components/Page";
-import PageContainer from "../components/PageContainer";
 import Charts from "../components/ChartsDashboard";
 import Table from "../components/FBTable";
 import TableRow from "../components/FBTableRow";
@@ -75,7 +72,7 @@ const Dashboard = () => {
 
   return (
     <Page>
-      {currencies && selectedCurrencies && !isEmpty(selectedCurrencies) && (
+      {currencies && selectedCurrencies && (
         <>
           <div className={"grid gap-4 mb-4"}>
             <Card>
@@ -95,7 +92,6 @@ const Dashboard = () => {
                     </div>
                   </div>
                 )}
-
                 <SelectCurrencies className={"flex ml-auto"} />
               </div>
               <Table type="dashboard">
@@ -177,14 +173,6 @@ const Dashboard = () => {
             </div>
           </Modal>
         </>
-      )}
-      {isEmpty(selectedCurrencies) && (
-        <PageContainer
-          className={"container mx-auto flex flex-col items-center"}
-        >
-          <span className="mb-2">No currencies selected yet</span>
-          <SelectCurrencies className={"flex"} />
-        </PageContainer>
       )}
     </Page>
   );
