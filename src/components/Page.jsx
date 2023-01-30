@@ -21,7 +21,6 @@ const Page = ({ children }) => {
           <Button color={"gray"}>
             <Icon id="Github" />
           </Button>
-          <Navbar.Toggle />
         </div>
       </Navbar>
       <div className={"p-4"}>{children}</div>
