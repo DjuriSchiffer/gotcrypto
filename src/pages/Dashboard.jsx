@@ -9,7 +9,7 @@ import isEqual from "lodash.isequal";
 import { getGlobalTotals } from "../utils/totals";
 import classNames from "classnames";
 import { Button as FBButton } from "flowbite-react";
-import { Card } from "flowbite-react";
+import { Card, Spinner } from "flowbite-react";
 import Modal from "../components/Modal";
 import SelectCurrencies from "../components/SelectCurrencies";
 import Page from "../components/Page";
@@ -94,6 +94,7 @@ const Dashboard = () => {
                 )}
                 <SelectCurrencies className={"flex ml-auto"} />
               </div>
+
               <Table type="dashboard">
                 {selectedCurrencies.map((selectedCurrency, index) => {
                   return (
@@ -145,11 +146,13 @@ const Dashboard = () => {
               </Table>
             </Card>
           </div>
-          <div className={"grid gap-4 xl:grid-cols-2 2xl:grid-cols-3"}>
-            <Card>
-              <Charts data={selectedCurrencies} />
-            </Card>
-          </div>
+          {selectedCurrencies.some((e) => e.assets.length > 0) && (
+            <div className={"grid gap-4 xl:grid-cols-2 2xl:grid-cols-3"}>
+              <Card>
+                <Charts data={selectedCurrencies} />
+              </Card>
+            </div>
+          )}
           <Modal
             open={openRemoveAssetModal}
             title={
@@ -173,6 +176,15 @@ const Dashboard = () => {
             </div>
           </Modal>
         </>
+      )}
+      {!currencies && (
+        <div className={"text-white flex align-center"}>
+          <Spinner
+            color="success"
+            aria-label="Fetching data from Coinmarketcap"
+          />
+          <span className={"mr-2"}>Fetching data from Coinmarketcap...</span>
+        </div>
       )}
     </Page>
   );
