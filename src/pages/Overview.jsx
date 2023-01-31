@@ -11,10 +11,9 @@ import Modal from "../components/Modal";
 import Page from "../components/Page";
 import OverviewChart from "../components/ChartsOverview";
 import { getImage } from "../utils/images";
-import { Button as FBButton } from "flowbite-react";
-import { Card } from "flowbite-react";
-import Table from "../components/FBTable";
-import TableRow from "../components/FBTableRow";
+import { Card, Button } from "flowbite-react";
+import Table from "../components/Table";
+import TableRow from "../components/TableRow";
 import { Link } from "react-router-dom";
 
 const Overview = () => {
@@ -208,20 +207,20 @@ const Overview = () => {
                 </div>
               </div>
               <div className={"ml-auto flex"}>
-                <FBButton
+                <Button
                   onClick={() => handleOpenAddAssetModal("add")}
                   className={"mr-2"}
                 >
                   Add Asset
                   <Icon id="Plus" color="white" className={"ml-2"} />
-                </FBButton>
-                <FBButton
+                </Button>
+                <Button
                   onClick={() => setOpenRemoveAllAssetsModal(true)}
                   color={"failure"}
                 >
                   Remove all assets
                   <Icon id="Remove" color="white" />
-                </FBButton>
+                </Button>
               </div>
             </div>
           )}
@@ -238,19 +237,19 @@ const Overview = () => {
                     item={item}
                     currentCurrency={currentCurrency}
                   >
-                    <FBButton
+                    <Button
                       id="action"
                       onClick={() => handleOpenAddAssetModal("edit", item)}
                     >
                       <Icon id="Edit" color="white" />
-                    </FBButton>
-                    <FBButton
+                    </Button>
+                    <Button
                       onClick={() => handleOpenRemoveAssetModal(item)}
                       color={"failure"}
                       className={"ml-2"}
                     >
                       <Icon id="Remove" color="white" />
-                    </FBButton>
+                    </Button>
                   </TableRow>
                 );
               })}
@@ -301,13 +300,13 @@ const Overview = () => {
           className="flex mx-auto mb-4 text-6xl"
         />
         <div className="flex justify-center">
-          <FBButton
+          <Button
             color={"failure"}
             onClick={() => handleRemoveAsset(currentItem)}
           >
             <Icon id="Remove" color="white" />
             Remove asset
-          </FBButton>
+          </Button>
         </div>
       </Modal>
       <Modal
@@ -321,13 +320,13 @@ const Overview = () => {
           className="flex mx-auto mb-4 text-6xl"
         />
         <div className="flex justify-center">
-          <FBButton
+          <Button
             onClick={() => handleRemoveAllAssets(overviewSlug)}
             color={"failure"}
           >
             <Icon id="Remove" color="white" />
             Remove all assets
-          </FBButton>
+          </Button>
         </div>
       </Modal>
     </Page>

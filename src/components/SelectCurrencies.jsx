@@ -4,7 +4,7 @@ import { useLocalForage } from "../hooks/useLocalForage";
 import totals from "../utils/totals";
 import Select from "react-select";
 import { getImage } from "../utils/images";
-import { Button as FBButton } from "flowbite-react";
+import { Button } from "flowbite-react";
 
 const SelectCurrencies = ({ className }) => {
   const { currencies, selectedCurrencies } = useGlobalState();
@@ -111,9 +111,9 @@ const SelectCurrencies = ({ className }) => {
           </div>
         )}
       />
-      <FBButton disabled={!input.value} type="submit" className={"ml-2"}>
+      <Button disabled={!input.value} type="submit" className={"ml-2"}>
         Add Currency
-      </FBButton>
+      </Button>
     </form>
   );
 };

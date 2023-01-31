@@ -8,14 +8,13 @@ import { PercentageFormat, CurrencyFormat } from "../utils/CalculateHelpers";
 import isEqual from "lodash.isequal";
 import { getGlobalTotals } from "../utils/totals";
 import classNames from "classnames";
-import { Button as FBButton } from "flowbite-react";
-import { Card, Spinner } from "flowbite-react";
+import { Card, Spinner, Button } from "flowbite-react";
 import Modal from "../components/Modal";
 import SelectCurrencies from "../components/SelectCurrencies";
 import Page from "../components/Page";
 import Charts from "../components/ChartsDashboard";
-import Table from "../components/FBTable";
-import TableRow from "../components/FBTableRow";
+import Table from "../components/Table";
+import TableRow from "../components/TableRow";
 
 const Dashboard = () => {
   const { currencies, selectedCurrencies, globalTotals } = useGlobalState();
@@ -105,7 +104,7 @@ const Dashboard = () => {
                       currencies={currencies}
                     >
                       {index > 0 && (
-                        <FBButton
+                        <Button
                           color="gray"
                           onClick={() =>
                             handleOrderCurrencyUp(selectedCurrency)
@@ -113,10 +112,10 @@ const Dashboard = () => {
                           className={"rounded-md text-black flex"}
                         >
                           <Icon id="Up" color="white" />
-                        </FBButton>
+                        </Button>
                       )}
                       {index + 1 < selectedCurrencies.length && (
-                        <FBButton
+                        <Button
                           color="gray"
                           onClick={() =>
                             handleOrderCurrencyDown(selectedCurrency)
@@ -124,14 +123,14 @@ const Dashboard = () => {
                           className={"rounded-md text-black flex ml-2"}
                         >
                           <Icon id="Down" color="white" />
-                        </FBButton>
+                        </Button>
                       )}
                       <Link to={selectedCurrency.name} className={"ml-2"}>
-                        <FBButton>
+                        <Button>
                           <Icon id="Plus" color="white" />
-                        </FBButton>
+                        </Button>
                       </Link>
-                      <FBButton
+                      <Button
                         color="failure"
                         onClick={() =>
                           handleOpenRemoveAssetModal(selectedCurrency)
@@ -139,7 +138,7 @@ const Dashboard = () => {
                         className={"rounded-md text-black bg-red ml-2"}
                       >
                         <Icon id="Remove" color="white" />
-                      </FBButton>
+                      </Button>
                     </TableRow>
                   );
                 })}
@@ -166,13 +165,13 @@ const Dashboard = () => {
               className="flex mx-auto mb-4 text-6xl"
             />
             <div className="flex justify-center">
-              <FBButton
+              <Button
                 onClick={() => handleRemoveCurrency(currentCurrency)}
                 color={"failure"}
               >
                 <Icon id="Remove" color="white" />
                 Remove currency
-              </FBButton>
+              </Button>
             </div>
           </Modal>
         </>
