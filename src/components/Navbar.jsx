@@ -1,4 +1,4 @@
-import { Button, Navbar } from "flowbite-react";
+import { Button, Navbar, Tooltip } from "flowbite-react";
 import logo from "../public/images/logo.svg";
 import { Link } from "react-router-dom";
 import Icon from "./Icon";
@@ -16,14 +16,16 @@ const Nav = () => {
         </span>
       </Link>
       <div className="flex md:order-2">
-        <Button
-          href="https://github.com/DjuriSchiffer/finance-portfolio"
-          color={"gray"}
-          target={"_blank"}
-          rel={"noreferer"}
-        >
-          <Icon id="Github" />
-        </Button>
+        <Tooltip content="Github">
+          <Button
+            href="https://github.com/DjuriSchiffer/finance-portfolio"
+            color={"gray"}
+            target={"_blank"}
+            rel={"noreferer"}
+          >
+            <Icon id="Github" />
+          </Button>
+        </Tooltip>
       </div>
     </Navbar>
   );
