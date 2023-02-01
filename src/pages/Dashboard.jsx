@@ -182,7 +182,7 @@ const Dashboard = () => {
             color="success"
             aria-label="Fetching data from Coinmarketcap"
           />
-          <span className={"mr-2"}>Fetching data from Coinmarketcap...</span>
+          <span className={"ml-2"}>Fetching data from Coinmarketcap...</span>
         </div>
       )}
     </Page>
