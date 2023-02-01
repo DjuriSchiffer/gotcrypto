@@ -23,12 +23,8 @@ const TableRow = ({
       currencies[item.index].price
     );
 
-    const totalPurchasePrice = item.assets.reduce(
-      (acc, asset) => acc + parseFloat(item.totals.totalPurchasePrice),
-      0
-    );
     const totalPercentageDifference = PercentageDifference(
-      totalPurchasePrice,
+      item.totals.totalPurchasePrice,
       totalValue
     );
 
