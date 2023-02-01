@@ -8,7 +8,7 @@ import { PercentageFormat, CurrencyFormat } from "../utils/CalculateHelpers";
 import isEqual from "lodash.isequal";
 import { getGlobalTotals } from "../utils/totals";
 import classNames from "classnames";
-import { Card, Spinner, Button } from "flowbite-react";
+import { Card, Spinner, Button, Tooltip } from "flowbite-react";
 import Modal from "../components/Modal";
 import SelectCurrencies from "../components/SelectCurrencies";
 import Page from "../components/Page";
@@ -69,6 +69,8 @@ const Dashboard = () => {
     setOpenRemoveAssetModal(true);
   };
 
+  console.log(globalTotals);
+
   return (
     <Page>
       {currencies && selectedCurrencies && (
@@ -78,17 +80,25 @@ const Dashboard = () => {
               <div className={"flex flex-row items-center"}>
                 {globalTotals && (
                   <div className={"text-white"}>
-                    <div className="text-4xl">
-                      {CurrencyFormat(globalTotals.totalValue)}
-                    </div>
-                    <div
-                      className={classNames("text-xl", {
-                        "text-blue": globalTotals.totalPercentageDifference > 0,
-                        "text-loss": globalTotals.totalPercentageDifference < 0,
-                      })}
-                    >
-                      {PercentageFormat(globalTotals.totalPercentageDifference)}
-                    </div>
+                    <Tooltip content="total value">
+                      <div className="text-4xl">
+                        {CurrencyFormat(globalTotals.totalValue)}
+                      </div>
+                    </Tooltip>
+                    <Tooltip content="( total costs / total value * 100 ) - 100">
+                      <div
+                        className={classNames("text-xl", {
+                          "text-blue":
+                            globalTotals.totalPercentageDifference > 0,
+                          "text-loss":
+                            globalTotals.totalPercentageDifference < 0,
+                        })}
+                      >
+                        {PercentageFormat(
+                          globalTotals.totalPercentageDifference
+                        )}
+                      </div>
+                    </Tooltip>
                   </div>
                 )}
                 <SelectCurrencies className={"flex ml-auto"} />
