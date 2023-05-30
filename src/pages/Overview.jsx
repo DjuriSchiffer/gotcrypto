@@ -11,7 +11,7 @@ import Modal from "../components/Modal";
 import Page from "../components/Page";
 import OverviewChart from "../components/ChartsOverview";
 import { getImage } from "../utils/images";
-import { Card, Button } from "flowbite-react";
+import { Card, Button, Spinner } from "flowbite-react";
 import Table from "../components/Table";
 import TableRow from "../components/TableRow";
 import { Link } from "react-router-dom";
@@ -175,21 +175,21 @@ const Overview = () => {
 
   return (
     <Page>
-      <div className={"grid gap-4 xl:grid-cols-2 2xl:grid-cols-6 mb-4"}>
-        <div>
-          <Link
-            to={"/"}
-            className={
-              "mb-4 inline-flex items-center justify-center p-5 text-base font-medium text-gray-500 rounded-lg bg-gray-50 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
-            }
-          >
-            <Icon className={"mr-1"} id="Left" color="white" />
-            Return to dashboard
-          </Link>
-        </div>
+      {currencies && currentCurrency && currentSelectedCurrency && (
+        <div className={"grid gap-4 xl:grid-cols-2 2xl:grid-cols-6 mb-4"}>
+          <div>
+            <Link
+              to={"/"}
+              className={
+                "mb-4 inline-flex items-center justify-center p-5 text-base font-medium text-gray-500 rounded-lg bg-gray-50 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
+              }
+            >
+              <Icon className={"mr-1"} id="Left" color="white" />
+              Return to dashboard
+            </Link>
+          </div>
 
-        <Card className={"2xl:col-span-5"}>
-          {currentCurrency && (
+          <Card className={"2xl:col-span-5"}>
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-4xl flex mb-1 items-center text-white">
@@ -223,57 +223,61 @@ const Overview = () => {
                 </Button>
               </div>
             </div>
-          )}
 
-          <Table type={"overview"}>
-            {currentCurrency &&
-              currentSelectedCurrency &&
-              currentSelectedCurrency?.assets?.length > 0 &&
-              currentSelectedCurrency.assets.map((item, index) => {
-                return (
+            <Table type={"overview"}>
+              {currentSelectedCurrency?.assets?.length > 0 &&
+                currentSelectedCurrency.assets.map((item, index) => {
+                  return (
+                    <TableRow
+                      key={index}
+                      type="overview"
+                      item={item}
+                      currentCurrency={currentCurrency}
+                    >
+                      <Button
+                        id="action"
+                        onClick={() => handleOpenAddAssetModal("edit", item)}
+                      >
+                        <Icon id="Edit" color="white" />
+                      </Button>
+                      <Button
+                        onClick={() => handleOpenRemoveAssetModal(item)}
+                        color={"failure"}
+                        className={"ml-2"}
+                      >
+                        <Icon id="Remove" color="white" />
+                      </Button>
+                    </TableRow>
+                  );
+                })}
+              {currentSelectedCurrency?.assets?.length > 0 &&
+                currentSelectedCurrency?.totals && (
                   <TableRow
-                    key={index}
-                    type="overview"
-                    item={item}
+                    type="overview-totals"
+                    item={currentSelectedCurrency.totals}
                     currentCurrency={currentCurrency}
-                  >
-                    <Button
-                      id="action"
-                      onClick={() => handleOpenAddAssetModal("edit", item)}
-                    >
-                      <Icon id="Edit" color="white" />
-                    </Button>
-                    <Button
-                      onClick={() => handleOpenRemoveAssetModal(item)}
-                      color={"failure"}
-                      className={"ml-2"}
-                    >
-                      <Icon id="Remove" color="white" />
-                    </Button>
-                  </TableRow>
-                );
-              })}
-            {currentCurrency &&
-              currentSelectedCurrency &&
-              currentSelectedCurrency?.assets?.length > 0 &&
-              currentSelectedCurrency?.totals && (
-                <TableRow
-                  type="overview-totals"
-                  item={currentSelectedCurrency.totals}
-                  currentCurrency={currentCurrency}
-                ></TableRow>
-              )}
-          </Table>
-        </Card>
-        {currentCurrency &&
-          currentSelectedCurrency &&
-          currentSelectedCurrency?.assets?.length > 0 &&
-          currentSelectedCurrency?.totals && (
-            <Card className={"2xl:col-start-2 2xl:col-span-5"}>
-              <OverviewChart data={currentSelectedCurrency} />
-            </Card>
-          )}
-      </div>
+                  ></TableRow>
+                )}
+            </Table>
+          </Card>
+          {currentSelectedCurrency?.assets?.length > 0 &&
+            currentSelectedCurrency?.totals && (
+              <Card className={"2xl:col-start-2 2xl:col-span-5"}>
+                <OverviewChart data={currentSelectedCurrency} />
+              </Card>
+            )}
+        </div>
+      )}
+      {!currencies && (
+        <div className={"text-white flex align-center"}>
+          <Spinner
+            color="success"
+            aria-label="Fetching data from Coinmarketcap"
+          />
+          <span className={"ml-2"}>Fetching data from Coinmarketcap...</span>
+        </div>
+      )}
+
       <Modal
         onClose={() => setOpenAddAssetModal(false)}
         open={openAddAssetModal}
