@@ -179,7 +179,7 @@ const Dashboard = () => {
                 onClick={() => handleRemoveCurrency(currentCurrency)}
                 color={"failure"}
               >
-                <Icon id="Remove" color="white" />
+                <Icon id="Remove" color="white" className={"mr-1"} />
                 Remove currency
               </Button>
             </div>

@@ -212,14 +212,14 @@ const Overview = () => {
                   className={"mr-2"}
                 >
                   Add Asset
-                  <Icon id="Plus" color="white" className={"ml-2"} />
+                  <Icon id="Plus" color="white" className={"ml-1"} />
                 </Button>
                 <Button
                   onClick={() => setOpenRemoveAllAssetsModal(true)}
                   color={"failure"}
                 >
                   Remove all assets
-                  <Icon id="Remove" color="white" />
+                  <Icon id="Remove" color="white" className={"ml-1"} />
                 </Button>
               </div>
             </div>
@@ -324,7 +324,7 @@ const Overview = () => {
             onClick={() => handleRemoveAllAssets(overviewSlug)}
             color={"failure"}
           >
-            <Icon id="Remove" color="white" />
+            <Icon id="Remove" color="white" className={"mr-1"} />
             Remove all assets
           </Button>
         </div>
