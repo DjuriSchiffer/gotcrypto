@@ -69,8 +69,6 @@ const Dashboard = () => {
     setOpenRemoveAssetModal(true);
   };
 
-  console.log(globalTotals);
-
   return (
     <Page>
       {currencies && selectedCurrencies && (
