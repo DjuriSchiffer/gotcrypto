@@ -1,9 +1,8 @@
 import { TextInput, Label, Button } from "flowbite-react";
-import Icon from "./Icon";
+import DatePicker from "./DatePicker";
 
 const AddAssetForm = ({
   onSubmit,
-  className,
   amount,
   price,
   date,
@@ -46,7 +45,7 @@ const AddAssetForm = ({
         <div className="mb-2 block">
           <Label htmlFor="date" value="Purchase Date" />
         </div>
-        <TextInput
+        {/* <TextInput
           id="purchasePrice"
           name="date"
           type="date"
@@ -55,7 +54,8 @@ const AddAssetForm = ({
           onChange={handleChange}
           value={date}
           sizing="lg"
-        />
+        /> */}
+        <DatePicker date={date} handleChange={handleChange} formType={formType} />
       </div>
       <Button type="submit">
         {formType === "add" ? "Add asset" : "Edit asset"}

@@ -3,7 +3,8 @@ const colors = require("tailwindcss/colors");
 const config = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
-    "./node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}"
+    "./node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}",
+    "./node_modules/tailwind-datepicker-react/dist/**/*.js",
   ],
   theme: {
     colors: {

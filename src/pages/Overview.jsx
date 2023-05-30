@@ -15,6 +15,7 @@ import { Card, Button, Spinner } from "flowbite-react";
 import Table from "../components/Table";
 import TableRow from "../components/TableRow";
 import { Link } from "react-router-dom";
+import { formatDatePickerDate } from "../utils/CalculateHelpers";
 
 const Overview = () => {
   const { currencies, selectedCurrencies } = useGlobalState();
@@ -166,10 +167,11 @@ const Overview = () => {
   };
 
   function resetInputs() {
+    console.log("reset");
     setInputs({
       amount: "",
       purchasePrice: "",
-      date: "",
+      date: formatDatePickerDate(new Date()),
     });
   }
 

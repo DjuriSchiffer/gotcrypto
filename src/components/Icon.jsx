@@ -8,6 +8,7 @@ import {
   FaExclamationTriangle,
   FaUndoAlt,
   FaGithub,
+  FaCalendar,
 } from "react-icons/fa";
 
 const Icon = ({ color, id, className }) => {
@@ -42,6 +43,8 @@ const Icon = ({ color, id, className }) => {
     case "Github":
       return <FaGithub color={color} className={className} />;
 
+    case "Calendar":
+      return <FaCalendar color={color} className={className} />;
     default:
       return null;
   }
