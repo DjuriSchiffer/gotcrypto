@@ -9,6 +9,8 @@ import {
   FaUndoAlt,
   FaGithub,
   FaCalendar,
+  FaCoins,
+  FaEuroSign,
 } from "react-icons/fa";
 
 const Icon = ({ color, id, className }) => {
@@ -45,6 +47,13 @@ const Icon = ({ color, id, className }) => {
 
     case "Calendar":
       return <FaCalendar color={color} className={className} />;
+
+    case "Amount":
+      return <FaCoins color={color} className={className} />;
+
+    case "Price":
+      return <FaEuroSign color={color} className={className} />;
+
     default:
       return null;
   }
