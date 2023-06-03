@@ -53,6 +53,13 @@ const TableRow = ({
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
           {item.totals && (
+            <div className="flex flex-col">
+              <div>{CurrencyFormat(item.totals.totalPurchasePrice)}</div>
+            </div>
+          )}
+        </Table.Cell>
+        <Table.Cell className="py-2 text-gray-900 dark:text-white">
+          {item.totals && (
             <div
               className={classNames("flex", {
                 "text-blue": totalPercentageDifference > 0,

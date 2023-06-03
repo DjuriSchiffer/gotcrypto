@@ -9,6 +9,9 @@ const TableHead = ({ type = "dashboard" }) => {
           Current Price
         </Table.HeadCell>
         <Table.HeadCell className="text-left py-2">Holdings</Table.HeadCell>
+        <Table.HeadCell className="text-left py-2">
+          Total invested
+        </Table.HeadCell>
         <Table.HeadCell className="text-left py-2">Profit/loss</Table.HeadCell>
         <Table.HeadCell className="text-right py-2 pr-3">
           Actions
