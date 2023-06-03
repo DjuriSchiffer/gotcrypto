@@ -26,52 +26,95 @@ ChartJS.register(
   ArcElement
 );
 
-const Charts = ({ data }) => {
+const Charts = ({ data, id }) => {
   const { currencies } = useGlobalState();
 
-  const options = {
-    plugins: {
-      title: {
-        display: true,
-        text: "Total amount per asset",
-        color: "white",
-      },
-      legend: {
-        labels: {
+  if (id === "amount") {
+    const options = {
+      plugins: {
+        title: {
+          display: true,
+          text: "Total amount per asset",
           color: "white",
         },
-      },
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            return CurrencyFormat(context.parsed);
+        legend: {
+          labels: {
+            color: "white",
+          },
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return CurrencyFormat(context.parsed);
+            },
           },
         },
       },
-    },
-  };
+    };
 
-  return (
-    <Pie
-      data={{
-        labels: data.map((asset) => asset.name),
-        datasets: [
-          {
-            label: "Total amount per asset",
-            data: data.map((asset) =>
-              CurrentValue(
-                asset.totals.totalAmount,
-                currencies[asset.index].price
-              )
-            ),
-            backgroundColor: data.map((asset) => getColour(asset.index)),
-            hoverOffset: 2,
+    return (
+      <Pie
+        data={{
+          labels: data.map((asset) => asset.name),
+          datasets: [
+            {
+              label: "Total amount per asset",
+              data: data.map((asset) =>
+                CurrentValue(
+                  asset.totals.totalAmount,
+                  currencies[asset.index].price
+                )
+              ),
+              backgroundColor: data.map((asset) => getColour(asset.index)),
+              hoverOffset: 2,
+            },
+          ],
+        }}
+        options={options}
+      />
+    );
+  }
+
+  if (id === "invested") {
+    const options = {
+      plugins: {
+        title: {
+          display: true,
+          text: "Total invested per asset",
+          color: "white",
+        },
+        legend: {
+          labels: {
+            color: "white",
           },
-        ],
-      }}
-      options={options}
-    />
-  );
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return CurrencyFormat(context.parsed);
+            },
+          },
+        },
+      },
+    };
+
+    return (
+      <Pie
+        data={{
+          labels: data.map((asset) => asset.name),
+          datasets: [
+            {
+              label: "Total invested per asset",
+              data: data.map((asset) => asset.totals.totalPurchasePrice),
+              backgroundColor: data.map((asset) => getColour(asset.index)),
+              hoverOffset: 2,
+            },
+          ],
+        }}
+        options={options}
+      />
+    );
+  }
 };
 
 export default Charts;

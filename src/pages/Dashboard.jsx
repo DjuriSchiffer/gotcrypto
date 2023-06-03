@@ -156,7 +156,10 @@ const Dashboard = () => {
           {selectedCurrencies.some((e) => e.assets.length > 0) && (
             <div className={"grid gap-4 xl:grid-cols-2 2xl:grid-cols-3"}>
               <Card>
-                <Charts data={selectedCurrencies} />
+                <Charts data={selectedCurrencies} id={"amount"} />
+              </Card>
+              <Card>
+                <Charts data={selectedCurrencies} id={"invested"} />
               </Card>
             </div>
           )}
