@@ -1,6 +1,7 @@
-import { TextInput, Label, Button } from "flowbite-react";
+import { Button } from "flowbite-react";
 import DatePicker from "./DatePicker";
 import Icon from "./Icon";
+import CurrencyInput from "react-currency-input-field";
 
 const AddAssetForm = ({
   onSubmit,
@@ -44,19 +45,20 @@ const AddAssetForm = ({
         <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
           <Icon id={"Price"} color={"white"} />
         </span>
-        <input
+        <CurrencyInput
           id="purchasePrice"
           name="purchasePrice"
-          type="number"
-          placeholder="0.00"
-          step="0.01"
-          required={true}
           onChange={handleChange}
-          value={parseFloat(price).toFixed(2)}
-          className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          required={true}
+          placeholder={"0.00"}
+          decimalsLimit={2}
+          decimalScale={2}
+          className={
+            "rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          }
+          intlConfig={{ locale: "nl-NL" }}
         />
       </div>
-
       <label
         htmlFor="date"
         className="block text-sm font-medium text-gray-900 dark:text-white"
