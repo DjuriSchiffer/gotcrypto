@@ -18,7 +18,7 @@ const Nav = () => {
       <div className="flex md:order-2">
         <Tooltip content="Github">
           <Button
-            href="https://github.com/DjuriSchiffer/finance-portfolio"
+            href="https://github.com/DjuriSchiffer/gotcrypto"
             color={"gray"}
             target={"_blank"}
             rel={"noreferer"}
