@@ -189,7 +189,7 @@ const Overview = () => {
   return (
     <Page>
       {currencies && currentCurrency && currentSelectedCurrency && (
-        <div className={"grid gap-4 xl:grid-cols-2 2xl:grid-cols-6 mb-4"}>
+        <div className={"grid gap-4 2xl:grid-cols-6 mb-4"}>
           <div>
             <Link
               to={"/"}
