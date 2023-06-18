@@ -8,6 +8,7 @@ const AddAssetForm = ({
   amount,
   price,
   date,
+  id,
   handleChange,
   formType,
 }) => {
@@ -72,6 +73,7 @@ const AddAssetForm = ({
         </span>
         <DatePicker date={date} handleChange={handleChange} />
       </div>
+      <input type="hidden" value={id} />
 
       <Button type="submit">
         {formType === "add" ? "Add asset" : "Edit asset"}

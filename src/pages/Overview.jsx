@@ -27,7 +27,8 @@ const Overview = () => {
   const [inputs, setInputs] = useState({
     amount: "",
     purchasePrice: "",
-    date: "",
+    date: formatDatePickerDate(new Date()),
+    id: uniqueId(),
   });
   const [submit, setSubmit] = useState(false);
   const [openAddAssetModal, setOpenAddAssetModal] = useState(false);
@@ -60,8 +61,6 @@ const Overview = () => {
       const currIndex = selectedCurrencies.findIndex(
         (e) => e.name === currentCurrency.name
       );
-
-      console.log(inputs);
 
       inputs.purchasePrice = inputs.purchasePrice.replace(",", ".");
 
@@ -113,8 +112,7 @@ const Overview = () => {
 
     setInputs((values) => ({
       ...values,
-      [name]: value,
-      id: currentItem?.id ? currentItem?.id : uniqueId(),
+      [name]: name === "id" ? currentItem?.id || uniqueId() : value,
     }));
   };
 
@@ -180,11 +178,11 @@ const Overview = () => {
   };
 
   function resetInputs() {
-    console.log("reset");
     setInputs({
       amount: "",
       purchasePrice: "",
       date: formatDatePickerDate(new Date()),
+      id: uniqueId(),
     });
   }
 
@@ -304,6 +302,7 @@ const Overview = () => {
           amount={inputs.amount}
           price={inputs.purchasePrice}
           date={inputs.date}
+          id={inputs.id}
           handleChange={handleChange}
           formType={formType}
         />
