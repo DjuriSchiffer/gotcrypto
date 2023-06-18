@@ -61,6 +61,10 @@ const Overview = () => {
         (e) => e.name === currentCurrency.name
       );
 
+      console.log(inputs);
+
+      inputs.purchasePrice = inputs.purchasePrice.replace(",", ".");
+
       // Add
       if (formType === "add") {
         selectedCurrencies[currIndex].assets.push(inputs);
@@ -97,7 +101,16 @@ const Overview = () => {
 
   const handleChange = (event) => {
     const name = event.target.name;
-    const value = event.target.value;
+    let value = event.target.value;
+
+    if (name === "purchasePrice" && (isNaN(value) || value.includes(","))) {
+      if (value.includes(",")) {
+        value = value.replace(",", ".");
+      } else {
+        return;
+      }
+    }
+
     setInputs((values) => ({
       ...values,
       [name]: value,
