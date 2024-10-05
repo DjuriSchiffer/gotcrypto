@@ -1,14 +1,15 @@
-import { Button, Navbar, Tooltip } from "flowbite-react";
-import logo from "../public/images/logo.svg";
-import { Link } from "react-router-dom";
-import Icon from "./Icon";
+import React from 'react';
+import { Button, Navbar, Tooltip } from 'flowbite-react';
+import { Link } from 'react-router-dom';
+import Icon from './Icon';
+import logo from '../public/images/logo.svg';
 
-const Nav = () => {
+const Nav: React.FC = () => {
   return (
-    <Navbar fluid={true} rounded={true}>
+    <Navbar fluid rounded>
       <Link
-        to={"/"}
-        className={"mr-auto flex flex-wrap items-center justify-between"}
+        to="/"
+        className="mr-auto flex flex-wrap items-center justify-between"
       >
         <img src={logo} className="mr-3 h-6 sm:h-9" alt="Got Crypto" />
         <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
@@ -19,11 +20,11 @@ const Nav = () => {
         <Tooltip content="Github">
           <Button
             href="https://github.com/DjuriSchiffer/gotcrypto"
-            color={"gray"}
-            target={"_blank"}
-            rel={"noreferer"}
+            color="gray"
+            target="_blank"
+            rel="noreferrer"
           >
-            <Icon id="Github" />
+            <Icon id="Github" color="white" />
           </Button>
         </Tooltip>
       </div>
