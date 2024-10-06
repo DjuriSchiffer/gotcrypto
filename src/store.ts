@@ -1,30 +1,25 @@
-import { Currency, GlobalTotals } from './types/store';
+import { FetchedCurrency } from './types/currency';
+import { GlobalTotals, SelectedCurrency } from './types/store';
 
 export interface Store {
-  currencies: Record<
-    string,
-    { name: string; price: number; slug: string; cmc_id: number }
-  > | null;
+  fetchedCurrencies: Record<string, FetchedCurrency> | null;
   error: boolean;
-  selectedCurrencies: Currency[];
+  selectedCurrencies: SelectedCurrency[];
   globalTotals: GlobalTotals;
 }
 
 export type Action =
   | {
-      type: 'SET_INITIAL_CURRENCIES';
-      payload: Record<
-        string,
-        { name: string; price: number; slug: string; cmc_id: number }
-      >;
+      type: 'SET_FETCHED_CURRENCIES';
+      payload: Record<string, FetchedCurrency>;
     }
-  | { type: 'SET_SELECTED_CURRENCIES'; payload: Currency[] }
+  | { type: 'SET_SELECTED_CURRENCIES'; payload: SelectedCurrency[] }
   | { type: 'SET_GLOBAL_TOTALS'; payload: GlobalTotals }
   | { type: 'SET_ERROR'; payload: boolean }
   | { type: 'CLEAR_ERROR' };
 
 export const initialStore: Store = {
-  currencies: null,
+  fetchedCurrencies: null,
   error: false,
   selectedCurrencies: [],
   globalTotals: {
@@ -38,8 +33,8 @@ export const initialStore: Store = {
 
 export const reducer = (state: Store, action: Action): Store => {
   switch (action.type) {
-    case 'SET_INITIAL_CURRENCIES':
-      return { ...state, currencies: action.payload };
+    case 'SET_FETCHED_CURRENCIES':
+      return { ...state, fetchedCurrencies: action.payload };
 
     case 'SET_SELECTED_CURRENCIES':
       return { ...state, selectedCurrencies: action.payload };

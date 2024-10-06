@@ -21,7 +21,6 @@ const Nav: React.FC = () => {
           <Button
             href="https://github.com/DjuriSchiffer/gotcrypto"
             color="gray"
-            target="_blank"
             rel="noreferrer"
           >
             <Icon id="Github" color="white" />

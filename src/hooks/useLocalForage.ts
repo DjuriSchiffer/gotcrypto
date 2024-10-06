@@ -1,15 +1,13 @@
-// src/hooks/useLocalForage.ts
-
 import localForage from 'localforage';
 import { useAppDispatch } from '../hooks/useReducer';
 import { useCallback } from 'react';
-import { Currency } from '../types/store';
+import { SelectedCurrency } from '../types/store';
 
 export const useLocalForage = () => {
   const dispatch = useAppDispatch();
 
   const setLocalForage = useCallback(
-    (key: string, value: Currency[], callback?: () => void): void => {
+    (key: string, value: SelectedCurrency[], callback?: () => void): void => {
       localForage
         .setItem(key, value)
         .then(() => {
@@ -35,7 +33,7 @@ export const useLocalForage = () => {
   const initStore = useCallback(
     (key: string): void => {
       localForage
-        .getItem<Currency[]>(key)
+        .getItem<SelectedCurrency[]>(key)
         .then((values) => {
           if (values === null) {
             setLocalForage(key, []);

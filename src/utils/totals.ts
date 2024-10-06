@@ -1,18 +1,17 @@
-// src/utils/totals.ts
-
 import {
   percentageDifference,
   averagePurchasePrice,
   currentValue,
 } from './calculateHelpers';
-import { Currency, GlobalTotals } from '../types/store';
+import { Asset, GlobalTotals, SelectedCurrency } from '../types/store';
+import { FetchedCurrency } from '../types/currency';
 
 /**
  * Calculates totals based on the selected currencies and their assets.
  * @param assets - The array of selected currencies.
  * @returns An object containing various totals.
  */
-const totals = (assets: Currency[] = []): Partial<GlobalTotals> => {
+const totals = (assets: Asset[] = []): SelectedCurrency['totals'] => {
   const totalAmount = assets.reduce(
     (acc, asset) => acc + parseFloat(asset.amount),
     0
@@ -36,32 +35,30 @@ const totals = (assets: Currency[] = []): Partial<GlobalTotals> => {
 
 /**
  * Calculates global totals including total value and percentage differences.
- * @param assets - The array of selected currencies.
+ * @param selectedCurrencies - The array of selected currencies.
  * @param currencies - The dictionary of all currencies.
  * @returns An object adhering to the GlobalTotals interface.
  */
 export const getGlobalTotals = (
-  assets: Currency[] = [],
-  currencies: Record<string, Currency>
+  selectedCurrencies: SelectedCurrency[] = [],
+  currencies: Record<string, FetchedCurrency>
 ): GlobalTotals => {
-  const totalAmount = assets.reduce(
-    (acc, asset) => acc + parseFloat(asset.amount),
-    0
-  );
-  const totalValue = assets.reduce(
-    (acc, asset) =>
-      acc +
-      currentValue(
-        asset.totals.totalAmount,
-        Object.values(currencies)[asset.index].price
-      ),
-    0
-  );
+  let totalAmount = 0;
+  let totalPurchasePrice = 0;
+  let totalValue = 0;
 
-  const totalPurchasePrice = assets.reduce(
-    (acc, asset) => acc + asset.totals.totalPurchasePrice,
-    0
-  );
+  selectedCurrencies.forEach((selectCurrency) => {
+    const currentPrice = currencies[selectCurrency.cmc_id]?.price || 0;
+
+    selectCurrency.assets.forEach((asset) => {
+      const amount = parseFloat(asset.amount);
+      const purchasePrice = parseFloat(asset.purchasePrice);
+
+      totalAmount += amount;
+      totalPurchasePrice += purchasePrice;
+      totalValue += amount * currentPrice;
+    });
+  });
 
   let totalPercentageDifference = percentageDifference(
     totalPurchasePrice,
@@ -77,14 +74,15 @@ export const getGlobalTotals = (
     totalPercentageDifference = 0;
   }
 
+
   return {
-    totalAmount: assets.length > 0 ? totalAmount : 0,
-    totalValue: assets.length > 0 ? totalValue : 0,
-    totalPurchasePrice: assets.length > 0 ? totalPurchasePrice : 0,
+    totalAmount: selectedCurrencies.length > 0 ? totalAmount : 0,
+    totalValue: selectedCurrencies.length > 0 ? totalValue : 0,
+    totalPurchasePrice: selectedCurrencies.length > 0 ? totalPurchasePrice : 0,
     totalPercentageDifference:
-      assets.length > 0 ? totalPercentageDifference : 0,
+      selectedCurrencies.length > 0 ? totalPercentageDifference : 0,
     totalAveragePurchasePrice:
-      assets.length > 0 ? totalAveragePurchasePrice : 0,
+      selectedCurrencies.length > 0 ? totalAveragePurchasePrice : 0,
   };
 };
 

@@ -1,5 +1,3 @@
-// src/components/Error.tsx
-
 import React from 'react';
 import { useAppState } from '../hooks/useReducer';
 import Modal from './Modal';

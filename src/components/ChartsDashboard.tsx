@@ -1,7 +1,5 @@
-// src/components/Charts.tsx
-
-import React, { useEffect } from 'react';
-import { useAppState, useAppDispatch } from '../hooks/useReducer';
+import React from 'react';
+import { useAppState } from '../hooks/useReducer';
 import { currentValue, currencyFormat } from '../utils/calculateHelpers';
 import { getColour } from '../utils/colours';
 
@@ -15,9 +13,12 @@ import {
   Tooltip as ChartTooltip,
   Legend as ChartLegend,
   ArcElement,
+  ChartOptions,
+  ChartData,
 } from 'chart.js';
-import { Pie, ChartData, ChartOptions } from 'react-chartjs-2';
-import { Currency, Asset, OptionType } from '../types';
+import { Pie } from 'react-chartjs-2';
+import { SelectedCurrency } from '../types/store';
+import { FetchedCurrency } from '../types/currency';
 
 ChartJS.register(
   CategoryScale,
@@ -31,21 +32,19 @@ ChartJS.register(
 );
 
 interface ChartsProps {
-  data: Asset[];
+  data: SelectedCurrency[];
   id: 'amount' | 'invested';
 }
 
 const Charts: React.FC<ChartsProps> = ({ data, id }) => {
-  const { currencies } = useAppState();
+  const { fetchedCurrencies } = useAppState();
 
-  if (!currencies) {
-    return <div>Loading...</div>; // Or any loading indicator
+  if (!fetchedCurrencies) {
+    return <div>Loading...</div>;
   }
 
-  // Convert currencies Record to array for easier access
-  const currencyList: Currency[] = Object.values(currencies);
+  const currencyList: FetchedCurrency[] = Object.values(fetchedCurrencies);
 
-  // Define chart options
   const getChartOptions = (title: string): ChartOptions<'pie'> => ({
     plugins: {
       title: {
@@ -76,7 +75,6 @@ const Charts: React.FC<ChartsProps> = ({ data, id }) => {
     maintainAspectRatio: false,
   });
 
-  // Define chart data based on id
   const getChartData = (): ChartData<'pie', number[], string> => {
     if (id === 'amount') {
       return {
@@ -90,7 +88,7 @@ const Charts: React.FC<ChartsProps> = ({ data, id }) => {
                 currencyList[asset.index].price
               )
             ),
-            backgroundColor: data.map((asset) => getColour(asset.index)),
+            backgroundColor: data.map((asset) => getColour(asset.cmc_id)),
             hoverOffset: 4,
           },
         ],
@@ -104,21 +102,19 @@ const Charts: React.FC<ChartsProps> = ({ data, id }) => {
           {
             label: 'Total invested per asset',
             data: data.map((asset) => asset.totals.totalPurchasePrice),
-            backgroundColor: data.map((asset) => getColour(asset.index)),
+            backgroundColor: data.map((asset) => getColour(asset.cmc_id)),
             hoverOffset: 4,
           },
         ],
       };
     }
 
-    // Fallback data structure
     return {
       labels: [],
       datasets: [],
     };
   };
 
-  // Get appropriate title based on id
   const getTitle = (): string => {
     if (id === 'amount') return 'Total amount per asset';
     if (id === 'invested') return 'Total invested per asset';

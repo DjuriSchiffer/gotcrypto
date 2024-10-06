@@ -1,7 +1,14 @@
-import { Table } from "flowbite-react";
+import { Table } from 'flowbite-react';
+import { ReactNode } from 'react';
 
-const TableHead = ({ type = "dashboard" }) => {
-  if (type === "dashboard") {
+export type TableType = 'dashboard' | 'overview';
+
+interface TableHeadProps {
+  type?: TableType;
+}
+
+const TableHead: React.FC<TableHeadProps> = ({ type = 'dashboard' }) => {
+  if (type === 'dashboard') {
     return (
       <Table.Head>
         <Table.HeadCell className="text-left py-2">Name</Table.HeadCell>
@@ -19,7 +26,7 @@ const TableHead = ({ type = "dashboard" }) => {
       </Table.Head>
     );
   }
-  if (type === "overview") {
+  if (type === 'overview') {
     return (
       <Table.Head>
         <Table.HeadCell className="text-left py-2 pl-3">Amount</Table.HeadCell>
@@ -46,15 +53,29 @@ const TableHead = ({ type = "dashboard" }) => {
   }
 };
 
-const TableBody = ({ type = "dashboard", children }) => {
+interface TableBodyProps {
+  children: ReactNode;
+}
+
+const TableBody: React.FC<TableBodyProps> = ({ children }) => {
   return <Table.Body className="divide-y">{children}</Table.Body>;
 };
 
-const TableComponent = ({ type = "dashboard", children }) => {
+interface TableComponentProps {
+  type?: TableType;
+  children: ReactNode;
+  className?: string;
+}
+
+const TableComponent: React.FC<TableComponentProps> = ({
+  type = 'dashboard',
+  children,
+  className = '',
+}) => {
   return (
     <Table striped={true}>
       <TableHead type={type} />
-      <TableBody type={type}>{children}</TableBody>
+      <TableBody>{children}</TableBody>
     </Table>
   );
 };

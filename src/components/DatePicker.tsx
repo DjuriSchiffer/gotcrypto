@@ -1,21 +1,19 @@
-// src/components/DatePicker.tsx
-
 import React, { useState, useRef, ChangeEvent } from 'react';
 import { formatDatePickerDate } from '../utils/calculateHelpers';
-import Datepicker from 'tailwind-datepicker-react';
+import Datepicker, { DatepickerOptions } from 'tailwind-datepicker-react';
 
 interface DatePickerProps {
   date: string | Date;
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
-const options = {
+const options: DatepickerOptions = {
   title: 'Purchase Date',
   autoHide: true,
   todayBtn: true,
   clearBtn: false,
   maxDate: new Date('2030-01-01'),
-  minDate: new Date('1950-01-01'),
+  minDate: new Date('1970-01-01'),
   theme: {
     background: 'bg-gray-700 dark:bg-gray-800',
     todayBtn: 'bg-gray-700',
@@ -32,7 +30,7 @@ const options = {
     next: () => <span className="text-sm">Next</span>,
   },
   datepickerClassNames: 'top-12',
-  language: 'nl' as const,
+  language: 'nl',
 };
 
 const DatePicker: React.FC<DatePickerProps> = ({ date, handleChange }) => {
@@ -50,7 +48,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ date, handleChange }) => {
         bubbles: true,
       }) as unknown as ChangeEvent<HTMLInputElement>;
       inputElement.value = value;
-      inputElement.dispatchEvent(event);
+      inputElement.dispatchEvent(event as any);
       handleChange(event);
     }
   };

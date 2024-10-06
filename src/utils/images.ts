@@ -1,23 +1,23 @@
-import bitcoin from "../public/images/bitcoin.png";
-import litecoin from "../public/images/litecoin.png";
-import ethereum from "../public/images/ethereum.png";
-import tether from "../public/images/tether.png";
-import xrp from "../public/images/xrp.png";
-import bnb from "../public/images/bnb.png";
-import hex from "../public/images/hex.png";
-import gold from "../public/images/gold.png";
-import silver from "../public/images/silver.png";
-import cardano from "../public/images/cardano.png";
-import dot from "../public/images/polkadot.png";
-import sol from "../public/images/solana.png";
-import vet from "../public/images/vechain.png";
-import doge from "../public/images/dogecoin.png";
+import bitcoin from '../public/images/bitcoin.png';
+import litecoin from '../public/images/litecoin.png';
+import ethereum from '../public/images/ethereum.png';
+import tether from '../public/images/tether.png';
+import xrp from '../public/images/xrp.png';
+import bnb from '../public/images/bnb.png';
+import hex from '../public/images/hex.png';
+import gold from '../public/images/gold.png';
+import silver from '../public/images/silver.png';
+import cardano from '../public/images/cardano.png';
+import dot from '../public/images/polkadot.png';
+import sol from '../public/images/solana.png';
+import vet from '../public/images/vechain.png';
+import doge from '../public/images/dogecoin.png';
 
-export const getImage = (id) => {
+export const getImage = (id: number) => {
   return images[id];
 };
 
-const images = {
+const images: Record<number, string> = {
   1: bitcoin, //bitcoin
   2: litecoin, //litecoin
   3575: gold, // gold

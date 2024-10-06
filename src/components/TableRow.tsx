@@ -9,33 +9,56 @@ import {
 import classNames from 'classnames';
 import { getImage } from '../utils/images';
 import { Table } from 'flowbite-react';
-import { Currency } from '../types/store';
+import { Asset, SelectedCurrency } from '../types/store';
+import { FetchedCurrency } from '../types/currency';
 
-type RowType = 'dashboard' | 'overview' | 'overview-totals';
-
-interface TableRowComponentProps {
-  item: Currency;
-  type?: RowType;
-  currentCurrency: Currency | null;
-  currencies: Record<string, Currency>;
+interface DashboardRowProps {
+  type: 'dashboard';
+  item: SelectedCurrency;
+  currentCurrency: SelectedCurrency | null;
+  currencies: Record<string, FetchedCurrency>;
   children: React.ReactNode;
 }
 
+interface OverviewRowProps {
+  type: 'overview';
+  item: Asset;
+  currentCurrency: FetchedCurrency | null;
+  currencies: Record<string, FetchedCurrency>;
+  children: React.ReactNode;
+}
+
+interface OverviewTotalsRowProps {
+  type: 'overview-totals';
+  item: SelectedCurrency['totals'];
+  currentCurrency: FetchedCurrency | null;
+  currencies: Record<string, FetchedCurrency>;
+  children?: React.ReactNode;
+}
+
+type TableRowComponentProps =
+  | DashboardRowProps
+  | OverviewRowProps
+  | OverviewTotalsRowProps;
+
 const TableRow: React.FC<TableRowComponentProps> = ({
+  type,
   item,
-  type = 'dashboard',
   currentCurrency,
   currencies,
   children,
 }) => {
   if (type === 'dashboard') {
+    const currencyItem = item as SelectedCurrency;
+    const price = currencies[currencyItem.cmc_id]?.price;
+
     const totalValue = currentValueFn(
-      item.totals.totalAmount,
-      Object.values(currencies)[item.index].price
+      currencyItem.totals.totalAmount,
+      price || 0
     );
 
-    const totalpercentageDifference = percentageDifferenceFn(
-      item.totals.totalPurchasePrice,
+    const totalPercentageDifference = percentageDifferenceFn(
+      currencyItem.totals.totalPurchasePrice,
       totalValue
     );
 
@@ -46,41 +69,41 @@ const TableRow: React.FC<TableRowComponentProps> = ({
             <img
               width={32}
               height={32}
-              src={getImage(Object.values(currencies)[item.index].cmc_id)}
-              alt={`${item.name} icon`}
+              src={getImage(currencyItem.cmc_id)}
+              alt={`${currencyItem.name} icon`}
             />
-            <div className="pl-2">{item.name}</div>
+            <div className="pl-2">{currencyItem.name}</div>
           </div>
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
-          <div>
-            {currencyFormat(Object.values(currencies)[item.index].price)}
-          </div>
+          <div>{currencyFormat(price)}</div>
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
-          {item.totals && (
+          {currencyItem.totals && (
             <div className="flex flex-col">
               <div>{currencyFormat(totalValue)}</div>
-              <div className="text-sm">{item.totals.totalAmount}</div>
+              <div className="text-sm">{currencyItem.totals.totalAmount}</div>
             </div>
           )}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
-          {item.totals && (
+          {currencyItem.totals && (
             <div className="flex flex-col">
-              <div>{currencyFormat(item.totals.totalPurchasePrice)}</div>
+              <div>
+                {currencyFormat(currencyItem.totals.totalPurchasePrice)}
+              </div>
             </div>
           )}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
-          {item.totals && (
+          {currencyItem.totals && (
             <div
               className={classNames('flex', {
-                'text-blue-500': totalpercentageDifference > 0,
-                'text-red-500': totalpercentageDifference < 0,
+                'text-blue-500': totalPercentageDifference > 0,
+                'text-red-500': totalPercentageDifference < 0,
               })}
             >
-              {percentageFormat(totalpercentageDifference)}
+              {percentageFormat(totalPercentageDifference)}
             </div>
           )}
         </Table.Cell>
@@ -92,9 +115,11 @@ const TableRow: React.FC<TableRowComponentProps> = ({
   }
 
   if (type === 'overview') {
-    const amount = parseFloat(item.amount);
-    const purchasePrice = parseFloat(item.purchasePrice);
-    const purchaseDate = dateFormat(item.date);
+    const assetItem = item as Asset;
+
+    const amount = parseFloat(assetItem.amount);
+    const purchasePrice = parseFloat(assetItem.purchasePrice);
+    const purchaseDate = dateFormat(assetItem.date);
     const currentValue = currentValueFn(amount, currentCurrency?.price || 0);
     const averagePurchasePrice = averagePurchasePriceFn(purchasePrice, amount);
     const percentageDifference = percentageDifferenceFn(
@@ -137,14 +162,18 @@ const TableRow: React.FC<TableRowComponentProps> = ({
   }
 
   if (type === 'overview-totals') {
-    const totalAmount = item.totalAmount;
-    const totalPurchasePrice = parseFloat(item.totalPurchasePrice);
+    const totalsItem = item as SelectedCurrency['totals'];
+
+    const totalAmount = totalsItem.totalAmount;
+    const totalPurchasePrice = parseFloat(
+      totalsItem.totalPurchasePrice.toString()
+    );
     const totalValue = currentValueFn(totalAmount, currentCurrency?.price || 0);
-    const totalaveragePurchasePrice = averagePurchasePriceFn(
+    const totalAveragePurchasePrice = averagePurchasePriceFn(
       totalPurchasePrice,
       totalAmount
     );
-    const totalpercentageDifference = percentageDifferenceFn(
+    const totalPercentageDifference = percentageDifferenceFn(
       totalPurchasePrice,
       totalValue
     );
@@ -162,16 +191,16 @@ const TableRow: React.FC<TableRowComponentProps> = ({
           {currencyFormat(totalValue)}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
-          {currencyFormat(totalaveragePurchasePrice)}
+          {currencyFormat(totalAveragePurchasePrice)}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
           <div
             className={classNames('flex', {
-              'text-blue-500': totalpercentageDifference > 0,
-              'text-red-500': totalpercentageDifference < 0,
+              'text-blue-500': totalPercentageDifference > 0,
+              'text-red-500': totalPercentageDifference < 0,
             })}
           >
-            {percentageFormat(totalpercentageDifference)}
+            {percentageFormat(totalPercentageDifference)}
           </div>
         </Table.Cell>
         <Table.Cell></Table.Cell>

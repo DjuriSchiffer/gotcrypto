@@ -1,5 +1,3 @@
-// src/components/Charts.tsx
-
 import React from 'react';
 import { useAppState } from '../hooks/useReducer';
 import { currencyFormat } from '../utils/calculateHelpers';
@@ -18,7 +16,7 @@ import {
   ChartData,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { Currency, Asset } from '../types';
+import { Asset, SelectedCurrency } from '../types/store';
 
 ChartJS.register(
   CategoryScale,
@@ -39,12 +37,19 @@ interface ChartsProps {
 }
 
 const Charts: React.FC<ChartsProps> = ({ data }) => {
-  const { currencies } = useAppState();
+  const { fetchedCurrencies, selectedCurrencies } = useAppState();
 
-  // Deep copy and reverse the assets array to prevent mutation
+  const selectedCurrency: SelectedCurrency | undefined =
+    selectedCurrencies[data.index];
+
+  if (!selectedCurrency) {
+    return <div>No currency selected.</div>;
+  }
+
+  const cmc_id = selectedCurrency.cmc_id;
+
   const assets: Asset[] = [...data.assets].reverse();
 
-  // Generate labels from asset dates
   const labels: string[] = assets.map((asset) => {
     const date = new Date(asset.date);
     return date.toLocaleDateString('nl', {
@@ -54,24 +59,26 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
     });
   });
 
-  // Parse amounts as numbers
-  const amount: number[] = assets.map((asset) =>
-    parseFloat(asset.amount.toString())
-  );
+  const amount: number[] = assets.map((asset) => parseFloat(asset.amount));
 
-  // Calculate cumulative amount data
   const amountData: number[] = amount.map((asset, index) =>
     amount.slice(0, index + 1).reduce((a, b) => a + b, 0)
   );
 
-  // Define Chart.js options with proper typing
+  const currencyPrice = fetchedCurrencies
+    ? fetchedCurrencies[cmc_id]?.price
+    : 0;
+
+  const holdingsData: number[] = amountData.map(
+    (cumulativeAmount) => cumulativeAmount * currencyPrice
+  );
+
   const options: ChartOptions<'line'> = {
     responsive: true,
     interaction: {
       mode: 'index',
       intersect: true,
     },
-    stacked: true,
     scales: {
       y: {
         type: 'linear',
@@ -91,7 +98,7 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
           callback: (value) => currencyFormat(Number(value)),
         },
         grid: {
-          drawOnChartArea: false, // Prevents y1 grid lines from being drawn on the chart area
+          drawOnChartArea: false,
         },
       },
       x: {
@@ -126,7 +133,6 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
     },
   };
 
-  // Define Chart.js data with proper typing
   const chartData: ChartData<'line'> = {
     labels: labels,
     datasets: [
@@ -136,16 +142,11 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
         borderColor: 'rgb(53, 162, 235)',
         backgroundColor: 'rgba(53, 162, 235, 0.5)',
         yAxisID: 'y',
-        tension: 0.4, // Adds smooth curves to the line
+        tension: 0.4,
       },
       {
         label: 'Holdings',
-        data:
-          currencies && currencies[data.index]
-            ? amountData.map(
-                (asset) => asset * Number(currencies[data.index].price) // Ensure price is a number
-              )
-            : [],
+        data: holdingsData,
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
         yAxisID: 'y1',

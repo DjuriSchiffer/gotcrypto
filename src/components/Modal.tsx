@@ -1,5 +1,3 @@
-// src/components/ModalComponent.tsx
-
 import React, { ReactNode } from 'react';
 import { Modal } from 'flowbite-react';
 

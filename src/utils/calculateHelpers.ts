@@ -1,5 +1,3 @@
-// src/utils/CalculateHelpers.ts
-
 /**
  * Calculates the percentage difference between purchase price and current value.
  * @param purchasePrice - The total purchase price.
@@ -91,7 +89,7 @@ export function dateFormat(d: string | number | Date): string {
  */
 export function formatDatePickerDate(date: Date): string {
   const day = date.getDate();
-  const month = date.getMonth() + 1; // Months are zero-based
+  const month = date.getMonth() + 1;
   const year = date.getFullYear();
 
   return `${year}-${month.toString().padStart(2, '0')}-${day

@@ -4,10 +4,11 @@ import { getCurrencies } from './api';
 
 import { useLocalForage } from './hooks/useLocalForage';
 import ReducerProvider, { useAppDispatch } from './hooks/useReducer';
-import Overview from './pages/Overview';
+import Detail from './pages/Detail';
 import Dashboard from './pages/Dashboard';
 import ErrorComponent from './components/Error';
 import { GetCurrenciesResponse } from './types/api';
+import { FetchedCurrency } from './types/currency';
 
 const Bootstrap: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -25,15 +26,7 @@ const Bootstrap: React.FC = () => {
               payload: true,
             });
           } else if (data.data) {
-            const currenciesArr: Record<
-              string,
-              {
-                name: string;
-                price: number;
-                slug: string;
-                cmc_id: number;
-              }
-            > = {};
+            const currenciesArr: Record<string, FetchedCurrency> = {};
 
             for (const [key, value] of Object.entries(data.data)) {
               currenciesArr[key] = {
@@ -45,7 +38,7 @@ const Bootstrap: React.FC = () => {
             }
 
             dispatch({
-              type: 'SET_INITIAL_CURRENCIES',
+              type: 'SET_FETCHED_CURRENCIES',
               payload: currenciesArr,
             });
 
@@ -55,7 +48,7 @@ const Bootstrap: React.FC = () => {
       } catch (error: any) {
         dispatch({
           type: 'SET_ERROR',
-          payload: error.message || 'An unexpected error occurred',
+          payload: true,
         });
       }
     };
@@ -73,7 +66,7 @@ const App: React.FC = () => {
         <Bootstrap />
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path=":overviewSlug" element={<Overview />} />
+          <Route path=":slug" element={<Detail />} />
         </Routes>
         <ErrorComponent />
       </BrowserRouter>

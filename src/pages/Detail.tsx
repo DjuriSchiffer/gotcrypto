@@ -1,6 +1,4 @@
-// src/pages/Overview.tsx
-
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, ChangeEvent } from 'react';
 import { useAppState } from '../hooks/useReducer';
 import AddAssetForm from '../components/AddAssetForm';
 import { useLocalForage } from '../hooks/useLocalForage';
@@ -19,16 +17,18 @@ import { getImage } from '../utils/images';
 import { Card, Button, Spinner } from 'flowbite-react';
 import Table from '../components/Table';
 import TableRow from '../components/TableRow';
-import { Currency, Asset } from '../types/store';
+import { Asset, SelectedCurrency } from '../types/store';
+import { FetchedCurrency } from '../types/currency';
 
-const Overview: React.FC = () => {
-  const { currencies, selectedCurrencies } = useAppState();
+const Detail: React.FC = () => {
+  const { fetchedCurrencies, selectedCurrencies } = useAppState();
   const { setLocalForage } = useLocalForage();
-  const { overviewSlug } = useParams();
+  const { slug } = useParams();
 
-  const [currentCurrency, setCurrentCurrency] = useState<Currency | null>(null);
+  const [currentCurrency, setCurrentCurrency] =
+    useState<FetchedCurrency | null>(null);
   const [currentSelectedCurrency, setCurrentSelectedCurrency] =
-    useState<Currency | null>(null);
+    useState<SelectedCurrency | null>(null);
   const [formType, setFormType] = useState<'add' | 'edit'>('add');
   const [inputs, setInputs] = useState<{
     amount: string;
@@ -49,49 +49,42 @@ const Overview: React.FC = () => {
     useState<boolean>(false);
   const [currentItem, setCurrentItem] = useState<Asset | null>(null);
 
-  // Effect to set currentCurrency based on overviewSlug
   useEffect(() => {
-    if (currencies !== null && overviewSlug) {
-      const currIndex = Object.values(currencies).findIndex(
-        (e) => e.slug === overviewSlug
+    if (fetchedCurrencies !== null && slug) {
+      const currIndex = Object.values(fetchedCurrencies).findIndex(
+        (e) => e.slug === slug
       );
       if (currIndex !== -1) {
-        setCurrentCurrency(Object.values(currencies)[currIndex]);
+        setCurrentCurrency(Object.values(fetchedCurrencies)[currIndex]);
       } else {
         setCurrentCurrency(null);
       }
     }
-  }, [currencies, overviewSlug]);
+  }, [fetchedCurrencies, selectedCurrencies, slug]);
 
-  // Effect to set currentSelectedCurrency based on overviewSlug
   useEffect(() => {
-    if (overviewSlug && selectedCurrencies) {
-      const selected =
-        selectedCurrencies.find((e) => e.slug === overviewSlug) || null;
+    if (slug && selectedCurrencies) {
+      const selected = selectedCurrencies.find((e) => e.slug === slug) || null;
       setCurrentSelectedCurrency(selected);
     }
-  }, [selectedCurrencies, overviewSlug]);
+  }, [selectedCurrencies, slug]);
 
-  // Effect to handle form submission
   useEffect(() => {
-    if (submit && currentCurrency && currencies) {
+    if (submit && currentCurrency && fetchedCurrencies) {
       const currIndex = selectedCurrencies.findIndex(
         (e) => e.name === currentCurrency.name
       );
-      if (currIndex === -1) return; // Currency not found
+      if (currIndex === -1) return;
 
-      // Clone inputs and replace comma with dot in purchasePrice
       let updatedInputs = { ...inputs };
       updatedInputs.purchasePrice = updatedInputs.purchasePrice.replace(
         ',',
         '.'
       );
 
-      // Clone selectedCurrencies to avoid direct mutation
       let updatedSelectedCurrencies = [...selectedCurrencies];
 
       if (formType === 'add') {
-        // Add new asset
         const newAsset: Asset = {
           ...updatedInputs,
           amount: updatedInputs.amount,
@@ -103,7 +96,6 @@ const Overview: React.FC = () => {
       }
 
       if (formType === 'edit' && currentItem) {
-        // Edit existing asset
         const foundIndex = updatedSelectedCurrencies[
           currIndex
         ].assets.findIndex((x) => x.id === currentItem.id);
@@ -113,24 +105,20 @@ const Overview: React.FC = () => {
             amount: updatedInputs.amount,
             purchasePrice: updatedInputs.purchasePrice,
             date: updatedInputs.date,
-            id: currentItem.id, // Ensure ID remains the same
+            id: currentItem.id,
           };
           updatedSelectedCurrencies[currIndex].assets[foundIndex] = editedAsset;
         }
       }
 
-      // Recalculate totals
       updatedSelectedCurrencies[currIndex].totals = totals(
-        updatedSelectedCurrencies[currIndex].assets,
-        currentCurrency
+        updatedSelectedCurrencies[currIndex].assets
       );
 
-      // Sort assets by date descending
       updatedSelectedCurrencies[currIndex].assets.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
 
-      // Save updated selectedCurrencies to localForage
       setLocalForage('selectedCurrencies', updatedSelectedCurrencies, () => {
         setCurrentSelectedCurrency(updatedSelectedCurrencies[currIndex]);
         setCurrentItem(null);
@@ -138,7 +126,6 @@ const Overview: React.FC = () => {
         resetInputs();
       });
 
-      // Reset submit state
       setSubmit(false);
     }
   }, [
@@ -148,14 +135,15 @@ const Overview: React.FC = () => {
     formType,
     currentItem,
     selectedCurrencies,
-    currencies,
+    fetchedCurrencies,
     setLocalForage,
   ]);
 
-  // Handle input changes
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const name = event.target.name as keyof typeof inputs;
-    let value = event.target.value;
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const name = e.target.name as keyof typeof inputs;
+    let value = e.target.value;
 
     if (name === 'purchasePrice') {
       if (isNaN(Number(value)) || value.includes(',')) {
@@ -181,11 +169,9 @@ const Overview: React.FC = () => {
 
   const handleRemoveAsset = useCallback(
     (asset: Asset) => {
-      if (!overviewSlug) return;
+      if (!slug) return;
 
-      const currIndex = selectedCurrencies.findIndex(
-        (e) => e.name === overviewSlug
-      );
+      const currIndex = selectedCurrencies.findIndex((e) => e.name === slug);
       if (currIndex === -1) return;
 
       const updatedSelectedCurrencies = [...selectedCurrencies];
@@ -194,8 +180,7 @@ const Overview: React.FC = () => {
       ].assets.filter((item) => item.id !== asset.id);
 
       updatedSelectedCurrencies[currIndex].totals = totals(
-        updatedSelectedCurrencies[currIndex].assets,
-        currentCurrency
+        updatedSelectedCurrencies[currIndex].assets
       );
 
       setLocalForage('selectedCurrencies', updatedSelectedCurrencies, () => {
@@ -203,36 +188,32 @@ const Overview: React.FC = () => {
         setOpenRemoveAssetModal(false);
       });
     },
-    [overviewSlug, selectedCurrencies, setLocalForage, currentCurrency]
+    [slug, selectedCurrencies, setLocalForage, currentCurrency]
   );
 
   const handleRemoveAllAssets = useCallback(
-    (overviewSlugParam?: string) => {
-      if (!overviewSlugParam) return;
+    (slugParam?: string) => {
+      if (!slugParam) return;
 
       const currIndex = selectedCurrencies.findIndex(
-        (e) => e.name === overviewSlugParam
+        (e) => e.name === slugParam
       );
       if (currIndex === -1) return;
 
-      // Clone selectedCurrencies to avoid direct mutation
       const updatedSelectedCurrencies = [...selectedCurrencies];
       updatedSelectedCurrencies[currIndex].assets = [];
       updatedSelectedCurrencies[currIndex].totals = totals(
-        updatedSelectedCurrencies[currIndex].assets,
-        currentCurrency
+        updatedSelectedCurrencies[currIndex].assets
       );
 
-      // Save updated selectedCurrencies to localForage
       setLocalForage('selectedCurrencies', updatedSelectedCurrencies, () => {
         setCurrentSelectedCurrency(updatedSelectedCurrencies[currIndex]);
         setOpenRemoveAllAssetsModal(false);
       });
     },
-    [overviewSlug, selectedCurrencies, setLocalForage, currentCurrency]
+    [slug, selectedCurrencies, setLocalForage, currentCurrency]
   );
 
-  // Handle opening the add/edit asset modal
   const handleOpenAddAssetModal = (type: 'add' | 'edit', item?: Asset) => {
     setFormType(type);
     if (type === 'add') {
@@ -250,13 +231,11 @@ const Overview: React.FC = () => {
     setOpenAddAssetModal(true);
   };
 
-  // Handle opening the remove asset modal
   const handleOpenRemoveAssetModal = (item: Asset) => {
     setCurrentItem(item);
     setOpenRemoveAssetModal(true);
   };
 
-  // Reset input fields
   const resetInputs = () => {
     setInputs({
       amount: '',
@@ -268,7 +247,7 @@ const Overview: React.FC = () => {
 
   return (
     <Page>
-      {currencies && currentCurrency && currentSelectedCurrency ? (
+      {fetchedCurrencies && currentCurrency && currentSelectedCurrency ? (
         <div className={'grid gap-4 2xl:grid-cols-6 mb-4'}>
           <div>
             <Link
@@ -320,23 +299,23 @@ const Overview: React.FC = () => {
 
             <Table type={'overview'}>
               {currentSelectedCurrency.assets.length > 0 &&
-                currentSelectedCurrency.assets.map((item: Asset) => {
+                currentSelectedCurrency.assets.map((asset: Asset) => {
                   return (
                     <TableRow
-                      key={item.id}
+                      key={asset.id}
                       type="overview"
-                      item={item}
+                      item={asset}
                       currentCurrency={currentCurrency}
-                      currencies={currencies}
+                      currencies={fetchedCurrencies}
                     >
                       <Button
                         id="action"
-                        onClick={() => handleOpenAddAssetModal('edit', item)}
+                        onClick={() => handleOpenAddAssetModal('edit', asset)}
                       >
                         <Icon id="Edit" color="white" />
                       </Button>
                       <Button
-                        onClick={() => handleOpenRemoveAssetModal(item)}
+                        onClick={() => handleOpenRemoveAssetModal(asset)}
                         color={'failure'}
                         className={'ml-2'}
                       >
@@ -351,7 +330,7 @@ const Overview: React.FC = () => {
                     type="overview-totals"
                     item={currentSelectedCurrency.totals}
                     currentCurrency={currentCurrency}
-                    currencies={currencies}
+                    currencies={fetchedCurrencies}
                   />
                 )}
             </Table>
@@ -381,7 +360,6 @@ const Overview: React.FC = () => {
       >
         <AddAssetForm
           onSubmit={handleSubmit}
-          className={'flex flex-col'}
           amount={inputs.amount}
           price={inputs.purchasePrice}
           date={inputs.date}
@@ -428,10 +406,7 @@ const Overview: React.FC = () => {
           className="flex mx-auto mb-4 text-6xl"
         />
         <div className="flex justify-center">
-          <Button
-            onClick={() => handleRemoveAllAssets(overviewSlug)}
-            color={'failure'}
-          >
+          <Button onClick={() => handleRemoveAllAssets(slug)} color={'failure'}>
             <Icon id="Remove" color="white" className={'mr-1'} />
             Remove all assets
           </Button>
@@ -441,4 +416,4 @@ const Overview: React.FC = () => {
   );
 };
 
-export default Overview;
+export default Detail;

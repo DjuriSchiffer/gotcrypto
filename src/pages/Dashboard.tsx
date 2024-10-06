@@ -1,5 +1,3 @@
-// src/pages/Dashboard.tsx
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
@@ -9,7 +7,7 @@ import { useLocalForage } from '../hooks/useLocalForage';
 import Icon from '../components/Icon';
 import { percentageFormat, currencyFormat } from '../utils/calculateHelpers';
 import { getGlobalTotals } from '../utils/totals';
-import { Currency, GlobalTotals } from '../types/store';
+import { GlobalTotals, SelectedCurrency } from '../types/store';
 import { Card, Spinner, Button, Tooltip } from 'flowbite-react';
 import Modal from '../components/Modal';
 import SelectCurrencies from '../components/SelectCurrencies';
@@ -19,34 +17,35 @@ import Table from '../components/Table';
 import TableRow from '../components/TableRow';
 
 const Dashboard: React.FC = () => {
-  const { currencies, selectedCurrencies, globalTotals } = useAppState();
+  const { fetchedCurrencies, selectedCurrencies, globalTotals } = useAppState();
   const dispatch = useAppDispatch();
   const { setLocalForage, initStore } = useLocalForage();
 
   const [openRemoveAssetModal, setOpenRemoveAssetModal] =
     useState<boolean>(false);
-  const [currentCurrency, setCurrentCurrency] = useState<Currency | null>(null);
+  const [currentCurrency, setCurrentCurrency] =
+    useState<SelectedCurrency | null>(null);
 
   useEffect(() => {
-    if (selectedCurrencies && currencies) {
+    if (selectedCurrencies && fetchedCurrencies) {
       const totals: GlobalTotals = getGlobalTotals(
         selectedCurrencies,
-        currencies
+        fetchedCurrencies
       );
       dispatch({
         type: 'SET_GLOBAL_TOTALS',
         payload: totals,
       });
     }
-  }, [selectedCurrencies, currencies, dispatch]);
+  }, [selectedCurrencies, fetchedCurrencies, dispatch]);
 
-  const handleRemoveCurrency = async (selectedCurrency: Currency) => {
+  const handleRemoveCurrency = async (selectedCurrency: SelectedCurrency) => {
     try {
       const updatedCurrencies = selectedCurrencies.filter(
         (item) => !isEqual(item, selectedCurrency)
       );
-      setLocalForage('selectedCurrencies', updatedCurrencies);
       setOpenRemoveAssetModal(false);
+      setLocalForage('selectedCurrencies', updatedCurrencies);
       dispatch({
         type: 'SET_SELECTED_CURRENCIES',
         payload: updatedCurrencies,
@@ -60,7 +59,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleOrderCurrencyUp = async (selectedCurrency: Currency) => {
+  const handleOrderCurrencyUp = async (selectedCurrency: SelectedCurrency) => {
     const currIndex = selectedCurrencies.findIndex(
       (item) => item.name === selectedCurrency.name
     );
@@ -69,7 +68,7 @@ const Dashboard: React.FC = () => {
       const [element] = updatedCurrencies.splice(currIndex, 1);
       updatedCurrencies.splice(currIndex - 1, 0, element);
       try {
-        await setLocalForage('selectedCurrencies', updatedCurrencies);
+        setLocalForage('selectedCurrencies', updatedCurrencies);
         dispatch({
           type: 'SET_SELECTED_CURRENCIES',
           payload: updatedCurrencies,
@@ -84,7 +83,9 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleOrderCurrencyDown = async (selectedCurrency: Currency) => {
+  const handleOrderCurrencyDown = async (
+    selectedCurrency: SelectedCurrency
+  ) => {
     const currIndex = selectedCurrencies.findIndex(
       (item) => item.name === selectedCurrency.name
     );
@@ -93,7 +94,7 @@ const Dashboard: React.FC = () => {
       const [element] = updatedCurrencies.splice(currIndex, 1);
       updatedCurrencies.splice(currIndex + 1, 0, element);
       try {
-        await setLocalForage('selectedCurrencies', updatedCurrencies);
+        setLocalForage('selectedCurrencies', updatedCurrencies);
         dispatch({
           type: 'SET_SELECTED_CURRENCIES',
           payload: updatedCurrencies,
@@ -108,14 +109,14 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleOpenRemoveAssetModal = (selectedCurrency: Currency) => {
+  const handleOpenRemoveAssetModal = (selectedCurrency: SelectedCurrency) => {
     setCurrentCurrency(selectedCurrency);
     setOpenRemoveAssetModal(true);
   };
 
   return (
     <Page>
-      {currencies && selectedCurrencies ? (
+      {fetchedCurrencies && selectedCurrencies ? (
         <>
           <div className="grid gap-4 mb-4">
             <Card>
@@ -151,8 +152,9 @@ const Dashboard: React.FC = () => {
                   <TableRow
                     key={selectedCurrency.cmc_id}
                     type="dashboard"
-                    item={selectedCurrency}
-                    currencies={currencies}
+                    item={selectedCurrency as SelectedCurrency}
+                    currencies={fetchedCurrencies}
+                    currentCurrency={currentCurrency}
                   >
                     {index > 0 && (
                       <Button

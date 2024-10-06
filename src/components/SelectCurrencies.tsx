@@ -1,5 +1,3 @@
-// src/components/SelectCurrencies.tsx
-
 import React, {
   useEffect,
   useState,
@@ -13,21 +11,29 @@ import { useAppState, useAppDispatch } from '../hooks/useReducer';
 import totals from '../utils/totals';
 import { getImage } from '../utils/images';
 import { Button } from 'flowbite-react';
-import { Currency, OptionType, AppState } from '../types';
+import { SelectedCurrency } from 'store';
+import { FetchedCurrency } from 'currency';
 
 interface SelectCurrenciesProps {
   className?: string;
 }
 
+export interface OptionType {
+  value: string;
+  label: string;
+  image?: string;
+  disabled?: boolean;
+}
+
 const SelectCurrencies: React.FC<SelectCurrenciesProps> = ({ className }) => {
-  const { currencies, selectedCurrencies } = useAppState();
+  const { fetchedCurrencies, selectedCurrencies } = useAppState();
   const dispatch = useAppDispatch();
   const { setLocalForage } = useLocalForage();
 
   const [input, setInput] = useState<SingleValue<OptionType>>(null);
   const [submit, setSubmit] = useState<boolean>(false);
   const [options, setOptions] = useState<OptionType[]>([]);
-  const selectInputRef = useRef<Select<OptionType, false>>(null);
+  const selectInputRef = useRef<any>(null);
 
   const defaultValue: OptionType = {
     label: 'Select currency',
@@ -48,61 +54,60 @@ const SelectCurrencies: React.FC<SelectCurrenciesProps> = ({ className }) => {
     }),
   };
 
-  // Effect to handle form submission
   useEffect(() => {
     if (submit && input && input.value !== '') {
-      // Check if the currency is already selected
       const isAlreadySelected = selectedCurrencies.some(
         (item) => item.name === input.value
       );
       if (isAlreadySelected) return;
 
-      // Convert Record to Array
-      const currencyList: Currency[] = Object.values(currencies || {});
+      const currencyList: FetchedCurrency[] = Object.values(
+        fetchedCurrencies || {}
+      );
 
-      // Find the index of the selected currency
       const currIndex = currencyList.findIndex(
         (item) => item.name === input.value
       );
 
-      if (currIndex === -1) return; // Currency not found
+      if (currIndex === -1) return;
 
       const selectedCurrency = currencyList[currIndex];
 
-      // Create a new selected currency object
-      const newSelectedCurrency: Currency = {
+      const newSelectedCurrency: SelectedCurrency = {
         name: selectedCurrency.name,
         slug: selectedCurrency.slug,
         cmc_id: selectedCurrency.cmc_id,
         index: currIndex,
         assets: [],
-        totals: totals([], selectedCurrency),
+        totals: totals([]),
       };
 
-      // Update selected currencies immutably
       const updatedSelectedCurrencies = [
         ...selectedCurrencies,
         newSelectedCurrency,
       ];
 
-      // Persist to localForage
       setLocalForage('selectedCurrencies', updatedSelectedCurrencies, () => {
-        // Reset the select input
         selectInputRef.current?.setValue(defaultValue);
         setSubmit(false);
-        // Dispatch an action to update the global state
         dispatch({
           type: 'SET_SELECTED_CURRENCIES',
           payload: updatedSelectedCurrencies,
         });
       });
     }
-  }, [submit, input, currencies, selectedCurrencies, setLocalForage, dispatch]);
+  }, [
+    submit,
+    input,
+    fetchedCurrencies,
+    selectedCurrencies,
+    setLocalForage,
+    dispatch,
+  ]);
 
-  // Effect to set options based on available currencies
   useEffect(() => {
-    if (currencies && selectedCurrencies) {
-      const newOptions: OptionType[] = Object.values(currencies).map(
+    if (fetchedCurrencies && selectedCurrencies) {
+      const newOptions: OptionType[] = Object.values(fetchedCurrencies).map(
         (currency) => {
           const isDisabled = selectedCurrencies.some(
             (selected) => selected.name === currency.name
@@ -117,9 +122,8 @@ const SelectCurrencies: React.FC<SelectCurrenciesProps> = ({ className }) => {
       );
       setOptions(newOptions);
     }
-  }, [currencies, selectedCurrencies]);
+  }, [fetchedCurrencies, selectedCurrencies]);
 
-  // Handle form submission
   const handleSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmit(true);
