@@ -5,7 +5,8 @@ import React, {
   ReactNode,
   Dispatch,
 } from 'react';
-import { reducer, initialStore, Action, Store } from '../store';
+import { reducer, initialStore } from '../store';
+import { Action, Store } from 'store';
 
 const StateContext = createContext<Store | undefined>(undefined);
 const DispatchContext = createContext<Dispatch<Action> | undefined>(undefined);

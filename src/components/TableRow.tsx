@@ -9,8 +9,7 @@ import {
 import classNames from 'classnames';
 import { getImage } from '../utils/images';
 import { Table } from 'flowbite-react';
-import { Asset, SelectedCurrency } from '../types/store';
-import { FetchedCurrency } from '../types/currency';
+import { Asset, FetchedCurrency, SelectedCurrency } from '../types/currency';
 
 interface DashboardRowProps {
   type: 'dashboard';

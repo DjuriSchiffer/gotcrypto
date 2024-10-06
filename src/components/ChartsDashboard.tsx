@@ -17,8 +17,7 @@ import {
   ChartData,
 } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
-import { SelectedCurrency } from '../types/store';
-import { FetchedCurrency } from '../types/currency';
+import { FetchedCurrency, SelectedCurrency } from '../types/currency';
 
 ChartJS.register(
   CategoryScale,

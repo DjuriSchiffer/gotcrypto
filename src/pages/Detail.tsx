@@ -17,8 +17,7 @@ import { getImage } from '../utils/images';
 import { Card, Button, Spinner } from 'flowbite-react';
 import Table from '../components/Table';
 import TableRow from '../components/TableRow';
-import { Asset, SelectedCurrency } from '../types/store';
-import { FetchedCurrency } from '../types/currency';
+import { Asset, FetchedCurrency, SelectedCurrency } from '../types/currency';
 
 const Detail: React.FC = () => {
   const { fetchedCurrencies, selectedCurrencies } = useAppState();

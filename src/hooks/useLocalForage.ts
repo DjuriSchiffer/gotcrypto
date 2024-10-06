@@ -1,7 +1,7 @@
 import localForage from 'localforage';
 import { useAppDispatch } from '../hooks/useReducer';
 import { useCallback } from 'react';
-import { SelectedCurrency } from '../types/store';
+import { SelectedCurrency } from 'currency';
 
 export const useLocalForage = () => {
   const dispatch = useAppDispatch();

@@ -3,8 +3,8 @@ import {
   averagePurchasePrice,
   currentValue,
 } from './calculateHelpers';
-import { Asset, GlobalTotals, SelectedCurrency } from '../types/store';
-import { FetchedCurrency } from '../types/currency';
+import { Asset, FetchedCurrency, SelectedCurrency } from '../types/currency';
+import { GlobalTotals } from 'store';
 
 /**
  * Calculates totals based on the selected currencies and their assets.
@@ -73,7 +73,6 @@ export const getGlobalTotals = (
   if (typeof totalPercentageDifference !== 'number') {
     totalPercentageDifference = 0;
   }
-
 
   return {
     totalAmount: selectedCurrencies.length > 0 ? totalAmount : 0,

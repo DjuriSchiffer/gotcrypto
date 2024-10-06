@@ -16,7 +16,7 @@ import {
   ChartData,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { Asset, SelectedCurrency } from '../types/store';
+import { Asset, SelectedCurrency } from 'currency';
 
 ChartJS.register(
   CategoryScale,

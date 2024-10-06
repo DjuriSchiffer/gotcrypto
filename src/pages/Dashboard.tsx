@@ -7,7 +7,6 @@ import { useLocalForage } from '../hooks/useLocalForage';
 import Icon from '../components/Icon';
 import { percentageFormat, currencyFormat } from '../utils/calculateHelpers';
 import { getGlobalTotals } from '../utils/totals';
-import { GlobalTotals, SelectedCurrency } from '../types/store';
 import { Card, Spinner, Button, Tooltip } from 'flowbite-react';
 import Modal from '../components/Modal';
 import SelectCurrencies from '../components/SelectCurrencies';
@@ -15,6 +14,8 @@ import Page from '../components/Page';
 import Charts from '../components/ChartsDashboard';
 import Table from '../components/Table';
 import TableRow from '../components/TableRow';
+import { SelectedCurrency } from 'currency';
+import { GlobalTotals } from 'store';
 
 const Dashboard: React.FC = () => {
   const { fetchedCurrencies, selectedCurrencies, globalTotals } = useAppState();

@@ -1,22 +1,21 @@
-export interface Asset {
-  amount: string;
-  purchasePrice: string;
-  date: string;
-  id: string;
+import { FetchedCurrency, SelectedCurrency } from 'currency';
+
+export interface Store {
+  fetchedCurrencies: Record<string, FetchedCurrency> | null;
+  error: boolean;
+  selectedCurrencies: SelectedCurrency[];
+  globalTotals: GlobalTotals;
 }
 
-export type SelectedCurrency = {
-  name: string;
-  slug: string;
-  cmc_id: number;
-  index: number;
-  totals: {
-    totalAmount: number;
-    totalPurchasePrice: number;
-    totalAveragePurchasePrice: number;
-  };
-  assets: Asset[];
-};
+export type Action =
+  | {
+      type: 'SET_FETCHED_CURRENCIES';
+      payload: Record<string, FetchedCurrency>;
+    }
+  | { type: 'SET_SELECTED_CURRENCIES'; payload: SelectedCurrency[] }
+  | { type: 'SET_GLOBAL_TOTALS'; payload: GlobalTotals }
+  | { type: 'SET_ERROR'; payload: boolean }
+  | { type: 'CLEAR_ERROR' };
 
 export interface GlobalTotals {
   totalAmount: number;

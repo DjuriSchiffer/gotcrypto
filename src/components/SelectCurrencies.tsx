@@ -11,8 +11,7 @@ import { useAppState, useAppDispatch } from '../hooks/useReducer';
 import totals from '../utils/totals';
 import { getImage } from '../utils/images';
 import { Button } from 'flowbite-react';
-import { SelectedCurrency } from 'store';
-import { FetchedCurrency } from 'currency';
+import { FetchedCurrency, SelectedCurrency } from 'currency';
 
 interface SelectCurrenciesProps {
   className?: string;
