@@ -85,8 +85,8 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
         display: true,
         position: 'left',
         ticks: {
-          color: 'white',
-          callback: (value) => currencyFormat(Number(value)),
+          color: 'rgb(53, 162, 235)',
+          callback: (value) => Number(value),
         },
       },
       y1: {
@@ -94,7 +94,7 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
         display: true,
         position: 'right',
         ticks: {
-          color: 'white',
+          color: 'rgb(255, 99, 132)',
           callback: (value) => currencyFormat(Number(value)),
         },
         grid: {
