@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Navbar, Tooltip } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 import Icon from './Icon';
 import logo from '../public/images/logo.svg';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase/firebaseConfig';
+import { useAuth } from '../contexts/AuthContext';
 
 const Nav: React.FC = () => {
+  const { user } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      console.log('User signed out');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <Navbar fluid rounded>
       <Link
@@ -17,6 +31,13 @@ const Nav: React.FC = () => {
         </span>
       </Link>
       <div className="flex md:order-2">
+        {user && (
+          <Tooltip content="SignOut">
+            <Button onClick={handleSignOut} color="gray" rel="noreferrer">
+              Sign Out
+            </Button>
+          </Tooltip>
+        )}
         <Tooltip content="Github">
           <Button
             href="https://github.com/DjuriSchiffer/gotcrypto"

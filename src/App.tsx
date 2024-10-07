@@ -1,5 +1,10 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
 import { getCurrencies } from './api';
 
 import { useLocalForage } from './hooks/useLocalForage';
@@ -9,6 +14,10 @@ import Dashboard from './pages/Dashboard';
 import ErrorComponent from './components/Error';
 import { GetCurrenciesResponse } from './types/api';
 import { FetchedCurrency } from './types/currency';
+import { useAuth } from './contexts/AuthContext';
+import AuthChoice from './components/AuthChoice';
+import SignIn from './components/SignIn';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const Bootstrap: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -60,16 +69,42 @@ const Bootstrap: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const { user, loading, isAnonymous } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-900 text-white">
+        Loading...
+      </div>
+    );
+  }
+
   return (
     <ReducerProvider>
-      <BrowserRouter>
+      <Router>
         <Bootstrap />
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path=":slug" element={<Detail />} />
+          <Route path="/" element={user ? <Dashboard /> : <AuthChoice />} />
+          <Route path=":slug" element={user ? <Detail /> : <AuthChoice />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path=":slug"
+            element={
+              <ProtectedRoute>
+                <Detail />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
         <ErrorComponent />
-      </BrowserRouter>
+      </Router>
     </ReducerProvider>
   );
 };
