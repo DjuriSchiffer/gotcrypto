@@ -6,9 +6,10 @@ import logo from '../public/images/logo.svg';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
 import { useAuth } from '../contexts/AuthContext';
+import SignIn from './SignIn';
 
 const Nav: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAnonymous } = useAuth();
 
   const handleSignOut = async () => {
     try {
@@ -31,11 +32,16 @@ const Nav: React.FC = () => {
         </span>
       </Link>
       <div className="flex md:order-2">
-        {user && (
+        {user && !isAnonymous && (
           <Tooltip content="SignOut">
             <Button onClick={handleSignOut} color="gray" rel="noreferrer">
               Sign Out
             </Button>
+          </Tooltip>
+        )}
+        {user && isAnonymous && (
+          <Tooltip content="SignIn">
+            <SignIn />
           </Tooltip>
         )}
         <Tooltip content="Github">
