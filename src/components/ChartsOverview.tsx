@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppState } from '../hooks/useReducer';
+import { useAppState } from '../hooks/useAppState';
 import { currencyFormat } from '../utils/calculateHelpers';
 
 import {
@@ -17,6 +17,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { Asset, SelectedCurrency } from 'currency';
+import { useStorage } from '../hooks/useStorage';
 
 ChartJS.register(
   CategoryScale,
@@ -37,7 +38,8 @@ interface ChartsProps {
 }
 
 const Charts: React.FC<ChartsProps> = ({ data }) => {
-  const { fetchedCurrencies, selectedCurrencies } = useAppState();
+  const { fetchedCurrencies } = useAppState();
+  const { selectedCurrencies } = useStorage();
 
   const selectedCurrency: SelectedCurrency | undefined =
     selectedCurrencies[data.index];

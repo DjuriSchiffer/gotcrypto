@@ -12,15 +12,17 @@ export interface Asset {
   id: string;
 }
 
+export type Totals = {
+  totalAmount: number;
+  totalPurchasePrice: number;
+  totalAveragePurchasePrice: number;
+};
+
 export type SelectedCurrency = {
   name: string;
   slug: string;
   cmc_id: number;
   index: number;
-  totals: {
-    totalAmount: number;
-    totalPurchasePrice: number;
-    totalAveragePurchasePrice: number;
-  };
+  totals: Totals;
   assets: Asset[];
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppState } from '../hooks/useReducer';
+import { useAppState } from '../hooks/useAppState';
 import Modal from './Modal';
 import { Button } from 'flowbite-react';
 import Icon from './Icon';

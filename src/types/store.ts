@@ -1,18 +1,16 @@
-import { FetchedCurrency, SelectedCurrency } from 'currency';
+import { FetchedCurrency } from 'currency';
 
 export interface Store {
-  fetchedCurrencies: Record<string, FetchedCurrency> | null;
+  fetchedCurrencies: FetchedCurrency[] | null;
   error: boolean;
-  selectedCurrencies: SelectedCurrency[];
   globalTotals: GlobalTotals;
 }
 
 export type Action =
   | {
       type: 'SET_FETCHED_CURRENCIES';
-      payload: Record<string, FetchedCurrency>;
+      payload: FetchedCurrency[];
     }
-  | { type: 'SET_SELECTED_CURRENCIES'; payload: SelectedCurrency[] }
   | { type: 'SET_GLOBAL_TOTALS'; payload: GlobalTotals }
   | { type: 'SET_ERROR'; payload: boolean }
   | { type: 'CLEAR_ERROR' };

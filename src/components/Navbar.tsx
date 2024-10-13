@@ -5,8 +5,8 @@ import Icon from './Icon';
 import logo from '../public/images/logo.svg';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
-import { useAuth } from '../contexts/AuthContext';
 import SignIn from './SignIn';
+import { useAuth } from '../hooks/useAuth';
 
 const Nav: React.FC = () => {
   const { user, isAnonymous } = useAuth();
@@ -44,15 +44,6 @@ const Nav: React.FC = () => {
             <SignIn />
           </Tooltip>
         )}
-        <Tooltip content="Github">
-          <Button
-            href="https://github.com/DjuriSchiffer/gotcrypto"
-            color="gray"
-            rel="noreferrer"
-          >
-            <Icon id="Github" color="white" />
-          </Button>
-        </Tooltip>
       </div>
     </Navbar>
   );

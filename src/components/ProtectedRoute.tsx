@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
+import Page from './Page';
 
 interface ProtectedRouteProps {
   children: JSX.Element;
@@ -11,9 +12,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-900 text-white">
-        Loading...
-      </div>
+      <Page>
+        <div className="flex justify-center items-center h-screen bg-gray-900 text-white">
+          loggin in...
+        </div>
+      </Page>
     );
   }
 

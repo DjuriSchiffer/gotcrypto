@@ -1,7 +1,7 @@
 import localForage from 'localforage';
-import { useAppDispatch } from '../hooks/useReducer';
 import { useCallback } from 'react';
 import { SelectedCurrency } from 'currency';
+import { useAppDispatch } from './useAppDispatch';
 
 export const useLocalForage = () => {
   const dispatch = useAppDispatch();
@@ -11,10 +11,6 @@ export const useLocalForage = () => {
       localForage
         .setItem(key, value)
         .then(() => {
-          dispatch({
-            type: 'SET_SELECTED_CURRENCIES',
-            payload: value,
-          });
           if (typeof callback === 'function') {
             callback();
           }
@@ -30,27 +26,48 @@ export const useLocalForage = () => {
     [dispatch]
   );
 
-  const initStore = useCallback(
-    (key: string): void => {
-      localForage
-        .getItem<SelectedCurrency[]>(key)
-        .then((values) => {
-          if (values === null) {
-            setLocalForage(key, []);
-          } else {
-            setLocalForage(key, values);
-          }
-        })
-        .catch((err: any) => {
-          dispatch({
-            type: 'SET_ERROR',
-            payload: true,
-          });
-          console.error(`Error initializing ${key} from localForage:`, err);
+  const getSelectedCurrencies = useCallback(
+    async (key: string): Promise<SelectedCurrency[]> => {
+      try {
+        const values = await localForage.getItem<SelectedCurrency[]>(key);
+        return values || [];
+      } catch (err) {
+        dispatch({
+          type: 'SET_ERROR',
+          payload: true,
         });
+        console.error(`Error getting ${key} from localForage:`, err);
+        return [];
+      }
     },
-    [setLocalForage, dispatch]
+    [dispatch]
   );
 
-  return { setLocalForage, initStore };
+  const removeSelectedCurrency = useCallback(
+    async (key: string, currencyId: number): Promise<void> => {
+      try {
+        const currencies = await getSelectedCurrencies(key);
+        const updatedCurrencies = currencies.filter(
+          (c) => c.cmc_id !== currencyId
+        );
+        await setLocalForage(key, updatedCurrencies);
+      } catch (err) {
+        dispatch({
+          type: 'SET_ERROR',
+          payload: true,
+        });
+        console.error(
+          `Error removing currency from ${key} in localForage:`,
+          err
+        );
+      }
+    },
+    [getSelectedCurrencies, setLocalForage, dispatch]
+  );
+
+  return {
+    setLocalForage,
+    getSelectedCurrencies,
+    removeSelectedCurrency,
+  };
 };

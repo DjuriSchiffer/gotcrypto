@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppState } from '../hooks/useReducer';
+import { useAppState } from '../hooks/useAppState';
 import { currentValue, currencyFormat } from '../utils/calculateHelpers';
 import { getColour } from '../utils/colours';
 

@@ -1,4 +1,6 @@
-import React, { FormEvent } from 'react';
+// components/AddAssetForm.tsx
+
+import React, { FormEvent, ChangeEvent } from 'react';
 import { Button } from 'flowbite-react';
 import DatePicker from './DatePicker';
 import Icon from './Icon';
@@ -6,29 +8,50 @@ import CurrencyInput from 'react-currency-input-field';
 
 interface AddAssetFormProps {
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  amount: number | string;
-  price: number | string;
-  date: Date | string;
-  id: string | number;
+  amount: string; // Changed to string to handle partial inputs
+  purchasePrice: string;
+  date: string;
   handleChange: (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => void;
-  formType: 'add' | 'edit';
+  submitLabel: string;
 }
 
 const AddAssetForm: React.FC<AddAssetFormProps> = ({
   onSubmit,
   amount,
-  price,
+  purchasePrice,
   date,
-  id,
   handleChange,
-  formType,
+  submitLabel,
 }) => {
+  const handleAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    value = value.replace(',', '.');
+
+    if (/^\d*\.?\d*$/.test(value)) {
+      if (
+        value.length > 1 &&
+        value.startsWith('0') &&
+        !value.startsWith('0.')
+      ) {
+        value = value.replace(/^0+/, '');
+      }
+
+      handleChange({
+        target: {
+          name: 'amount',
+          value,
+        },
+      } as ChangeEvent<HTMLInputElement>);
+    }
+  };
+
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
+      {/* Amount Input */}
       <label
         htmlFor="amount"
         className="block text-sm font-medium text-gray-900 dark:text-white"
@@ -42,10 +65,10 @@ const AddAssetForm: React.FC<AddAssetFormProps> = ({
         <input
           id="amount"
           name="amount"
-          type="number"
-          placeholder="0"
+          type="text"
+          placeholder="e.g., 10.50"
           required
-          onChange={handleChange}
+          onChange={handleAmountChange}
           value={amount}
           className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         />
@@ -64,15 +87,20 @@ const AddAssetForm: React.FC<AddAssetFormProps> = ({
         <CurrencyInput
           id="purchasePrice"
           name="purchasePrice"
-          onValueChange={(value) =>
-            handleChange({ target: { name: 'purchasePrice', value } } as any)
-          }
+          onValueChange={(value) => {
+            const event = {
+              target: { name: 'purchasePrice', value: value || '' },
+            } as React.ChangeEvent<HTMLInputElement>;
+            handleChange(event);
+          }}
           required
-          placeholder="0.00"
+          placeholder="e.g., 5000.00"
           decimalsLimit={2}
-          decimalScale={2}
-          value={price}
+          value={purchasePrice}
           step={0.01}
+          decimalSeparator="."
+          groupSeparator=","
+          allowNegativeValue={false}
           className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         />
       </div>
@@ -90,11 +118,7 @@ const AddAssetForm: React.FC<AddAssetFormProps> = ({
         <DatePicker date={date} handleChange={handleChange} />
       </div>
 
-      <input type="hidden" value={id} />
-
-      <Button type="submit">
-        {formType === 'add' ? 'Add asset' : 'Edit asset'}
-      </Button>
+      <Button type="submit">{submitLabel}</Button>
     </form>
   );
 };
