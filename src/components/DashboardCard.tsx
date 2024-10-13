@@ -14,6 +14,7 @@ import Icon from './Icon';
 type DashboardCard = {
   fetchedCurrency: FetchedCurrency;
   cryptoMap: Map<number, SelectedCurrency>;
+  isSelected: boolean;
 };
 
 export const getTotalAmount = (
@@ -54,6 +55,7 @@ export const getTotalPercentageDifference = (
 const DashboardCard: React.FC<DashboardCard> = ({
   fetchedCurrency,
   cryptoMap,
+  isSelected,
 }) => {
   const percentageDifference = getTotalPercentageDifference(
     cryptoMap,
@@ -62,8 +64,8 @@ const DashboardCard: React.FC<DashboardCard> = ({
   );
 
   return (
-    <Card>
-      <div className="flex items-center space-x-2">
+    <Card className={isSelected ? 'relative' : 'bg-primary dark:bg-primary'}>
+      <div className="flex space-x-2">
         <div className="shrink-0">
           <img
             width={32}
@@ -97,62 +99,77 @@ const DashboardCard: React.FC<DashboardCard> = ({
               </div>
             </div>
           </li>
-          <li className="py-3 sm:py-4">
-            <div className="flex items-center space-x-4">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                  Total holdings
-                </p>
-                <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                  Total amount bougth minus total sold
-                </p>
+          {!isSelected && (
+            <li className="py-3 sm:py-4">
+              <div className="flex items-center space-x-4">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm text-center font-medium text-gray-900 dark:text-white">
+                    No assets added yet.
+                  </p>
+                </div>
               </div>
-              <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                {getTotalAmount(cryptoMap, fetchedCurrency.cmc_id)}
-              </div>
-            </div>
-          </li>
-          <li className="py-3 sm:py-4">
-            <div className="flex items-center space-x-4">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                  Total invested
-                </p>
-                <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                  Total costs minus total sold
-                </p>
-              </div>
-              <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                {currencyFormat(
-                  getTotalPurchasePrice(cryptoMap, fetchedCurrency.cmc_id)
-                )}
-              </div>
-            </div>
-          </li>
-          <li className="pb-0 pt-3 sm:pt-4">
-            <div className="flex items-center space-x-4">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                  Total percentage difference
-                </p>
-                <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                  In percentages
-                </p>
-              </div>
-              <div
-                className={classNames(
-                  'inline-flex items-center text-base font-semibold text-gray-900',
-                  {
-                    'text-blue-500': percentageDifference > 0,
-                    'text-red-500': percentageDifference < 0,
-                    'dark:text-white': percentageDifference === 0,
-                  }
-                )}
-              >
-                {percentageFormat(percentageDifference)}
-              </div>
-            </div>
-          </li>
+            </li>
+          )}
+          {isSelected && (
+            <>
+              <li className="py-3 sm:py-4">
+                <div className="flex items-center space-x-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                      Total holdings
+                    </p>
+                    <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+                      Total amount bougth minus total sold
+                    </p>
+                  </div>
+                  <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    {getTotalAmount(cryptoMap, fetchedCurrency.cmc_id)}
+                  </div>
+                </div>
+              </li>
+              <li className="py-3 sm:py-4">
+                <div className="flex items-center space-x-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                      Total invested
+                    </p>
+                    <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+                      Total costs minus total sold
+                    </p>
+                  </div>
+                  <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    {currencyFormat(
+                      getTotalPurchasePrice(cryptoMap, fetchedCurrency.cmc_id)
+                    )}
+                  </div>
+                </div>
+              </li>
+              <li className="pb-0 pt-3 sm:pt-4">
+                <div className="flex items-center space-x-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                      Total percentage difference
+                    </p>
+                    <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+                      In percentages
+                    </p>
+                  </div>
+                  <div
+                    className={classNames(
+                      'inline-flex items-center text-base font-semibold text-gray-900',
+                      {
+                        'text-blue-500': percentageDifference > 0,
+                        'text-red-500': percentageDifference < 0,
+                        'dark:text-white': percentageDifference === 0,
+                      }
+                    )}
+                  >
+                    {percentageFormat(percentageDifference)}
+                  </div>
+                </div>
+              </li>
+            </>
+          )}
         </ul>
       </div>
     </Card>

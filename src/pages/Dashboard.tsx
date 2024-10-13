@@ -82,13 +82,17 @@ const Dashboard: React.FC<DashboardProps> = () => {
             </div>
           </Card>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {fetchedCurrencies.map((fetchedCurrency, index) => (
-              <DashboardCard
-                fetchedCurrency={fetchedCurrency}
-                key={index}
-                cryptoMap={cryptoMap}
-              />
-            ))}
+            {fetchedCurrencies.map((fetchedCurrency) => {
+              const isSelected = cryptoMap.has(fetchedCurrency.cmc_id);
+              return (
+                <DashboardCard
+                  fetchedCurrency={fetchedCurrency}
+                  key={fetchedCurrency.cmc_id}
+                  cryptoMap={cryptoMap}
+                  isSelected={isSelected}
+                />
+              );
+            })}
           </div>
         </div>
         {/* {selectedCurrencies.some((e) => e.assets.length > 0) && (
