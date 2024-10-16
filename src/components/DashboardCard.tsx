@@ -64,7 +64,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
   );
 
   return (
-    <Card className={isSelected ? 'relative' : 'bg-primary dark:bg-primary'}>
+    <Card>
       <div className="flex space-x-2">
         <div className="shrink-0">
           <img
@@ -85,7 +85,11 @@ const DashboardCard: React.FC<DashboardCard> = ({
           </Link>
         </div>
       </div>
-      <div className="flow-root">
+      <div
+        className={classNames('flex-root', {
+          'h-full': !isSelected,
+        })}
+      >
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
           <li className="py-3 sm:py-4">
             <div className="flex items-center space-x-4">
@@ -100,7 +104,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
             </div>
           </li>
           {!isSelected && (
-            <li className="py-3 sm:py-4">
+            <li className="pt-6 pb-1">
               <div className="flex items-center space-x-4">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm text-center font-medium text-gray-900 dark:text-white">
