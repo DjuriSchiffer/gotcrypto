@@ -7,7 +7,6 @@ import ErrorComponent from './components/Error';
 import { GetCurrenciesResponse } from './types/api';
 import { FetchedCurrency } from './types/currency';
 import AuthChoice from './components/AuthChoice';
-import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './hooks/useAuth';
 import { useStorage } from './hooks/useStorage';
 import { useAppDispatch } from './hooks/useAppDispatch';
@@ -88,27 +87,11 @@ const App: React.FC = () => {
       <Bootstrap />
       <Routes>
         <Route path="/" element={user ? <Dashboard /> : <AuthChoice />} />
-        <Route path=":slug" element={user ? <Detail /> : <AuthChoice />} />
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path=":slug"
-          element={
-            <ProtectedRoute>
-              <Detail />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/:slug" element={user ? <Detail /> : <AuthChoice />} />
+        <Route path="*" element={<ErrorComponent />} />
       </Routes>
       <ErrorComponent />
     </Router>
   );
 };
-
 export default App;

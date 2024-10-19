@@ -5,15 +5,9 @@ export interface Store {
   error: boolean;
   globalTotals: GlobalTotals;
   sortMethod: SortMethod;
-  customOrder: number[];
 }
 
-export type SortMethod =
-  | 'alphabet-asc'
-  | 'alphabet-desc'
-  | 'cmc_rank'
-  | 'latest-added'
-  | 'custom';
+export type SortMethod = 'cmc_rank' | 'has_selected';
 
 export type Action =
   | {
@@ -23,8 +17,7 @@ export type Action =
   | { type: 'SET_GLOBAL_TOTALS'; payload: GlobalTotals }
   | { type: 'SET_ERROR'; payload: boolean }
   | { type: 'CLEAR_ERROR' }
-  | { type: 'SET_SORT_METHOD'; payload: SortMethod }
-  | { type: 'SET_CUSTOM_ORDER'; payload: number[] };
+  | { type: 'SET_SORT_METHOD'; payload: SortMethod };
 
 export interface GlobalTotals {
   totalAmount: number;

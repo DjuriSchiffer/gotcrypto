@@ -1,14 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import { useAppState } from '../hooks/useAppState';
 import { percentageFormat, currencyFormat } from '../utils/calculateHelpers';
 import { Card, Spinner, Button, Tooltip } from 'flowbite-react';
 import Page from '../components/Page';
 import Charts from '../components/ChartsDashboard';
-import { SelectedCurrency } from 'currency';
+import { FetchedCurrency, SelectedCurrency } from 'currency';
 import { GlobalTotals } from 'store';
 import DashboardCard from '../components/DashboardCard';
 import { useStorage } from '../hooks/useStorage';
+import SortSelector from '../components/SortSelector';
 
 const createCryptoMap = (
   currencies: SelectedCurrency[]
@@ -19,13 +20,58 @@ const createCryptoMap = (
 type DashboardProps = {};
 
 const Dashboard: React.FC<DashboardProps> = () => {
-  const { fetchedCurrencies, globalTotals } = useAppState();
-  const { selectedCurrencies, loading: loadingStorage } = useStorage();
+  const { fetchedCurrencies, globalTotals, sortMethod } = useAppState();
+  const {
+    selectedCurrencies,
+    loading: loadingStorage,
+    setSortMethod,
+  } = useStorage();
 
   const cryptoMap = useMemo(
     () => createCryptoMap(selectedCurrencies),
     [selectedCurrencies]
   );
+
+  const sortedFetchedCurrencies = useMemo(() => {
+    if (fetchedCurrencies === null) return [];
+
+    let sorted = [...fetchedCurrencies];
+
+    if (sortMethod === 'cmc_rank') {
+      sorted.sort((a, b) => {
+        if (a.cmc_rank !== null && b.cmc_rank !== null) {
+          return a.cmc_rank - b.cmc_rank;
+        } else if (a.cmc_rank !== null && b.cmc_rank === null) {
+          return -1;
+        } else if (a.cmc_rank === null && b.cmc_rank !== null) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+    } else if (sortMethod === 'has_selected') {
+      sorted.sort((a, b) => {
+        const aSelected = cryptoMap.has(a.cmc_id) ? 0 : 1;
+        const bSelected = cryptoMap.has(b.cmc_id) ? 0 : 1;
+
+        if (aSelected !== bSelected) {
+          return aSelected - bSelected;
+        }
+
+        if (a.cmc_rank !== null && b.cmc_rank !== null) {
+          return a.cmc_rank - b.cmc_rank;
+        } else if (a.cmc_rank !== null && b.cmc_rank === null) {
+          return -1;
+        } else if (a.cmc_rank === null && b.cmc_rank !== null) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+    }
+
+    return sorted;
+  }, [fetchedCurrencies, sortMethod, cryptoMap]);
 
   if (loadingStorage) {
     return (
@@ -81,8 +127,14 @@ const Dashboard: React.FC<DashboardProps> = () => {
               )}
             </div>
           </Card>
+          <div className="mb-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
+              <SortSelector sortMethod={sortMethod} onChange={setSortMethod} />
+              {/* <CurrencySearch ... /> */}
+            </div>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {fetchedCurrencies.map((fetchedCurrency) => {
+            {sortedFetchedCurrencies.map((fetchedCurrency) => {
               const isSelected = cryptoMap.has(fetchedCurrency.cmc_id);
               return (
                 <DashboardCard

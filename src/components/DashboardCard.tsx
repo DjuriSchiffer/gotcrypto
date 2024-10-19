@@ -64,7 +64,12 @@ const DashboardCard: React.FC<DashboardCard> = ({
   );
 
   return (
-    <Card>
+    <Card
+      className={classNames('transition ease-in-out', {
+        'opacity-50': !isSelected,
+        'hover:opacity-100': !isSelected,
+      })}
+    >
       <div className="flex space-x-2">
         <div className="shrink-0">
           <img
