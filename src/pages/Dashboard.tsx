@@ -156,12 +156,14 @@ const Dashboard: React.FC<DashboardProps> = () => {
             </div>
           </Card>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <SearchInput
-              options={fetchedCurrencies}
-              selectedOptions={selectedOptions}
-              onChange={handleSelectChange}
-              placeholder="Search and select currencies..."
-            />
+            <div className="col-start-3">
+              <SearchInput
+                options={fetchedCurrencies}
+                selectedOptions={selectedOptions}
+                onChange={handleSelectChange}
+                placeholder="Search and select currencies..."
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
