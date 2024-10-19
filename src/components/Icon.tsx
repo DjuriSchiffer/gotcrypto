@@ -12,6 +12,7 @@ import {
   FaCalendar,
   FaCoins,
   FaEuroSign,
+  FaSearch,
 } from 'react-icons/fa';
 
 type IconId =
@@ -27,7 +28,8 @@ type IconId =
   | 'Github'
   | 'Calendar'
   | 'Amount'
-  | 'Price';
+  | 'Price'
+  | 'Search';
 
 interface IconProps {
   id: IconId;
@@ -76,6 +78,8 @@ const Icon: React.FC<IconProps> = ({ id, color, className }) => {
     case 'Price':
       return <FaEuroSign color={color} className={className} />;
 
+    case 'Search':
+      return <FaSearch color={color} className={className} />;
     default:
       return null;
   }

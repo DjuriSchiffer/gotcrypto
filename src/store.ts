@@ -10,7 +10,7 @@ export const initialStore: Store = {
     totalPercentageDifference: 0,
     totalAveragePurchasePrice: 0,
   },
-  sortMethod: 'cmc_rank',
+  sortMethod: 'has_selected',
 };
 
 export const reducer = (state: Store, action: Action): Store => {

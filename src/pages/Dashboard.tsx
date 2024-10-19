@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useAppState } from '../hooks/useAppState';
 import { percentageFormat, currencyFormat } from '../utils/calculateHelpers';
@@ -10,6 +10,8 @@ import { GlobalTotals } from 'store';
 import DashboardCard from '../components/DashboardCard';
 import { useStorage } from '../hooks/useStorage';
 import SortSelector from '../components/SortSelector';
+import SearchInput from '../components/SearchInput';
+import { MultiValue } from 'react-select';
 
 const createCryptoMap = (
   currencies: SelectedCurrency[]
@@ -18,6 +20,11 @@ const createCryptoMap = (
 };
 
 type DashboardProps = {};
+interface OptionType {
+  value: number;
+  label: string;
+  image: string;
+}
 
 const Dashboard: React.FC<DashboardProps> = () => {
   const { fetchedCurrencies, globalTotals, sortMethod } = useAppState();
@@ -32,10 +39,27 @@ const Dashboard: React.FC<DashboardProps> = () => {
     [selectedCurrencies]
   );
 
-  const sortedFetchedCurrencies = useMemo(() => {
-    if (fetchedCurrencies === null) return [];
+  const [selectedOptions, setSelectedOptions] = useState<
+    MultiValue<OptionType>
+  >([]);
 
-    let sorted = [...fetchedCurrencies];
+  const filteredFetchedCurrencies = useMemo(() => {
+    if (fetchedCurrencies === null || selectedOptions.length === 0) {
+      return fetchedCurrencies;
+    }
+
+    const selectedIds = selectedOptions.map((option) => option.value);
+
+    return fetchedCurrencies.filter((currency) =>
+      selectedIds.includes(currency.cmc_id)
+    );
+  }, [fetchedCurrencies, selectedOptions]);
+
+  const sortedFetchedCurrencies = useMemo(() => {
+    if (filteredFetchedCurrencies === null) {
+      return [];
+    }
+    let sorted = [...filteredFetchedCurrencies];
 
     if (sortMethod === 'cmc_rank') {
       sorted.sort((a, b) => {
@@ -71,7 +95,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
     }
 
     return sorted;
-  }, [fetchedCurrencies, sortMethod, cryptoMap]);
+  }, [filteredFetchedCurrencies, sortMethod, cryptoMap, fetchedCurrencies]);
+
+  const handleSelectChange = useCallback((selected: MultiValue<OptionType>) => {
+    setSelectedOptions(selected);
+  }, []);
 
   if (loadingStorage) {
     return (
@@ -127,12 +155,15 @@ const Dashboard: React.FC<DashboardProps> = () => {
               )}
             </div>
           </Card>
-          <div className="mb-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
-              <SortSelector sortMethod={sortMethod} onChange={setSortMethod} />
-              {/* <CurrencySearch ... /> */}
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <SearchInput
+              options={fetchedCurrencies}
+              selectedOptions={selectedOptions}
+              onChange={handleSelectChange}
+              placeholder="Search and select currencies..."
+            />
           </div>
+
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {sortedFetchedCurrencies.map((fetchedCurrency) => {
               const isSelected = cryptoMap.has(fetchedCurrency.cmc_id);
@@ -148,15 +179,15 @@ const Dashboard: React.FC<DashboardProps> = () => {
           </div>
         </div>
         {/* {selectedCurrencies.some((e) => e.assets.length > 0) && (
-            <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-              <Card>
-                <Charts data={selectedCurrencies} id="amount" />
-              </Card>
-              <Card>
-                <Charts data={selectedCurrencies} id="invested" />
-              </Card>
-            </div>
-          )} */}
+          <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+            <Card>
+              <Charts data={selectedCurrencies} id="amount" />
+            </Card>
+            <Card>
+              <Charts data={selectedCurrencies} id="invested" />
+            </Card>
+          </div>
+        )} */}
       </>
     </Page>
   );

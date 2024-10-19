@@ -12,7 +12,7 @@ const SortSelector: React.FC<SortSelectorProps> = ({
   onChange,
 }) => {
   return (
-    <div className="mb-4 w-full md:w-1/3">
+    <>
       <label
         htmlFor="sort"
         className="block mb-2 text-sm font-medium text-gray-300"
@@ -24,10 +24,10 @@ const SortSelector: React.FC<SortSelectorProps> = ({
         value={sortMethod}
         onChange={(e) => onChange(e.target.value as SortMethod)}
       >
-        <option value="cmc_rank">Coinmarketcap Ranking</option>
+        {/* <option value="cmc_rank">Coinmarketcap Ranking</option> */}
         <option value="has_selected">Selected Status</option>
       </Select>
-    </div>
+    </>
   );
 };
 
