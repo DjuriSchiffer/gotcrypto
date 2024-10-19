@@ -45,24 +45,3 @@ export const updateSelectedCurrencyInFirestore = async (
     selectedCurrencies: arrayUnion(currency),
   });
 };
-
-/**
- * Remove a SelectedCurrency from Firestore for a specific user.
- */
-export const removeSelectedCurrencyFromFirestore = async (
-  userId: string,
-  currencyId: number
-) => {
-  const userDocRef = getUserDocRef(userId);
-  const userDoc = await getDoc(userDocRef);
-  if (userDoc.exists()) {
-    const currencies: SelectedCurrency[] =
-      userDoc.data().selectedCurrencies || [];
-    const updatedCurrencies = currencies.filter((c) => c.cmc_id !== currencyId);
-    await setDoc(
-      userDocRef,
-      { selectedCurrencies: updatedCurrencies },
-      { merge: true }
-    );
-  }
-};

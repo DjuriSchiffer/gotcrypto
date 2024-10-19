@@ -23,30 +23,50 @@ const Bootstrap: React.FC = () => {
 
         if (data.status.error_code === 0) {
           if (data.error) {
+            console.error('API Error:', data.status.error_message);
             dispatch({
               type: 'SET_ERROR',
               payload: true,
             });
           } else if (data.data) {
-            const currenciesArr: FetchedCurrency[] = [];
-
-            for (const [key, value] of Object.entries(data.data)) {
-              currenciesArr.push({
-                name: value.name,
-                price: parseFloat(value.quote.EUR.price.toFixed(2)),
-                slug: value.slug,
-                cmc_id: value.id,
+            const currenciesArr: FetchedCurrency[] = Object.values(data.data)
+              .map((currency) => ({
+                name: currency.name,
+                price: parseFloat(currency.quote.EUR.price.toFixed(2)),
+                slug: currency.slug,
+                cmc_id: currency.id,
+                cmc_rank: currency.cmc_rank || null,
+              }))
+              .sort((a, b) => {
+                if (a.cmc_rank !== null && b.cmc_rank !== null) {
+                  return a.cmc_rank - b.cmc_rank;
+                } else if (a.cmc_rank !== null && b.cmc_rank === null) {
+                  return -1;
+                } else if (a.cmc_rank === null && b.cmc_rank !== null) {
+                  return 1;
+                } else {
+                  return 0;
+                }
               });
-            }
-
             dispatch({
               type: 'SET_FETCHED_CURRENCIES',
               payload: currenciesArr,
             });
-            // setSelectedCurrencies([]); // Clear database
+
+            // setSelectedCurrencies([]); // Reset user data, usefull for debuging
           }
+        } else {
+          console.error(
+            'API Returned Non-Zero Error Code:',
+            data.status.error_message
+          );
+          dispatch({
+            type: 'SET_ERROR',
+            payload: true,
+          });
         }
       } catch (error: any) {
+        console.error('Fetch Currencies Error:', error);
         dispatch({
           type: 'SET_ERROR',
           payload: true,

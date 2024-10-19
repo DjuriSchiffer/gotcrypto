@@ -9,12 +9,14 @@ export type CurrencyData = {
   name: string;
   quote: CurrencyQuote;
   id: number;
+  cmc_rank: number | null;
 };
 
 export type GetCurrenciesResponse = {
   data?: Record<string, CurrencyData>;
   status: {
     error_code: number;
+    error_message: string;
   };
   error?: string;
 };

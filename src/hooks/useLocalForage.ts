@@ -43,31 +43,8 @@ export const useLocalForage = () => {
     [dispatch]
   );
 
-  const removeSelectedCurrency = useCallback(
-    async (key: string, currencyId: number): Promise<void> => {
-      try {
-        const currencies = await getSelectedCurrencies(key);
-        const updatedCurrencies = currencies.filter(
-          (c) => c.cmc_id !== currencyId
-        );
-        await setLocalForage(key, updatedCurrencies);
-      } catch (err) {
-        dispatch({
-          type: 'SET_ERROR',
-          payload: true,
-        });
-        console.error(
-          `Error removing currency from ${key} in localForage:`,
-          err
-        );
-      }
-    },
-    [getSelectedCurrencies, setLocalForage, dispatch]
-  );
-
   return {
     setLocalForage,
     getSelectedCurrencies,
-    removeSelectedCurrency,
   };
 };

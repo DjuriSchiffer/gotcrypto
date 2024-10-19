@@ -3,6 +3,7 @@ export type FetchedCurrency = {
   price: number;
   slug: string;
   cmc_id: number;
+  cmc_rank: number | null;
 };
 
 export interface Asset {

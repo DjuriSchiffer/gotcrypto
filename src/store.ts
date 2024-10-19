@@ -10,6 +10,8 @@ export const initialStore: Store = {
     totalPercentageDifference: 0,
     totalAveragePurchasePrice: 0,
   },
+  sortMethod: 'alphabet-asc',
+  customOrder: [],
 };
 
 export const reducer = (state: Store, action: Action): Store => {
@@ -25,6 +27,12 @@ export const reducer = (state: Store, action: Action): Store => {
 
     case 'CLEAR_ERROR':
       return { ...state, error: false };
+
+    case 'SET_SORT_METHOD':
+      return { ...state, sortMethod: action.payload };
+
+    case 'SET_CUSTOM_ORDER':
+      return { ...state, customOrder: action.payload };
 
     default:
       return state;

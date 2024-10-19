@@ -6,13 +6,17 @@ import {
 } from '../firebase/firebaseHelpers';
 import { useEffect, useState, useCallback } from 'react';
 import { SelectedCurrency } from 'currency';
+import { useAppState } from './useAppState';
 
 const STORAGE_KEY = 'selectedCurrencies';
+const SORT_METHOD_KEY = 'sortMethod';
+const CUSTOM_ORDER_KEY = 'customOrder';
 
 export const useStorage = () => {
   const { user, isAnonymous } = useAuth();
-  const { setLocalForage, getSelectedCurrencies, removeSelectedCurrency } =
-    useLocalForage();
+  const { setLocalForage, getSelectedCurrencies } = useLocalForage();
+  const { sortMethod: globalSortMethod, customOrder: globalCustomOrder } =
+    useAppState();
   const [selectedCurrencies, setSelectedCurrenciesState] = useState<
     SelectedCurrency[]
   >([]);
