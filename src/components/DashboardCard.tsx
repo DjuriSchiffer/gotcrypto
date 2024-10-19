@@ -24,6 +24,15 @@ export const getTotalAmount = (
   return cryptoMap.get(cmcId)?.totals.totalAmount || 0;
 };
 
+export const getTotalValue = (
+  cryptoMap: Map<number, SelectedCurrency>,
+  cmcId: number
+): number => {
+  const totalAmount = cryptoMap.get(cmcId)?.totals.totalAmount || 0;
+
+  return cryptoMap.get(cmcId)?.totals.totalAmount || 0;
+};
+
 export const getTotalPurchasePrice = (
   cryptoMap: Map<number, SelectedCurrency>,
   cmcId: number
@@ -62,6 +71,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
     fetchedCurrency.cmc_id,
     fetchedCurrency.price
   );
+  const totalAmount = getTotalAmount(cryptoMap, fetchedCurrency.cmc_id);
 
   return (
     <Card
@@ -132,7 +142,22 @@ const DashboardCard: React.FC<DashboardCard> = ({
                     </p>
                   </div>
                   <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {getTotalAmount(cryptoMap, fetchedCurrency.cmc_id)}
+                    {totalAmount}
+                  </div>
+                </div>
+              </li>
+              <li className="py-3 sm:py-4">
+                <div className="flex items-center space-x-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                      Total value
+                    </p>
+                    <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+                      Total amount bougth times current market price
+                    </p>
+                  </div>
+                  <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                    {currencyFormat(totalAmount * fetchedCurrency.price)}
                   </div>
                 </div>
               </li>

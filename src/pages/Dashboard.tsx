@@ -9,9 +9,9 @@ import { FetchedCurrency, SelectedCurrency } from 'currency';
 import { GlobalTotals } from 'store';
 import DashboardCard from '../components/DashboardCard';
 import { useStorage } from '../hooks/useStorage';
-import SortSelector from '../components/SortSelector';
 import SearchInput from '../components/SearchInput';
 import { MultiValue } from 'react-select';
+import { getGlobalTotals } from '../utils/totals';
 
 const createCryptoMap = (
   currencies: SelectedCurrency[]
@@ -27,7 +27,7 @@ interface OptionType {
 }
 
 const Dashboard: React.FC<DashboardProps> = () => {
-  const { fetchedCurrencies, globalTotals, sortMethod } = useAppState();
+  const { fetchedCurrencies, sortMethod } = useAppState();
   const { selectedCurrencies, loading: loadingStorage } = useStorage();
   const [selectedOptions, setSelectedOptions] = useState<
     MultiValue<OptionType>
@@ -92,6 +92,10 @@ const Dashboard: React.FC<DashboardProps> = () => {
     return sorted;
   }, [filteredFetchedCurrencies, sortMethod, cryptoMap, fetchedCurrencies]);
 
+  const globalTotals = useMemo(() => {
+    return getGlobalTotals(selectedCurrencies, fetchedCurrencies);
+  }, [fetchedCurrencies, selectedCurrencies]);
+
   const handleSelectChange = useCallback((selected: MultiValue<OptionType>) => {
     setSelectedOptions(selected);
   }, []);
@@ -120,6 +124,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
       </Page>
     );
   }
+
+  console.log('globalTotals', globalTotals);
+  console.log('selected', selectedCurrencies);
 
   return (
     <Page>

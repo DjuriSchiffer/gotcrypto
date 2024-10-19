@@ -36,23 +36,37 @@ const totals = (assets: Asset[] = []): SelectedCurrency['totals'] => {
 /**
  * Calculates global totals including total value and percentage differences.
  * @param selectedCurrencies - The array of selected currencies.
- * @param currencies - The dictionary of all currencies.
+ * @param fetchedCurrencies - The array of all fetched currencies.
  * @returns An object adhering to the GlobalTotals interface.
  */
 export const getGlobalTotals = (
   selectedCurrencies: SelectedCurrency[] = [],
-  currencies: Record<string, FetchedCurrency>
+  fetchedCurrencies: FetchedCurrency[] | null = []
 ): GlobalTotals => {
+  const filteredSelectedCurrencies = selectedCurrencies.filter(
+    (currency) => currency.assets && currency.assets.length > 0
+  );
+
   let totalAmount = 0;
   let totalPurchasePrice = 0;
   let totalValue = 0;
 
-  selectedCurrencies.forEach((selectCurrency) => {
-    const currentPrice = currencies[selectCurrency.cmc_id]?.price || 0;
+  filteredSelectedCurrencies.forEach((selectCurrency) => {
+    const fetchedCurrency = fetchedCurrencies?.find(
+      (currency) => currency.cmc_id === selectCurrency.cmc_id
+    );
+
+    const currentPrice = fetchedCurrency?.price || 0;
 
     selectCurrency.assets.forEach((asset) => {
-      const amount = parseFloat(asset.amount);
-      const purchasePrice = parseFloat(asset.purchasePrice);
+      const amount =
+        typeof asset.amount === 'string'
+          ? parseFloat(asset.amount)
+          : asset.amount;
+      const purchasePrice =
+        typeof asset.purchasePrice === 'string'
+          ? parseFloat(asset.purchasePrice)
+          : asset.purchasePrice;
 
       totalAmount += amount;
       totalPurchasePrice += purchasePrice;
@@ -75,14 +89,14 @@ export const getGlobalTotals = (
   }
 
   return {
-    totalAmount: selectedCurrencies.length > 0 ? totalAmount : 0,
-    totalValue: selectedCurrencies.length > 0 ? totalValue : 0,
-    totalPurchasePrice: selectedCurrencies.length > 0 ? totalPurchasePrice : 0,
+    totalAmount: filteredSelectedCurrencies.length > 0 ? totalAmount : 0,
+    totalValue: filteredSelectedCurrencies.length > 0 ? totalValue : 0,
+    totalPurchasePrice:
+      filteredSelectedCurrencies.length > 0 ? totalPurchasePrice : 0,
     totalPercentageDifference:
-      selectedCurrencies.length > 0 ? totalPercentageDifference : 0,
+      filteredSelectedCurrencies.length > 0 ? totalPercentageDifference : 0,
     totalAveragePurchasePrice:
-      selectedCurrencies.length > 0 ? totalAveragePurchasePrice : 0,
+      filteredSelectedCurrencies.length > 0 ? totalAveragePurchasePrice : 0,
   };
 };
-
 export default totals;
