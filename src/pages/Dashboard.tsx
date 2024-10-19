@@ -28,20 +28,15 @@ interface OptionType {
 
 const Dashboard: React.FC<DashboardProps> = () => {
   const { fetchedCurrencies, globalTotals, sortMethod } = useAppState();
-  const {
-    selectedCurrencies,
-    loading: loadingStorage,
-    setSortMethod,
-  } = useStorage();
+  const { selectedCurrencies, loading: loadingStorage } = useStorage();
+  const [selectedOptions, setSelectedOptions] = useState<
+    MultiValue<OptionType>
+  >([]);
 
   const cryptoMap = useMemo(
     () => createCryptoMap(selectedCurrencies),
     [selectedCurrencies]
   );
-
-  const [selectedOptions, setSelectedOptions] = useState<
-    MultiValue<OptionType>
-  >([]);
 
   const filteredFetchedCurrencies = useMemo(() => {
     if (fetchedCurrencies === null || selectedOptions.length === 0) {
@@ -168,7 +163,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {sortedFetchedCurrencies.map((fetchedCurrency) => {
-              const isSelected = cryptoMap.has(fetchedCurrency.cmc_id);
+              const isSelected =
+                cryptoMap.has(fetchedCurrency.cmc_id) &&
+                cryptoMap.get(fetchedCurrency.cmc_id)!?.assets.length > 0;
               return (
                 <DashboardCard
                   fetchedCurrency={fetchedCurrency}
