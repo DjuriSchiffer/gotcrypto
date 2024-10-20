@@ -21,8 +21,11 @@ import totals from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 
 const Detail: React.FC = () => {
-  const { data: fetchedCurrencies, isLoading: fetchedCurrenciesIsLoading } =
-    useCoinMarketCap();
+  const {
+    data: fetchedCurrencies,
+    isLoading: fetchedCurrenciesIsLoading,
+    isLoading: fetchedCurrenciesIsError,
+  } = useCoinMarketCap();
   const {
     updateCurrency,
     selectedCurrencies,
@@ -264,7 +267,6 @@ const Detail: React.FC = () => {
     handleCloseModals();
   };
 
-  // Loading state
   if (storageIsLoading) {
     return (
       <Page>
@@ -290,7 +292,22 @@ const Detail: React.FC = () => {
     );
   }
 
-  // Handle case when currentFetchedCurrency is not found
+  if (fetchedCurrenciesIsError) {
+    return (
+      <Page>
+        <div className="text-white flex items-center">
+          <Spinner
+            color="error"
+            aria-label="Fetching data from Coinmarketcap"
+          />
+          <span className="ml-2">
+            Could not fetch data from Coinmarketcap....
+          </span>
+        </div>
+      </Page>
+    );
+  }
+
   if (!currentFetchedCurrency) {
     return (
       <Page>

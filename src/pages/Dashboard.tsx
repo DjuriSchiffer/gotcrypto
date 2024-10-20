@@ -32,8 +32,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
   >([]);
   const { sortMethod } = useAppState();
   const { selectedCurrencies, loading: storageIsLoading } = useStorage();
-  const { data: fetchedCurrencies, isLoading: fetchedCurrenciesIsLoading } =
-    useCoinMarketCap();
+  const {
+    data: fetchedCurrencies,
+    isLoading: fetchedCurrenciesIsLoading,
+    isError: fetchedCurrenciesIsError,
+  } = useCoinMarketCap();
 
   const cryptoMap = useMemo(
     () => createCryptoMap(selectedCurrencies),
@@ -129,6 +132,22 @@ const Dashboard: React.FC<DashboardProps> = () => {
             aria-label="Fetching data from Coinmarketcap"
           />
           <span className="ml-2">Fetching data from Coinmarketcap...</span>
+        </div>
+      </Page>
+    );
+  }
+
+  if (fetchedCurrenciesIsError) {
+    return (
+      <Page>
+        <div className="text-white flex items-center">
+          <Spinner
+            color="error"
+            aria-label="Fetching data from Coinmarketcap"
+          />
+          <span className="ml-2">
+            Could not fetch data from Coinmarketcap....
+          </span>
         </div>
       </Page>
     );
