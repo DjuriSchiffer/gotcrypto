@@ -12,6 +12,7 @@ import SearchInput from '../components/SearchInput';
 import { MultiValue } from 'react-select';
 import { getGlobalTotals } from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
+import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 
 const createCryptoMap = (
   currencies: SelectedCurrency[]
@@ -112,51 +113,14 @@ const Dashboard: React.FC<DashboardProps> = () => {
     setSelectedOptions(selected);
   }, []);
 
-  if (storageIsLoading) {
-    return (
-      <Page>
-        <div className="text-white flex items-center">
-          <Spinner color="success" aria-label="Loading saved data" />
-          <span className="ml-2">Loading saved data...</span>
-        </div>
-      </Page>
-    );
-  }
-
-  if (fetchedCurrenciesIsLoading) {
-    return (
-      <Page>
-        <div className="text-white flex items-center">
-          <Spinner
-            color="success"
-            aria-label="Fetching data from Coinmarketcap"
-          />
-          <span className="ml-2">Fetching data from Coinmarketcap...</span>
-        </div>
-      </Page>
-    );
-  }
-
-  if (fetchedCurrenciesIsError) {
-    return (
-      <Page>
-        <div className="text-white flex items-center">
-          <Spinner
-            color="error"
-            aria-label="Fetching data from Coinmarketcap"
-          />
-          <span className="ml-2">
-            Could not fetch data from Coinmarketcap....
-          </span>
-        </div>
-      </Page>
-    );
-  }
-
   return (
-    <Page>
-      <>
-        <div className="grid gap-4 mb-4">
+    <LoadingErrorWrapper
+      storageIsLoading={storageIsLoading}
+      fetchedIsLoading={fetchedCurrenciesIsLoading}
+      isError={fetchedCurrenciesIsError}
+    >
+      <Page>
+        <div className="grid gap-4 mb-4 w-full">
           <Card>
             <div className="flex flex-row items-center">
               {globalTotals && (
@@ -219,8 +183,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
             </Card>
           </div>
         )} */}
-      </>
-    </Page>
+      </Page>
+    </LoadingErrorWrapper>
   );
 };
 

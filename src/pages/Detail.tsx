@@ -1,5 +1,3 @@
-// components/Detail.tsx
-
 import React, { useState, ChangeEvent, useMemo, FormEvent } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button, Card, Spinner } from 'flowbite-react';
@@ -19,6 +17,7 @@ import { Asset, SelectedCurrency } from '../types/currency';
 import { useStorage } from '../hooks/useStorage';
 import totals from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
+import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 
 const Detail: React.FC = () => {
   const {
@@ -267,47 +266,6 @@ const Detail: React.FC = () => {
     handleCloseModals();
   };
 
-  if (storageIsLoading) {
-    return (
-      <Page>
-        <div className="text-white flex items-center">
-          <Spinner color="success" aria-label="Loading saved data" />
-          <span className="ml-2">Loading saved data...</span>
-        </div>
-      </Page>
-    );
-  }
-
-  if (fetchedCurrenciesIsLoading) {
-    return (
-      <Page>
-        <div className="text-white flex items-center">
-          <Spinner
-            color="success"
-            aria-label="Fetching data from Coinmarketcap"
-          />
-          <span className="ml-2">Fetching data from Coinmarketcap...</span>
-        </div>
-      </Page>
-    );
-  }
-
-  if (fetchedCurrenciesIsError) {
-    return (
-      <Page>
-        <div className="text-white flex items-center">
-          <Spinner
-            color="error"
-            aria-label="Fetching data from Coinmarketcap"
-          />
-          <span className="ml-2">
-            Could not fetch data from Coinmarketcap....
-          </span>
-        </div>
-      </Page>
-    );
-  }
-
   if (!currentFetchedCurrency) {
     return (
       <Page>
@@ -326,88 +284,93 @@ const Detail: React.FC = () => {
   }
 
   return (
-    <Page>
-      <div className="grid gap-4 mb-4 2xl:grid-cols-6">
-        {/* Back to Dashboard Link */}
-        <div className="col-span-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center p-3 mb-4 text-base font-medium text-gray-500 rounded-lg bg-gray-50 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
-          >
-            <Icon className="mr-2" id="Left" color="white" />
-            Return to dashboard
-          </Link>
-        </div>
-        <Card className="2xl:col-span-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
-              <img
-                className="inline-block mr-4"
-                width={48}
-                height={48}
-                src={getImage(currentFetchedCurrency.cmc_id)}
-                alt={`${currentFetchedCurrency.name} icon`}
-              />
-              <div>
-                <h2 className="text-3xl font-bold text-white">
-                  {currentFetchedCurrency.name}
-                </h2>
-                <p className="text-lg text-gray-400">
-                  {currencyFormat(currentFetchedCurrency.price)} per unit
-                </p>
+    <LoadingErrorWrapper
+      storageIsLoading={storageIsLoading}
+      fetchedIsLoading={fetchedCurrenciesIsLoading}
+      isError={fetchedCurrenciesIsError}
+    >
+      <Page>
+        <div className="grid gap-4 mb-4 2xl:grid-cols-6">
+          {/* Back to Dashboard Link */}
+          <div className="col-span-6">
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center p-3 mb-4 text-base font-medium text-gray-500 rounded-lg bg-gray-50 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              <Icon className="mr-2" id="Left" color="white" />
+              Return to dashboard
+            </Link>
+          </div>
+          <Card className="2xl:col-span-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <img
+                  className="inline-block mr-4"
+                  width={48}
+                  height={48}
+                  src={getImage(currentFetchedCurrency.cmc_id)}
+                  alt={`${currentFetchedCurrency.name} icon`}
+                />
+                <div>
+                  <h2 className="text-3xl font-bold text-white">
+                    {currentFetchedCurrency.name}
+                  </h2>
+                  <p className="text-lg text-gray-400">
+                    {currencyFormat(currentFetchedCurrency.price)} per unit
+                  </p>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <Button onClick={handleOpenAddAssetModal}>
+                  <Icon id="Plus" color="white" className="mr-1" />
+                  Add Asset
+                </Button>
+                {selectedCurrency && selectedCurrency.assets.length > 0 && (
+                  <Button
+                    color="failure"
+                    onClick={handleOpenRemoveAllAssetsModal}
+                  >
+                    <Icon id="Remove" color="white" className="mr-1" />
+                    Remove All Assets
+                  </Button>
+                )}
               </div>
             </div>
-            <div className="flex space-x-2">
-              <Button onClick={handleOpenAddAssetModal}>
-                <Icon id="Plus" color="white" className="mr-1" />
-                Add Asset
-              </Button>
-              {selectedCurrency && selectedCurrency.assets.length > 0 && (
-                <Button
-                  color="failure"
-                  onClick={handleOpenRemoveAllAssetsModal}
-                >
-                  <Icon id="Remove" color="white" className="mr-1" />
-                  Remove All Assets
-                </Button>
-              )}
-            </div>
-          </div>
 
-          {/* Assets Table */}
-          {selectedCurrency === undefined ||
-          selectedCurrency?.assets.length === 0 ? (
-            <div className="text-white flex items-center justify-center h-40">
-              <span>No assets added yet.</span>
-            </div>
-          ) : (
-            <Table type="overview">
-              {selectedCurrency?.assets.map((asset: Asset) => (
-                <TableRow
-                  key={asset.id}
-                  type="overview"
-                  item={asset}
-                  currencies={fetchedCurrencies || []}
-                  currentCurrency={currentFetchedCurrency}
-                >
-                  <Button
-                    size="sm"
-                    onClick={() => handleOpenEditAssetModal(asset)}
-                    className="mr-2"
+            {/* Assets Table */}
+            {selectedCurrency === undefined ||
+            selectedCurrency?.assets.length === 0 ? (
+              <div className="text-white flex items-center justify-center h-40">
+                <span>No assets added yet.</span>
+              </div>
+            ) : (
+              <Table type="overview">
+                {selectedCurrency?.assets.map((asset: Asset) => (
+                  <TableRow
+                    key={asset.id}
+                    type="overview"
+                    item={asset}
+                    currencies={fetchedCurrencies || []}
+                    currentCurrency={currentFetchedCurrency}
                   >
-                    <Icon id="Edit" color="white" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    color="failure"
-                    onClick={() => handleOpenRemoveAssetModal(asset)}
-                  >
-                    <Icon id="Remove" color="white" />
-                  </Button>
-                </TableRow>
-              ))}
-              {/* Totals Row */}
-              {/* <tr className="bg-gray-700">
+                    <Button
+                      size="sm"
+                      onClick={() => handleOpenEditAssetModal(asset)}
+                      className="mr-2"
+                    >
+                      <Icon id="Edit" color="white" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      color="failure"
+                      onClick={() => handleOpenRemoveAssetModal(asset)}
+                    >
+                      <Icon id="Remove" color="white" />
+                    </Button>
+                  </TableRow>
+                ))}
+                {/* Totals Row */}
+                {/* <tr className="bg-gray-700">
                   <td className="px-6 py-4 font-semibold text-white">Totals</td>
                   <td className="px-6 py-4 font-semibold text-white">
                     {currencyFormat(
@@ -424,102 +387,103 @@ const Detail: React.FC = () => {
                     %
                   </td>
                 </tr> */}
-            </Table>
-          )}
-        </Card>
+              </Table>
+            )}
+          </Card>
 
-        {/* Overview Chart */}
-        {selectedCurrency?.assets.length &&
-          selectedCurrency.assets.length > 0 &&
-          selectedCurrency.totals && (
-            <Card className="2xl:col-span-6">
-              {/* Assuming OverviewChart is a component that takes selectedCurrency as prop */}
-              {/* <OverviewChart data={selectedCurrency} /> */}
-            </Card>
-          )}
-      </div>
-
-      {/* Add Asset Modal */}
-      <Modal
-        onClose={handleCloseModals}
-        open={openAddAssetModal}
-        title="Add Asset"
-      >
-        <AddAssetForm
-          onSubmit={handleSubmit}
-          amount={formData.amount}
-          purchasePrice={formData.purchasePrice}
-          date={formData.date}
-          handleChange={handleChange}
-          submitLabel="Add Asset"
-        />
-      </Modal>
-
-      {/* Edit Asset Modal */}
-      <Modal
-        onClose={handleCloseModals}
-        open={openEditAssetModal}
-        title="Edit Asset"
-      >
-        <AddAssetForm
-          onSubmit={handleSubmit}
-          amount={formData.amount}
-          purchasePrice={formData.purchasePrice}
-          date={formData.date}
-          handleChange={handleChange}
-          submitLabel="Update Asset"
-        />
-      </Modal>
-
-      {/* Remove Asset Confirmation Modal */}
-      <Modal
-        onClose={handleCloseModals}
-        open={openRemoveAssetModal}
-        title="Confirm Removal"
-      >
-        <div className="flex flex-col items-center">
-          <Icon
-            id="Warning"
-            color="white"
-            className="flex mx-auto mb-4 text-6xl"
-          />
-          <p className="mb-4">Are you sure you want to remove this asset?</p>
-          <div className="flex space-x-2">
-            <Button color="failure" onClick={handleRemoveAsset}>
-              <Icon id="Remove" color="white" className="mr-1" />
-              Remove Asset
-            </Button>
-            <Button onClick={handleCloseModals}>Cancel</Button>
-          </div>
+          {/* Overview Chart */}
+          {selectedCurrency?.assets.length &&
+            selectedCurrency.assets.length > 0 &&
+            selectedCurrency.totals && (
+              <Card className="2xl:col-span-6">
+                {/* Assuming OverviewChart is a component that takes selectedCurrency as prop */}
+                {/* <OverviewChart data={selectedCurrency} /> */}
+              </Card>
+            )}
         </div>
-      </Modal>
 
-      {/* Remove All Assets Confirmation Modal */}
-      <Modal
-        onClose={handleCloseModals}
-        open={openRemoveAllAssetsModal}
-        title="Confirm Removal of All Assets"
-      >
-        <div className="flex flex-col items-center">
-          <Icon
-            id="Warning"
-            color="white"
-            className="flex mx-auto mb-4 text-6xl"
+        {/* Add Asset Modal */}
+        <Modal
+          onClose={handleCloseModals}
+          open={openAddAssetModal}
+          title="Add Asset"
+        >
+          <AddAssetForm
+            onSubmit={handleSubmit}
+            amount={formData.amount}
+            purchasePrice={formData.purchasePrice}
+            date={formData.date}
+            handleChange={handleChange}
+            submitLabel="Add Asset"
           />
-          <p className="mb-4">
-            Are you sure you want to remove all assets for{' '}
-            {selectedCurrency?.name}?
-          </p>
-          <div className="flex space-x-2">
-            <Button color="failure" onClick={handleRemoveAllAssets}>
-              <Icon id="Remove" color="white" className="mr-1" />
-              Remove All Assets
-            </Button>
-            <Button onClick={handleCloseModals}>Cancel</Button>
+        </Modal>
+
+        {/* Edit Asset Modal */}
+        <Modal
+          onClose={handleCloseModals}
+          open={openEditAssetModal}
+          title="Edit Asset"
+        >
+          <AddAssetForm
+            onSubmit={handleSubmit}
+            amount={formData.amount}
+            purchasePrice={formData.purchasePrice}
+            date={formData.date}
+            handleChange={handleChange}
+            submitLabel="Update Asset"
+          />
+        </Modal>
+
+        {/* Remove Asset Confirmation Modal */}
+        <Modal
+          onClose={handleCloseModals}
+          open={openRemoveAssetModal}
+          title="Confirm Removal"
+        >
+          <div className="flex flex-col items-center">
+            <Icon
+              id="Warning"
+              color="white"
+              className="flex mx-auto mb-4 text-6xl"
+            />
+            <p className="mb-4">Are you sure you want to remove this asset?</p>
+            <div className="flex space-x-2">
+              <Button color="failure" onClick={handleRemoveAsset}>
+                <Icon id="Remove" color="white" className="mr-1" />
+                Remove Asset
+              </Button>
+              <Button onClick={handleCloseModals}>Cancel</Button>
+            </div>
           </div>
-        </div>
-      </Modal>
-    </Page>
+        </Modal>
+
+        {/* Remove All Assets Confirmation Modal */}
+        <Modal
+          onClose={handleCloseModals}
+          open={openRemoveAllAssetsModal}
+          title="Confirm Removal of All Assets"
+        >
+          <div className="flex flex-col items-center">
+            <Icon
+              id="Warning"
+              color="white"
+              className="flex mx-auto mb-4 text-6xl"
+            />
+            <p className="mb-4">
+              Are you sure you want to remove all assets for{' '}
+              {selectedCurrency?.name}?
+            </p>
+            <div className="flex space-x-2">
+              <Button color="failure" onClick={handleRemoveAllAssets}>
+                <Icon id="Remove" color="white" className="mr-1" />
+                Remove All Assets
+              </Button>
+              <Button onClick={handleCloseModals}>Cancel</Button>
+            </div>
+          </div>
+        </Modal>
+      </Page>
+    </LoadingErrorWrapper>
   );
 };
 
