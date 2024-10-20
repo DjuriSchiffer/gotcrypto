@@ -6,7 +6,6 @@ import { Button, Card, Spinner } from 'flowbite-react';
 import uniqueId from 'lodash.uniqueid';
 import {
   currencyFormat,
-  percentageFormat,
   formatDatePickerDate,
 } from '../utils/calculateHelpers';
 import { getImage } from '../utils/images';
@@ -17,17 +16,18 @@ import Page from '../components/Page';
 import Table from '../components/Table';
 import TableRow from '../components/TableRow';
 import { Asset, SelectedCurrency } from '../types/currency';
-import { useAppState } from '../hooks/useAppState';
 import { useStorage } from '../hooks/useStorage';
 import totals from '../utils/totals';
+import useCoinMarketCap from '../hooks/useCoinMarketCap';
 
 const Detail: React.FC = () => {
-  const { fetchedCurrencies } = useAppState();
+  const { data: fetchedCurrencies, isLoading: fetchedCurrenciesIsLoading } =
+    useCoinMarketCap();
   const {
     updateCurrency,
     selectedCurrencies,
     setSelectedCurrencies,
-    loading: storageLoading,
+    loading: storageIsLoading,
   } = useStorage();
   const { slug: currentCurrencySlug } = useParams<{ slug: string }>();
 
@@ -265,7 +265,7 @@ const Detail: React.FC = () => {
   };
 
   // Loading state
-  if (storageLoading) {
+  if (storageIsLoading) {
     return (
       <Page>
         <div className="text-white flex items-center">
@@ -276,7 +276,7 @@ const Detail: React.FC = () => {
     );
   }
 
-  if (!fetchedCurrencies) {
+  if (fetchedCurrenciesIsLoading) {
     return (
       <Page>
         <div className="text-white flex items-center">
@@ -370,7 +370,7 @@ const Detail: React.FC = () => {
                   key={asset.id}
                   type="overview"
                   item={asset}
-                  currencies={fetchedCurrencies}
+                  currencies={fetchedCurrencies || []}
                   currentCurrency={currentFetchedCurrency}
                 >
                   <Button

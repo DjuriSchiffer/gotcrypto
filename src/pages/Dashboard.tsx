@@ -2,16 +2,16 @@ import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useAppState } from '../hooks/useAppState';
 import { percentageFormat, currencyFormat } from '../utils/calculateHelpers';
-import { Card, Spinner, Button, Tooltip } from 'flowbite-react';
+import { Card, Spinner, Tooltip } from 'flowbite-react';
 import Page from '../components/Page';
 import Charts from '../components/ChartsDashboard';
-import { FetchedCurrency, SelectedCurrency } from 'currency';
-import { GlobalTotals } from 'store';
+import { SelectedCurrency } from 'currency';
 import DashboardCard from '../components/DashboardCard';
 import { useStorage } from '../hooks/useStorage';
 import SearchInput from '../components/SearchInput';
 import { MultiValue } from 'react-select';
 import { getGlobalTotals } from '../utils/totals';
+import useCoinMarketCap from '../hooks/useCoinMarketCap';
 
 const createCryptoMap = (
   currencies: SelectedCurrency[]
@@ -27,11 +27,13 @@ interface OptionType {
 }
 
 const Dashboard: React.FC<DashboardProps> = () => {
-  const { fetchedCurrencies, sortMethod } = useAppState();
-  const { selectedCurrencies, loading: loadingStorage } = useStorage();
   const [selectedOptions, setSelectedOptions] = useState<
     MultiValue<OptionType>
   >([]);
+  const { sortMethod } = useAppState();
+  const { selectedCurrencies, loading: storageIsLoading } = useStorage();
+  const { data: fetchedCurrencies, isLoading: fetchedCurrenciesIsLoading } =
+    useCoinMarketCap();
 
   const cryptoMap = useMemo(
     () => createCryptoMap(selectedCurrencies),
@@ -39,7 +41,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
   );
 
   const filteredFetchedCurrencies = useMemo(() => {
-    if (fetchedCurrencies === null || selectedOptions.length === 0) {
+    if (
+      fetchedCurrencies === undefined ||
+      fetchedCurrencies === null ||
+      selectedOptions.length === 0
+    ) {
       return fetchedCurrencies;
     }
 
@@ -51,7 +57,10 @@ const Dashboard: React.FC<DashboardProps> = () => {
   }, [fetchedCurrencies, selectedOptions]);
 
   const sortedFetchedCurrencies = useMemo(() => {
-    if (filteredFetchedCurrencies === null) {
+    if (
+      filteredFetchedCurrencies === undefined ||
+      filteredFetchedCurrencies === null
+    ) {
       return [];
     }
     let sorted = [...filteredFetchedCurrencies];
@@ -100,7 +109,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
     setSelectedOptions(selected);
   }, []);
 
-  if (loadingStorage) {
+  if (storageIsLoading) {
     return (
       <Page>
         <div className="text-white flex items-center">
@@ -111,7 +120,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
     );
   }
 
-  if (!fetchedCurrencies) {
+  if (fetchedCurrenciesIsLoading) {
     return (
       <Page>
         <div className="text-white flex items-center">
@@ -124,9 +133,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
       </Page>
     );
   }
-
-  console.log('globalTotals', globalTotals);
-  console.log('selected', selectedCurrencies);
 
   return (
     <Page>

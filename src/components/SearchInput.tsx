@@ -10,7 +10,7 @@ interface OptionType {
 }
 
 interface SearchInputProps {
-  options: FetchedCurrency[];
+  options: FetchedCurrency[] | undefined;
   selectedOptions: MultiValue<OptionType>;
   onChange: (selected: MultiValue<OptionType>) => void;
   placeholder?: string;
@@ -68,11 +68,13 @@ const SearchInput: React.FC<SearchInputProps> = ({
   onChange,
   placeholder = 'Search and select currencies...',
 }) => {
-  const selectOptions: OptionType[] = options.map((currency) => ({
-    value: currency.cmc_id,
-    label: currency.name,
-    image: getImage(currency.cmc_id),
-  }));
+  const selectOptions: OptionType[] = options
+    ? options.map((currency) => ({
+        value: currency.cmc_id,
+        label: currency.name,
+        image: getImage(currency.cmc_id),
+      }))
+    : [];
 
   const formatOptionLabel = ({ image, label }: OptionType) => (
     <div className="flex items-center">

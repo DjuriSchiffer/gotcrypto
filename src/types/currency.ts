@@ -6,12 +6,12 @@ export type FetchedCurrency = {
   cmc_rank: number | null;
 };
 
-export interface Asset {
+export type Asset = {
   amount: string;
   purchasePrice: string;
   date: string;
   id: string;
-}
+};
 
 export type Totals = {
   totalAmount: number;
