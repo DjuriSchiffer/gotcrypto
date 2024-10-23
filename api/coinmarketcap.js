@@ -14,13 +14,12 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
-// Configuration
 const CMC_API_KEY = process.env.CMC_API_KEY;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 module.exports = async (req, res) => {
   // Handle CORS
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Adjust for better security
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -45,32 +44,57 @@ module.exports = async (req, res) => {
       }
     }
 
-    // Fetch fresh data from CoinMarketCap API
-    console.log('Fetching fresh data from CoinMarketCap API');
-    const response = await axios.get(
-      'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest',
-      {
-        headers: {
-          'X-CMC_PRO_API_KEY': CMC_API_KEY,
-        },
-        params: {
-          start: 1,
-          limit: 100,
-          convert: 'USD,EUR',
-        },
+    const fetchData = async (currency) => {
+      try {
+        const response = await axios.get(
+          'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest',
+          {
+            headers: {
+              'X-CMC_PRO_API_KEY': CMC_API_KEY,
+            },
+            params: {
+              start: 1,
+              limit: 100,
+              convert: currency,
+            },
+          }
+        );
+        return response.data;
+      } catch (error) {
+        console.error(`Error fetching data for ${currency}:`, error.message);
+        throw error;
       }
-    );
+    };
 
-    const apiData = response.data;
+    const [usdData, eurData] = await Promise.all([
+      fetchData('USD'),
+      fetchData('EUR'),
+    ]);
+
+    const combinedData = usdData.data.map((coin, index) => {
+      const eurCoin = eurData.data.find((c) => c.id === coin.id);
+      return {
+        ...coin,
+        quote: {
+          USD: coin.quote.USD,
+          EUR: eurCoin ? eurCoin.quote.EUR : null,
+        },
+      };
+    });
+
+    const apiResponse = {
+      status: usdData.status,
+      data: combinedData,
+    };
 
     // Update cache in Firestore
     await docRef.set({
-      apiResponse: apiData,
+      apiResponse: apiResponse,
       timestamp: now,
     });
 
-    // Serve the fresh data
-    res.status(200).json(apiData);
+    // Serve the combined data
+    res.status(200).json(apiResponse);
   } catch (error) {
     console.error('Error fetching CoinMarketCap data:', error.message);
     res.status(500).json({ error: 'Failed to fetch CoinMarketCap data' });
