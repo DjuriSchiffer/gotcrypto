@@ -1,11 +1,11 @@
 const fetch = require('node-fetch');
 
+// In-memory cache
 let cache = null;
 let cacheTime = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 module.exports = async (req, res) => {
-  // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
