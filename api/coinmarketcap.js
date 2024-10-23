@@ -85,7 +85,7 @@ module.exports = async (req, res) => {
     const apiResponse = {
       status: {
         ...usdData.status,
-        credit_count: usdData.credit_count + eurData.credit_count,
+        credit_count: usdData.status.credit_count + eurData.status.credit_count,
       },
       data: combinedData,
     };
