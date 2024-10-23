@@ -308,7 +308,7 @@ const Detail: React.FC = () => {
                   className="inline-block mr-4"
                   width={48}
                   height={48}
-                  src={getImage(currentFetchedCurrency.cmc_id)}
+                  src={getImage(currentFetchedCurrency.cmc_id, 64)}
                   alt={`${currentFetchedCurrency.name} icon`}
                 />
                 <div>

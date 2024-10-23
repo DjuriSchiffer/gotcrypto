@@ -2,6 +2,9 @@ export type CurrencyQuote = {
   EUR: {
     price: number;
   };
+  USD: {
+    price: number;
+  };
 };
 
 export type CurrencyData = {

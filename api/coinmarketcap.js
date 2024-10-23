@@ -56,7 +56,7 @@ module.exports = async (req, res) => {
         params: {
           start: 1,
           limit: 100,
-          convert: 'USD',
+          convert: 'USD,EUR',
         },
       }
     );

@@ -14,7 +14,7 @@ const transformCurrencies = (
   return Object.values(data)
     .map((currency) => ({
       name: currency.name,
-      price: parseFloat(currency.quote.EUR.price.toFixed(2)),
+      price: parseFloat(currency.quote.USD.price.toFixed(2)),
       slug: currency.slug,
       cmc_id: currency.id,
       cmc_rank: currency.cmc_rank || null,
@@ -41,6 +41,11 @@ const useCoinMarketCap = () => {
     queryKey: ['fetchedCurrencies'],
     queryFn: async () => {
       const data: GetCurrenciesResponse = await getCurrencies();
+
+      console.log('data', data);
+      console.log('isLoading', isLoading);
+      console.log('isError', isError);
+      console.log('error', error);
 
       if (data.status.error_code === 0) {
         if (data.error) {
