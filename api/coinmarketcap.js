@@ -13,15 +13,46 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
-
 const CMC_API_KEY = process.env.CMC_API_KEY;
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
 
+const whitelist = [
+  'https://gotcrypto.vercel.app'
+];
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return false;
+
+  if (whitelist.includes(origin)) {
+    return true;
+  }
+
+  if (origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:')) {
+    return true;
+  }
+
+  const vercelPreviewPattern = /^https:\/\/gotcrypto-[a-z0-9]+-djurischiffers-projects\.vercel\.app$/;
+  if (vercelPreviewPattern.test(origin)) {
+    return true;
+  }
+
+  return false;
+};
+
+const corsMiddleware = (req, res) => {
+  const origin = req.headers.origin;
+  
+  if (isAllowedOrigin(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Max-Age', '86400'); 
+  }
+};
+
 module.exports = async (req, res) => {
-  // Handle CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  corsMiddleware(req, res);
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();
@@ -31,13 +62,11 @@ module.exports = async (req, res) => {
   try {
     const docRef = db.collection('cachedData').doc('latest');
     const doc = await docRef.get();
-
     const now = Date.now();
 
     if (doc.exists) {
       const data = doc.data();
       const age = now - data.timestamp;
-
       if (age < CACHE_DURATION) {
         console.log('Serving cached data from Firestore');
         return res.status(200).json(data.apiResponse);
@@ -95,8 +124,7 @@ module.exports = async (req, res) => {
       apiResponse: apiResponse,
       timestamp: now,
     });
-
-    // Serve the combined data
+    
     res.status(200).json(apiResponse);
   } catch (error) {
     console.error('Error fetching CoinMarketCap data:', error.message);
