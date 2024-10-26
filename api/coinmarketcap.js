@@ -41,13 +41,13 @@ const isAllowedOrigin = (origin) => {
 
 const corsMiddleware = (req, res) => {
   const origin = req.headers.origin;
-  
+
   if (isAllowedOrigin(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Max-Age', '86400'); 
+    res.setHeader('Access-Control-Max-Age', '86400');
   }
 };
 
@@ -68,7 +68,6 @@ module.exports = async (req, res) => {
       const data = doc.data();
       const age = now - data.timestamp;
       if (age < CACHE_DURATION) {
-        console.log('Serving cached data from Firestore');
         return res.status(200).json(data.apiResponse);
       }
     }
@@ -124,7 +123,7 @@ module.exports = async (req, res) => {
       apiResponse: apiResponse,
       timestamp: now,
     });
-    
+
     res.status(200).json(apiResponse);
   } catch (error) {
     console.error('Error fetching CoinMarketCap data:', error.message);

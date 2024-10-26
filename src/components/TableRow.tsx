@@ -49,7 +49,6 @@ const TableRow: React.FC<TableRowComponentProps> = ({
       currentValue
     );
 
-    console.log('amount', amount);
     return (
       <Table.Row>
         <Table.Cell className="py-2 pl-3 text-gray-900 dark:text-white">

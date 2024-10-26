@@ -291,16 +291,6 @@ const Detail: React.FC = () => {
     >
       <Page>
         <div className="grid gap-4 mb-4 2xl:grid-cols-6">
-          {/* Back to Dashboard Link */}
-          <div className="col-span-6">
-            <Link
-              to="/"
-              className="inline-flex items-center justify-center p-3 mb-4 text-base font-medium text-gray-500 rounded-lg bg-gray-50 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              <Icon className="mr-2" id="Left" color="white" />
-              Return to dashboard
-            </Link>
-          </div>
           <Card className="2xl:col-span-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
@@ -339,7 +329,7 @@ const Detail: React.FC = () => {
 
             {/* Assets Table */}
             {selectedCurrency === undefined ||
-            selectedCurrency?.assets.length === 0 ? (
+              selectedCurrency?.assets.length === 0 ? (
               <div className="text-white flex items-center justify-center h-40">
                 <span>No assets added yet.</span>
               </div>

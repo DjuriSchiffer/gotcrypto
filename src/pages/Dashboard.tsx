@@ -121,31 +121,31 @@ const Dashboard: React.FC<DashboardProps> = () => {
     >
       <Page>
         <div className="grid gap-4 mb-4 w-full">
-          <Card>
-            <div className="flex flex-row items-center">
-              {globalTotals && (
-                <div className="text-white ">
-                  <Tooltip content="Total Value">
-                    <div className="text-4xl">
-                      {currencyFormat(globalTotals.totalValue)}
-                    </div>
-                  </Tooltip>
-                  <Tooltip content="( Total Costs / Total Value * 100 ) - 100">
-                    <div
-                      className={classNames('text-xl', {
-                        'text-blue-500':
-                          globalTotals.totalPercentageDifference > 0,
-                        'text-red-500':
-                          globalTotals.totalPercentageDifference < 0,
-                      })}
-                    >
-                      {percentageFormat(globalTotals.totalPercentageDifference)}
-                    </div>
-                  </Tooltip>
-                </div>
-              )}
-            </div>
-          </Card>
+          {/* <Card> */}
+          <div className="flex flex-row items-center">
+            {globalTotals && (
+              <div className="text-white ">
+                <Tooltip content="Total Value">
+                  <div className="text-4xl">
+                    {currencyFormat(globalTotals.totalValue)}
+                  </div>
+                </Tooltip>
+                <Tooltip content="( Total Costs / Total Value * 100 ) - 100">
+                  <div
+                    className={classNames('text-xl', {
+                      'text-blue-500':
+                        globalTotals.totalPercentageDifference > 0,
+                      'text-red-500':
+                        globalTotals.totalPercentageDifference < 0,
+                    })}
+                  >
+                    {percentageFormat(globalTotals.totalPercentageDifference)}
+                  </div>
+                </Tooltip>
+              </div>
+            )}
+          </div>
+          {/* </Card> */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div className="col-start-3">
               <SearchInput
