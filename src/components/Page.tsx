@@ -11,9 +11,6 @@ interface PageProps {
   children: ReactNode;
 }
 
-
-
-
 const Page: React.FC<PageProps> = ({ children }) => {
   return (
     <main className="bg-white dark:bg-gray-dark min-h-screen">
@@ -22,7 +19,7 @@ const Page: React.FC<PageProps> = ({ children }) => {
           <div className='col-span-1'>
             <SideBar />
           </div>
-          <div className='col-span-5'>{children}</div>
+          <div className='col-span-5 ml-6'>{children}</div>
         </div>
       </div>
     </main>

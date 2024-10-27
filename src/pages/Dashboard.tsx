@@ -121,10 +121,10 @@ const Dashboard: React.FC<DashboardProps> = () => {
     >
       <Page>
         <div className="grid gap-4 mb-4 w-full">
-          {/* <Card> */}
           <div className="flex flex-row items-center">
             {globalTotals && (
-              <div className="text-white ">
+              <div className="text-white">
+                Current ballance
                 <Tooltip content="Total Value">
                   <div className="text-4xl">
                     {currencyFormat(globalTotals.totalValue)}
@@ -144,10 +144,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
                 </Tooltip>
               </div>
             )}
-          </div>
-          {/* </Card> */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="col-start-3">
+            <div className="ml-auto self-start w-[calc(100%/3-12px)]">
               <SearchInput
                 options={fetchedCurrencies}
                 selectedOptions={selectedOptions}
