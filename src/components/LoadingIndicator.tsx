@@ -11,10 +11,7 @@ const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
   color = 'success',
 }) => (
   <div
-    className="text-white flex items-center justify-center w-full"
-    style={{
-      minHeight: 'inherit',
-    }}
+    className="text-white flex items-center justify-center w-full min-h-screen"
   >
     <Spinner color={color} aria-label="Loading" />
     <span className="ml-2">{message}</span>
