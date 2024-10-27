@@ -1,9 +1,4 @@
 import React, { ReactNode } from 'react';
-import { Sidebar } from "flowbite-react";
-import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, HiViewBoards } from "react-icons/hi";
-import { useLinkClickHandler, useLocation } from 'react-router-dom';
-
-import { IconType } from 'react-icons';
 import SideBar from './SideBar';
 
 
