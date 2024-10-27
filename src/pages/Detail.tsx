@@ -18,13 +18,15 @@ import { useStorage } from '../hooks/useStorage';
 import totals from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
+import { useAppState } from '../hooks/useAppState';
 
 const Detail: React.FC = () => {
+  const { currencyQuote } = useAppState();
   const {
     data: fetchedCurrencies,
     isLoading: fetchedCurrenciesIsLoading,
     isLoading: fetchedCurrenciesIsError,
-  } = useCoinMarketCap();
+  } = useCoinMarketCap(currencyQuote);
   const {
     updateCurrency,
     selectedCurrencies,

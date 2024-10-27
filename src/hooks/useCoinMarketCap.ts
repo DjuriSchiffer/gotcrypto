@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getCurrencies } from '../api';
 import { FetchedCurrency } from '../types/currency';
-import { CurrencyData, GetCurrenciesResponse } from 'api';
+import { CurrencyData, CurrencyQuote, GetCurrenciesResponse } from 'api';
 
 /**
  * Transforms the API response into an array of FetchedCurrency objects.
@@ -9,12 +9,13 @@ import { CurrencyData, GetCurrenciesResponse } from 'api';
  * @returns An array of FetchedCurrency objects.
  */
 const transformCurrencies = (
-  data: Record<string, CurrencyData>
+  data: Record<string, CurrencyData>,
+  currencyQuote: keyof CurrencyQuote
 ): FetchedCurrency[] => {
   return Object.values(data)
     .map((currency) => ({
       name: currency.name,
-      price: parseFloat(currency.quote.USD.price.toFixed(2)),
+      price: parseFloat(currency.quote[currencyQuote].price.toFixed(2)),
       slug: currency.slug,
       cmc_id: currency.id,
       cmc_rank: currency.cmc_rank || null,
@@ -36,9 +37,9 @@ const transformCurrencies = (
  * Custom hook to fetch and manage currencies using React Query.
  * @returns The result of the useQuery hook.
  */
-const useCoinMarketCap = () => {
+const useCoinMarketCap = (currencyQuote: keyof CurrencyQuote = 'EUR') => {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['fetchedCurrencies'],
+    queryKey: ['fetchedCurrencies', currencyQuote],
     queryFn: async () => {
       const data: GetCurrenciesResponse = await getCurrencies();
 
@@ -46,7 +47,7 @@ const useCoinMarketCap = () => {
         if (data.error) {
           throw new Error(data.status.error_message);
         } else if (data.data) {
-          return transformCurrencies(data.data);
+          return transformCurrencies(data.data, currencyQuote);
         }
       } else {
         throw new Error(data.status.error_message);

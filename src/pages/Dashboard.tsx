@@ -13,6 +13,7 @@ import { MultiValue } from 'react-select';
 import { getGlobalTotals } from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
+import { ChangeQuote } from '../components/ChangeQuote';
 
 const createCryptoMap = (
   currencies: SelectedCurrency[]
@@ -31,13 +32,13 @@ const Dashboard: React.FC<DashboardProps> = () => {
   const [selectedOptions, setSelectedOptions] = useState<
     MultiValue<OptionType>
   >([]);
-  const { sortMethod } = useAppState();
+  const { sortMethod, currencyQuote } = useAppState();
   const { selectedCurrencies, loading: storageIsLoading } = useStorage();
   const {
     data: fetchedCurrencies,
     isLoading: fetchedCurrenciesIsLoading,
     isError: fetchedCurrenciesIsError,
-  } = useCoinMarketCap();
+  } = useCoinMarketCap(currencyQuote);
 
   const cryptoMap = useMemo(
     () => createCryptoMap(selectedCurrencies),
@@ -121,13 +122,13 @@ const Dashboard: React.FC<DashboardProps> = () => {
     >
       <Page>
         <div className="grid gap-4 mb-4 w-full">
-          <div className="flex flex-row items-center">
+          <div className='grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 '>
             {globalTotals && (
               <div className="text-white">
                 Current ballance
                 <Tooltip content="Total Value">
                   <div className="text-4xl">
-                    {currencyFormat(globalTotals.totalValue)}
+                    {currencyFormat(globalTotals.totalValue, currencyQuote)}
                   </div>
                 </Tooltip>
                 <Tooltip content="( Total Costs / Total Value * 100 ) - 100">
@@ -144,7 +145,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
                 </Tooltip>
               </div>
             )}
-            <div className="ml-auto self-start w-[calc(100%/3-12px)]">
+            <div className='ml-auto'><ChangeQuote /></div>
+            <div className=''>
               <SearchInput
                 options={fetchedCurrencies}
                 selectedOptions={selectedOptions}
@@ -153,7 +155,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
               />
             </div>
           </div>
-
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {sortedFetchedCurrencies.map((fetchedCurrency) => {
               const isSelected =

@@ -1,3 +1,5 @@
+import { CurrencyQuote } from "api";
+
 /**
  * Calculates the percentage difference between purchase price and current value.
  * @param purchasePrice - The total purchase price.
@@ -61,10 +63,10 @@ export function averagePurchasePrice(
  * @param data - The number to format.
  * @returns The formatted currency string.
  */
-export function currencyFormat(data: number): string {
+export function currencyFormat(data: number, currencyQuote: keyof CurrencyQuote = 'EUR'): string {
   return new Intl.NumberFormat('nl-NL', {
     style: 'currency',
-    currency: 'EUR',
+    currency: currencyQuote,
   }).format(data);
 }
 

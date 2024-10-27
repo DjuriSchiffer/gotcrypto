@@ -19,9 +19,10 @@ interface SearchInputProps {
 const customStyles: StylesConfig<OptionType, true> = {
   control: (provided) => ({
     ...provided,
-    backgroundColor: '#1F2937',
+    backgroundColor: 'transparent',
     borderColor: '#374151',
     color: 'white',
+    minHeight: '42px'
   }),
   menu: (provided) => ({
     ...provided,
@@ -70,10 +71,10 @@ const SearchInput: React.FC<SearchInputProps> = ({
 }) => {
   const selectOptions: OptionType[] = options
     ? options.map((currency) => ({
-        value: currency.cmc_id,
-        label: currency.name,
-        image: getImage(currency.cmc_id),
-      }))
+      value: currency.cmc_id,
+      label: currency.name,
+      image: getImage(currency.cmc_id),
+    }))
     : [];
 
   const formatOptionLabel = ({ image, label }: OptionType) => (
