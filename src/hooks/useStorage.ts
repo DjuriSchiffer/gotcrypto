@@ -42,7 +42,7 @@ export const useStorage = () => {
         setSelectedCurrenciesState(savedCurrencies);
       }
 
-      let savedSortMethod: SortMethod = 'cmc_rank';
+      let savedSortMethod: SortMethod = 'has_selected';
       let savedCustomOrder: number[] = [];
 
       if (user && !isAnonymous) {
@@ -51,14 +51,14 @@ export const useStorage = () => {
 
         if (userDoc.exists()) {
           const data = userDoc.data();
-          savedSortMethod = (data.sortMethod as SortMethod) || 'cmc_rank';
+          savedSortMethod = (data.sortMethod as SortMethod) || 'has_selected';
           savedCustomOrder = (data.customOrder as number[]) || [];
         }
       } else {
         const sortMethodFromStorage = await localforage.getItem<string>(
           SORT_METHOD_KEY
         );
-        savedSortMethod = (sortMethodFromStorage as SortMethod) || 'cmc_rank';
+        savedSortMethod = (sortMethodFromStorage as SortMethod) || 'has_selected';
         const customOrderFromStorage = await localforage.getItem<number[]>(
           CUSTOM_ORDER_KEY
         );

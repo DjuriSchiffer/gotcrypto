@@ -16,9 +16,13 @@ import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import { ChangeQuote } from '../components/ChangeQuote';
 
 const createCryptoMap = (
-  currencies: SelectedCurrency[]
+  selectedCurrencies: SelectedCurrency[]
 ): Map<number, SelectedCurrency> => {
-  return new Map(currencies.map((currency) => [currency.cmc_id, currency]));
+  return new Map(
+    selectedCurrencies
+      .filter(currency => currency.assets?.length > 0)
+      .map((currency) => [currency.cmc_id, currency])
+  );
 };
 
 type DashboardProps = {};
@@ -45,30 +49,15 @@ const Dashboard: React.FC<DashboardProps> = () => {
     [selectedCurrencies]
   );
 
-  const filteredFetchedCurrencies = useMemo(() => {
-    if (
-      fetchedCurrencies === undefined ||
-      fetchedCurrencies === null ||
-      selectedOptions.length === 0
-    ) {
-      return fetchedCurrencies;
-    }
-
-    const selectedIds = selectedOptions.map((option) => option.value);
-
-    return fetchedCurrencies.filter((currency) =>
-      selectedIds.includes(currency.cmc_id)
-    );
-  }, [fetchedCurrencies, selectedOptions]);
-
   const sortedFetchedCurrencies = useMemo(() => {
     if (
-      filteredFetchedCurrencies === undefined ||
-      filteredFetchedCurrencies === null
+      fetchedCurrencies === undefined ||
+      fetchedCurrencies === null
     ) {
       return [];
     }
-    let sorted = [...filteredFetchedCurrencies];
+
+    let sorted = [...fetchedCurrencies];
 
     if (sortMethod === 'cmc_rank') {
       sorted.sort((a, b) => {
@@ -104,7 +93,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
     }
 
     return sorted;
-  }, [filteredFetchedCurrencies, sortMethod, cryptoMap, fetchedCurrencies]);
+  }, [sortMethod, cryptoMap, fetchedCurrencies]);
 
   const globalTotals = useMemo(() => {
     return getGlobalTotals(selectedCurrencies, fetchedCurrencies);
