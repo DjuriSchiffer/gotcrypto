@@ -277,7 +277,7 @@ const Detail: React.FC = () => {
             to="/"
             className="inline-flex items-center justify-center p-3 text-base font-medium text-gray-500 rounded-lg bg-gray-50 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
           >
-            <FaArrowLeft className={'mr-2'} color="white" />;
+            <FaArrowLeft className={'mr-2'} color="white" />
             Return to dashboard
           </Link>
         </div>
@@ -314,7 +314,7 @@ const Detail: React.FC = () => {
               </div>
               <div className="flex space-x-2">
                 <Button onClick={handleOpenAddAssetModal}>
-                  <FaPlus color="white" className="mr-1" />;
+                  <FaPlus color="white" className="mr-1" />
                   Add Asset
                 </Button>
                 {selectedCurrency && selectedCurrency.assets.length > 0 && (
@@ -322,7 +322,7 @@ const Detail: React.FC = () => {
                     color="failure"
                     onClick={handleOpenRemoveAllAssetsModal}
                   >
-                    <FaTrashAlt color="white" className="mr-1" />;
+                    <FaTrashAlt color="white" className="mr-1" />
                     Remove All Assets
                   </Button>
                 )}
@@ -351,14 +351,14 @@ const Detail: React.FC = () => {
                       onClick={() => handleOpenEditAssetModal(asset)}
                       className="mr-2"
                     >
-                      <FaPen color="white" />;
+                      <FaPen color="white" />
                     </Button>
                     <Button
                       size="sm"
                       color="failure"
                       onClick={() => handleOpenRemoveAssetModal(asset)}
                     >
-                      <FaTrashAlt color="white" />;
+                      <FaTrashAlt color="white" />
                     </Button>
                   </TableRow>
                 ))}

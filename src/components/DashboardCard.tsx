@@ -31,8 +31,7 @@ export const getTotalValue = (
   cmcId: number
 ): number => {
   const totalAmount = cryptoMap.get(cmcId)?.totals.totalAmount || 0;
-
-  return cryptoMap.get(cmcId)?.totals.totalAmount || 0;
+  return totalAmount || 0;
 };
 
 export const getTotalPurchasePrice = (
@@ -98,7 +97,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
           </h5>
           <Link to={fetchedCurrency.slug} className="ml-auto">
             <Button>
-              <FaPen color="white" />;
+              <FaPen color="white" />
             </Button>
           </Link>
         </div>

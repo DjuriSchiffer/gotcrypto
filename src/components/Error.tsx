@@ -20,7 +20,7 @@ const Error: React.FC = () => {
       open={error}
       onClose={handleError}
     >
-      <FaExclamationTriangle color="white" className="flex mx-auto mb-4 text-6xl" />;
+      <FaExclamationTriangle color="white" className="flex mx-auto mb-4 text-6xl" />
       <div className="flex justify-center">
         <Button color="failure" onClick={handleError}>
           Reload page
