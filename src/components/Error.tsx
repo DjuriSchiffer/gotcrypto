@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppState } from '../hooks/useAppState';
 import Modal from './Modal';
 import { Button } from 'flowbite-react';
-import Icon from './Icon';
+import { FaExclamationTriangle } from 'react-icons/fa';
 
 const Error: React.FC = () => {
   const { error } = useAppState();
@@ -20,7 +20,7 @@ const Error: React.FC = () => {
       open={error}
       onClose={handleError}
     >
-      <Icon id="Warning" color="white" className="flex mx-auto mb-4 text-6xl" />
+      <FaExclamationTriangle color="white" className="flex mx-auto mb-4 text-6xl" />;
       <div className="flex justify-center">
         <Button color="failure" onClick={handleError}>
           Reload page

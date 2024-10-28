@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { getImage } from '../utils/images';
 import { Table } from 'flowbite-react';
 import { Asset, FetchedCurrency, SelectedCurrency } from '../types/currency';
+import { CurrencyQuote } from 'api';
 
 interface OverviewRowProps {
   type: 'overview';
@@ -17,6 +18,7 @@ interface OverviewRowProps {
   currentCurrency: FetchedCurrency | null;
   currencies: FetchedCurrency[] | null;
   children: React.ReactNode;
+  currencyQuote: keyof CurrencyQuote
 }
 
 interface OverviewTotalsRowProps {
@@ -25,6 +27,7 @@ interface OverviewTotalsRowProps {
   currentCurrency: FetchedCurrency | null;
   currencies: FetchedCurrency[] | null;
   children?: React.ReactNode;
+  currencyQuote: keyof CurrencyQuote
 }
 
 type TableRowComponentProps = OverviewRowProps | OverviewTotalsRowProps;
@@ -35,6 +38,7 @@ const TableRow: React.FC<TableRowComponentProps> = ({
   currentCurrency,
   currencies,
   children,
+  currencyQuote
 }) => {
   if (type === 'overview') {
     const assetItem = item;
@@ -55,16 +59,16 @@ const TableRow: React.FC<TableRowComponentProps> = ({
           {amount}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
-          {currencyFormat(purchasePrice)}
+          {currencyFormat(purchasePrice, currencyQuote)}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
           {purchaseDate}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
-          {currencyFormat(currentValue)}
+          {currencyFormat(currentValue, currencyQuote)}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
-          {currencyFormat(averagePurchasePrice)}
+          {currencyFormat(averagePurchasePrice, currencyQuote)}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
           <div
@@ -106,11 +110,11 @@ const TableRow: React.FC<TableRowComponentProps> = ({
           {totalAmount}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
-          {currencyFormat(totalPurchasePrice)}
+          {currencyFormat(totalPurchasePrice, currencyQuote)}
         </Table.Cell>
         <Table.Cell></Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
-          {currencyFormat(totalValue)}
+          {currencyFormat(totalValue, currencyQuote)}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
           {currencyFormat(totalAveragePurchasePrice)}

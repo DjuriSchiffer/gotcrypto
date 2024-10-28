@@ -166,6 +166,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
                   key={fetchedCurrency.cmc_id}
                   cryptoMap={cryptoMap}
                   isSelected={isSelected}
+                  currencyQuote={currencyQuote}
                 />
               );
             })}

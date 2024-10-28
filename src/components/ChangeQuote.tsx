@@ -1,5 +1,5 @@
 import { Button } from "flowbite-react";
-import { HiOutlineCurrencyDollar, HiOutlineCurrencyEuro } from "react-icons/hi";
+import { FaDollarSign, FaEuroSign } from "react-icons/fa";
 import { useAppDispatch } from "../hooks/useAppDispatch";
 import { CurrencyQuote } from "api";
 import { useQueryClient } from '@tanstack/react-query';
@@ -25,14 +25,14 @@ export function ChangeQuote() {
                 color={currencyQuote === 'EUR' ? 'dark' : 'gray'}
                 onClick={() => handleCurrencyQuote('EUR')}
             >
-                <HiOutlineCurrencyEuro className="mr-1" />
+                <FaEuroSign className="mr-1" />
                 Euro
             </Button>
             <Button
                 color={currencyQuote === 'USD' ? 'dark' : 'gray'}
                 onClick={() => handleCurrencyQuote('USD')}
             >
-                <HiOutlineCurrencyDollar className="mr-1" />
+                <FaDollarSign className="mr-1" />
                 Dollar
             </Button>
         </Button.Group>

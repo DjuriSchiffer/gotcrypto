@@ -1,14 +1,13 @@
-// components/AddAssetForm.tsx
-
 import React, { FormEvent, ChangeEvent } from 'react';
 import { Button } from 'flowbite-react';
 import DatePicker from './DatePicker';
-import Icon from './Icon';
 import CurrencyInput from 'react-currency-input-field';
+import { CurrencyQuote } from 'api';
+import { FaCalendar, FaCoins, FaEuroSign } from 'react-icons/fa';
 
 interface AddAssetFormProps {
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  amount: string; // Changed to string to handle partial inputs
+  amount: string;
   purchasePrice: string;
   date: string;
   handleChange: (
@@ -17,6 +16,7 @@ interface AddAssetFormProps {
     >
   ) => void;
   submitLabel: string;
+  currencyQuote: keyof CurrencyQuote
 }
 
 const AddAssetForm: React.FC<AddAssetFormProps> = ({
@@ -60,7 +60,7 @@ const AddAssetForm: React.FC<AddAssetFormProps> = ({
       </label>
       <div className="flex">
         <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
-          <Icon id="Amount" color="white" />
+          <FaCoins color="white" />
         </span>
         <input
           id="amount"
@@ -82,7 +82,7 @@ const AddAssetForm: React.FC<AddAssetFormProps> = ({
       </label>
       <div className="flex">
         <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
-          <Icon id="Price" color="white" />
+          <FaEuroSign color="white" />
         </span>
         <CurrencyInput
           id="purchasePrice"
@@ -113,11 +113,10 @@ const AddAssetForm: React.FC<AddAssetFormProps> = ({
       </label>
       <div className="flex">
         <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
-          <Icon id="Calendar" color="white" />
+          <FaCalendar color="white" />
         </span>
         <DatePicker date={date} handleChange={handleChange} />
       </div>
-
       <Button type="submit">{submitLabel}</Button>
     </form>
   );

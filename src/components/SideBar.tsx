@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { Sidebar } from "flowbite-react";
 import { IconType } from "react-icons";
 import { useLinkClickHandler, useLocation } from "react-router-dom";
-import { HiArrowSmLeft, HiArrowSmRight, HiChartPie, HiOutlineCog, HiUserCircle, HiOutlineChartBar } from "react-icons/hi";
+import { FaArrowLeft, FaArrowRight, FaChartPie, FaCog, FaChartBar } from "react-icons/fa";
 import logo from '../public/images/logo.svg';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
@@ -79,20 +79,20 @@ const SideBar: React.FC<SideBarProps> = () => {
             <Sidebar.Items className='flex flex-col h-full'>
                 <Sidebar.ItemGroup>
                     <AppSideBarLogo to='/' text="Got Crypto" img={logo} imgAlt='Got Crypto' />
-                    {isDashboard ? <AppSideBarItem to='/' text='Dashboard' icon={HiChartPie} /> : <AppSideBarItem to='/' text='Return to Dashboard' icon={HiArrowSmLeft} />}
-                    <AppSideBarItem to='/graphs' text='Graphs' icon={HiOutlineChartBar} />
+                    {isDashboard ? <AppSideBarItem to='/' text='Dashboard' icon={FaChartPie} /> : <AppSideBarItem to='/' text='Return to Dashboard' icon={FaArrowLeft} />}
+                    <AppSideBarItem to='/graphs' text='Graphs' icon={FaChartBar} />
                 </Sidebar.ItemGroup>
                 <Sidebar.ItemGroup className="mt-auto">
-                    <Sidebar.Item icon={HiOutlineCog} href="javascript:void(0)">
+                    <Sidebar.Item icon={FaCog} href="javascript:void(0)">
                         User & Settings
                     </Sidebar.Item>
                     {user && !isAnonymous && (
-                        <Sidebar.Item onClick={handleSignOut} icon={HiArrowSmRight} href="javascript:void(0)">
+                        <Sidebar.Item onClick={handleSignOut} icon={FaArrowRight} href="javascript:void(0)">
                             Sign Out
                         </Sidebar.Item>
                     )}
                     {user && isAnonymous && (
-                        <Sidebar.Item onClick={handleSignInGoogle} icon={HiArrowSmRight} href="javascript:void(0)">
+                        <Sidebar.Item onClick={handleSignInGoogle} icon={FaArrowRight} href="javascript:void(0)">
                             Sign In
                         </Sidebar.Item>
                     )}

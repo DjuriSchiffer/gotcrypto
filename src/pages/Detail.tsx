@@ -7,7 +7,6 @@ import {
   formatDatePickerDate,
 } from '../utils/calculateHelpers';
 import { getImage } from '../utils/images';
-import Icon from '../components/Icon';
 import Modal from '../components/Modal';
 import AddAssetForm from '../components/AddAssetForm';
 import Page from '../components/Page';
@@ -19,6 +18,7 @@ import totals from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import { useAppState } from '../hooks/useAppState';
+import { FaArrowLeft, FaExclamationTriangle, FaPen, FaPlus, FaTrashAlt } from 'react-icons/fa';
 
 const Detail: React.FC = () => {
   const { currencyQuote } = useAppState();
@@ -277,7 +277,7 @@ const Detail: React.FC = () => {
             to="/"
             className="inline-flex items-center justify-center p-3 text-base font-medium text-gray-500 rounded-lg bg-gray-50 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
           >
-            <Icon className={'mr-2'} id="Left" color="white" />
+            <FaArrowLeft className={'mr-2'} color="white" />;
             Return to dashboard
           </Link>
         </div>
@@ -308,13 +308,13 @@ const Detail: React.FC = () => {
                     {currentFetchedCurrency.name}
                   </h2>
                   <p className="text-lg text-gray-400">
-                    {currencyFormat(currentFetchedCurrency.price)} per unit
+                    {currencyFormat(currentFetchedCurrency.price, currencyQuote)} per unit
                   </p>
                 </div>
               </div>
               <div className="flex space-x-2">
                 <Button onClick={handleOpenAddAssetModal}>
-                  <Icon id="Plus" color="white" className="mr-1" />
+                  <FaPlus color="white" className="mr-1" />;
                   Add Asset
                 </Button>
                 {selectedCurrency && selectedCurrency.assets.length > 0 && (
@@ -322,7 +322,7 @@ const Detail: React.FC = () => {
                     color="failure"
                     onClick={handleOpenRemoveAllAssetsModal}
                   >
-                    <Icon id="Remove" color="white" className="mr-1" />
+                    <FaTrashAlt color="white" className="mr-1" />;
                     Remove All Assets
                   </Button>
                 )}
@@ -344,20 +344,21 @@ const Detail: React.FC = () => {
                     item={asset}
                     currencies={fetchedCurrencies || []}
                     currentCurrency={currentFetchedCurrency}
+                    currencyQuote={currencyQuote}
                   >
                     <Button
                       size="sm"
                       onClick={() => handleOpenEditAssetModal(asset)}
                       className="mr-2"
                     >
-                      <Icon id="Edit" color="white" />
+                      <FaPen color="white" />;
                     </Button>
                     <Button
                       size="sm"
                       color="failure"
                       onClick={() => handleOpenRemoveAssetModal(asset)}
                     >
-                      <Icon id="Remove" color="white" />
+                      <FaTrashAlt color="white" />;
                     </Button>
                   </TableRow>
                 ))}
@@ -407,6 +408,7 @@ const Detail: React.FC = () => {
             date={formData.date}
             handleChange={handleChange}
             submitLabel="Add Asset"
+            currencyQuote={currencyQuote}
           />
         </Modal>
 
@@ -423,6 +425,7 @@ const Detail: React.FC = () => {
             date={formData.date}
             handleChange={handleChange}
             submitLabel="Update Asset"
+            currencyQuote={currencyQuote}
           />
         </Modal>
 
@@ -433,15 +436,15 @@ const Detail: React.FC = () => {
           title="Confirm Removal"
         >
           <div className="flex flex-col items-center">
-            <Icon
-              id="Warning"
+            <FaExclamationTriangle
               color="white"
               className="flex mx-auto mb-4 text-6xl"
             />
+
             <p className="mb-4">Are you sure you want to remove this asset?</p>
             <div className="flex space-x-2">
               <Button color="failure" onClick={handleRemoveAsset}>
-                <Icon id="Remove" color="white" className="mr-1" />
+                <FaTrashAlt color="white" className="mr-1" />
                 Remove Asset
               </Button>
               <Button onClick={handleCloseModals}>Cancel</Button>
@@ -456,8 +459,7 @@ const Detail: React.FC = () => {
           title="Confirm Removal of All Assets"
         >
           <div className="flex flex-col items-center">
-            <Icon
-              id="Warning"
+            <FaExclamationTriangle
               color="white"
               className="flex mx-auto mb-4 text-6xl"
             />
@@ -467,7 +469,7 @@ const Detail: React.FC = () => {
             </p>
             <div className="flex space-x-2">
               <Button color="failure" onClick={handleRemoveAllAssets}>
-                <Icon id="Remove" color="white" className="mr-1" />
+                <FaTrashAlt color="white" className="mr-1" />
                 Remove All Assets
               </Button>
               <Button onClick={handleCloseModals}>Cancel</Button>

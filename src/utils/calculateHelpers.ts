@@ -64,7 +64,8 @@ export function averagePurchasePrice(
  * @returns The formatted currency string.
  */
 export function currencyFormat(data: number, currencyQuote: keyof CurrencyQuote = 'EUR'): string {
-  return new Intl.NumberFormat('nl-NL', {
+  const format = currencyQuote === 'EUR' ? 'nl-NL' : 'en-US';
+  return new Intl.NumberFormat(format, {
     style: 'currency',
     currency: currencyQuote,
   }).format(data);

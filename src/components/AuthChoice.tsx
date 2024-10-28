@@ -3,7 +3,7 @@ import {
   signInWithGoogle,
   signInAnonymouslyUser,
 } from '../services/authService';
-import { Button, Card } from 'flowbite-react';
+import { Card } from 'flowbite-react';
 
 const AuthChoice: React.FC = () => {
   return (

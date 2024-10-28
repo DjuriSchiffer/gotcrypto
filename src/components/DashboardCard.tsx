@@ -9,12 +9,14 @@ import {
 import { getImage } from '../utils/images';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
-import Icon from './Icon';
+import { CurrencyQuote } from 'api';
+import { FaPen } from 'react-icons/fa';
 
 type DashboardCard = {
   fetchedCurrency: FetchedCurrency;
   cryptoMap: Map<number, SelectedCurrency>;
   isSelected: boolean;
+  currencyQuote: keyof CurrencyQuote
 };
 
 export const getTotalAmount = (
@@ -65,6 +67,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
   fetchedCurrency,
   cryptoMap,
   isSelected,
+  currencyQuote
 }) => {
   const percentageDifference = getTotalPercentageDifference(
     cryptoMap,
@@ -95,7 +98,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
           </h5>
           <Link to={fetchedCurrency.slug} className="ml-auto">
             <Button>
-              <Icon id="Edit" color="white" />
+              <FaPen color="white" />;
             </Button>
           </Link>
         </div>
@@ -113,7 +116,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
                   Current market price
                 </p>
                 <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                  {currencyFormat(fetchedCurrency.price)}
+                  {currencyFormat(fetchedCurrency.price, currencyQuote)}
                 </p>
               </div>
             </div>
@@ -157,7 +160,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
                     </p>
                   </div>
                   <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    {currencyFormat(totalAmount * fetchedCurrency.price)}
+                    {currencyFormat(totalAmount * fetchedCurrency.price, currencyQuote)}
                   </div>
                 </div>
               </li>
