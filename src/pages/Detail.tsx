@@ -1,23 +1,18 @@
-import React, { useState, ChangeEvent, useMemo, FormEvent } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Button, Card, Spinner } from 'flowbite-react';
+import { Card } from 'flowbite-react';
 import uniqueId from 'lodash.uniqueid';
-import {
-  currencyFormat,
-} from '../utils/calculateHelpers';
-import { getImage } from '../utils/images';
-import Modal from '../components/Modal';
-import AddAssetForm from '../components/AddAssetForm';
 import Page from '../components/Page';
-import Table from '../components/Table';
-import TableRow from '../components/TableRow';
 import { Asset, SelectedCurrency } from '../types/currency';
 import { useStorage } from '../hooks/useStorage';
 import totals from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import { useAppState } from '../hooks/useAppState';
-import { FaArrowLeft, FaExclamationTriangle, FaPen, FaPlus, FaTrashAlt } from 'react-icons/fa';
+import { FaArrowLeft } from 'react-icons/fa';
+import DetailHeader from '../components/DetailHeader';
+import DetailModals from '../components/DetailModals';
+import DetailAssetsTable from '../components/DetailAssetsTable';
 
 interface FormInputs {
   amount: string;
@@ -209,93 +204,24 @@ const Detail: React.FC = () => {
       <Page>
         <div className="grid gap-4 mb-4 2xl:grid-cols-6">
           <Card className="2xl:col-span-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <img
-                  className="inline-block mr-4"
-                  width={48}
-                  height={48}
-                  src={getImage(currentFetchedCurrency.cmc_id, 64)}
-                  alt={`${currentFetchedCurrency.name} icon`}
-                />
-                <div>
-                  <h2 className="text-3xl font-bold text-white">
-                    {currentFetchedCurrency.name}
-                  </h2>
-                  <p className="text-lg text-gray-400">
-                    {currencyFormat(currentFetchedCurrency.price, currencyQuote)} per unit
-                  </p>
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <Button onClick={handleOpenAddAssetModal}>
-                  <FaPlus color="white" className="mr-1" />
-                  Add Asset
-                </Button>
-                {selectedCurrency && selectedCurrency.assets.length > 0 && (
-                  <Button
-                    color="failure"
-                    onClick={handleOpenRemoveAllAssetsModal}
-                  >
-                    <FaTrashAlt color="white" className="mr-1" />
-                    Remove All Assets
-                  </Button>
-                )}
-              </div>
-            </div>
+            <DetailHeader
+              currentFetchedCurrency={currentFetchedCurrency}
+              selectedCurrency={selectedCurrency}
+              currencyQuote={currencyQuote}
+              onAddAsset={handleOpenAddAssetModal}
+              onRemoveAllAssets={handleOpenRemoveAllAssetsModal}
+            />
 
-            {/* Assets Table */}
-            {selectedCurrency === undefined || selectedCurrency.assets.length === 0 ? (
-              <div className="text-white flex items-center justify-center h-40">
-                <span>No assets added yet.</span>
-              </div>
-            ) : (
-              <Table type="overview">
-                {selectedCurrency.assets.map((asset: Asset) => (
-                  <TableRow
-                    key={asset.id}
-                    type="overview"
-                    item={asset}
-                    currencies={fetchedCurrencies || []}
-                    currentCurrency={currentFetchedCurrency}
-                    currencyQuote={currencyQuote}
-                  >
-                    <Button
-                      size="sm"
-                      onClick={() => handleOpenEditAssetModal(asset)}
-                      className="mr-2"
-                    >
-                      <FaPen color="white" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      color="failure"
-                      onClick={() => handleOpenRemoveAssetModal(asset)}
-                    >
-                      <FaTrashAlt color="white" />
-                    </Button>
-                  </TableRow>
-                ))}
-                {/* Totals Row */}
-                {/* <tr className="bg-gray-700">
-                  <td className="px-6 py-4 font-semibold text-white">Totals</td>
-                  <td className="px-6 py-4 font-semibold text-white">
-                    {currencyFormat(
-                      selectedCurrency?.totals?.totalPurchasePrice || 0
-                    )}
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-white">
-                    {currencyFormat(selectedCurrency?.totals?.totalValue || 0)}
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-white">
-                    {percentageFormat(
-                      selectedCurrency?.totals?.totalPercentageDifference || 0
-                    )}
-                    %
-                  </td>
-                </tr> */}
-              </Table>
-            )}
+            <DetailAssetsTable
+              selectedCurrency={selectedCurrency}
+              fetchedCurrencies={fetchedCurrencies || []}
+              currentFetchedCurrency={currentFetchedCurrency}
+              currencyQuote={currencyQuote}
+              onEditAsset={handleOpenEditAssetModal}
+              onRemoveAsset={handleOpenRemoveAssetModal}
+            />
+
+
           </Card>
           {/* Overview Chart */}
           {selectedCurrency?.assets.length &&
@@ -308,86 +234,19 @@ const Detail: React.FC = () => {
             )}
         </div>
 
-        <Modal
-          onClose={handleCloseModals}
-          open={openAddAssetModal}
-          title="Add Asset"
-        >
-          <AddAssetForm
-            key={`add-form-${openAddAssetModal}`}
-            onSubmit={handleFormSubmit}
-            submitLabel="Add Asset"
-            currencyQuote={currencyQuote}
-            isEdit={false}
-          />
-        </Modal>
-
-        {/* Edit Asset Modal */}
-        <Modal
-          onClose={handleCloseModals}
-          open={openEditAssetModal}
-          title="Edit Asset"
-        >
-          <AddAssetForm
-            key={`edit-form-${openEditAssetModal}-${currentAsset?.id}`}
-            onSubmit={handleFormSubmit}
-            defaultValues={currentAsset ? {
-              amount: currentAsset.amount,
-              purchasePrice: currentAsset.purchasePrice,
-              date: currentAsset.date,
-            } : undefined}
-            submitLabel="Update Asset"
-            currencyQuote={currencyQuote}
-            isEdit={true}
-          />
-        </Modal>
-
-        {/* Remove Asset Modal */}
-        <Modal
-          onClose={handleCloseModals}
-          open={openRemoveAssetModal}
-          title="Confirm Removal"
-        >
-          <div className="flex flex-col items-center">
-            <FaExclamationTriangle
-              color="white"
-              className="flex mx-auto mb-4 text-6xl"
-            />
-            <p className="mb-4">Are you sure you want to remove this asset?</p>
-            <div className="flex space-x-2">
-              <Button color="failure" onClick={handleRemoveAsset}>
-                <FaTrashAlt color="white" className="mr-1" />
-                Remove Asset
-              </Button>
-              <Button onClick={handleCloseModals}>Cancel</Button>
-            </div>
-          </div>
-        </Modal>
-
-        {/* Remove All Assets Modal */}
-        <Modal
-          onClose={handleCloseModals}
-          open={openRemoveAllAssetsModal}
-          title="Confirm Removal of All Assets"
-        >
-          <div className="flex flex-col items-center">
-            <FaExclamationTriangle
-              color="white"
-              className="flex mx-auto mb-4 text-6xl"
-            />
-            <p className="mb-4">
-              Are you sure you want to remove all assets for{' '}
-              {selectedCurrency?.name}?
-            </p>
-            <div className="flex space-x-2">
-              <Button color="failure" onClick={handleRemoveAllAssets}>
-                <FaTrashAlt color="white" className="mr-1" />
-                Remove All Assets
-              </Button>
-              <Button onClick={handleCloseModals}>Cancel</Button>
-            </div>
-          </div>
-        </Modal>
+        <DetailModals
+          openAddAssetModal={openAddAssetModal}
+          openEditAssetModal={openEditAssetModal}
+          openRemoveAssetModal={openRemoveAssetModal}
+          openRemoveAllAssetsModal={openRemoveAllAssetsModal}
+          currentAsset={currentAsset}
+          currencyQuote={currencyQuote}
+          selectedCurrencyName={selectedCurrency?.name}
+          onCloseModals={handleCloseModals}
+          onFormSubmit={handleFormSubmit}
+          onRemoveAsset={handleRemoveAsset}
+          onRemoveAllAssets={handleRemoveAllAssets}
+        />
       </Page>
     </LoadingErrorWrapper>
   );
