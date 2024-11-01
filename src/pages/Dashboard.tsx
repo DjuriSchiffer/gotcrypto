@@ -49,15 +49,30 @@ const Dashboard: React.FC<DashboardProps> = () => {
     [selectedCurrencies]
   );
 
-  const sortedFetchedCurrencies = useMemo(() => {
+  const filteredFetchedCurrencies = useMemo(() => {
     if (
       fetchedCurrencies === undefined ||
-      fetchedCurrencies === null
+      fetchedCurrencies === null ||
+      selectedOptions.length === 0
+    ) {
+      return fetchedCurrencies;
+    }
+
+    const selectedIds = selectedOptions.map((option) => option.value);
+
+    return fetchedCurrencies.filter((currency) =>
+      selectedIds.includes(currency.cmc_id)
+    );
+  }, [fetchedCurrencies, selectedOptions]);
+
+  const sortedFetchedCurrencies = useMemo(() => {
+    if (
+      filteredFetchedCurrencies === undefined ||
+      filteredFetchedCurrencies === null
     ) {
       return [];
     }
-
-    let sorted = [...fetchedCurrencies];
+    let sorted = [...filteredFetchedCurrencies];
 
     if (sortMethod === 'cmc_rank') {
       sorted.sort((a, b) => {
@@ -93,7 +108,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
     }
 
     return sorted;
-  }, [sortMethod, cryptoMap, fetchedCurrencies]);
+  }, [sortMethod, cryptoMap, filteredFetchedCurrencies]);
 
   const globalTotals = useMemo(() => {
     return getGlobalTotals(selectedCurrencies, fetchedCurrencies);
