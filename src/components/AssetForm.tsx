@@ -25,7 +25,7 @@ interface AddAssetFormProps {
   isEdit?: boolean;
 }
 
-const AddAssetForm: React.FC<AddAssetFormProps> = ({
+const AssetForm: React.FC<AddAssetFormProps> = ({
   onSubmit,
   defaultValues,
   submitLabel,
@@ -67,7 +67,6 @@ const AddAssetForm: React.FC<AddAssetFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4">
-      {/* Rest of the form remains the same */}
       <div>
         <label
           htmlFor="amount"
@@ -204,4 +203,4 @@ const AddAssetForm: React.FC<AddAssetFormProps> = ({
   );
 };
 
-export default AddAssetForm;
+export default AssetForm;

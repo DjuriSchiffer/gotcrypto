@@ -2,10 +2,10 @@ import React from 'react';
 import { Button } from 'flowbite-react';
 import { FaTrashAlt } from 'react-icons/fa';
 import Modal from '../components/Modal';
-import AddAssetForm from '../components/AddAssetForm';
 import { Asset } from '../types/currency';
 import { CurrencyQuote } from 'api';
 import { FaExclamationTriangle } from 'react-icons/fa';
+import AssetForm from './AssetForm';
 
 interface DetailModalsProps {
     openAddAssetModal: boolean;
@@ -40,7 +40,7 @@ const DetailModals: React.FC<DetailModalsProps> = ({
             open={openAddAssetModal}
             title="Add Asset"
         >
-            <AddAssetForm
+            <AssetForm
                 key={`add-form-${openAddAssetModal}`}
                 onSubmit={onFormSubmit}
                 submitLabel="Add Asset"
@@ -54,7 +54,7 @@ const DetailModals: React.FC<DetailModalsProps> = ({
             open={openEditAssetModal}
             title="Edit Asset"
         >
-            <AddAssetForm
+            <AssetForm
                 key={`edit-form-${openEditAssetModal}-${currentAsset?.id}`}
                 onSubmit={onFormSubmit}
                 defaultValues={currentAsset ? {
