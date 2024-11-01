@@ -46,12 +46,13 @@ const DetailAssetsTable: React.FC<DetailAssetsTableProps> = ({
                         size="sm"
                         onClick={() => onEditAsset(asset)}
                         className="mr-2"
+                        color="gray"
                     >
                         <FaPen color="white" />
                     </Button>
                     <Button
                         size="sm"
-                        color="failure"
+                        color="dark"
                         onClick={() => onRemoveAsset(asset)}
                     >
                         <FaTrashAlt color="white" />
