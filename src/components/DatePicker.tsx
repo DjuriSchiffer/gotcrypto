@@ -1,4 +1,4 @@
-import React, { useState, useRef, ChangeEvent } from 'react';
+import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { formatDatePickerDate } from '../utils/calculateHelpers';
 import Datepicker, { DatepickerOptions } from 'tailwind-datepicker-react';
 
@@ -36,11 +36,30 @@ const options: DatepickerOptions = {
 const DatePicker: React.FC<DatePickerProps> = ({ date, handleChange }) => {
   const [show, setShow] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  /**
-   * Triggers a change event on the input element with the new value.
-   * @param value - The new date value formatted as a string.
-   */
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+
+      const isOutsideContainer = containerRef.current && !containerRef.current.contains(target);
+      const isDatepickerElement = target.closest('[data-te-datepicker-wrapper]') ||
+        target.closest('[class*="datepicker"]') ||
+        target.closest('[class*="calendar"]') ||
+        target.closest('button');
+
+      if (show && isOutsideContainer && !isDatepickerElement) {
+        setShow(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [show]);
+
   const triggerInputChange = (value: string) => {
     const inputElement = inputRef.current;
     if (inputElement) {
@@ -53,27 +72,36 @@ const DatePicker: React.FC<DatePickerProps> = ({ date, handleChange }) => {
     }
   };
 
-  /**
-   * Handles the date change from the Datepicker component.
-   * @param selectedDate - The date selected from the Datepicker.
-   */
   const handleChangeDatePicker = (selectedDate: Date) => {
     const formattedDate = formatDatePickerDate(selectedDate);
     triggerInputChange(formattedDate);
   };
 
-  /**
-   * Handles the closing of the Datepicker.
-   * @param state - The new visibility state of the Datepicker.
-   */
   const handleClose = (state: boolean) => {
     setShow(state);
   };
 
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && show) {
+        setShow(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [show]);
+
   return (
-    <div className="w-full">
+    <div className="w-full" ref={containerRef}>
       <Datepicker
-        options={options}
+        options={{
+          ...options,
+          autoHide: true,
+        }}
         show={show}
         setShow={handleClose}
         onChange={handleChangeDatePicker}

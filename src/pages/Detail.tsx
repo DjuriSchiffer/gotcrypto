@@ -4,7 +4,6 @@ import { Button, Card, Spinner } from 'flowbite-react';
 import uniqueId from 'lodash.uniqueid';
 import {
   currencyFormat,
-  formatDatePickerDate,
 } from '../utils/calculateHelpers';
 import { getImage } from '../utils/images';
 import Modal from '../components/Modal';
@@ -20,12 +19,18 @@ import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import { useAppState } from '../hooks/useAppState';
 import { FaArrowLeft, FaExclamationTriangle, FaPen, FaPlus, FaTrashAlt } from 'react-icons/fa';
 
+interface FormInputs {
+  amount: string;
+  purchasePrice: string;
+  date: string;
+}
+
 const Detail: React.FC = () => {
   const { currencyQuote } = useAppState();
   const {
     data: fetchedCurrencies,
     isLoading: fetchedCurrenciesIsLoading,
-    isLoading: fetchedCurrenciesIsError,
+    isError: fetchedCurrenciesIsError,
   } = useCoinMarketCap(currencyQuote);
   const {
     updateCurrency,
@@ -35,77 +40,45 @@ const Detail: React.FC = () => {
   } = useStorage();
   const { slug: currentCurrencySlug } = useParams<{ slug: string }>();
 
-  // Memoize the selected currency based on slug
+  const [openAddAssetModal, setOpenAddAssetModal] = useState<boolean>(false);
+  const [openEditAssetModal, setOpenEditAssetModal] = useState<boolean>(false);
+  const [openRemoveAssetModal, setOpenRemoveAssetModal] = useState<boolean>(false);
+  const [openRemoveAllAssetsModal, setOpenRemoveAllAssetsModal] = useState<boolean>(false);
+  const [currentAsset, setCurrentAsset] = useState<Asset | null>(null);
+
+  // Memoized selectors
   const selectedCurrency = useMemo(() => {
-    const currency = selectedCurrencies.find(
+    return selectedCurrencies.find(
       (currency) => currency.slug === currentCurrencySlug
     );
-    return currency;
   }, [selectedCurrencies, currentCurrencySlug]);
 
-  // Get the current fetched currency to obtain the latest price
   const currentFetchedCurrency = useMemo(() => {
     return fetchedCurrencies?.find(
       (element) => element.slug === currentCurrencySlug
     );
   }, [fetchedCurrencies, currentCurrencySlug]);
 
-  // State for managing modals
-  const [openAddAssetModal, setOpenAddAssetModal] = useState<boolean>(false);
-  const [openEditAssetModal, setOpenEditAssetModal] = useState<boolean>(false);
-  const [openRemoveAssetModal, setOpenRemoveAssetModal] =
-    useState<boolean>(false);
-  const [openRemoveAllAssetsModal, setOpenRemoveAllAssetsModal] =
-    useState<boolean>(false);
-
-  // State for managing form data
-  const [formData, setFormData] = useState<{
-    amount: string; // Changed to string
-    purchasePrice: string;
-    date: string;
-  }>({
-    amount: '',
-    purchasePrice: '',
-    date: formatDatePickerDate(new Date()),
-  });
-
-  // Current asset being edited or removed
-  const [currentAsset, setCurrentAsset] = useState<Asset | null>(null);
-
-  // Handler for opening the Add Asset modal
+  // Modal handlers
   const handleOpenAddAssetModal = () => {
-    setFormData({
-      amount: '',
-      purchasePrice: '',
-      date: formatDatePickerDate(new Date()),
-    });
     setCurrentAsset(null);
     setOpenAddAssetModal(true);
   };
 
-  // Handler for opening the Edit Asset modal
   const handleOpenEditAssetModal = (asset: Asset) => {
-    setFormData({
-      amount: asset.amount,
-      purchasePrice: asset.purchasePrice,
-      date: asset.date,
-    });
     setCurrentAsset(asset);
     setOpenEditAssetModal(true);
   };
 
-  // Handler for opening the Remove Asset modal
   const handleOpenRemoveAssetModal = (asset: Asset) => {
     setCurrentAsset(asset);
     setOpenRemoveAssetModal(true);
   };
 
-  // Handler for opening the Remove All Assets modal
   const handleOpenRemoveAllAssetsModal = () => {
     setOpenRemoveAllAssetsModal(true);
   };
 
-  // Handler for closing all modals
   const handleCloseModals = () => {
     setOpenAddAssetModal(false);
     setOpenEditAssetModal(false);
@@ -114,158 +87,100 @@ const Detail: React.FC = () => {
     setCurrentAsset(null);
   };
 
-  // Handler for form input changes
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  // Handler for adding or editing an asset
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const { amount, purchasePrice, date } = formData;
-
-    // Basic validation
-    if (!amount || !purchasePrice || !date) {
-      alert('Please fill in all fields.');
+  const handleFormSubmit = async (formData: FormInputs) => {
+    if (!selectedCurrency && !currentFetchedCurrency) {
+      console.error('No currency selected or fetched');
       return;
     }
-
-    const parsedAmount = parseFloat(amount);
-    const parsedPurchasePrice = parseFloat(purchasePrice);
-
-    if (isNaN(parsedAmount) || isNaN(parsedPurchasePrice)) {
-      alert('Please enter valid numbers for amount and purchase price.');
-      return;
-    }
-
-    const newAsset: Asset = {
-      amount: parsedAmount.toString(),
-      purchasePrice: parsedPurchasePrice.toFixed(2).toString(),
-      date,
-      id: currentAsset ? currentAsset.id : uniqueId(),
-    };
-
-    let updatedAssets: Asset[] = [];
-
-    if (currentAsset && selectedCurrency) {
-      // Editing an existing asset
-      updatedAssets = selectedCurrency.assets.map((asset) =>
-        asset.id === currentAsset.id ? newAsset : asset
-      );
-    } else if (selectedCurrency) {
-      // Adding a new asset to an existing currency
-      updatedAssets = [...selectedCurrency.assets, newAsset];
-    } else if (currentFetchedCurrency) {
-      // Adding a new asset to a new currency
-      updatedAssets = [newAsset];
-    } else {
-      // Currency not found in fetchedCurrencies
-      console.error('Current fetched currency not found.');
-      return;
-    }
-
-    // Recalculate totals
-    const updatedTotals = totals(updatedAssets);
-
-    let updatedSelectedCurrency: SelectedCurrency;
-
-    if (selectedCurrency) {
-      // Update existing SelectedCurrency
-      updatedSelectedCurrency = {
-        ...selectedCurrency,
-        assets: updatedAssets.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        ),
-        totals: updatedTotals,
-      };
-    } else if (currentFetchedCurrency) {
-      // Create new SelectedCurrency
-      updatedSelectedCurrency = {
-        name: currentFetchedCurrency.name,
-        slug: currentFetchedCurrency.slug,
-        cmc_id: currentFetchedCurrency.cmc_id,
-        index: selectedCurrencies.length, // Assign index based on current length
-        assets: updatedAssets,
-        totals: updatedTotals,
-      };
-    } else {
-      // This case should not occur due to earlier checks
-      return;
-    }
-
-    // Optimistically update UI
-    setSelectedCurrencies([...selectedCurrencies, updatedSelectedCurrency]);
 
     try {
-      await updateCurrency(updatedSelectedCurrency);
-    } catch (error) {
-      // Revert UI changes
-      setSelectedCurrencies(selectedCurrencies);
-      // Notify user of the error
-      alert('Failed to add asset. Please try again.');
-    }
+      const { amount, purchasePrice, date } = formData;
 
-    // Close modals
-    handleCloseModals();
+      // Create new asset object
+      const newAsset: Asset = {
+        amount: parseFloat(amount).toString(),
+        purchasePrice: parseFloat(purchasePrice).toFixed(2),
+        date,
+        id: currentAsset?.id || uniqueId(),
+      };
+
+      let updatedSelectedCurrency: SelectedCurrency;
+
+      if (selectedCurrency) {
+        // Handle existing currency
+        const updatedAssets = currentAsset
+          ? selectedCurrency.assets.map((asset) =>
+            asset.id === currentAsset.id ? newAsset : asset
+          )
+          : [...selectedCurrency.assets, newAsset];
+
+        updatedSelectedCurrency = {
+          ...selectedCurrency,
+          assets: updatedAssets.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          ),
+          totals: totals(updatedAssets),
+        };
+      } else if (currentFetchedCurrency) {
+        // Handle new currency
+        updatedSelectedCurrency = {
+          name: currentFetchedCurrency.name,
+          slug: currentFetchedCurrency.slug,
+          cmc_id: currentFetchedCurrency.cmc_id,
+          index: selectedCurrencies.length,
+          assets: [newAsset],
+          totals: totals([newAsset]),
+        };
+      } else {
+        throw new Error('No currency context available');
+      }
+
+      await updateCurrency(updatedSelectedCurrency);
+      handleCloseModals();
+    } catch (error) {
+      console.error('Failed to update asset:', error);
+      alert('Failed to update asset. Please try again.');
+    }
   };
 
-  // Handler for removing a single asset
   const handleRemoveAsset = async () => {
     if (!selectedCurrency || !currentAsset) return;
 
-    const updatedAssets = selectedCurrency.assets.filter(
-      (asset) => asset.id !== currentAsset.id
-    );
+    try {
+      const updatedAssets = selectedCurrency.assets.filter(
+        (asset) => asset.id !== currentAsset.id
+      );
 
-    // Recalculate totals
-    const updatedTotals = totals(updatedAssets);
+      const updatedSelectedCurrency: SelectedCurrency = {
+        ...selectedCurrency,
+        assets: updatedAssets,
+        totals: totals(updatedAssets),
+      };
 
-    // Create updated SelectedCurrency
-    const updatedSelectedCurrency: SelectedCurrency = {
-      ...selectedCurrency,
-      assets: updatedAssets,
-      totals: updatedTotals,
-    };
-
-    // Update storage
-    await updateCurrency(updatedSelectedCurrency);
-
-    // Close modal
-    handleCloseModals();
+      await updateCurrency(updatedSelectedCurrency);
+      handleCloseModals();
+    } catch (error) {
+      console.error('Failed to remove asset:', error);
+      alert('Failed to remove asset. Please try again.');
+    }
   };
 
-  // Handler for removing all assets
   const handleRemoveAllAssets = async () => {
     if (!selectedCurrency) return;
 
-    // Confirm action
-    const confirmAction = window.confirm(
-      `Are you sure you want to remove all assets for ${selectedCurrency.name}? This action cannot be undone.`
-    );
-    if (!confirmAction) return;
+    try {
+      const updatedSelectedCurrency: SelectedCurrency = {
+        ...selectedCurrency,
+        assets: [],
+        totals: totals([]),
+      };
 
-    // Clear assets
-    const updatedSelectedCurrency: SelectedCurrency = {
-      ...selectedCurrency,
-      assets: [],
-      totals: totals([]),
-    };
-
-    // Update storage
-    await updateCurrency(updatedSelectedCurrency);
-
-    // Close modal
-    handleCloseModals();
+      await updateCurrency(updatedSelectedCurrency);
+      handleCloseModals();
+    } catch (error) {
+      console.error('Failed to remove all assets:', error);
+      alert('Failed to remove all assets. Please try again.');
+    }
   };
 
   if (!currentFetchedCurrency) {
@@ -277,7 +192,7 @@ const Detail: React.FC = () => {
             to="/"
             className="inline-flex items-center justify-center p-3 text-base font-medium text-gray-500 rounded-lg bg-gray-50 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
           >
-            <FaArrowLeft className={'mr-2'} color="white" />
+            <FaArrowLeft className="mr-2" color="white" />
             Return to dashboard
           </Link>
         </div>
@@ -330,14 +245,13 @@ const Detail: React.FC = () => {
             </div>
 
             {/* Assets Table */}
-            {selectedCurrency === undefined ||
-              selectedCurrency?.assets.length === 0 ? (
+            {selectedCurrency === undefined || selectedCurrency.assets.length === 0 ? (
               <div className="text-white flex items-center justify-center h-40">
                 <span>No assets added yet.</span>
               </div>
             ) : (
               <Table type="overview">
-                {selectedCurrency?.assets.map((asset: Asset) => (
+                {selectedCurrency.assets.map((asset: Asset) => (
                   <TableRow
                     key={asset.id}
                     type="overview"
@@ -383,7 +297,6 @@ const Detail: React.FC = () => {
               </Table>
             )}
           </Card>
-
           {/* Overview Chart */}
           {selectedCurrency?.assets.length &&
             selectedCurrency.assets.length > 0 &&
@@ -395,20 +308,17 @@ const Detail: React.FC = () => {
             )}
         </div>
 
-        {/* Add Asset Modal */}
         <Modal
           onClose={handleCloseModals}
           open={openAddAssetModal}
           title="Add Asset"
         >
           <AddAssetForm
-            onSubmit={handleSubmit}
-            amount={formData.amount}
-            purchasePrice={formData.purchasePrice}
-            date={formData.date}
-            handleChange={handleChange}
+            key={`add-form-${openAddAssetModal}`}
+            onSubmit={handleFormSubmit}
             submitLabel="Add Asset"
             currencyQuote={currencyQuote}
+            isEdit={false}
           />
         </Modal>
 
@@ -419,17 +329,20 @@ const Detail: React.FC = () => {
           title="Edit Asset"
         >
           <AddAssetForm
-            onSubmit={handleSubmit}
-            amount={formData.amount}
-            purchasePrice={formData.purchasePrice}
-            date={formData.date}
-            handleChange={handleChange}
+            key={`edit-form-${openEditAssetModal}-${currentAsset?.id}`}
+            onSubmit={handleFormSubmit}
+            defaultValues={currentAsset ? {
+              amount: currentAsset.amount,
+              purchasePrice: currentAsset.purchasePrice,
+              date: currentAsset.date,
+            } : undefined}
             submitLabel="Update Asset"
             currencyQuote={currencyQuote}
+            isEdit={true}
           />
         </Modal>
 
-        {/* Remove Asset Confirmation Modal */}
+        {/* Remove Asset Modal */}
         <Modal
           onClose={handleCloseModals}
           open={openRemoveAssetModal}
@@ -440,7 +353,6 @@ const Detail: React.FC = () => {
               color="white"
               className="flex mx-auto mb-4 text-6xl"
             />
-
             <p className="mb-4">Are you sure you want to remove this asset?</p>
             <div className="flex space-x-2">
               <Button color="failure" onClick={handleRemoveAsset}>
@@ -452,7 +364,7 @@ const Detail: React.FC = () => {
           </div>
         </Modal>
 
-        {/* Remove All Assets Confirmation Modal */}
+        {/* Remove All Assets Modal */}
         <Modal
           onClose={handleCloseModals}
           open={openRemoveAllAssetsModal}
