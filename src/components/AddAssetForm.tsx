@@ -3,7 +3,7 @@ import { Button } from 'flowbite-react';
 import DatePicker from './DatePicker';
 import CurrencyInput from 'react-currency-input-field';
 import { CurrencyQuote } from 'api';
-import { FaCalendar, FaCoins, FaEuroSign } from 'react-icons/fa';
+import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
 
 interface AddAssetFormProps {
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
@@ -26,6 +26,7 @@ const AddAssetForm: React.FC<AddAssetFormProps> = ({
   date,
   handleChange,
   submitLabel,
+  currencyQuote
 }) => {
   const handleAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value;
@@ -82,7 +83,7 @@ const AddAssetForm: React.FC<AddAssetFormProps> = ({
       </label>
       <div className="flex">
         <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
-          <FaEuroSign color="white" />
+          {currencyQuote === 'EUR' ? <FaEuroSign color="white" /> : <FaDollarSign color="white" />}
         </span>
         <CurrencyInput
           id="purchasePrice"
