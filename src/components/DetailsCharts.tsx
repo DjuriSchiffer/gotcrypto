@@ -1,7 +1,5 @@
 import React from 'react';
-import { useAppState } from '../hooks/useAppState';
 import { currencyFormat } from '../utils/calculateHelpers';
-
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -17,7 +15,8 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { Asset, SelectedCurrency } from 'currency';
-import { useStorage } from '../hooks/useStorage';
+import useCoinMarketCap from '../hooks/useCoinMarketCap';
+import { CurrencyQuote } from 'api';
 
 ChartJS.register(
   CategoryScale,
@@ -30,28 +29,19 @@ ChartJS.register(
   ArcElement
 );
 
-interface ChartsProps {
-  data: {
-    assets: Asset[];
-    index: number;
-  };
+interface DetailChartsProps {
+  selectedCurrency?: SelectedCurrency;
+  currencyQuote: keyof CurrencyQuote;
 }
 
-const Charts: React.FC<ChartsProps> = ({ data }) => {
-  const { fetchedCurrencies } = useAppState();
-  const { selectedCurrencies } = useStorage();
-
-  const selectedCurrency: SelectedCurrency | undefined =
-    selectedCurrencies[data.index];
+const DetailCharts: React.FC<DetailChartsProps> = ({ selectedCurrency, currencyQuote }) => {
+  const { data: fetchedCurrencies } = useCoinMarketCap(currencyQuote);
 
   if (!selectedCurrency) {
     return <div>No currency selected.</div>;
   }
 
-  const cmc_id = selectedCurrency.cmc_id;
-
-  const assets: Asset[] = [...data.assets].reverse();
-
+  const assets: Asset[] = [...selectedCurrency.assets].reverse();
   const labels: string[] = assets.map((asset) => {
     const date = new Date(asset.date);
     return date.toLocaleDateString('nl', {
@@ -61,19 +51,16 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
     });
   });
 
-  const amount: number[] = assets.map((asset) => parseFloat(asset.amount));
+  const amountData: number[] = assets.map((_, index) => {
+    const assetsUpToIndex = assets.slice(0, index + 1);
+    return assetsUpToIndex.reduce((sum, asset) => sum + parseFloat(asset.amount), 0);
+  });
 
-  const amountData: number[] = amount.map((asset, index) =>
-    amount.slice(0, index + 1).reduce((a, b) => a + b, 0)
+  const currentCurrency = fetchedCurrencies?.find(
+    (currency) => currency.cmc_id === selectedCurrency.cmc_id
   );
-
-  const currencyPrice = fetchedCurrencies
-    ? fetchedCurrencies[cmc_id]?.price
-    : 0;
-
-  const holdingsData: number[] = amountData.map(
-    (cumulativeAmount) => cumulativeAmount * currencyPrice
-  );
+  const currentPrice = currentCurrency?.price ?? 0;
+  const holdingsData: number[] = amountData.map(amount => amount * currentPrice);
 
   const options: ChartOptions<'line'> = {
     responsive: true,
@@ -87,8 +74,8 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
         display: true,
         position: 'left',
         ticks: {
-          color: 'rgb(53, 162, 235)',
-          callback: (value) => Number(value),
+          color: 'white',
+          callback: (value) => Number(value).toFixed(4),
         },
       },
       y1: {
@@ -96,8 +83,8 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
         display: true,
         position: 'right',
         ticks: {
-          color: 'rgb(255, 99, 132)',
-          callback: (value) => currencyFormat(Number(value)),
+          color: 'white',
+          callback: (value) => currencyFormat(Number(value), currencyQuote),
         },
         grid: {
           drawOnChartArea: false,
@@ -119,11 +106,9 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
         callbacks: {
           label: function (context) {
             if (context.dataset.label === 'Holdings') {
-              return 'Holdings: ' + currencyFormat(Number(context.parsed.y));
+              return 'Holdings: ' + currencyFormat(Number(context.parsed.y), currencyQuote);
             }
-            return `${context.dataset.label}: ${currencyFormat(
-              Number(context.parsed.y)
-            )}`;
+            return `${context.dataset.label}: ${Number(context.parsed.y).toFixed(4)}`;
           },
         },
       },
@@ -144,7 +129,8 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
         borderColor: 'rgb(53, 162, 235)',
         backgroundColor: 'rgba(53, 162, 235, 0.5)',
         yAxisID: 'y',
-        tension: 0.4,
+        stepped: 'before',
+        tension: 0,
       },
       {
         label: 'Holdings',
@@ -152,7 +138,8 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
         yAxisID: 'y1',
-        tension: 0.4,
+        stepped: 'before',
+        tension: 0,
       },
     ],
   };
@@ -160,4 +147,4 @@ const Charts: React.FC<ChartsProps> = ({ data }) => {
   return <Line data={chartData} options={options} />;
 };
 
-export default Charts;
+export default DetailCharts;

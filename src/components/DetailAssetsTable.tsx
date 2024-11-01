@@ -32,11 +32,11 @@ const DetailAssetsTable: React.FC<DetailAssetsTableProps> = ({
     }
 
     return (
-        <Table type="overview">
+        <Table type="detail">
             {selectedCurrency.assets.map((asset: Asset) => (
                 <TableRow
                     key={asset.id}
-                    type="overview"
+                    type="detail"
                     item={asset}
                     currencies={fetchedCurrencies}
                     currentCurrency={currentFetchedCurrency}
@@ -58,6 +58,15 @@ const DetailAssetsTable: React.FC<DetailAssetsTableProps> = ({
                     </Button>
                 </TableRow>
             ))}
+            {
+                selectedCurrency?.totals && (
+                    <TableRow
+                        type="detail-totals"
+                        item={selectedCurrency.totals}
+                        currentCurrency={currentFetchedCurrency}
+                        currencyQuote={currencyQuote}
+                    ></TableRow>
+                )}
         </Table>
     );
 };

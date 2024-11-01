@@ -13,6 +13,7 @@ import { FaArrowLeft } from 'react-icons/fa';
 import DetailHeader from '../components/DetailHeader';
 import DetailModals from '../components/DetailModals';
 import DetailAssetsTable from '../components/DetailAssetsTable';
+import DetailCharts from '../components/DetailsCharts';
 
 interface FormInputs {
   amount: string;
@@ -30,7 +31,6 @@ const Detail: React.FC = () => {
   const {
     updateCurrency,
     selectedCurrencies,
-    setSelectedCurrencies,
     loading: storageIsLoading,
   } = useStorage();
   const { slug: currentCurrencySlug } = useParams<{ slug: string }>();
@@ -211,7 +211,6 @@ const Detail: React.FC = () => {
               onAddAsset={handleOpenAddAssetModal}
               onRemoveAllAssets={handleOpenRemoveAllAssetsModal}
             />
-
             <DetailAssetsTable
               selectedCurrency={selectedCurrency}
               fetchedCurrencies={fetchedCurrencies || []}
@@ -220,18 +219,10 @@ const Detail: React.FC = () => {
               onEditAsset={handleOpenEditAssetModal}
               onRemoveAsset={handleOpenRemoveAssetModal}
             />
-
-
           </Card>
-          {/* Overview Chart */}
-          {selectedCurrency?.assets.length &&
-            selectedCurrency.assets.length > 0 &&
-            selectedCurrency.totals && (
-              <Card className="2xl:col-span-6">
-                {/* Assuming OverviewChart is a component that takes selectedCurrency as prop */}
-                {/* <OverviewChart data={selectedCurrency} /> */}
-              </Card>
-            )}
+          <Card className="2xl:col-span-6">
+            <DetailCharts selectedCurrency={selectedCurrency} currencyQuote={currencyQuote} />
+          </Card>
         </div>
 
         <DetailModals

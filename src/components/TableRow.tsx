@@ -7,13 +7,12 @@ import {
   dateFormat,
 } from '../utils/calculateHelpers';
 import classNames from 'classnames';
-import { getImage } from '../utils/images';
 import { Table } from 'flowbite-react';
 import { Asset, FetchedCurrency, SelectedCurrency } from '../types/currency';
 import { CurrencyQuote } from 'api';
 
 interface OverviewRowProps {
-  type: 'overview';
+  type: 'detail';
   item: Asset;
   currentCurrency: FetchedCurrency | null;
   currencies: FetchedCurrency[] | null;
@@ -22,10 +21,10 @@ interface OverviewRowProps {
 }
 
 interface OverviewTotalsRowProps {
-  type: 'overview-totals';
+  type: 'detail-totals';
   item: SelectedCurrency['totals'];
   currentCurrency: FetchedCurrency | null;
-  currencies: FetchedCurrency[] | null;
+  currencies?: FetchedCurrency[] | null;
   children?: React.ReactNode;
   currencyQuote: keyof CurrencyQuote
 }
@@ -36,11 +35,10 @@ const TableRow: React.FC<TableRowComponentProps> = ({
   type,
   item,
   currentCurrency,
-  currencies,
   children,
   currencyQuote
 }) => {
-  if (type === 'overview') {
+  if (type === 'detail') {
     const assetItem = item;
 
     const amount = parseFloat(assetItem.amount);
@@ -87,7 +85,7 @@ const TableRow: React.FC<TableRowComponentProps> = ({
     );
   }
 
-  if (type === 'overview-totals') {
+  if (type === 'detail-totals') {
     const totalsItem = item as SelectedCurrency['totals'];
 
     const totalAmount = totalsItem.totalAmount;

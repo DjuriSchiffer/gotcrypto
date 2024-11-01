@@ -1,32 +1,14 @@
 import { Table } from 'flowbite-react';
 import { ReactNode } from 'react';
 
-export type TableType = 'dashboard' | 'overview';
+export type TableType = 'detail';
 
 interface TableHeadProps {
   type?: TableType;
 }
 
 const TableHead: React.FC<TableHeadProps> = ({ type = 'dashboard' }) => {
-  if (type === 'dashboard') {
-    return (
-      <Table.Head>
-        <Table.HeadCell className="text-left py-2">Name</Table.HeadCell>
-        <Table.HeadCell className="text-left py-2">
-          Current Price
-        </Table.HeadCell>
-        <Table.HeadCell className="text-left py-2">Holdings</Table.HeadCell>
-        <Table.HeadCell className="text-left py-2">
-          Total invested
-        </Table.HeadCell>
-        <Table.HeadCell className="text-left py-2">Profit/loss</Table.HeadCell>
-        <Table.HeadCell className="text-right py-2 pr-3">
-          Actions
-        </Table.HeadCell>
-      </Table.Head>
-    );
-  }
-  if (type === 'overview') {
+  if (type === 'detail') {
     return (
       <Table.Head>
         <Table.HeadCell className="text-left py-2 pl-3">Amount</Table.HeadCell>
@@ -64,13 +46,11 @@ const TableBody: React.FC<TableBodyProps> = ({ children }) => {
 interface TableComponentProps {
   type?: TableType;
   children: ReactNode;
-  className?: string;
 }
 
 const TableComponent: React.FC<TableComponentProps> = ({
-  type = 'dashboard',
+  type = 'detail',
   children,
-  className = '',
 }) => {
   return (
     <Table striped={true}>
