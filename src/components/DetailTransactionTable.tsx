@@ -1,50 +1,50 @@
 import React from 'react';
 import { Button } from 'flowbite-react';
 import { FaPen, FaTrashAlt } from 'react-icons/fa';
-import Table from '../components/Table';
-import TableRow from '../components/TableRow';
-import { Asset, SelectedCurrency } from '../types/currency';
+import Table from './Table';
+import TableRow from './TableRow';
+import { Transaction, SelectedCurrency } from '../types/currency';
 import { CurrencyQuote } from 'api';
 
-interface DetailAssetsTableProps {
+interface DetailTransactionTableProps {
     selectedCurrency?: SelectedCurrency;
     fetchedCurrencies: any[];
     currentFetchedCurrency: any;
     currencyQuote: keyof CurrencyQuote;
-    onEditAsset: (asset: Asset) => void;
-    onRemoveAsset: (asset: Asset) => void;
+    onEditTransaction: (transaction: Transaction) => void;
+    onRemoveTransaction: (transaction: Transaction) => void;
 }
 
-const DetailAssetsTable: React.FC<DetailAssetsTableProps> = ({
+const DetailTransactionTable: React.FC<DetailTransactionTableProps> = ({
     selectedCurrency,
     fetchedCurrencies,
     currentFetchedCurrency,
     currencyQuote,
-    onEditAsset,
-    onRemoveAsset,
+    onEditTransaction,
+    onRemoveTransaction,
 }) => {
-    if (!selectedCurrency || selectedCurrency.assets.length === 0) {
+    if (!selectedCurrency || selectedCurrency.transactions.length === 0) {
         return (
             <div className="text-white flex items-center justify-center h-40">
-                <span>No assets added yet.</span>
+                <span>No transactions added yet.</span>
             </div>
         );
     }
 
     return (
         <Table type="detail">
-            {selectedCurrency.assets.map((asset: Asset) => (
+            {selectedCurrency.transactions.map((transaction: Transaction) => (
                 <TableRow
-                    key={asset.id}
+                    key={transaction.id}
                     type="detail"
-                    item={asset}
+                    item={transaction}
                     currencies={fetchedCurrencies}
                     currentCurrency={currentFetchedCurrency}
                     currencyQuote={currencyQuote}
                 >
                     <Button
                         size="sm"
-                        onClick={() => onEditAsset(asset)}
+                        onClick={() => onEditTransaction(transaction)}
                         className="mr-2"
                         color="gray"
                     >
@@ -53,7 +53,7 @@ const DetailAssetsTable: React.FC<DetailAssetsTableProps> = ({
                     <Button
                         size="sm"
                         color="dark"
-                        onClick={() => onRemoveAsset(asset)}
+                        onClick={() => onRemoveTransaction(transaction)}
                     >
                         <FaTrashAlt color="white" />
                     </Button>
@@ -72,4 +72,4 @@ const DetailAssetsTable: React.FC<DetailAssetsTableProps> = ({
     );
 };
 
-export default DetailAssetsTable;
+export default DetailTransactionTable;

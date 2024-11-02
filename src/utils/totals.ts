@@ -3,21 +3,21 @@ import {
   averagePurchasePrice,
   currentValue,
 } from './calculateHelpers';
-import { Asset, FetchedCurrency, SelectedCurrency } from '../types/currency';
+import { Transaction, FetchedCurrency, SelectedCurrency } from '../types/currency';
 import { GlobalTotals } from 'store';
 
 /**
- * Calculates totals based on the selected currencies and their assets.
- * @param assets - The array of selected currencies.
+ * Calculates totals based on the selected currencies and their transactions.
+ * @param transactions - The array of selected currencies.
  * @returns An object containing various totals.
  */
-const totals = (assets: Asset[] = []): SelectedCurrency['totals'] => {
-  const totalAmount = assets.reduce(
-    (acc, asset) => acc + parseFloat(asset.amount),
+const totals = (transactions: Transaction[] = []): SelectedCurrency['totals'] => {
+  const totalAmount = transactions.reduce(
+    (acc, transaction) => acc + parseFloat(transaction.amount),
     0
   );
-  const totalPurchasePrice = assets.reduce(
-    (acc, asset) => acc + parseFloat(asset.purchasePrice),
+  const totalPurchasePrice = transactions.reduce(
+    (acc, transaction) => acc + parseFloat(transaction.purchasePrice),
     0
   );
   const totalAveragePurchasePrice = averagePurchasePrice(
@@ -26,10 +26,10 @@ const totals = (assets: Asset[] = []): SelectedCurrency['totals'] => {
   );
 
   return {
-    totalAmount: assets.length > 0 ? totalAmount : 0,
-    totalPurchasePrice: assets.length > 0 ? totalPurchasePrice : 0,
+    totalAmount: transactions.length > 0 ? totalAmount : 0,
+    totalPurchasePrice: transactions.length > 0 ? totalPurchasePrice : 0,
     totalAveragePurchasePrice:
-      assets.length > 0 ? totalAveragePurchasePrice : 0,
+      transactions.length > 0 ? totalAveragePurchasePrice : 0,
   };
 };
 
@@ -44,7 +44,7 @@ export const getGlobalTotals = (
   fetchedCurrencies: FetchedCurrency[] | null = []
 ): GlobalTotals => {
   const filteredSelectedCurrencies = selectedCurrencies.filter(
-    (currency) => currency.assets && currency.assets.length > 0
+    (currency) => currency.transactions && currency.transactions.length > 0
   );
 
   let totalAmount = 0;
@@ -58,15 +58,15 @@ export const getGlobalTotals = (
 
     const currentPrice = fetchedCurrency?.price || 0;
 
-    selectCurrency.assets.forEach((asset) => {
+    selectCurrency.transactions.forEach((transaction) => {
       const amount =
-        typeof asset.amount === 'string'
-          ? parseFloat(asset.amount)
-          : asset.amount;
+        typeof transaction.amount === 'string'
+          ? parseFloat(transaction.amount)
+          : transaction.amount;
       const purchasePrice =
-        typeof asset.purchasePrice === 'string'
-          ? parseFloat(asset.purchasePrice)
-          : asset.purchasePrice;
+        typeof transaction.purchasePrice === 'string'
+          ? parseFloat(transaction.purchasePrice)
+          : transaction.purchasePrice;
 
       totalAmount += amount;
       totalPurchasePrice += purchasePrice;

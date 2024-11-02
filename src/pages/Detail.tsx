@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Card } from 'flowbite-react';
 import uniqueId from 'lodash.uniqueid';
 import Page from '../components/Page';
-import { Asset, SelectedCurrency } from '../types/currency';
+import { Transaction, SelectedCurrency } from '../types/currency';
 import { useStorage } from '../hooks/useStorage';
 import totals from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
@@ -12,8 +12,8 @@ import { useAppState } from '../hooks/useAppState';
 import { FaArrowLeft } from 'react-icons/fa';
 import DetailHeader from '../components/DetailHeader';
 import DetailModals from '../components/DetailModals';
-import DetailAssetsTable from '../components/DetailAssetsTable';
 import DetailCharts from '../components/DetailsCharts';
+import DetailTransactionTable from '../components/DetailTransactionTable';
 
 interface FormInputs {
   amount: string;
@@ -35,11 +35,11 @@ const Detail: React.FC = () => {
   } = useStorage();
   const { slug: currentCurrencySlug } = useParams<{ slug: string }>();
 
-  const [openAddAssetModal, setOpenAddAssetModal] = useState<boolean>(false);
-  const [openEditAssetModal, setOpenEditAssetModal] = useState<boolean>(false);
-  const [openRemoveAssetModal, setOpenRemoveAssetModal] = useState<boolean>(false);
-  const [openRemoveAllAssetsModal, setOpenRemoveAllAssetsModal] = useState<boolean>(false);
-  const [currentAsset, setCurrentAsset] = useState<Asset | null>(null);
+  const [openAddTransactionModal, setOpenAddTransactionModal] = useState<boolean>(false);
+  const [openEditTransactionModal, setOpenEditTransactionModal] = useState<boolean>(false);
+  const [openRemoveTransactionModal, setOpenRemoveTransactionModal] = useState<boolean>(false);
+  const [openRemoveAllTransactionsModal, setOpenRemoveAllTransactionsModal] = useState<boolean>(false);
+  const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
 
   // Memoized selectors
   const selectedCurrency = useMemo(() => {
@@ -55,31 +55,31 @@ const Detail: React.FC = () => {
   }, [fetchedCurrencies, currentCurrencySlug]);
 
   // Modal handlers
-  const handleOpenAddAssetModal = () => {
-    setCurrentAsset(null);
-    setOpenAddAssetModal(true);
+  const handleOpenAddTransactionModal = () => {
+    setCurrentTransaction(null);
+    setOpenAddTransactionModal(true);
   };
 
-  const handleOpenEditAssetModal = (asset: Asset) => {
-    setCurrentAsset(asset);
-    setOpenEditAssetModal(true);
+  const handleOpenEditTransactionModal = (transaction: Transaction) => {
+    setCurrentTransaction(transaction);
+    setOpenEditTransactionModal(true);
   };
 
-  const handleOpenRemoveAssetModal = (asset: Asset) => {
-    setCurrentAsset(asset);
-    setOpenRemoveAssetModal(true);
+  const handleOpenRemoveTransactionModal = (transaction: Transaction) => {
+    setCurrentTransaction(transaction);
+    setOpenRemoveTransactionModal(true);
   };
 
-  const handleOpenRemoveAllAssetsModal = () => {
-    setOpenRemoveAllAssetsModal(true);
+  const handleOpenRemoveAllTransactionsModal = () => {
+    setOpenRemoveAllTransactionsModal(true);
   };
 
   const handleCloseModals = () => {
-    setOpenAddAssetModal(false);
-    setOpenEditAssetModal(false);
-    setOpenRemoveAssetModal(false);
-    setOpenRemoveAllAssetsModal(false);
-    setCurrentAsset(null);
+    setOpenAddTransactionModal(false);
+    setOpenEditTransactionModal(false);
+    setOpenRemoveTransactionModal(false);
+    setOpenRemoveAllTransactionsModal(false);
+    setCurrentTransaction(null);
   };
 
   const handleFormSubmit = async (formData: FormInputs) => {
@@ -91,30 +91,30 @@ const Detail: React.FC = () => {
     try {
       const { amount, purchasePrice, date } = formData;
 
-      // Create new asset object
-      const newAsset: Asset = {
+      // Create new transaction object
+      const newTransaction: Transaction = {
         amount: parseFloat(amount).toString(),
         purchasePrice: parseFloat(purchasePrice).toFixed(2),
         date,
-        id: currentAsset?.id || uniqueId(),
+        id: currentTransaction?.id || uniqueId(),
       };
 
       let updatedSelectedCurrency: SelectedCurrency;
 
       if (selectedCurrency) {
         // Handle existing currency
-        const updatedAssets = currentAsset
-          ? selectedCurrency.assets.map((asset) =>
-            asset.id === currentAsset.id ? newAsset : asset
+        const updatedTransactions = currentTransaction
+          ? selectedCurrency.transactions.map((transaction) =>
+            transaction.id === currentTransaction.id ? newTransaction : transaction
           )
-          : [...selectedCurrency.assets, newAsset];
+          : [...selectedCurrency.transactions, newTransaction];
 
         updatedSelectedCurrency = {
           ...selectedCurrency,
-          assets: updatedAssets.sort(
+          transactions: updatedTransactions.sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
           ),
-          totals: totals(updatedAssets),
+          totals: totals(updatedTransactions),
         };
       } else if (currentFetchedCurrency) {
         // Handle new currency
@@ -123,8 +123,8 @@ const Detail: React.FC = () => {
           slug: currentFetchedCurrency.slug,
           cmc_id: currentFetchedCurrency.cmc_id,
           index: selectedCurrencies.length,
-          assets: [newAsset],
-          totals: totals([newAsset]),
+          transactions: [newTransaction],
+          totals: totals([newTransaction]),
         };
       } else {
         throw new Error('No currency context available');
@@ -133,48 +133,48 @@ const Detail: React.FC = () => {
       await updateCurrency(updatedSelectedCurrency);
       handleCloseModals();
     } catch (error) {
-      console.error('Failed to update asset:', error);
-      alert('Failed to update asset. Please try again.');
+      console.error('Failed to update transaction:', error);
+      alert('Failed to update transaction. Please try again.');
     }
   };
 
-  const handleRemoveAsset = async () => {
-    if (!selectedCurrency || !currentAsset) return;
+  const handleRemoveTransaction = async () => {
+    if (!selectedCurrency || !currentTransaction) return;
 
     try {
-      const updatedAssets = selectedCurrency.assets.filter(
-        (asset) => asset.id !== currentAsset.id
+      const updatedTransactions = selectedCurrency.transactions.filter(
+        (transaction) => transaction.id !== currentTransaction.id
       );
 
       const updatedSelectedCurrency: SelectedCurrency = {
         ...selectedCurrency,
-        assets: updatedAssets,
-        totals: totals(updatedAssets),
+        transactions: updatedTransactions,
+        totals: totals(updatedTransactions),
       };
 
       await updateCurrency(updatedSelectedCurrency);
       handleCloseModals();
     } catch (error) {
-      console.error('Failed to remove asset:', error);
-      alert('Failed to remove asset. Please try again.');
+      console.error('Failed to remove transaction:', error);
+      alert('Failed to remove transaction. Please try again.');
     }
   };
 
-  const handleRemoveAllAssets = async () => {
+  const handleRemoveAllTransactions = async () => {
     if (!selectedCurrency) return;
 
     try {
       const updatedSelectedCurrency: SelectedCurrency = {
         ...selectedCurrency,
-        assets: [],
+        transactions: [],
         totals: totals([]),
       };
 
       await updateCurrency(updatedSelectedCurrency);
       handleCloseModals();
     } catch (error) {
-      console.error('Failed to remove all assets:', error);
-      alert('Failed to remove all assets. Please try again.');
+      console.error('Failed to remove all transactions:', error);
+      alert('Failed to remove all transactions. Please try again.');
     }
   };
 
@@ -208,16 +208,16 @@ const Detail: React.FC = () => {
               currentFetchedCurrency={currentFetchedCurrency}
               selectedCurrency={selectedCurrency}
               currencyQuote={currencyQuote}
-              onAddAsset={handleOpenAddAssetModal}
-              onRemoveAllAssets={handleOpenRemoveAllAssetsModal}
+              onAddTransaction={handleOpenAddTransactionModal}
+              onRemoveAllTransactions={handleOpenRemoveAllTransactionsModal}
             />
-            <DetailAssetsTable
+            <DetailTransactionTable
               selectedCurrency={selectedCurrency}
               fetchedCurrencies={fetchedCurrencies || []}
               currentFetchedCurrency={currentFetchedCurrency}
               currencyQuote={currencyQuote}
-              onEditAsset={handleOpenEditAssetModal}
-              onRemoveAsset={handleOpenRemoveAssetModal}
+              onEditTransaction={handleOpenEditTransactionModal}
+              onRemoveTransaction={handleOpenRemoveTransactionModal}
             />
           </Card>
           <Card className="2xl:col-span-6">
@@ -226,17 +226,17 @@ const Detail: React.FC = () => {
         </div>
 
         <DetailModals
-          openAddAssetModal={openAddAssetModal}
-          openEditAssetModal={openEditAssetModal}
-          openRemoveAssetModal={openRemoveAssetModal}
-          openRemoveAllAssetsModal={openRemoveAllAssetsModal}
-          currentAsset={currentAsset}
+          openAddTransactionModal={openAddTransactionModal}
+          openEditTransactionModal={openEditTransactionModal}
+          openRemoveTransactionModal={openRemoveTransactionModal}
+          openRemoveAllTransactionsModal={openRemoveAllTransactionsModal}
+          currentTransaction={currentTransaction}
           currencyQuote={currencyQuote}
           selectedCurrencyName={selectedCurrency?.name}
           onCloseModals={handleCloseModals}
           onFormSubmit={handleFormSubmit}
-          onRemoveAsset={handleRemoveAsset}
-          onRemoveAllAssets={handleRemoveAllAssets}
+          onRemoveTransaction={handleRemoveTransaction}
+          onRemoveAllTransactions={handleRemoveAllTransactions}
         />
       </Page>
     </LoadingErrorWrapper>

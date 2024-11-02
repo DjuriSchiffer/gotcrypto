@@ -125,7 +125,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
               <div className="flex items-center space-x-4">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm text-center font-medium text-gray-900 dark:text-white">
-                    No assets added yet.
+                    No transactions added yet.
                   </p>
                 </div>
               </div>

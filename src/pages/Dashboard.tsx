@@ -2,9 +2,8 @@ import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useAppState } from '../hooks/useAppState';
 import { percentageFormat, currencyFormat } from '../utils/calculateHelpers';
-import { Card, Spinner, Tooltip } from 'flowbite-react';
+import { Tooltip } from 'flowbite-react';
 import Page from '../components/Page';
-import Charts from '../components/ChartsDashboard';
 import { SelectedCurrency } from 'currency';
 import DashboardCard from '../components/DashboardCard';
 import { useStorage } from '../hooks/useStorage';
@@ -20,7 +19,7 @@ const createCryptoMap = (
 ): Map<number, SelectedCurrency> => {
   return new Map(
     selectedCurrencies
-      .filter(currency => currency.assets?.length > 0)
+      .filter(currency => currency.transactions?.length > 0)
       .map((currency) => [currency.cmc_id, currency])
   );
 };
@@ -163,7 +162,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
             {sortedFetchedCurrencies.map((fetchedCurrency) => {
               const isSelected =
                 cryptoMap.has(fetchedCurrency.cmc_id) &&
-                cryptoMap.get(fetchedCurrency.cmc_id)!?.assets.length > 0;
+                cryptoMap.get(fetchedCurrency.cmc_id)!?.transactions.length > 0;
               return (
                 <DashboardCard
                   fetchedCurrency={fetchedCurrency}
@@ -176,7 +175,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
             })}
           </div>
         </div>
-        {/* {selectedCurrencies.some((e) => e.assets.length > 0) && (
+        {/* {selectedCurrencies.some((e) => e.transactions.length > 0) && (
           <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
             <Card>
               <Charts data={selectedCurrencies} id="amount" />

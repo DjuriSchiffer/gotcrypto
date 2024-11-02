@@ -8,12 +8,12 @@ import {
 } from '../utils/calculateHelpers';
 import classNames from 'classnames';
 import { Table } from 'flowbite-react';
-import { Asset, FetchedCurrency, SelectedCurrency } from '../types/currency';
+import { Transaction, FetchedCurrency, SelectedCurrency } from '../types/currency';
 import { CurrencyQuote } from 'api';
 
 interface OverviewRowProps {
   type: 'detail';
-  item: Asset;
+  item: Transaction;
   currentCurrency: FetchedCurrency | null;
   currencies: FetchedCurrency[] | null;
   children: React.ReactNode;
@@ -39,11 +39,11 @@ const TableRow: React.FC<TableRowComponentProps> = ({
   currencyQuote
 }) => {
   if (type === 'detail') {
-    const assetItem = item;
+    const transactionItem = item;
 
-    const amount = parseFloat(assetItem.amount);
-    const purchasePrice = parseFloat(assetItem.purchasePrice);
-    const purchaseDate = dateFormat(assetItem.date);
+    const amount = parseFloat(transactionItem.amount);
+    const purchasePrice = parseFloat(transactionItem.purchasePrice);
+    const purchaseDate = dateFormat(transactionItem.date);
     const currentValue = currentValueFn(amount, currentCurrency?.price || 0);
     const averagePurchasePrice = averagePurchasePriceFn(purchasePrice, amount);
     const percentageDifference = percentageDifferenceFn(

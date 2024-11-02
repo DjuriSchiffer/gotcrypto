@@ -13,7 +13,7 @@ interface FormInputs {
   date: string;
 }
 
-interface AddAssetFormProps {
+interface TransactionFormProps {
   onSubmit: (data: FormInputs) => void;
   defaultValues?: {
     amount: string;
@@ -25,7 +25,7 @@ interface AddAssetFormProps {
   isEdit?: boolean;
 }
 
-const AssetForm: React.FC<AddAssetFormProps> = ({
+const TransactionForm: React.FC<TransactionFormProps> = ({
   onSubmit,
   defaultValues,
   submitLabel,
@@ -203,4 +203,4 @@ const AssetForm: React.FC<AddAssetFormProps> = ({
   );
 };
 
-export default AssetForm;
+export default TransactionForm;

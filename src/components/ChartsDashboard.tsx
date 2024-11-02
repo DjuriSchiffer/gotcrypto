@@ -77,17 +77,17 @@ const Charts: React.FC<ChartsProps> = ({ data, id }) => {
   const getChartData = (): ChartData<'pie', number[], string> => {
     if (id === 'amount') {
       return {
-        labels: data.map((asset) => asset.name),
+        labels: data.map((transaction) => transaction.name),
         datasets: [
           {
-            label: 'Total amount per asset',
-            data: data.map((asset) =>
+            label: 'Total amount per transaction',
+            data: data.map((transaction) =>
               currentValue(
-                asset.totals.totalAmount,
-                currencyList[asset.index].price
+                transaction.totals.totalAmount,
+                currencyList[transaction.index].price
               )
             ),
-            backgroundColor: data.map((asset) => getColour(asset.cmc_id)),
+            backgroundColor: data.map((transaction) => getColour(transaction.cmc_id)),
             hoverOffset: 4,
           },
         ],
@@ -96,12 +96,12 @@ const Charts: React.FC<ChartsProps> = ({ data, id }) => {
 
     if (id === 'invested') {
       return {
-        labels: data.map((asset) => asset.name),
+        labels: data.map((transaction) => transaction.name),
         datasets: [
           {
-            label: 'Total invested per asset',
-            data: data.map((asset) => asset.totals.totalPurchasePrice),
-            backgroundColor: data.map((asset) => getColour(asset.cmc_id)),
+            label: 'Total invested per transaction',
+            data: data.map((transaction) => transaction.totals.totalPurchasePrice),
+            backgroundColor: data.map((transaction) => getColour(transaction.cmc_id)),
             hoverOffset: 4,
           },
         ],
@@ -115,8 +115,8 @@ const Charts: React.FC<ChartsProps> = ({ data, id }) => {
   };
 
   const getTitle = (): string => {
-    if (id === 'amount') return 'Total amount per asset';
-    if (id === 'invested') return 'Total invested per asset';
+    if (id === 'amount') return 'Total amount per transaction';
+    if (id === 'invested') return 'Total invested per transaction';
     return '';
   };
 

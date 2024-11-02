@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card } from 'flowbite-react';
+import { Button } from 'flowbite-react';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { getImage } from '../utils/images';
 import { currencyFormat } from '../utils/calculateHelpers';
@@ -14,16 +14,16 @@ interface DetailHeaderProps {
     };
     selectedCurrency?: SelectedCurrency;
     currencyQuote: keyof CurrencyQuote;
-    onAddAsset: () => void;
-    onRemoveAllAssets: () => void;
+    onAddTransaction: () => void;
+    onRemoveAllTransactions: () => void;
 }
 
 const DetailHeader: React.FC<DetailHeaderProps> = ({
     currentFetchedCurrency,
     selectedCurrency,
     currencyQuote,
-    onAddAsset,
-    onRemoveAllAssets,
+    onAddTransaction,
+    onRemoveAllTransactions,
 }) => (
     <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
@@ -44,14 +44,14 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
             </div>
         </div>
         <div className="flex space-x-2">
-            <Button onClick={onAddAsset}>
+            <Button onClick={onAddTransaction}>
                 <FaPlus color="white" className="mr-1" />
-                Add Asset
+                Add Transaction
             </Button>
-            {selectedCurrency && selectedCurrency.assets.length > 0 && (
-                <Button color="failure" onClick={onRemoveAllAssets}>
+            {selectedCurrency && selectedCurrency.transactions.length > 0 && (
+                <Button color="failure" onClick={onRemoveAllTransactions}>
                     <FaTrashAlt color="white" className="mr-1" />
-                    Remove All Assets
+                    Remove All Transactions
                 </Button>
             )}
         </div>

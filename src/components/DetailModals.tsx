@@ -2,48 +2,48 @@ import React from 'react';
 import { Button } from 'flowbite-react';
 import { FaTrashAlt } from 'react-icons/fa';
 import Modal from '../components/Modal';
-import { Asset } from '../types/currency';
+import { Transaction } from '../types/currency';
 import { CurrencyQuote } from 'api';
 import { FaExclamationTriangle } from 'react-icons/fa';
-import AssetForm from './AssetForm';
+import TransactionForm from './TransactionForm';
 
 interface DetailModalsProps {
-    openAddAssetModal: boolean;
-    openEditAssetModal: boolean;
-    openRemoveAssetModal: boolean;
-    openRemoveAllAssetsModal: boolean;
-    currentAsset: Asset | null;
+    openAddTransactionModal: boolean;
+    openEditTransactionModal: boolean;
+    openRemoveTransactionModal: boolean;
+    openRemoveAllTransactionsModal: boolean;
+    currentTransaction: Transaction | null;
     currencyQuote: keyof CurrencyQuote;
     selectedCurrencyName?: string;
     onCloseModals: () => void;
     onFormSubmit: (formData: any) => void;
-    onRemoveAsset: () => void;
-    onRemoveAllAssets: () => void;
+    onRemoveTransaction: () => void;
+    onRemoveAllTransactions: () => void;
 }
 
 const DetailModals: React.FC<DetailModalsProps> = ({
-    openAddAssetModal,
-    openEditAssetModal,
-    openRemoveAssetModal,
-    openRemoveAllAssetsModal,
-    currentAsset,
+    openAddTransactionModal,
+    openEditTransactionModal,
+    openRemoveTransactionModal,
+    openRemoveAllTransactionsModal,
+    currentTransaction,
     currencyQuote,
     selectedCurrencyName,
     onCloseModals,
     onFormSubmit,
-    onRemoveAsset,
-    onRemoveAllAssets,
+    onRemoveTransaction,
+    onRemoveAllTransactions,
 }) => (
     <>
         <Modal
             onClose={onCloseModals}
-            open={openAddAssetModal}
-            title="Add Asset"
+            open={openAddTransactionModal}
+            title="Add Transaction"
         >
-            <AssetForm
-                key={`add-form-${openAddAssetModal}`}
+            <TransactionForm
+                key={`add-form-${openAddTransactionModal}`}
                 onSubmit={onFormSubmit}
-                submitLabel="Add Asset"
+                submitLabel="Add Transaction"
                 currencyQuote={currencyQuote}
                 isEdit={false}
             />
@@ -51,18 +51,18 @@ const DetailModals: React.FC<DetailModalsProps> = ({
 
         <Modal
             onClose={onCloseModals}
-            open={openEditAssetModal}
-            title="Edit Asset"
+            open={openEditTransactionModal}
+            title="Edit Transaction"
         >
-            <AssetForm
-                key={`edit-form-${openEditAssetModal}-${currentAsset?.id}`}
+            <TransactionForm
+                key={`edit-form-${openEditTransactionModal}-${currentTransaction?.id}`}
                 onSubmit={onFormSubmit}
-                defaultValues={currentAsset ? {
-                    amount: currentAsset.amount,
-                    purchasePrice: currentAsset.purchasePrice,
-                    date: currentAsset.date,
+                defaultValues={currentTransaction ? {
+                    amount: currentTransaction.amount,
+                    purchasePrice: currentTransaction.purchasePrice,
+                    date: currentTransaction.date,
                 } : undefined}
-                submitLabel="Update Asset"
+                submitLabel="Update Transaction"
                 currencyQuote={currencyQuote}
                 isEdit={true}
             />
@@ -70,7 +70,7 @@ const DetailModals: React.FC<DetailModalsProps> = ({
 
         <Modal
             onClose={onCloseModals}
-            open={openRemoveAssetModal}
+            open={openRemoveTransactionModal}
             title="Confirm Removal"
         >
             <div className="flex flex-col items-center">
@@ -78,11 +78,11 @@ const DetailModals: React.FC<DetailModalsProps> = ({
                     color="white"
                     className="flex mx-auto mb-4 text-6xl"
                 />
-                <p className="mb-4">Are you sure you want to remove this asset?</p>
+                <p className="mb-4">Are you sure you want to remove this transaction?</p>
                 <div className="flex space-x-2">
-                    <Button color="failure" onClick={onRemoveAsset}>
+                    <Button color="failure" onClick={onRemoveTransaction}>
                         <FaTrashAlt color="white" className="mr-1" />
-                        Remove Asset
+                        Remove Transaction
                     </Button>
                     <Button onClick={onCloseModals}>Cancel</Button>
                 </div>
@@ -91,8 +91,8 @@ const DetailModals: React.FC<DetailModalsProps> = ({
 
         <Modal
             onClose={onCloseModals}
-            open={openRemoveAllAssetsModal}
-            title="Confirm Removal of All Assets"
+            open={openRemoveAllTransactionsModal}
+            title="Confirm Removal of All Transactions"
         >
             <div className="flex flex-col items-center">
                 <FaExclamationTriangle
@@ -100,12 +100,12 @@ const DetailModals: React.FC<DetailModalsProps> = ({
                     className="flex mx-auto mb-4 text-6xl"
                 />
                 <p className="mb-4">
-                    Are you sure you want to remove all assets for {selectedCurrencyName}?
+                    Are you sure you want to remove all transactions for {selectedCurrencyName}?
                 </p>
                 <div className="flex space-x-2">
-                    <Button color="failure" onClick={onRemoveAllAssets}>
+                    <Button color="failure" onClick={onRemoveAllTransactions}>
                         <FaTrashAlt color="white" className="mr-1" />
-                        Remove All Assets
+                        Remove All Transactions
                     </Button>
                     <Button onClick={onCloseModals}>Cancel</Button>
                 </div>

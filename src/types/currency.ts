@@ -6,7 +6,7 @@ export type FetchedCurrency = {
   cmc_rank: number | null;
 };
 
-export type Asset = {
+export type Transaction = {
   amount: string;
   purchasePrice: string;
   date: string;
@@ -25,5 +25,5 @@ export type SelectedCurrency = {
   cmc_id: number;
   index: number;
   totals: Totals;
-  assets: Asset[];
+  transactions: Transaction[];
 };
