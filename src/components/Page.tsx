@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react';
 import SideBar from './SideBar';
 
-
 interface PageProps {
   children: ReactNode;
 }

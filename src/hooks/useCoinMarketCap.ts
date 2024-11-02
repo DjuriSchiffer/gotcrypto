@@ -13,12 +13,12 @@ const transformCurrencies = (
   currencyQuote: keyof CurrencyQuote
 ): FetchedCurrency[] => {
   return Object.values(data)
-    .map((currency) => ({
-      name: currency.name,
-      price: parseFloat(currency.quote[currencyQuote].price.toFixed(2)),
-      slug: currency.slug,
-      cmc_id: currency.id,
-      cmc_rank: currency.cmc_rank || null,
+    .map((asset) => ({
+      name: asset.name,
+      price: parseFloat(asset.quote[currencyQuote].price.toFixed(2)),
+      slug: asset.slug,
+      cmc_id: asset.id,
+      cmc_rank: asset.cmc_rank || null,
     }))
     .sort((a, b) => {
       if (a.cmc_rank !== null && b.cmc_rank !== null) {

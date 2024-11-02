@@ -70,10 +70,10 @@ const SearchInput: React.FC<SearchInputProps> = ({
   placeholder = 'Search and select currencies...',
 }) => {
   const selectOptions: OptionType[] = options
-    ? options.map((currency) => ({
-      value: currency.cmc_id,
-      label: currency.name,
-      image: getImage(currency.cmc_id),
+    ? options.map((asset) => ({
+      value: asset.cmc_id,
+      label: asset.name,
+      image: getImage(asset.cmc_id),
     }))
     : [];
 

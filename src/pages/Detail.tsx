@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Card } from 'flowbite-react';
 import uniqueId from 'lodash.uniqueid';
 import Page from '../components/Page';
-import { Transaction, SelectedCurrency } from '../types/currency';
+import { Transaction, SelectedAsset } from '../types/currency';
 import { useStorage } from '../hooks/useStorage';
 import totals from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
@@ -33,7 +33,7 @@ const Detail: React.FC = () => {
     selectedCurrencies,
     loading: storageIsLoading,
   } = useStorage();
-  const { slug: currentCurrencySlug } = useParams<{ slug: string }>();
+  const { slug: currentAssetSlug } = useParams<{ slug: string }>();
 
   const [openAddTransactionModal, setOpenAddTransactionModal] = useState<boolean>(false);
   const [openEditTransactionModal, setOpenEditTransactionModal] = useState<boolean>(false);
@@ -42,17 +42,17 @@ const Detail: React.FC = () => {
   const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
 
   // Memoized selectors
-  const selectedCurrency = useMemo(() => {
+  const selectedAsset = useMemo(() => {
     return selectedCurrencies.find(
-      (currency) => currency.slug === currentCurrencySlug
+      (currency) => currency.slug === currentAssetSlug
     );
-  }, [selectedCurrencies, currentCurrencySlug]);
+  }, [selectedCurrencies, currentAssetSlug]);
 
   const currentFetchedCurrency = useMemo(() => {
     return fetchedCurrencies?.find(
-      (element) => element.slug === currentCurrencySlug
+      (element) => element.slug === currentAssetSlug
     );
-  }, [fetchedCurrencies, currentCurrencySlug]);
+  }, [fetchedCurrencies, currentAssetSlug]);
 
   // Modal handlers
   const handleOpenAddTransactionModal = () => {
@@ -83,7 +83,7 @@ const Detail: React.FC = () => {
   };
 
   const handleFormSubmit = async (formData: FormInputs) => {
-    if (!selectedCurrency && !currentFetchedCurrency) {
+    if (!selectedAsset && !currentFetchedCurrency) {
       console.error('No currency selected or fetched');
       return;
     }
@@ -99,18 +99,18 @@ const Detail: React.FC = () => {
         id: currentTransaction?.id || uniqueId(),
       };
 
-      let updatedSelectedCurrency: SelectedCurrency;
+      let updatedSelectedCurrency: SelectedAsset;
 
-      if (selectedCurrency) {
+      if (selectedAsset) {
         // Handle existing currency
         const updatedTransactions = currentTransaction
-          ? selectedCurrency.transactions.map((transaction) =>
+          ? selectedAsset.transactions.map((transaction) =>
             transaction.id === currentTransaction.id ? newTransaction : transaction
           )
-          : [...selectedCurrency.transactions, newTransaction];
+          : [...selectedAsset.transactions, newTransaction];
 
         updatedSelectedCurrency = {
-          ...selectedCurrency,
+          ...selectedAsset,
           transactions: updatedTransactions.sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
           ),
@@ -139,15 +139,15 @@ const Detail: React.FC = () => {
   };
 
   const handleRemoveTransaction = async () => {
-    if (!selectedCurrency || !currentTransaction) return;
+    if (!selectedAsset || !currentTransaction) return;
 
     try {
-      const updatedTransactions = selectedCurrency.transactions.filter(
+      const updatedTransactions = selectedAsset.transactions.filter(
         (transaction) => transaction.id !== currentTransaction.id
       );
 
-      const updatedSelectedCurrency: SelectedCurrency = {
-        ...selectedCurrency,
+      const updatedSelectedCurrency: SelectedAsset = {
+        ...selectedAsset,
         transactions: updatedTransactions,
         totals: totals(updatedTransactions),
       };
@@ -161,11 +161,11 @@ const Detail: React.FC = () => {
   };
 
   const handleRemoveAllTransactions = async () => {
-    if (!selectedCurrency) return;
+    if (!selectedAsset) return;
 
     try {
-      const updatedSelectedCurrency: SelectedCurrency = {
-        ...selectedCurrency,
+      const updatedSelectedCurrency: SelectedAsset = {
+        ...selectedAsset,
         transactions: [],
         totals: totals([]),
       };
@@ -206,13 +206,13 @@ const Detail: React.FC = () => {
           <Card className="2xl:col-span-6">
             <DetailHeader
               currentFetchedCurrency={currentFetchedCurrency}
-              selectedCurrency={selectedCurrency}
+              selectedAsset={selectedAsset}
               currencyQuote={currencyQuote}
               onAddTransaction={handleOpenAddTransactionModal}
               onRemoveAllTransactions={handleOpenRemoveAllTransactionsModal}
             />
             <DetailTransactionTable
-              selectedCurrency={selectedCurrency}
+              selectedAsset={selectedAsset}
               fetchedCurrencies={fetchedCurrencies || []}
               currentFetchedCurrency={currentFetchedCurrency}
               currencyQuote={currencyQuote}
@@ -221,7 +221,7 @@ const Detail: React.FC = () => {
             />
           </Card>
           <Card className="2xl:col-span-6">
-            <DetailCharts selectedCurrency={selectedCurrency} currencyQuote={currencyQuote} />
+            <DetailCharts selectedAsset={selectedAsset} currencyQuote={currencyQuote} />
           </Card>
         </div>
 
@@ -232,7 +232,7 @@ const Detail: React.FC = () => {
           openRemoveAllTransactionsModal={openRemoveAllTransactionsModal}
           currentTransaction={currentTransaction}
           currencyQuote={currencyQuote}
-          selectedCurrencyName={selectedCurrency?.name}
+          selectedAssetName={selectedAsset?.name}
           onCloseModals={handleCloseModals}
           onFormSubmit={handleFormSubmit}
           onRemoveTransaction={handleRemoveTransaction}

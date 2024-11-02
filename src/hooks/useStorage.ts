@@ -6,7 +6,7 @@ import {
   setSelectedCurrenciesInFirestore,
 } from '../firebase/firebaseHelpers';
 import { useEffect, useState, useCallback } from 'react';
-import { SelectedCurrency } from 'currency';
+import { SelectedAsset } from 'currency';
 import { useAppState } from './useAppState';
 import { SortMethod } from 'store';
 import localforage from 'localforage';
@@ -23,7 +23,7 @@ export const useStorage = () => {
   const { setLocalForage, getSelectedCurrencies } = useLocalForage();
   const { sortMethod: globalSortMethod } = useAppState();
   const [selectedCurrencies, setSelectedCurrenciesState] = useState<
-    SelectedCurrency[]
+    SelectedAsset[]
   >([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -76,41 +76,41 @@ export const useStorage = () => {
   }, [user, isAnonymous, getSelectedCurrencies, dispatch]);
 
   const setSelectedCurrencies = useCallback(
-    async (currencies: SelectedCurrency[]) => {
-      setSelectedCurrenciesState(currencies);
+    async (assets: SelectedAsset[]) => {
+      setSelectedCurrenciesState(assets);
       if (user && !isAnonymous) {
-        await setSelectedCurrenciesInFirestore(user.uid, currencies);
+        await setSelectedCurrenciesInFirestore(user.uid, assets);
       } else {
-        await setLocalForage(STORAGE_KEY, currencies);
+        await setLocalForage(STORAGE_KEY, assets);
       }
     },
     [user, isAnonymous, setLocalForage, setSelectedCurrenciesInFirestore]
   );
 
   const updateCurrency = useCallback(
-    async (updatedCurrency: SelectedCurrency) => {
-      let updatedCurrencies: SelectedCurrency[];
+    async (updatedAsset: SelectedAsset) => {
+      let updatedAssets: SelectedAsset[];
 
-      const currencyExists = selectedCurrencies.some(
-        (currency) => currency.cmc_id === updatedCurrency.cmc_id
+      const assetExists = selectedCurrencies.some(
+        (asset) => asset.cmc_id === updatedAsset.cmc_id
       );
 
-      if (currencyExists) {
-        updatedCurrencies = selectedCurrencies.map((currency) =>
-          currency.cmc_id === updatedCurrency.cmc_id
-            ? updatedCurrency
-            : currency
+      if (assetExists) {
+        updatedAssets = selectedCurrencies.map((asset) =>
+          asset.cmc_id === updatedAsset.cmc_id
+            ? updatedAsset
+            : asset
         );
       } else {
-        updatedCurrencies = [...selectedCurrencies, updatedCurrency];
+        updatedAssets = [...selectedCurrencies, updatedAsset];
       }
 
-      setSelectedCurrenciesState(updatedCurrencies);
+      setSelectedCurrenciesState(updatedAssets);
 
       if (user && !isAnonymous) {
-        await setSelectedCurrenciesInFirestore(user.uid, updatedCurrencies);
+        await setSelectedCurrenciesInFirestore(user.uid, updatedAssets);
       } else {
-        await setLocalForage(STORAGE_KEY, updatedCurrencies);
+        await setLocalForage(STORAGE_KEY, updatedAssets);
       }
     },
     [

@@ -6,7 +6,6 @@ import CurrencyInput from 'react-currency-input-field';
 import { CurrencyQuote } from 'api';
 import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
 
-
 interface FormInputs {
   amount: string;
   purchasePrice: string;
@@ -152,7 +151,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                     onChange(value);
                   }
                 }}
-                placeholder="e.g., 5000.00"
+                placeholder="e.g., 5000.25"
                 decimalsLimit={2}
                 decimalSeparator="."
                 groupSeparator=","

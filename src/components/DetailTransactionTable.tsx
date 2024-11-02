@@ -3,11 +3,11 @@ import { Button } from 'flowbite-react';
 import { FaPen, FaTrashAlt } from 'react-icons/fa';
 import Table from './Table';
 import TableRow from './TableRow';
-import { Transaction, SelectedCurrency } from '../types/currency';
+import { Transaction, SelectedAsset } from '../types/currency';
 import { CurrencyQuote } from 'api';
 
 interface DetailTransactionTableProps {
-    selectedCurrency?: SelectedCurrency;
+    selectedAsset?: SelectedAsset;
     fetchedCurrencies: any[];
     currentFetchedCurrency: any;
     currencyQuote: keyof CurrencyQuote;
@@ -16,14 +16,14 @@ interface DetailTransactionTableProps {
 }
 
 const DetailTransactionTable: React.FC<DetailTransactionTableProps> = ({
-    selectedCurrency,
+    selectedAsset,
     fetchedCurrencies,
     currentFetchedCurrency,
     currencyQuote,
     onEditTransaction,
     onRemoveTransaction,
 }) => {
-    if (!selectedCurrency || selectedCurrency.transactions.length === 0) {
+    if (!selectedAsset || selectedAsset.transactions.length === 0) {
         return (
             <div className="text-white flex items-center justify-center h-40">
                 <span>No transactions added yet.</span>
@@ -33,7 +33,7 @@ const DetailTransactionTable: React.FC<DetailTransactionTableProps> = ({
 
     return (
         <Table type="detail">
-            {selectedCurrency.transactions.map((transaction: Transaction) => (
+            {selectedAsset.transactions.map((transaction: Transaction) => (
                 <TableRow
                     key={transaction.id}
                     type="detail"
@@ -60,10 +60,10 @@ const DetailTransactionTable: React.FC<DetailTransactionTableProps> = ({
                 </TableRow>
             ))}
             {
-                selectedCurrency?.totals && (
+                selectedAsset?.totals && (
                     <TableRow
                         type="detail-totals"
-                        item={selectedCurrency.totals}
+                        item={selectedAsset.totals}
                         currentCurrency={currentFetchedCurrency}
                         currencyQuote={currencyQuote}
                     ></TableRow>

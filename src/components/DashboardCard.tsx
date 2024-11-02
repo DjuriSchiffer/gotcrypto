@@ -1,4 +1,4 @@
-import { FetchedCurrency, SelectedCurrency } from 'currency';
+import { FetchedCurrency, SelectedAsset } from 'currency';
 import { Card, Button } from 'flowbite-react';
 import {
   percentageDifference,
@@ -14,39 +14,39 @@ import { FaPen } from 'react-icons/fa';
 
 type DashboardCard = {
   fetchedCurrency: FetchedCurrency;
-  cryptoMap: Map<number, SelectedCurrency>;
+  assetMap: Map<number, SelectedAsset>;
   isSelected: boolean;
   currencyQuote: keyof CurrencyQuote
 };
 
 export const getTotalAmount = (
-  cryptoMap: Map<number, SelectedCurrency>,
+  assetMap: Map<number, SelectedAsset>,
   cmcId: number
 ): number => {
-  return cryptoMap.get(cmcId)?.totals.totalAmount || 0;
+  return assetMap.get(cmcId)?.totals.totalAmount || 0;
 };
 
 export const getTotalValue = (
-  cryptoMap: Map<number, SelectedCurrency>,
+  assetMap: Map<number, SelectedAsset>,
   cmcId: number
 ): number => {
-  const totalAmount = cryptoMap.get(cmcId)?.totals.totalAmount || 0;
+  const totalAmount = assetMap.get(cmcId)?.totals.totalAmount || 0;
   return totalAmount || 0;
 };
 
 export const getTotalPurchasePrice = (
-  cryptoMap: Map<number, SelectedCurrency>,
+  cryptoMap: Map<number, SelectedAsset>,
   cmcId: number
 ): number => {
   return cryptoMap.get(cmcId)?.totals.totalPurchasePrice || 0;
 };
 
 export const getTotalPercentageDifference = (
-  cryptoMap: Map<number, SelectedCurrency>,
+  assetMap: Map<number, SelectedAsset>,
   cmcId: number,
   currentMarketPrice: number
 ): number => {
-  const currency = cryptoMap.get(cmcId);
+  const currency = assetMap.get(cmcId);
   if (
     !currency ||
     !currency.totals.totalAmount ||
@@ -64,16 +64,16 @@ export const getTotalPercentageDifference = (
 
 const DashboardCard: React.FC<DashboardCard> = ({
   fetchedCurrency,
-  cryptoMap,
+  assetMap,
   isSelected,
   currencyQuote
 }) => {
   const percentageDifference = getTotalPercentageDifference(
-    cryptoMap,
+    assetMap,
     fetchedCurrency.cmc_id,
     fetchedCurrency.price
   );
-  const totalAmount = getTotalAmount(cryptoMap, fetchedCurrency.cmc_id);
+  const totalAmount = getTotalAmount(assetMap, fetchedCurrency.cmc_id);
 
   return (
     <Card
@@ -175,7 +175,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
                   </div>
                   <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
                     {currencyFormat(
-                      getTotalPurchasePrice(cryptoMap, fetchedCurrency.cmc_id)
+                      getTotalPurchasePrice(assetMap, fetchedCurrency.cmc_id)
                     )}
                   </div>
                 </div>

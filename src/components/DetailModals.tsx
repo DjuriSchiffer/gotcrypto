@@ -14,7 +14,7 @@ interface DetailModalsProps {
     openRemoveAllTransactionsModal: boolean;
     currentTransaction: Transaction | null;
     currencyQuote: keyof CurrencyQuote;
-    selectedCurrencyName?: string;
+    selectedAssetName?: string;
     onCloseModals: () => void;
     onFormSubmit: (formData: any) => void;
     onRemoveTransaction: () => void;
@@ -28,7 +28,7 @@ const DetailModals: React.FC<DetailModalsProps> = ({
     openRemoveAllTransactionsModal,
     currentTransaction,
     currencyQuote,
-    selectedCurrencyName,
+    selectedAssetName,
     onCloseModals,
     onFormSubmit,
     onRemoveTransaction,
@@ -100,7 +100,7 @@ const DetailModals: React.FC<DetailModalsProps> = ({
                     className="flex mx-auto mb-4 text-6xl"
                 />
                 <p className="mb-4">
-                    Are you sure you want to remove all transactions for {selectedCurrencyName}?
+                    Are you sure you want to remove all transactions for {selectedAssetName}?
                 </p>
                 <div className="flex space-x-2">
                     <Button color="failure" onClick={onRemoveAllTransactions}>

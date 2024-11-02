@@ -4,7 +4,7 @@ import { useAppState } from '../hooks/useAppState';
 import { percentageFormat, currencyFormat } from '../utils/calculateHelpers';
 import { Tooltip } from 'flowbite-react';
 import Page from '../components/Page';
-import { SelectedCurrency } from 'currency';
+import { SelectedAsset } from 'currency';
 import DashboardCard from '../components/DashboardCard';
 import { useStorage } from '../hooks/useStorage';
 import SearchInput from '../components/SearchInput';
@@ -15,8 +15,8 @@ import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import { ChangeQuote } from '../components/ChangeQuote';
 
 const createCryptoMap = (
-  selectedCurrencies: SelectedCurrency[]
-): Map<number, SelectedCurrency> => {
+  selectedCurrencies: SelectedAsset[]
+): Map<number, SelectedAsset> => {
   return new Map(
     selectedCurrencies
       .filter(currency => currency.transactions?.length > 0)
@@ -43,7 +43,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
     isError: fetchedCurrenciesIsError,
   } = useCoinMarketCap(currencyQuote);
 
-  const cryptoMap = useMemo(
+  const assetMap = useMemo(
     () => createCryptoMap(selectedCurrencies),
     [selectedCurrencies]
   );
@@ -87,8 +87,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
       });
     } else if (sortMethod === 'has_selected') {
       sorted.sort((a, b) => {
-        const aSelected = cryptoMap.has(a.cmc_id) ? 0 : 1;
-        const bSelected = cryptoMap.has(b.cmc_id) ? 0 : 1;
+        const aSelected = assetMap.has(a.cmc_id) ? 0 : 1;
+        const bSelected = assetMap.has(b.cmc_id) ? 0 : 1;
 
         if (aSelected !== bSelected) {
           return aSelected - bSelected;
@@ -107,7 +107,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
     }
 
     return sorted;
-  }, [sortMethod, cryptoMap, filteredFetchedCurrencies]);
+  }, [sortMethod, assetMap, filteredFetchedCurrencies]);
 
   const globalTotals = useMemo(() => {
     return getGlobalTotals(selectedCurrencies, fetchedCurrencies);
@@ -154,20 +154,20 @@ const Dashboard: React.FC<DashboardProps> = () => {
                 options={fetchedCurrencies}
                 selectedOptions={selectedOptions}
                 onChange={handleSelectChange}
-                placeholder="Search and select currencies..."
+                placeholder="Search and select assets..."
               />
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {sortedFetchedCurrencies.map((fetchedCurrency) => {
               const isSelected =
-                cryptoMap.has(fetchedCurrency.cmc_id) &&
-                cryptoMap.get(fetchedCurrency.cmc_id)!?.transactions.length > 0;
+                assetMap.has(fetchedCurrency.cmc_id) &&
+                assetMap.get(fetchedCurrency.cmc_id)!?.transactions.length > 0;
               return (
                 <DashboardCard
                   fetchedCurrency={fetchedCurrency}
                   key={fetchedCurrency.cmc_id}
-                  cryptoMap={cryptoMap}
+                  assetMap={assetMap}
                   isSelected={isSelected}
                   currencyQuote={currencyQuote}
                 />
@@ -175,16 +175,6 @@ const Dashboard: React.FC<DashboardProps> = () => {
             })}
           </div>
         </div>
-        {/* {selectedCurrencies.some((e) => e.transactions.length > 0) && (
-          <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-            <Card>
-              <Charts data={selectedCurrencies} id="amount" />
-            </Card>
-            <Card>
-              <Charts data={selectedCurrencies} id="invested" />
-            </Card>
-          </div>
-        )} */}
       </Page>
     </LoadingErrorWrapper>
   );

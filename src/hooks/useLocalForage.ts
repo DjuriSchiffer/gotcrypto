@@ -1,13 +1,13 @@
 import localForage from 'localforage';
 import { useCallback } from 'react';
-import { SelectedCurrency } from 'currency';
+import { SelectedAsset } from 'currency';
 import { useAppDispatch } from './useAppDispatch';
 
 export const useLocalForage = () => {
   const dispatch = useAppDispatch();
 
   const setLocalForage = useCallback(
-    (key: string, value: SelectedCurrency[], callback?: () => void): void => {
+    (key: string, value: SelectedAsset[], callback?: () => void): void => {
       localForage
         .setItem(key, value)
         .then(() => {
@@ -27,9 +27,9 @@ export const useLocalForage = () => {
   );
 
   const getSelectedCurrencies = useCallback(
-    async (key: string): Promise<SelectedCurrency[]> => {
+    async (key: string): Promise<SelectedAsset[]> => {
       try {
-        const values = await localForage.getItem<SelectedCurrency[]>(key);
+        const values = await localForage.getItem<SelectedAsset[]>(key);
         return values || [];
       } catch (err) {
         dispatch({

@@ -3,7 +3,7 @@ import {
   averagePurchasePrice,
   currentValue,
 } from './calculateHelpers';
-import { Transaction, FetchedCurrency, SelectedCurrency } from '../types/currency';
+import { Transaction, FetchedCurrency, SelectedAsset } from '../types/currency';
 import { GlobalTotals } from 'store';
 
 /**
@@ -11,7 +11,7 @@ import { GlobalTotals } from 'store';
  * @param transactions - The array of selected currencies.
  * @returns An object containing various totals.
  */
-const totals = (transactions: Transaction[] = []): SelectedCurrency['totals'] => {
+const totals = (transactions: Transaction[] = []): SelectedAsset['totals'] => {
   const totalAmount = transactions.reduce(
     (acc, transaction) => acc + parseFloat(transaction.amount),
     0
@@ -40,7 +40,7 @@ const totals = (transactions: Transaction[] = []): SelectedCurrency['totals'] =>
  * @returns An object adhering to the GlobalTotals interface.
  */
 export const getGlobalTotals = (
-  selectedCurrencies: SelectedCurrency[] = [],
+  selectedCurrencies: SelectedAsset[] = [],
   fetchedCurrencies: FetchedCurrency[] | null = []
 ): GlobalTotals => {
   const filteredSelectedCurrencies = selectedCurrencies.filter(

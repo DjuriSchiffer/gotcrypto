@@ -1,12 +1,7 @@
 import React, {
-  createContext,
   useContext,
-  useReducer,
-  ReactNode,
-  Dispatch,
 } from 'react';
-import { reducer, initialStore } from '../store';
-import { Action, Store } from 'store';
+import { Store } from 'store';
 import { StateContext } from '../contexts/StateContext';
 
 export const useAppState = (): Store => {

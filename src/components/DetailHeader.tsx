@@ -3,7 +3,7 @@ import { Button } from 'flowbite-react';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { getImage } from '../utils/images';
 import { currencyFormat } from '../utils/calculateHelpers';
-import { SelectedCurrency } from '../types/currency';
+import { SelectedAsset } from '../types/currency';
 import { CurrencyQuote } from 'api';
 
 interface DetailHeaderProps {
@@ -12,7 +12,7 @@ interface DetailHeaderProps {
         cmc_id: number;
         price: number;
     };
-    selectedCurrency?: SelectedCurrency;
+    selectedAsset?: SelectedAsset;
     currencyQuote: keyof CurrencyQuote;
     onAddTransaction: () => void;
     onRemoveAllTransactions: () => void;
@@ -20,7 +20,7 @@ interface DetailHeaderProps {
 
 const DetailHeader: React.FC<DetailHeaderProps> = ({
     currentFetchedCurrency,
-    selectedCurrency,
+    selectedAsset,
     currencyQuote,
     onAddTransaction,
     onRemoveAllTransactions,
@@ -48,7 +48,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
                 <FaPlus color="white" className="mr-1" />
                 Add Transaction
             </Button>
-            {selectedCurrency && selectedCurrency.transactions.length > 0 && (
+            {selectedAsset && selectedAsset.transactions.length > 0 && (
                 <Button color="failure" onClick={onRemoveAllTransactions}>
                     <FaTrashAlt color="white" className="mr-1" />
                     Remove All Transactions

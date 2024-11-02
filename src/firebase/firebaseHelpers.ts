@@ -1,7 +1,7 @@
 import { db } from '../firebase/firebaseConfig';
 
 import { doc, setDoc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { SelectedCurrency } from 'currency';
+import { SelectedAsset } from 'currency';
 
 export const getUserDocRef = (userId: string) => doc(db, 'users', userId);
 
@@ -10,7 +10,7 @@ export const getUserDocRef = (userId: string) => doc(db, 'users', userId);
  */
 export const fetchSelectedCurrenciesFromFirestore = async (
   userId: string
-): Promise<SelectedCurrency[]> => {
+): Promise<SelectedAsset[]> => {
   const userDocRef = getUserDocRef(userId);
   const userDoc = await getDoc(userDocRef);
   if (userDoc.exists()) {
@@ -27,10 +27,10 @@ export const fetchSelectedCurrenciesFromFirestore = async (
  */
 export const setSelectedCurrenciesInFirestore = async (
   userId: string,
-  currencies: SelectedCurrency[]
+  selectedAssets: SelectedAsset[]
 ) => {
   const userDocRef = getUserDocRef(userId);
-  await setDoc(userDocRef, { selectedCurrencies: currencies }, { merge: true });
+  await setDoc(userDocRef, { selectedCurrencies: selectedAssets }, { merge: true });
 };
 
 /**
@@ -38,10 +38,10 @@ export const setSelectedCurrenciesInFirestore = async (
  */
 export const updateSelectedCurrencyInFirestore = async (
   userId: string,
-  currency: SelectedCurrency
+  asset: SelectedAsset
 ) => {
   const userDocRef = getUserDocRef(userId);
   await updateDoc(userDocRef, {
-    selectedCurrencies: arrayUnion(currency),
+    selectedCurrencies: arrayUnion(asset),
   });
 };

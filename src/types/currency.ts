@@ -19,7 +19,7 @@ export type Totals = {
   totalAveragePurchasePrice: number;
 };
 
-export type SelectedCurrency = {
+export type SelectedAsset = {
   name: string;
   slug: string;
   cmc_id: number;

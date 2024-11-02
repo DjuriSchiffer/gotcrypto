@@ -1,7 +1,6 @@
 import React from 'react';
 import { useAppState } from '../hooks/useAppState';
 import { currentValue, currencyFormat } from '../utils/calculateHelpers';
-import { getColour } from '../utils/colours';
 
 import {
   Chart as ChartJS,
@@ -17,7 +16,7 @@ import {
   ChartData,
 } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
-import { FetchedCurrency, SelectedCurrency } from '../types/currency';
+import { FetchedCurrency, SelectedAsset } from '../types/currency';
 
 ChartJS.register(
   CategoryScale,
@@ -31,7 +30,7 @@ ChartJS.register(
 );
 
 interface ChartsProps {
-  data: SelectedCurrency[];
+  data: SelectedAsset[];
   id: 'amount' | 'invested';
 }
 

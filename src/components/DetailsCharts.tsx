@@ -14,7 +14,7 @@ import {
   ChartData,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { Transaction, SelectedCurrency } from 'currency';
+import { Transaction, SelectedAsset } from 'currency';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { CurrencyQuote } from 'api';
 
@@ -30,18 +30,18 @@ ChartJS.register(
 );
 
 interface DetailChartsProps {
-  selectedCurrency?: SelectedCurrency;
+  selectedAsset?: SelectedAsset;
   currencyQuote: keyof CurrencyQuote;
 }
 
-const DetailCharts: React.FC<DetailChartsProps> = ({ selectedCurrency, currencyQuote }) => {
+const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuote }) => {
   const { data: fetchedCurrencies } = useCoinMarketCap(currencyQuote);
 
-  if (!selectedCurrency) {
+  if (!selectedAsset) {
     return <div>No currency selected.</div>;
   }
 
-  const transactions: Transaction[] = [...selectedCurrency.transactions].reverse();
+  const transactions: Transaction[] = [...selectedAsset.transactions].reverse();
   const labels: string[] = transactions.map((transaction) => {
     const date = new Date(transaction.date);
     return date.toLocaleDateString('nl', {
@@ -57,7 +57,7 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedCurrency, currencyQ
   });
 
   const currentCurrency = fetchedCurrencies?.find(
-    (currency) => currency.cmc_id === selectedCurrency.cmc_id
+    (currency) => currency.cmc_id === selectedAsset.cmc_id
   );
   const currentPrice = currentCurrency?.price ?? 0;
   const holdingsData: number[] = amountData.map(amount => amount * currentPrice);
