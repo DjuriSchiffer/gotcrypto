@@ -11,21 +11,19 @@ const TableHead: React.FC<TableHeadProps> = ({ type = 'dashboard' }) => {
   if (type === 'detail') {
     return (
       <Table.Head>
-        <Table.HeadCell className="text-left py-2 pl-3">Amount</Table.HeadCell>
+        <Table.HeadCell className="text-left py-2 pl-3">Type</Table.HeadCell>
+        <Table.HeadCell className="text-left py-2">Amount</Table.HeadCell>
         <Table.HeadCell className="text-left py-2">
-          Purchase price
-        </Table.HeadCell>
-        <Table.HeadCell className="text-left py-2">
-          Purchase Date
+          Price
         </Table.HeadCell>
         <Table.HeadCell className="text-left py-2">
           Current Value
         </Table.HeadCell>
         <Table.HeadCell className="text-left py-2">
-          Average Purchase Price
+          Average Price
         </Table.HeadCell>
         <Table.HeadCell className="text-left py-2">
-          Average Purchase Difference
+          Profit
         </Table.HeadCell>
         <Table.HeadCell className="text-right py-2 pr-3">
           Actions

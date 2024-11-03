@@ -6,11 +6,14 @@ export type FetchedCurrency = {
   cmc_rank: number | null;
 };
 
+export type TransactionType = 'buy' | 'sell';
+
 export type Transaction = {
   amount: string;
   purchasePrice: string;
   date: string;
   id: string;
+  type: TransactionType
 };
 
 export type Totals = {

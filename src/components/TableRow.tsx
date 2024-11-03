@@ -41,6 +41,7 @@ const TableRow: React.FC<TableRowComponentProps> = ({
   if (type === 'detail') {
     const transactionItem = item;
 
+    const type = transactionItem.type;
     const amount = parseFloat(transactionItem.amount);
     const purchasePrice = parseFloat(transactionItem.purchasePrice);
     const purchaseDate = dateFormat(transactionItem.date);
@@ -54,13 +55,20 @@ const TableRow: React.FC<TableRowComponentProps> = ({
     return (
       <Table.Row>
         <Table.Cell className="py-2 pl-3 text-gray-900 dark:text-white">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+              {!type || type === 'buy' ? 'Buy' : 'Sell'}
+            </p>
+            <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+              {purchaseDate}
+            </p>
+          </div>
+        </Table.Cell>
+        <Table.Cell className="py-2 text-gray-900 dark:text-white">
           {amount}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
           {currencyFormat(purchasePrice, currencyQuote)}
-        </Table.Cell>
-        <Table.Cell className="py-2 text-gray-900 dark:text-white">
-          {purchaseDate}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
           {currencyFormat(currentValue, currencyQuote)}
@@ -104,13 +112,13 @@ const TableRow: React.FC<TableRowComponentProps> = ({
 
     return (
       <Table.Row>
-        <Table.Cell className="py-2 pl-3 text-gray-900 dark:text-white">
+        <Table.Cell></Table.Cell>
+        <Table.Cell className="py-2 text-gray-900 dark:text-white">
           {totalAmount}
         </Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
           {currencyFormat(totalPurchasePrice, currencyQuote)}
         </Table.Cell>
-        <Table.Cell></Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
           {currencyFormat(totalValue, currencyQuote)}
         </Table.Cell>

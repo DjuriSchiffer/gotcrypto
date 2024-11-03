@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Card } from 'flowbite-react';
 import uniqueId from 'lodash.uniqueid';
 import Page from '../components/Page';
-import { Transaction, SelectedAsset } from '../types/currency';
+import { Transaction, SelectedAsset, TransactionType } from '../types/currency';
 import { useStorage } from '../hooks/useStorage';
 import totals from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
@@ -19,6 +19,7 @@ interface FormInputs {
   amount: string;
   purchasePrice: string;
   date: string;
+  transactionType: TransactionType;
 }
 
 const Detail: React.FC = () => {
@@ -89,20 +90,23 @@ const Detail: React.FC = () => {
     }
 
     try {
-      const { amount, purchasePrice, date } = formData;
+      const { amount, purchasePrice, date, transactionType } = formData;
 
-      // Create new transaction object
+      const adjustedAmount = transactionType === 'sell'
+        ? (-Math.abs(parseFloat(amount))).toString()
+        : Math.abs(parseFloat(amount)).toString();
+
       const newTransaction: Transaction = {
-        amount: parseFloat(amount).toString(),
+        amount: adjustedAmount,
         purchasePrice: parseFloat(purchasePrice).toFixed(2),
         date,
         id: currentTransaction?.id || uniqueId(),
+        type: transactionType,
       };
 
       let updatedSelectedCurrency: SelectedAsset;
 
       if (selectedAsset) {
-        // Handle existing currency
         const updatedTransactions = currentTransaction
           ? selectedAsset.transactions.map((transaction) =>
             transaction.id === currentTransaction.id ? newTransaction : transaction
@@ -117,7 +121,6 @@ const Detail: React.FC = () => {
           totals: totals(updatedTransactions),
         };
       } else if (currentFetchedCurrency) {
-        // Handle new currency
         updatedSelectedCurrency = {
           name: currentFetchedCurrency.name,
           slug: currentFetchedCurrency.slug,

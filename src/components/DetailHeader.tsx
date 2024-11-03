@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'flowbite-react';
+import { Button, Dropdown } from 'flowbite-react';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { getImage } from '../utils/images';
 import { currencyFormat } from '../utils/calculateHelpers';
@@ -49,10 +49,9 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
                 Add Transaction
             </Button>
             {selectedAsset && selectedAsset.transactions.length > 0 && (
-                <Button color="failure" onClick={onRemoveAllTransactions}>
-                    <FaTrashAlt color="white" className="mr-1" />
-                    Remove All Transactions
-                </Button>
+                <Dropdown label="..." color="gray" size="md" placement="bottom">
+                    <Dropdown.Item icon={FaTrashAlt} onClick={onRemoveAllTransactions}>Remove All Transactions</Dropdown.Item>
+                </Dropdown>
             )}
         </div>
     </div>

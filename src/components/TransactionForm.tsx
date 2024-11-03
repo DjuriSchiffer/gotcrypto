@@ -5,11 +5,14 @@ import DatePicker from './DatePicker';
 import CurrencyInput from 'react-currency-input-field';
 import { CurrencyQuote } from 'api';
 import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
+import { TransactionType } from 'currency';
+import classNames from 'classnames';
 
 interface FormInputs {
   amount: string;
   purchasePrice: string;
   date: string;
+  transactionType: TransactionType;
 }
 
 interface TransactionFormProps {
@@ -18,6 +21,7 @@ interface TransactionFormProps {
     amount: string;
     purchasePrice: string;
     date: string;
+    transactionType: TransactionType;
   };
   submitLabel: string;
   currencyQuote: keyof CurrencyQuote;
@@ -41,17 +45,26 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       amount: '',
       purchasePrice: '',
       date: new Date().toISOString().split('T')[0],
+      transactionType: 'buy',
     },
   });
 
   useEffect(() => {
     if (isEdit && defaultValues) {
-      reset(defaultValues);
+      const displayAmount = defaultValues.transactionType === 'sell'
+        ? Math.abs(parseFloat(defaultValues.amount)).toString()
+        : defaultValues.amount;
+
+      reset({
+        ...defaultValues,
+        amount: displayAmount
+      });
     } else if (!isEdit) {
       reset({
         amount: '',
         purchasePrice: '',
         date: new Date().toISOString().split('T')[0],
+        transactionType: 'buy',
       });
     }
   }, [isEdit, defaultValues, reset]);
@@ -67,9 +80,43 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4">
       <div>
+        <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+          Transaction Type
+        </label>
+        <Controller
+          name="transactionType"
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <Button.Group className='w-full'>
+              <Button
+                className={classNames('w-6/12', {
+                  'opacity-50': value !== 'buy',
+                })}
+                color='dark'
+                onClick={() => onChange('buy')}
+                type="button"
+              >
+                Buy
+              </Button>
+              <Button
+                className={classNames('w-6/12', {
+                  'opacity-50': value !== 'sell',
+                })}
+                color='dark'
+                onClick={() => onChange('sell')}
+                type="button"
+                outline={value === 'buy'}
+              >
+                Sell
+              </Button>
+            </Button.Group>
+          )}
+        />
+      </div>
+      <div>
         <label
           htmlFor="amount"
-          className="block text-sm font-medium text-gray-900 dark:text-white"
+          className="block text-sm font-medium text-gray-900 dark:text-white mb-2"
         >
           Quantity
         </label>
@@ -81,7 +128,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             name="amount"
             control={control}
             rules={{
-              required: 'Amount is required',
+              required: 'This field is required',
               pattern: {
                 value: /^\d*\.?\d*$/,
                 message: 'Please enter a valid number',
@@ -89,7 +136,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               validate: (value) => {
                 const num = parseFloat(value);
                 if (isNaN(num)) return 'Please enter a valid number';
-                if (num <= 0) return 'Amount must be greater than 0';
+                if (num <= 0) return 'Quantity must be greater than 0';
                 return true;
               },
             }}
@@ -120,9 +167,15 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       <div>
         <label
           htmlFor="purchasePrice"
-          className="block text-sm font-medium text-gray-900 dark:text-white"
+          className="block text-sm font-medium text-gray-900 dark:text-white mb-2"
         >
-          Purchase Price
+          <Controller
+            name="transactionType"
+            control={control}
+            render={({ field: { value } }) => (
+              <>{value === 'sell' ? 'Sell Price' : 'Purchase Price'}</>
+            )}
+          />
         </label>
         <div className="flex">
           <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
@@ -132,7 +185,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             name="purchasePrice"
             control={control}
             rules={{
-              required: 'Purchase price is required',
+              required: 'This field is required',
               validate: (value) => {
                 const num = parseFloat(value);
                 if (isNaN(num)) return 'Please enter a valid number';
@@ -151,7 +204,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                     onChange(value);
                   }
                 }}
-                placeholder="e.g., 5000.25"
+                placeholder={`e.g., ${currencyQuote === 'EUR' ? '4500,25' : '5000.25'}`}
                 decimalsLimit={2}
                 decimalSeparator="."
                 groupSeparator=","
@@ -169,10 +222,16 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
       <div>
         <label
-          htmlFor="date"
-          className="block text-sm font-medium text-gray-900 dark:text-white"
+          htmlFor="purchaseDate"
+          className="block text-sm font-medium text-gray-900 dark:text-white mb-2"
         >
-          Purchase Date
+          <Controller
+            name="transactionType"
+            control={control}
+            render={({ field: { value } }) => (
+              <>{value === 'sell' ? 'Sell Date' : 'Purchase Date'}</>
+            )}
+          />
         </label>
         <div className="flex">
           <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
@@ -182,7 +241,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             name="date"
             control={control}
             rules={{
-              required: 'Date is required',
+              required: 'This field is required',
             }}
             render={({ field: { onChange, value } }) => (
               <DatePicker
@@ -198,7 +257,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       </div>
 
       <Button type="submit">{submitLabel}</Button>
-    </form>
+    </form >
   );
 };
 

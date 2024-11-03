@@ -61,6 +61,7 @@ const DetailModals: React.FC<DetailModalsProps> = ({
                     amount: currentTransaction.amount,
                     purchasePrice: currentTransaction.purchasePrice,
                     date: currentTransaction.date,
+                    transactionType: currentTransaction.type
                 } : undefined}
                 submitLabel="Update Transaction"
                 currencyQuote={currencyQuote}
