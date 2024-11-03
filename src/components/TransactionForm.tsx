@@ -7,6 +7,7 @@ import { CurrencyQuote } from 'api';
 import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
 import { TransactionType } from 'currency';
 import classNames from 'classnames';
+import { dateForDisplay, dateToStorage, displayToStorage } from '../utils/calculateHelpers';
 
 interface FormInputs {
   amount: string;
@@ -44,7 +45,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     defaultValues: {
       amount: '',
       purchasePrice: '',
-      date: new Date().toISOString().split('T')[0],
+      date: dateToStorage(new Date()),
       transactionType: 'buy',
     },
   });
@@ -57,13 +58,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
       reset({
         ...defaultValues,
-        amount: displayAmount
+        amount: displayAmount,
+        date: dateToStorage(new Date(defaultValues.date))
       });
     } else if (!isEdit) {
       reset({
         amount: '',
         purchasePrice: '',
-        date: new Date().toISOString().split('T')[0],
+        date: dateToStorage(new Date()),
         transactionType: 'buy',
       });
     }
@@ -246,7 +248,10 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             render={({ field: { onChange, value } }) => (
               <DatePicker
                 date={value}
-                handleChange={(e) => onChange(e.target.value)}
+                handleChange={(e) => {
+                  const isoDate = displayToStorage(e.target.value, 'nl');
+                  onChange(isoDate);
+                }}
               />
             )}
           />

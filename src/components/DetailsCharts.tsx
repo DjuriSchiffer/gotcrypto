@@ -1,5 +1,5 @@
 import React from 'react';
-import { currencyFormat } from '../utils/calculateHelpers';
+import { currencyFormat, dateForDisplay } from '../utils/calculateHelpers';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -42,28 +42,24 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
   }
 
   const transactions: Transaction[] = [...selectedAsset.transactions].reverse();
-
   const today = new Date();
+
+  // Format dates consistently using dateForDisplay
   const labels: string[] = [
     ...transactions.map((transaction) => {
+      // Convert the transaction date to ISO string for consistent handling
       const date = new Date(transaction.date);
-      return date.toLocaleDateString('nl', {
-        year: '2-digit',
-        month: '2-digit',
-        day: '2-digit',
-      });
+      const isoString = date.toISOString();
+      return dateForDisplay(isoString);
     }),
-    today.toLocaleDateString('nl', {
-      year: '2-digit',
-      month: '2-digit',
-      day: '2-digit',
-    })
+    dateForDisplay(today.toISOString())
   ];
 
   const amountData: number[] = [
     ...transactions.map((_, index) => {
       const transactionsUpToIndex = transactions.slice(0, index + 1);
-      return transactionsUpToIndex.reduce((sum, transaction) => sum + parseFloat(transaction.amount), 0);
+      return transactionsUpToIndex.reduce((sum, transaction) =>
+        sum + parseFloat(transaction.amount), 0);
     })
   ];
 

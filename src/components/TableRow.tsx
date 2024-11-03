@@ -4,7 +4,7 @@ import {
   currencyFormat,
   averagePurchasePrice as averagePurchasePriceFn,
   currentValue as currentValueFn,
-  dateFormat,
+  dateForDisplay,
 } from '../utils/calculateHelpers';
 import classNames from 'classnames';
 import { Table } from 'flowbite-react';
@@ -44,7 +44,7 @@ const TableRow: React.FC<TableRowComponentProps> = ({
     const type = transactionItem.type;
     const amount = parseFloat(transactionItem.amount);
     const purchasePrice = parseFloat(transactionItem.purchasePrice);
-    const purchaseDate = dateFormat(transactionItem.date);
+    const purchaseDate = dateForDisplay(transactionItem.date, 'nl');
     const currentValue = currentValueFn(amount, currentCurrency?.price || 0);
     const averagePurchasePrice = averagePurchasePriceFn(purchasePrice, amount);
     const percentageDifference = percentageDifferenceFn(

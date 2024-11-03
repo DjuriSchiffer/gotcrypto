@@ -71,31 +71,46 @@ export function currencyFormat(data: number, currencyQuote: keyof CurrencyQuote 
   }).format(data);
 }
 
+type SupportedLocale = 'nl' | 'en' | 'de' | string;
+
 /**
- * Formats a date string into 'dd-mm-yy' format using Dutch locale.
- * @param d - The date to format.
- * @returns The formatted date string.
+ * Converts any date input to UTC midnight ISO string
  */
-export function dateFormat(d: string | number | Date): string {
-  const date = new Date(d);
-  return date.toLocaleDateString('nl', {
-    year: '2-digit',
-    month: '2-digit',
-    day: '2-digit',
-  });
+export function dateToStorage(date: Date | string): string {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = d.getMonth();
+  const day = d.getDate();
+  return new Date(Date.UTC(year, month, day)).toISOString();
 }
 
 /**
- * Formats a Date object into 'yyyy-mm-dd' format for date pickers.
- * @param date - The Date object to format.
- * @returns The formatted date string.
+ * Formats ISO date string for display in user's locale
  */
-export function formatDatePickerDate(date: Date): string {
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
+export function dateForDisplay(isoString: string, locale: SupportedLocale = 'nl'): string {
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) {
+      return '';
+    }
 
-  return `${year}-${month.toString().padStart(2, '0')}-${day
-    .toString()
-    .padStart(2, '0')}`;
+    return new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(date);
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Converts a displayed date back to storage format
+ */
+export function displayToStorage(displayDate: string, locale: SupportedLocale = 'nl'): string {
+  const date = new Date(displayDate);
+  if (!isNaN(date.getTime())) {
+    return dateToStorage(date);
+  }
+  return dateToStorage(new Date());
 }

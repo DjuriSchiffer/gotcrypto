@@ -25,6 +25,7 @@ declare module 'tailwind-datepicker-react' {
     };
     datepickerClassNames?: string;
     language?: string;
+    defaultDate?: Date;
   }
 
   export interface DatepickerProps {
@@ -33,6 +34,7 @@ declare module 'tailwind-datepicker-react' {
     setShow: (state: boolean) => void;
     onChange: (selectedDate: Date) => void;
     children: React.ReactElement;
+
   }
 
   // Export the Datepicker component
