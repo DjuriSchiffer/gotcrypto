@@ -40,10 +40,10 @@ const UserSettings: React.FC<UserProps> = () => {
                 <div className='grid grid-cols-1'>
                     <h2 className="text-4xl font-extrabold dark:text-white">Data Management</h2>
                     <p className="my-4 text-lg text-gray-500">
-                        Clear all your personal data stored locally and in the cloud
+                        ⚠️ Clear all your personal data stored locally and in the cloud
                     </p>
                     <p className="mb-4 text-lg font-normal text-gray-500 dark:text-gray-400">
-                        ⚠️ This action will permanently delete all your stored information and cannot be reversed
+                        This action will permanently delete all your stored information and cannot be reversed
                     </p>
                     <Button
                         color="failure"
