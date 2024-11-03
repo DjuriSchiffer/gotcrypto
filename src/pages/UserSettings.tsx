@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import Page from '../components/Page';
-import { ChangeQuote } from '../components/ChangeQuote';
 import { Button } from 'flowbite-react';
 import { useStorage } from '../hooks/useStorage';
 import Modal from '../components/Modal';
 import { FaExclamationTriangle, FaTrashAlt } from 'react-icons/fa';
+import SettingsDateFormat from '../components/SettingsDateFormat';
+import SettingsPriceFormat from '../components/SettingsPriceFormat';
 
 type UserProps = {};
 
@@ -34,7 +35,15 @@ const UserSettings: React.FC<UserProps> = () => {
                     <p className="mb-4 text-lg font-normal text-gray-500 dark:text-gray-400">
                         Select between EUR or USD to update all price displays and Coinmarketcap data accordingly.
                     </p>
-                    <ChangeQuote />
+                    <SettingsPriceFormat />
+                    <hr className="h-px mt-10 mb-4 bg-gray-200 border-0 dark:bg-gray-700"></hr>
+                </div>
+                <div className='grid grid-cols-1'>
+                    <h2 className="text-4xl font-extrabold dark:text-white">Date Format</h2>
+                    <p className="my-4 text-lg text-gray-500">
+                        Choose how dates should be displayed throughout the application
+                    </p>
+                    <SettingsDateFormat />
                     <hr className="h-px mt-10 mb-4 bg-gray-200 border-0 dark:bg-gray-700"></hr>
                 </div>
                 <div className='grid grid-cols-1'>

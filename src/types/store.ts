@@ -1,9 +1,12 @@
 import { CurrencyQuote } from "api";
 
+export type DateLocale = 'nl' | 'en'
+
 export interface Store {
   error: boolean;
   sortMethod: SortMethod;
-  currencyQuote: keyof CurrencyQuote
+  currencyQuote: keyof CurrencyQuote,
+  dateLocale: DateLocale
 }
 
 export type SortMethod = 'cmc_rank' | 'has_selected';
@@ -13,6 +16,7 @@ export type Action =
   | { type: 'CLEAR_ERROR' }
   | { type: 'SET_SORT_METHOD'; payload: SortMethod }
   | { type: 'SET_CURRENCY_QUOTE'; payload: keyof CurrencyQuote }
+  | { type: 'SET_DATE_LOCALE'; payload: DateLocale }
 
 export interface GlobalTotals {
   totalAmount: number;

@@ -17,6 +17,7 @@ import { Line } from 'react-chartjs-2';
 import { Transaction, SelectedAsset } from 'currency';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { CurrencyQuote } from 'api';
+import { useStorage } from '../hooks/useStorage';
 
 ChartJS.register(
   CategoryScale,
@@ -35,6 +36,7 @@ interface DetailChartsProps {
 }
 
 const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuote }) => {
+  const { dateLocale } = useStorage();
   const { data: fetchedCurrencies } = useCoinMarketCap(currencyQuote);
 
   if (!selectedAsset) {
@@ -50,9 +52,9 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
       // Convert the transaction date to ISO string for consistent handling
       const date = new Date(transaction.date);
       const isoString = date.toISOString();
-      return dateForDisplay(isoString);
+      return dateForDisplay(isoString, dateLocale);
     }),
-    dateForDisplay(today.toISOString())
+    dateForDisplay(today.toISOString(), dateLocale)
   ];
 
   const amountData: number[] = [

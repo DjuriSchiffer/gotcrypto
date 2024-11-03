@@ -1,6 +1,7 @@
 import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { dateForDisplay } from '../utils/helpers';
 import Datepicker, { DatepickerOptions } from 'tailwind-datepicker-react';
+import { useStorage } from '../hooks/useStorage';
 
 interface DatePickerProps {
   date: string;
@@ -22,6 +23,7 @@ const options: DatepickerOptions = {
 };
 
 const DatePicker: React.FC<DatePickerProps> = ({ date, handleChange }) => {
+  const { dateLocale } = useStorage();
   const [show, setShow] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -86,7 +88,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ date, handleChange }) => {
           type="text"
           className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="Select Date"
-          value={dateForDisplay(date)}
+          value={dateForDisplay(date, dateLocale)}
           onChange={handleChange}
           onFocus={() => setShow(true)}
           readOnly

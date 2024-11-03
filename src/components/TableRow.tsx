@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { Table } from 'flowbite-react';
 import { Transaction, FetchedCurrency, SelectedAsset } from '../types/currency';
 import { CurrencyQuote } from 'api';
+import { useStorage } from '../hooks/useStorage';
 
 interface OverviewRowProps {
   type: 'detail';
@@ -38,13 +39,14 @@ const TableRow: React.FC<TableRowComponentProps> = ({
   children,
   currencyQuote
 }) => {
+  const { dateLocale } = useStorage();
   if (type === 'detail') {
     const transactionItem = item;
 
     const type = transactionItem.type;
     const amount = parseFloat(transactionItem.amount);
     const purchasePrice = parseFloat(transactionItem.purchasePrice);
-    const purchaseDate = dateForDisplay(transactionItem.date, 'nl');
+    const purchaseDate = dateForDisplay(transactionItem.date, dateLocale);
     const currentValue = currentValueFn(amount, currentCurrency?.price || 0);
     const averagePurchasePrice = averagePurchasePriceFn(purchasePrice, amount);
     const percentageDifference = percentageDifferenceFn(

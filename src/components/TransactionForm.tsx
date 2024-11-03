@@ -7,7 +7,8 @@ import { CurrencyQuote } from 'api';
 import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
 import { TransactionType } from 'currency';
 import classNames from 'classnames';
-import { dateForDisplay, dateToStorage, displayToStorage } from '../utils/helpers';
+import { dateToStorage, displayToStorage } from '../utils/helpers';
+import { useStorage } from '../hooks/useStorage';
 
 interface FormInputs {
   amount: string;
@@ -36,6 +37,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   currencyQuote,
   isEdit = false,
 }) => {
+  const { dateLocale } = useStorage();
   const {
     control,
     handleSubmit,
@@ -249,7 +251,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               <DatePicker
                 date={value}
                 handleChange={(e) => {
-                  const isoDate = displayToStorage(e.target.value, 'nl');
+                  const isoDate = displayToStorage(e.target.value, dateLocale);
                   onChange(isoDate);
                 }}
               />
