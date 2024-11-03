@@ -5,7 +5,7 @@ import {
   currentValue,
   currencyFormat,
   percentageFormat,
-} from '../utils/calculateHelpers';
+} from '../utils/helpers';
 import { getImage } from '../utils/images';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';

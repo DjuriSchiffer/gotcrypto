@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Dropdown } from 'flowbite-react';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { getImage } from '../utils/images';
-import { currencyFormat } from '../utils/calculateHelpers';
+import { currencyFormat } from '../utils/helpers';
 import { SelectedAsset } from '../types/currency';
 import { CurrencyQuote } from 'api';
 

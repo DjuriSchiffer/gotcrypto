@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppState } from '../hooks/useAppState';
-import { currentValue, currencyFormat } from '../utils/calculateHelpers';
+import { currentValue, currencyFormat } from '../utils/helpers';
 
 import {
   Chart as ChartJS,

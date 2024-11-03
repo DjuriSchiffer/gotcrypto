@@ -7,7 +7,7 @@ import { CurrencyQuote } from 'api';
 import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
 import { TransactionType } from 'currency';
 import classNames from 'classnames';
-import { dateForDisplay, dateToStorage, displayToStorage } from '../utils/calculateHelpers';
+import { dateForDisplay, dateToStorage, displayToStorage } from '../utils/helpers';
 
 interface FormInputs {
   amount: string;

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useAppState } from '../hooks/useAppState';
-import { percentageFormat, currencyFormat } from '../utils/calculateHelpers';
+import { percentageFormat, currencyFormat } from '../utils/helpers';
 import { Tooltip } from 'flowbite-react';
 import Page from '../components/Page';
 import { SelectedAsset } from 'currency';

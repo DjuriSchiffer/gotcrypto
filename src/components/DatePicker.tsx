@@ -1,5 +1,5 @@
 import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
-import { dateForDisplay } from '../utils/calculateHelpers';
+import { dateForDisplay } from '../utils/helpers';
 import Datepicker, { DatepickerOptions } from 'tailwind-datepicker-react';
 
 interface DatePickerProps {

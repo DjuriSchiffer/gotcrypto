@@ -1,5 +1,5 @@
 import React from 'react';
-import { currencyFormat, dateForDisplay } from '../utils/calculateHelpers';
+import { currencyFormat, dateForDisplay } from '../utils/helpers';
 import {
   Chart as ChartJS,
   CategoryScale,

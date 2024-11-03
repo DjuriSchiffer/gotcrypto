@@ -5,7 +5,7 @@ import {
   averagePurchasePrice as averagePurchasePriceFn,
   currentValue as currentValueFn,
   dateForDisplay,
-} from '../utils/calculateHelpers';
+} from '../utils/helpers';
 import classNames from 'classnames';
 import { Table } from 'flowbite-react';
 import { Transaction, FetchedCurrency, SelectedAsset } from '../types/currency';

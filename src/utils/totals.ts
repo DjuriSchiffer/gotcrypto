@@ -2,7 +2,7 @@ import {
   percentageDifference,
   averagePurchasePrice,
   currentValue,
-} from './calculateHelpers';
+} from './helpers';
 import { Transaction, FetchedCurrency, SelectedAsset } from '../types/currency';
 import { GlobalTotals } from 'store';
 
