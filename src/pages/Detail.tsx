@@ -220,9 +220,11 @@ const Detail: React.FC = () => {
               onRemoveTransaction={handleOpenRemoveTransactionModal}
             />
           </Card>
-          <Card className="2xl:col-span-6">
-            <DetailCharts selectedAsset={selectedAsset} currencyQuote={currencyQuote} />
-          </Card>
+          {selectedAsset && selectedAsset.transactions.length > 0 &&
+            <Card className="2xl:col-span-6">
+              <DetailCharts selectedAsset={selectedAsset} currencyQuote={currencyQuote} />
+            </Card>}
+
         </div>
 
         <DetailModals

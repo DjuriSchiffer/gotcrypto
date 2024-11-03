@@ -42,25 +42,39 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
   }
 
   const transactions: Transaction[] = [...selectedAsset.transactions].reverse();
-  const labels: string[] = transactions.map((transaction) => {
-    const date = new Date(transaction.date);
-    return date.toLocaleDateString('nl', {
+
+  const today = new Date();
+  const labels: string[] = [
+    ...transactions.map((transaction) => {
+      const date = new Date(transaction.date);
+      return date.toLocaleDateString('nl', {
+        year: '2-digit',
+        month: '2-digit',
+        day: '2-digit',
+      });
+    }),
+    today.toLocaleDateString('nl', {
       year: '2-digit',
       month: '2-digit',
       day: '2-digit',
-    });
-  });
+    })
+  ];
 
-  const amountData: number[] = transactions.map((_, index) => {
-    const transactionsUpToIndex = transactions.slice(0, index + 1);
-    return transactionsUpToIndex.reduce((sum, transaction) => sum + parseFloat(transaction.amount), 0);
-  });
+  const amountData: number[] = [
+    ...transactions.map((_, index) => {
+      const transactionsUpToIndex = transactions.slice(0, index + 1);
+      return transactionsUpToIndex.reduce((sum, transaction) => sum + parseFloat(transaction.amount), 0);
+    })
+  ];
+
+  const currentAmount = amountData[amountData.length - 1] || 0;
+  amountData.push(currentAmount);
 
   const currentCurrency = fetchedCurrencies?.find(
     (currency) => currency.cmc_id === selectedAsset.cmc_id
   );
   const currentPrice = currentCurrency?.price ?? 0;
-  const holdingsData: number[] = amountData.map(amount => amount * currentPrice);
+  const valueData: number[] = amountData.map(amount => amount * currentPrice);
 
   const options: ChartOptions<'line'> = {
     responsive: true,
@@ -105,8 +119,8 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
       tooltip: {
         callbacks: {
           label: function (context) {
-            if (context.dataset.label === 'Holdings') {
-              return 'Holdings: ' + currencyFormat(Number(context.parsed.y), currencyQuote);
+            if (context.dataset.label === 'Value') {
+              return 'Value: ' + currencyFormat(Number(context.parsed.y), currencyQuote);
             }
             return `${context.dataset.label}: ${Number(context.parsed.y).toFixed(4)}`;
           },
@@ -133,8 +147,8 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
         tension: 0,
       },
       {
-        label: 'Holdings',
-        data: holdingsData,
+        label: 'Value',
+        data: valueData,
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
         yAxisID: 'y1',
