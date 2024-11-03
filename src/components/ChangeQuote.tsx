@@ -1,21 +1,15 @@
 import { Button } from "flowbite-react";
 import { FaDollarSign, FaEuroSign } from "react-icons/fa";
-import { useAppDispatch } from "../hooks/useAppDispatch";
 import { CurrencyQuote } from "api";
 import { useQueryClient } from '@tanstack/react-query';
-import { useAppState } from "../hooks/useAppState";
+import { useStorage } from "../hooks/useStorage";
 
 export function ChangeQuote() {
-    const { currencyQuote } = useAppState();
-    const dispatch = useAppDispatch();
+    const { setCurrencyQuote, currencyQuote } = useStorage();
     const queryClient = useQueryClient();
 
     const handleCurrencyQuote = (quote: keyof CurrencyQuote) => {
-        dispatch({
-            type: 'SET_CURRENCY_QUOTE',
-            payload: quote,
-        });
-
+        setCurrencyQuote(quote)
         queryClient.invalidateQueries({ queryKey: ['fetchedCurrencies'] });
     };
 

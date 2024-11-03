@@ -12,16 +12,18 @@ import { SortMethod } from 'store';
 import localforage from 'localforage';
 import { useAppDispatch } from './useAppDispatch';
 import { getDoc, updateDoc } from 'firebase/firestore';
+import { CurrencyQuote } from 'api';
 
 const STORAGE_KEY = 'selectedCurrencies';
 const SORT_METHOD_KEY = 'sortMethod';
+const CURRENCY_QUOTE = 'currencyQuote';
 const CUSTOM_ORDER_KEY = 'customOrder';
 
 export const useStorage = () => {
   const { user, isAnonymous } = useAuth();
   const dispatch = useAppDispatch();
   const { setLocalForage, getSelectedCurrencies } = useLocalForage();
-  const { sortMethod: globalSortMethod } = useAppState();
+  const { sortMethod: globalSortMethod, currencyQuote: globalCurrencyQuote } = useAppState();
   const [selectedCurrencies, setSelectedCurrenciesState] = useState<
     SelectedAsset[]
   >([]);
@@ -44,6 +46,7 @@ export const useStorage = () => {
 
       let savedSortMethod: SortMethod = 'has_selected';
       let savedCustomOrder: number[] = [];
+      let savedCurrencyQuote: keyof CurrencyQuote = 'EUR';
 
       if (user && !isAnonymous) {
         const userDocRef = getUserDocRef(user.uid);
@@ -53,21 +56,30 @@ export const useStorage = () => {
           const data = userDoc.data();
           savedSortMethod = (data.sortMethod as SortMethod) || 'has_selected';
           savedCustomOrder = (data.customOrder as number[]) || [];
+          savedCurrencyQuote = (data.currencyQuote) || 'EUR';
         }
       } else {
         const sortMethodFromStorage = await localforage.getItem<string>(
           SORT_METHOD_KEY
         );
-        savedSortMethod = (sortMethodFromStorage as SortMethod) || 'has_selected';
         const customOrderFromStorage = await localforage.getItem<number[]>(
           CUSTOM_ORDER_KEY
         );
+        const currencyQuoteFromStorage = await localforage.getItem<keyof CurrencyQuote>(
+          CURRENCY_QUOTE
+        );
+        savedSortMethod = (sortMethodFromStorage as SortMethod) || 'has_selected';
         savedCustomOrder = customOrderFromStorage || [];
+        savedCurrencyQuote = currencyQuoteFromStorage || 'EUR';
       }
 
       dispatch({
         type: 'SET_SORT_METHOD',
         payload: savedSortMethod,
+      });
+      dispatch({
+        type: 'SET_CURRENCY_QUOTE',
+        payload: savedCurrencyQuote,
       });
 
       setLoading(false);
@@ -148,12 +160,39 @@ export const useStorage = () => {
     [user, isAnonymous, dispatch]
   );
 
+  const setCurrencyQuote = useCallback(
+    async (quote: keyof CurrencyQuote) => {
+      try {
+        dispatch({
+          type: 'SET_CURRENCY_QUOTE',
+          payload: quote,
+        });
+
+        if (user && !isAnonymous) {
+          const userDocRef = getUserDocRef(user.uid);
+          await updateDoc(userDocRef, { currencyQuote: quote });
+        } else {
+          await localforage.setItem(CURRENCY_QUOTE, quote);
+        }
+      } catch (error) {
+        console.error('Error setting sort method:', error);
+        dispatch({
+          type: 'SET_ERROR',
+          payload: true,
+        });
+      }
+    },
+    [user, isAnonymous, dispatch]
+  );
+
   return {
     selectedCurrencies,
     setSelectedCurrencies,
     updateCurrency,
     sortMethod: globalSortMethod,
     setSortMethod,
+    currencyQuote: globalCurrencyQuote,
+    setCurrencyQuote,
     loading,
   };
 };
