@@ -87,7 +87,7 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
         position: 'left',
         ticks: {
           color: 'white',
-          callback: (value) => Number(value).toFixed(4),
+          callback: (value) => Number(value),
         },
       },
       y1: {
@@ -138,8 +138,8 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
       {
         label: 'Amount',
         data: amountData,
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+        borderColor: '#1C64F2', // blue 600
+        backgroundColor: '#1A56DB', // blue 700
         yAxisID: 'y',
         stepped: 'before',
         tension: 0,
@@ -147,8 +147,8 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
       {
         label: 'Value',
         data: valueData,
-        borderColor: 'rgb(255, 99, 132)',
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        borderColor: '#C27803', // yellow 500
+        backgroundColor: '#9F580A', // yellow 600
         yAxisID: 'y1',
         stepped: 'before',
         tension: 0,
