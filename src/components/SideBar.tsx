@@ -83,9 +83,7 @@ const SideBar: React.FC<SideBarProps> = () => {
                     <AppSideBarItem to='/graphs' text='Graphs' icon={FaChartBar} />
                 </Sidebar.ItemGroup>
                 <Sidebar.ItemGroup className="mt-auto">
-                    <Sidebar.Item icon={FaCog} href="javascript:void(0)">
-                        User & Settings
-                    </Sidebar.Item>
+                    <AppSideBarItem to='/user-settings' text='User & Settings' icon={FaCog} />
                     {user && !isAnonymous && (
                         <Sidebar.Item onClick={handleSignOut} icon={FaArrowRight} href="javascript:void(0)">
                             Sign Out
