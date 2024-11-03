@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Page from '../components/Page';
 import { ChangeQuote } from '../components/ChangeQuote';
+import { Button } from 'flowbite-react';
+import { useStorage } from '../hooks/useStorage';
+import Modal from '../components/Modal';
+import { FaExclamationTriangle, FaTrashAlt } from 'react-icons/fa';
 
 type UserProps = {};
 
 const UserSettings: React.FC<UserProps> = () => {
+    const { setSelectedCurrencies } = useStorage();
+    const [openRemoveAllDataModal, setOpenRemoveAllDataModal] = useState<boolean>(false);
+
+    const handleOpenClearAllStoredDataModal = () => {
+        setOpenRemoveAllDataModal(true);
+    }
+    const handleCloseClearAllStoredDataModal = () => {
+        setOpenRemoveAllDataModal(false);
+    }
+    const onRemoveAllData = () => {
+        setSelectedCurrencies([]);
+        handleCloseClearAllStoredDataModal();
+    }
+
     return (
         <Page>
             <div className="grid gap-4 mb-4 w-5/12 mt-6">
@@ -20,17 +38,45 @@ const UserSettings: React.FC<UserProps> = () => {
                     <hr className="h-px mt-10 mb-4 bg-gray-200 border-0 dark:bg-gray-700"></hr>
                 </div>
                 <div className='grid grid-cols-1'>
-                    <h2 className="text-4xl font-extrabold dark:text-white">Stored data</h2>
+                    <h2 className="text-4xl font-extrabold dark:text-white">Data Management</h2>
                     <p className="my-4 text-lg text-gray-500">
-                        Choose your preferred currency display format
+                        Clear all your personal data stored locally and in the cloud
                     </p>
                     <p className="mb-4 text-lg font-normal text-gray-500 dark:text-gray-400">
-                        Select between EUR or USD to update all price displays and Coinmarketcap data accordingly.
+                        ⚠️ This action will permanently delete all your stored information and cannot be reversed
                     </p>
-                    <ChangeQuote />
-                    <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700"></hr>
+                    <Button
+                        color="failure"
+                        onClick={handleOpenClearAllStoredDataModal}
+                        className="w-fit"
+                    >
+                        Delete All Data
+                    </Button>
+                    <hr className="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
                 </div>
             </div>
+            <Modal
+                onClose={handleCloseClearAllStoredDataModal}
+                open={openRemoveAllDataModal}
+                title="Confirm Removal of All Data"
+            >
+                <div className="flex flex-col items-center">
+                    <FaExclamationTriangle
+                        color="white"
+                        className="flex mx-auto mb-4 text-6xl"
+                    />
+                    <p className="mb-4">
+                        Are you sure you want to remove all your data?
+                    </p>
+                    <div className="flex space-x-2">
+                        <Button color="failure" onClick={onRemoveAllData}>
+                            <FaTrashAlt color="white" className="mr-1" />
+                            Remove All Transactions
+                        </Button>
+                        <Button onClick={handleCloseClearAllStoredDataModal}>Cancel</Button>
+                    </div>
+                </div>
+            </Modal>
         </Page>
     );
 };
