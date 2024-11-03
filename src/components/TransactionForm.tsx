@@ -7,7 +7,7 @@ import { CurrencyQuote } from 'api';
 import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
 import { TransactionType } from 'currency';
 import classNames from 'classnames';
-import { dateToStorage, displayToStorage } from '../utils/helpers';
+import { currencyFormat, dateToStorage, displayToStorage } from '../utils/helpers';
 import { useStorage } from '../hooks/useStorage';
 
 interface FormInputs {
@@ -148,7 +148,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               <input
                 {...field}
                 type="text"
-                placeholder="e.g., 10.50"
+                placeholder="10.50"
                 onChange={(e) => {
                   let value = e.target.value.replace(',', '.');
                   if (/^\d*\.?\d*$/.test(value)) {
@@ -208,7 +208,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                     onChange(value);
                   }
                 }}
-                placeholder={`e.g., ${currencyQuote === 'EUR' ? '4500,25' : '5000.25'}`}
+                placeholder={`${currencyFormat(5000.25, currencyQuote)}`}
                 decimalsLimit={2}
                 decimalSeparator="."
                 groupSeparator=","

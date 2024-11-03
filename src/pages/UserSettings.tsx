@@ -26,7 +26,7 @@ const UserSettings: React.FC<UserProps> = () => {
 
     return (
         <Page>
-            <div className="grid gap-4 mb-4 w-5/12 mt-6">
+            <div className="grid gap-4 mb-4 w-6/12 mt-6">
                 <div className='grid grid-cols-1'>
                     <h2 className="text-4xl font-extrabold dark:text-white">Currency Settings</h2>
                     <p className="my-4 text-lg text-gray-500">
