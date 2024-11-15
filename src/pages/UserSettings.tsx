@@ -74,7 +74,7 @@ const UserSettings: React.FC<UserProps> = () => {
                         color="white"
                         className="flex mx-auto mb-4 text-6xl"
                     />
-                    <p className="mb-4">
+                    <p className="mb-4 text-white">
                         Are you sure you want to remove all your data?
                     </p>
                     <div className="flex space-x-2">
@@ -82,7 +82,7 @@ const UserSettings: React.FC<UserProps> = () => {
                             <FaTrashAlt color="white" className="mr-1" />
                             Remove All Transactions
                         </Button>
-                        <Button onClick={handleCloseClearAllStoredDataModal}>Cancel</Button>
+                        <Button color="dark" onClick={handleCloseClearAllStoredDataModal}>Cancel</Button>
                     </div>
                 </div>
             </Modal>

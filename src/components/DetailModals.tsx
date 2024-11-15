@@ -79,13 +79,13 @@ const DetailModals: React.FC<DetailModalsProps> = ({
                     color="white"
                     className="flex mx-auto mb-4 text-6xl"
                 />
-                <p className="mb-4">Are you sure you want to remove this transaction?</p>
+                <p className="mb-4 text-white">Are you sure you want to remove this transaction?</p>
                 <div className="flex space-x-2">
                     <Button color="failure" onClick={onRemoveTransaction}>
                         <FaTrashAlt color="white" className="mr-1" />
                         Remove Transaction
                     </Button>
-                    <Button onClick={onCloseModals}>Cancel</Button>
+                    <Button color="dark" onClick={onCloseModals}>Cancel</Button>
                 </div>
             </div>
         </Modal>
@@ -100,7 +100,7 @@ const DetailModals: React.FC<DetailModalsProps> = ({
                     color="white"
                     className="flex mx-auto mb-4 text-6xl"
                 />
-                <p className="mb-4">
+                <p className="mb-4 text-white">
                     Are you sure you want to remove all transactions for {selectedAssetName}?
                 </p>
                 <div className="flex space-x-2">
@@ -108,7 +108,7 @@ const DetailModals: React.FC<DetailModalsProps> = ({
                         <FaTrashAlt color="white" className="mr-1" />
                         Remove All Transactions
                     </Button>
-                    <Button onClick={onCloseModals}>Cancel</Button>
+                    <Button color="dark" onClick={onCloseModals}>Cancel</Button>
                 </div>
             </div>
         </Modal>
