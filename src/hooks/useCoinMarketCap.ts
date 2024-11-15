@@ -3,6 +3,27 @@ import { getCurrencies } from '../api';
 import { FetchedCurrency } from '../types/currency';
 import { CurrencyData, CurrencyQuote, GetCurrenciesResponse } from 'api';
 
+
+function formatPrice(price: number) {
+  if (typeof price !== 'number') return price;
+  if (price === 0) return 0;
+
+  const abs = Math.abs(price);
+
+  if (abs >= 0.01) {
+    return parseFloat(price.toFixed(2));
+  }
+
+  let significant = 0;
+  let temp = abs;
+  while (temp < 1) {
+    temp *= 10;
+    significant++;
+  }
+
+  return parseFloat(price.toFixed(significant + 1));
+}
+
 /**
  * Transforms the API response into an array of FetchedCurrency objects.
  * @param data - The data object from the API response.
@@ -15,7 +36,7 @@ const transformCurrencies = (
   return Object.values(data)
     .map((asset) => ({
       name: asset.name,
-      price: parseFloat(asset.quote[currencyQuote].price.toFixed(2)),
+      price: formatPrice(asset.quote[currencyQuote].price),
       slug: asset.slug,
       cmc_id: asset.id,
       cmc_rank: asset.cmc_rank || null,

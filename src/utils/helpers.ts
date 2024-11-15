@@ -59,15 +59,38 @@ export function averagePurchasePrice(
 }
 
 /**
- * Formats a number as a currency string in EUR with Dutch locale.
+ * Formats a number as a currency string with flexible decimal places.
  * @param data - The number to format.
+ * @param currencyQuote - The currency code (default: 'EUR').
+ * @param maxDecimals - Maximum number of decimal places.
  * @returns The formatted currency string.
  */
-export function currencyFormat(data: number, currencyQuote: keyof CurrencyQuote = 'EUR'): string {
+export function currencyFormat(
+  data: number,
+  currencyQuote: keyof CurrencyQuote = 'EUR',
+  maxDecimals?: number
+): string {
   const format = currencyQuote === 'EUR' ? 'nl-NL' : 'en-US';
+  const abs = Math.abs(data);
+
+  let decimals = 2;
+  if (maxDecimals !== undefined) {
+    decimals = maxDecimals;
+  } else if (abs < 0.01 && abs > 0) {
+    let significant = 0;
+    let temp = abs;
+    while (temp < 1) {
+      temp *= 10;
+      significant++;
+    }
+    decimals = significant + 1;
+  }
+
   return new Intl.NumberFormat(format, {
     style: 'currency',
     currency: currencyQuote,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
   }).format(data);
 }
 
