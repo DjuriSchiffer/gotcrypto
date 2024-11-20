@@ -22,8 +22,6 @@ const ADDITIONAL_COIN_IDS = [
   2,    // Litecoin
   3575, // Gold Ounce
   3574, // Silver Ounce
-  3577, // Platinum Ounce
-  3576, // Palladium Ounce
   1839, // Binance
   1027, // ETH
   5015, // Hex
