@@ -14,6 +14,7 @@ import DetailHeader from '../components/DetailHeader';
 import DetailModals from '../components/DetailModals';
 import DetailCharts from '../components/DetailsCharts';
 import DetailTransactionTable from '../components/DetailTransactionTable';
+import classNames from 'classnames';
 
 interface FormInputs {
   amount: string;
@@ -205,44 +206,46 @@ const Detail: React.FC = () => {
       isError={fetchedCurrenciesIsError}
     >
       <Page>
-        <div className="grid gap-4 mb-4 2xl:grid-cols-6">
-          <Card className="2xl:col-span-6">
-            <DetailHeader
-              currentFetchedCurrency={currentFetchedCurrency}
-              selectedAsset={selectedAsset}
-              currencyQuote={currencyQuote}
-              onAddTransaction={handleOpenAddTransactionModal}
-              onRemoveAllTransactions={handleOpenRemoveAllTransactionsModal}
-            />
-            <DetailTransactionTable
-              selectedAsset={selectedAsset}
-              fetchedCurrencies={fetchedCurrencies || []}
-              currentFetchedCurrency={currentFetchedCurrency}
-              currencyQuote={currencyQuote}
-              onEditTransaction={handleOpenEditTransactionModal}
-              onRemoveTransaction={handleOpenRemoveTransactionModal}
-            />
-          </Card>
-          {selectedAsset && selectedAsset.transactions.length > 0 &&
-            <Card className="2xl:col-span-6">
-              <DetailCharts selectedAsset={selectedAsset} currencyQuote={currencyQuote} />
-            </Card>}
+        <div className="grid gap-4 mb-4 w-full mt-14 lg:mt-auto">
+          <div className='grid grid-cols-1 gap-4 mb-4'>
+            <Card>
+              <DetailHeader
+                currentFetchedCurrency={currentFetchedCurrency}
+                selectedAsset={selectedAsset}
+                currencyQuote={currencyQuote}
+                onAddTransaction={handleOpenAddTransactionModal}
+                onRemoveAllTransactions={handleOpenRemoveAllTransactionsModal}
+              />
+              <DetailTransactionTable
+                selectedAsset={selectedAsset}
+                fetchedCurrencies={fetchedCurrencies || []}
+                currentFetchedCurrency={currentFetchedCurrency}
+                currencyQuote={currencyQuote}
+                onEditTransaction={handleOpenEditTransactionModal}
+                onRemoveTransaction={handleOpenRemoveTransactionModal}
+              />
+            </Card>
+            {selectedAsset && selectedAsset.transactions.length > 0 &&
+              <Card>
+                <DetailCharts selectedAsset={selectedAsset} currencyQuote={currencyQuote} />
+              </Card>}
 
+          </div>
+
+          <DetailModals
+            openAddTransactionModal={openAddTransactionModal}
+            openEditTransactionModal={openEditTransactionModal}
+            openRemoveTransactionModal={openRemoveTransactionModal}
+            openRemoveAllTransactionsModal={openRemoveAllTransactionsModal}
+            currentTransaction={currentTransaction}
+            currencyQuote={currencyQuote}
+            selectedAssetName={selectedAsset?.name}
+            onCloseModals={handleCloseModals}
+            onFormSubmit={handleFormSubmit}
+            onRemoveTransaction={handleRemoveTransaction}
+            onRemoveAllTransactions={handleRemoveAllTransactions}
+          />
         </div>
-
-        <DetailModals
-          openAddTransactionModal={openAddTransactionModal}
-          openEditTransactionModal={openEditTransactionModal}
-          openRemoveTransactionModal={openRemoveTransactionModal}
-          openRemoveAllTransactionsModal={openRemoveAllTransactionsModal}
-          currentTransaction={currentTransaction}
-          currencyQuote={currencyQuote}
-          selectedAssetName={selectedAsset?.name}
-          onCloseModals={handleCloseModals}
-          onFormSubmit={handleFormSubmit}
-          onRemoveTransaction={handleRemoveTransaction}
-          onRemoveAllTransactions={handleRemoveAllTransactions}
-        />
       </Page>
     </LoadingErrorWrapper>
   );

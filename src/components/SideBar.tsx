@@ -75,7 +75,7 @@ const SideBar: React.FC<SideBarProps> = () => {
     };
 
     return (
-        <Sidebar className='w-full sticky top-4 h-[calc(100vh_-_32px)]' aria-label="Sidebar">
+        <Sidebar className='w-full h-full lg:sticky lg:top-4 lg:h-[calc(100vh_-_32px)]' aria-label="Sidebar">
             <Sidebar.Items className='flex flex-col h-full'>
                 <Sidebar.ItemGroup>
                     <AppSideBarLogo to='/' text="Got Crypto" img={logo} imgAlt='Got Crypto' />
