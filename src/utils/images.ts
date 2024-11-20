@@ -1,6 +1,6 @@
 import logo from '../public/images/logo.svg';
-import gold from '../public/images/gold.svg';
-import silver from '../public/images/silver.svg';
+import gold from '../public/images/gold.png';
+import silver from '../public/images/silver.png';
 
 export const getImage = (id?: number, format: number = 32) => {
   if (!id) return logo
