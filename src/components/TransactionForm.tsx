@@ -107,7 +107,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 className={classNames('w-6/12 border-l', {
                   'opacity-50': value !== 'sell',
                   '!border-blue-400': value === 'sell',
-                  'border-l-[1px]': value === 'sell',
+                  '!border-l-[1px]': value === 'sell',
                 })}
                 color='dark'
                 onClick={() => onChange('sell')}

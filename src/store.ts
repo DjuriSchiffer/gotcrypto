@@ -4,7 +4,8 @@ export const initialStore: Store = {
   error: false,
   sortMethod: 'has_selected',
   currencyQuote: 'EUR',
-  dateLocale: 'nl'
+  dateLocale: 'nl',
+  dashboardLayout: 'Grid'
 };
 
 export const reducer = (state: Store, action: Action): Store => {
@@ -20,6 +21,9 @@ export const reducer = (state: Store, action: Action): Store => {
 
     case 'SET_DATE_LOCALE':
       return { ...state, dateLocale: action.payload };
+
+    case 'SET_DASHBOARD_LAYOUT':
+      return { ...state, dashboardLayout: action.payload };
 
     default:
       return state;

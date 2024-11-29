@@ -100,3 +100,47 @@ export const getGlobalTotals = (
   };
 };
 export default totals;
+
+
+export const getTotalAmount = (
+  assetMap: Map<number, SelectedAsset>,
+  cmcId: number
+): number => {
+  return assetMap.get(cmcId)?.totals.totalAmount || 0;
+};
+
+export const getTotalValue = (
+  assetMap: Map<number, SelectedAsset>,
+  cmcId: number
+): number => {
+  const totalAmount = assetMap.get(cmcId)?.totals.totalAmount || 0;
+  return totalAmount || 0;
+};
+
+export const getTotalPurchasePrice = (
+  cryptoMap: Map<number, SelectedAsset>,
+  cmcId: number
+): number => {
+  return cryptoMap.get(cmcId)?.totals.totalPurchasePrice || 0;
+};
+
+export const getTotalPercentageDifference = (
+  assetMap: Map<number, SelectedAsset>,
+  cmcId: number,
+  currentMarketPrice: number
+): number => {
+  const currency = assetMap.get(cmcId);
+  if (
+    !currency ||
+    !currency.totals.totalAmount ||
+    !currency.totals.totalPurchasePrice
+  ) {
+    return 0;
+  }
+
+  const totalValue = currentValue(
+    currency.totals.totalAmount,
+    currentMarketPrice
+  );
+  return percentageDifference(currency.totals.totalPurchasePrice, totalValue);
+};

@@ -1,8 +1,6 @@
 import { FetchedCurrency, SelectedAsset } from 'currency';
 import { Card, Button } from 'flowbite-react';
 import {
-  percentageDifference,
-  currentValue,
   currencyFormat,
   percentageFormat,
 } from '../utils/helpers';
@@ -11,55 +9,13 @@ import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import { CurrencyQuote } from 'api';
 import { FaPen } from 'react-icons/fa';
+import { getTotalAmount, getTotalPercentageDifference, getTotalPurchasePrice } from '../utils/totals';
 
 type DashboardCard = {
   fetchedCurrency: FetchedCurrency;
   assetMap: Map<number, SelectedAsset>;
   isSelected: boolean;
   currencyQuote: keyof CurrencyQuote
-};
-
-export const getTotalAmount = (
-  assetMap: Map<number, SelectedAsset>,
-  cmcId: number
-): number => {
-  return assetMap.get(cmcId)?.totals.totalAmount || 0;
-};
-
-export const getTotalValue = (
-  assetMap: Map<number, SelectedAsset>,
-  cmcId: number
-): number => {
-  const totalAmount = assetMap.get(cmcId)?.totals.totalAmount || 0;
-  return totalAmount || 0;
-};
-
-export const getTotalPurchasePrice = (
-  cryptoMap: Map<number, SelectedAsset>,
-  cmcId: number
-): number => {
-  return cryptoMap.get(cmcId)?.totals.totalPurchasePrice || 0;
-};
-
-export const getTotalPercentageDifference = (
-  assetMap: Map<number, SelectedAsset>,
-  cmcId: number,
-  currentMarketPrice: number
-): number => {
-  const currency = assetMap.get(cmcId);
-  if (
-    !currency ||
-    !currency.totals.totalAmount ||
-    !currency.totals.totalPurchasePrice
-  ) {
-    return 0;
-  }
-
-  const totalValue = currentValue(
-    currency.totals.totalAmount,
-    currentMarketPrice
-  );
-  return percentageDifference(currency.totals.totalPurchasePrice, totalValue);
 };
 
 const DashboardCard: React.FC<DashboardCard> = ({

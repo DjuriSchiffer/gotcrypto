@@ -15,7 +15,7 @@ import { useStorage } from '../hooks/useStorage';
 interface OverviewRowProps {
   type: 'detail';
   item: Transaction;
-  currentCurrency: FetchedCurrency | null;
+  fetchedCurrency: FetchedCurrency | null;
   currencies: FetchedCurrency[] | null;
   children: React.ReactNode;
   currencyQuote: keyof CurrencyQuote
@@ -24,7 +24,7 @@ interface OverviewRowProps {
 interface OverviewTotalsRowProps {
   type: 'detail-totals';
   item: SelectedAsset['totals'];
-  currentCurrency: FetchedCurrency | null;
+  fetchedCurrency: FetchedCurrency | null;
   currencies?: FetchedCurrency[] | null;
   children?: React.ReactNode;
   currencyQuote: keyof CurrencyQuote
@@ -35,7 +35,7 @@ type TableRowComponentProps = OverviewRowProps | OverviewTotalsRowProps;
 const TableRow: React.FC<TableRowComponentProps> = ({
   type,
   item,
-  currentCurrency,
+  fetchedCurrency,
   children,
   currencyQuote
 }) => {
@@ -47,7 +47,7 @@ const TableRow: React.FC<TableRowComponentProps> = ({
     const amount = parseFloat(transactionItem.amount);
     const purchasePrice = parseFloat(transactionItem.purchasePrice);
     const purchaseDate = dateForDisplay(transactionItem.date, dateLocale);
-    const currentValue = currentValueFn(amount, currentCurrency?.price || 0);
+    const currentValue = currentValueFn(amount, fetchedCurrency?.price || 0);
     const averagePurchasePrice = averagePurchasePriceFn(purchasePrice, amount);
     const percentageDifference = percentageDifferenceFn(
       purchasePrice,
@@ -102,7 +102,7 @@ const TableRow: React.FC<TableRowComponentProps> = ({
     const totalPurchasePrice = parseFloat(
       totalsItem.totalPurchasePrice.toString()
     );
-    const totalValue = currentValueFn(totalAmount, currentCurrency?.price || 0);
+    const totalValue = currentValueFn(totalAmount, fetchedCurrency?.price || 0);
     const totalAveragePurchasePrice = averagePurchasePriceFn(
       totalPurchasePrice,
       totalAmount

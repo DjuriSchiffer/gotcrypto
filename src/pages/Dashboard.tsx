@@ -13,6 +13,9 @@ import { getGlobalTotals } from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import { ChangeQuote } from '../components/ChangeQuote';
+import { ChangeLayout } from '../components/ChangeLayout';
+import Table from '../components/Table';
+import DashboardTableRow from '../components/DashboardTableRow';
 
 const createCryptoMap = (
   selectedCurrencies: SelectedAsset[]
@@ -35,7 +38,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
   const [selectedOptions, setSelectedOptions] = useState<
     MultiValue<OptionType>
   >([]);
-  const { sortMethod, currencyQuote } = useAppState();
+  const { sortMethod, currencyQuote, dashboardLayout } = useAppState();
   const { selectedCurrencies, loading: storageIsLoading } = useStorage();
   const {
     data: fetchedCurrencies,
@@ -148,8 +151,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
                 </Tooltip>
               </div>
             )}
-            <div className='ml-auto'><ChangeQuote /></div>
-            <div className=''>
+          </div>
+          <div className='flex row gap-4'>
+            <ChangeLayout />
+            <ChangeQuote />
+            <div className='ml-auto'>
               <SearchInput
                 options={fetchedCurrencies}
                 selectedOptions={selectedOptions}
@@ -158,22 +164,41 @@ const Dashboard: React.FC<DashboardProps> = () => {
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sortedFetchedCurrencies.map((fetchedCurrency) => {
-              const isSelected =
-                assetMap.has(fetchedCurrency.cmc_id) &&
-                assetMap.get(fetchedCurrency.cmc_id)!?.transactions.length > 0;
-              return (
-                <DashboardCard
-                  fetchedCurrency={fetchedCurrency}
-                  key={fetchedCurrency.cmc_id}
-                  assetMap={assetMap}
-                  isSelected={isSelected}
-                  currencyQuote={currencyQuote}
-                />
-              );
-            })}
-          </div>
+          {dashboardLayout === 'Grid' &&
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sortedFetchedCurrencies.map((fetchedCurrency) => {
+                const isSelected =
+                  assetMap.has(fetchedCurrency.cmc_id) &&
+                  assetMap.get(fetchedCurrency.cmc_id)!?.transactions.length > 0;
+                return (
+                  <DashboardCard
+                    fetchedCurrency={fetchedCurrency}
+                    key={fetchedCurrency.cmc_id}
+                    assetMap={assetMap}
+                    isSelected={isSelected}
+                    currencyQuote={currencyQuote}
+                  />
+                );
+              })}
+            </div>
+          }
+          {dashboardLayout === 'Table' &&
+            <Table type="dashboard">
+              {sortedFetchedCurrencies.map((fetchedCurrency) => {
+                const isSelected =
+                  assetMap.has(fetchedCurrency.cmc_id) &&
+                  assetMap.get(fetchedCurrency.cmc_id)!?.transactions.length > 0;
+                return (
+                  <DashboardTableRow
+                    fetchedCurrency={fetchedCurrency}
+                    key={fetchedCurrency.cmc_id}
+                    assetMap={assetMap}
+                    isSelected={isSelected}
+                    currencyQuote={currencyQuote}
+                  />)
+              })}
+            </Table>}
+
         </div>
       </Page>
     </LoadingErrorWrapper>

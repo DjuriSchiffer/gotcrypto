@@ -1,13 +1,32 @@
 import { Table } from 'flowbite-react';
 import { ReactNode } from 'react';
 
-export type TableType = 'detail';
+export type TableType = 'dashboard' | 'detail';
 
 interface TableHeadProps {
   type?: TableType;
 }
 
-const TableHead: React.FC<TableHeadProps> = ({ type = 'dashboard' }) => {
+const TableHead: React.FC<TableHeadProps> = ({ type }) => {
+  if (type === "dashboard") {
+    return (
+      <Table.Head>
+        <Table.HeadCell className="text-left py-2">Name</Table.HeadCell>
+        <Table.HeadCell className="text-left py-2">
+          Current Market Price
+        </Table.HeadCell>
+        <Table.HeadCell className="text-left py-2">Holdings</Table.HeadCell>
+        <Table.HeadCell className="text-left py-2">
+          Total invested
+        </Table.HeadCell>
+        <Table.HeadCell className="text-left py-2">Profit/loss</Table.HeadCell>
+        <Table.HeadCell className="text-right py-2 pr-3">
+          Edit
+        </Table.HeadCell>
+      </Table.Head>
+    );
+  }
+
   if (type === 'detail') {
     return (
       <Table.Head>
@@ -47,7 +66,7 @@ interface TableComponentProps {
 }
 
 const TableComponent: React.FC<TableComponentProps> = ({
-  type = 'detail',
+  type,
   children,
 }) => {
   return (

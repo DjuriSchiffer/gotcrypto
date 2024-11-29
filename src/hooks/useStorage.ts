@@ -8,7 +8,7 @@ import {
 import { useEffect, useState, useCallback } from 'react';
 import { SelectedAsset } from 'currency';
 import { useAppState } from './useAppState';
-import { DateLocale, SortMethod } from 'store';
+import { DateLocale, DashboardLayout, SortMethod } from 'store';
 import localforage from 'localforage';
 import { useAppDispatch } from './useAppDispatch';
 import { getDoc, updateDoc } from 'firebase/firestore';
@@ -19,12 +19,13 @@ const SORT_METHOD_KEY = 'sortMethod';
 const CURRENCY_QUOTE = 'currencyQuote';
 const CUSTOM_ORDER_KEY = 'customOrder';
 const DATE_LOCALE = 'dateLocale';
+const DASHBOARD_LAYOUT = 'dashboardLayout';
 
 export const useStorage = () => {
   const { user, isAnonymous } = useAuth();
   const dispatch = useAppDispatch();
   const { setLocalForage, getSelectedCurrencies } = useLocalForage();
-  const { sortMethod: globalSortMethod, currencyQuote: globalCurrencyQuote, dateLocale: globalDateLocale } = useAppState();
+  const { sortMethod: globalSortMethod, currencyQuote: globalCurrencyQuote, dateLocale: globalDateLocale, dashboardLayout: globalDashboardLayout } = useAppState();
   const [selectedCurrencies, setSelectedCurrenciesState] = useState<
     SelectedAsset[]
   >([]);
@@ -49,6 +50,7 @@ export const useStorage = () => {
       let savedCustomOrder: number[] = [];
       let savedCurrencyQuote: keyof CurrencyQuote = 'EUR';
       let savedDateLocale: DateLocale = 'nl';
+      let savedDashboardLayout: DashboardLayout = 'Grid';
 
       if (user && !isAnonymous) {
         const userDocRef = getUserDocRef(user.uid);
@@ -56,10 +58,11 @@ export const useStorage = () => {
 
         if (userDoc.exists()) {
           const data = userDoc.data();
-          savedSortMethod = (data.sortMethod as SortMethod) || 'has_selected';
-          savedCustomOrder = (data.customOrder as number[]) || [];
+          savedSortMethod = (data.sortMethod) || 'has_selected';
+          savedCustomOrder = (data.customOrder) || [];
           savedCurrencyQuote = (data.currencyQuote) || 'EUR';
           savedDateLocale = (data.dateLocale) || 'nl';
+          savedDashboardLayout = (data.dashboardLayout) || 'Grid';
         }
       } else {
         const sortMethodFromStorage = await localforage.getItem<string>(
@@ -74,10 +77,14 @@ export const useStorage = () => {
         const dateLocaleFromStorage = await localforage.getItem<DateLocale>(
           DATE_LOCALE
         );
+        const dashboardLayoutFromStorage = await localforage.getItem<DashboardLayout>(
+          DASHBOARD_LAYOUT
+        );
         savedSortMethod = (sortMethodFromStorage as SortMethod) || 'has_selected';
         savedCustomOrder = customOrderFromStorage || [];
         savedCurrencyQuote = currencyQuoteFromStorage || 'EUR';
         savedDateLocale = dateLocaleFromStorage || 'nl';
+        savedDashboardLayout = dashboardLayoutFromStorage || 'Grid';
       }
 
       dispatch({
@@ -91,6 +98,10 @@ export const useStorage = () => {
       dispatch({
         type: 'SET_DATE_LOCALE',
         payload: savedDateLocale,
+      });
+      dispatch({
+        type: 'SET_DASHBOARD_LAYOUT',
+        payload: savedDashboardLayout,
       });
 
       setLoading(false);
@@ -221,6 +232,31 @@ export const useStorage = () => {
     [user, isAnonymous, dispatch]
   );
 
+  const setDashboardLayout = useCallback(
+    async (dashboardLayout: DashboardLayout) => {
+      try {
+        dispatch({
+          type: 'SET_DASHBOARD_LAYOUT',
+          payload: dashboardLayout,
+        });
+
+        if (user && !isAnonymous) {
+          const userDocRef = getUserDocRef(user.uid);
+          await updateDoc(userDocRef, { dashboardLayout: dashboardLayout });
+        } else {
+          await localforage.setItem(DASHBOARD_LAYOUT, dashboardLayout);
+        }
+      } catch (error) {
+        console.error('Error setting dashboard layout:', error);
+        dispatch({
+          type: 'SET_ERROR',
+          payload: true,
+        });
+      }
+    },
+    [user, isAnonymous, dispatch]
+  );
+
   return {
     selectedCurrencies,
     setSelectedCurrencies,
@@ -231,6 +267,8 @@ export const useStorage = () => {
     setCurrencyQuote,
     dateLocale: globalDateLocale,
     setDateLocale,
+    dashboardLayout: globalDashboardLayout,
+    setDashboardLayout,
     loading,
   };
 };
