@@ -6,6 +6,9 @@ import { useStorage } from '../hooks/useStorage';
 interface DatePickerProps {
   date: string;
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  name: string
+  autoComplete: string,
+  'data-form-type': string
 }
 
 const options: DatepickerOptions = {

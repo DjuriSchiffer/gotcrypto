@@ -10,6 +10,54 @@ import classNames from 'classnames';
 import { currencyFormat, dateToStorage, displayToStorage } from '../utils/helpers';
 import { useStorage } from '../hooks/useStorage';
 
+const CurrencyFormInput: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  currencyQuote: keyof CurrencyQuote;
+  placeholder?: string;
+  className?: string;
+}> = ({ value, onChange, currencyQuote, placeholder, className }) => {
+  const getLocaleConfig = () => {
+    if (currencyQuote === 'EUR') {
+      return {
+        decimalSeparator: ',',
+        groupSeparator: '.',
+        placeholder: placeholder || '5.000,25'
+      };
+    }
+    return {
+      decimalSeparator: '.',
+      groupSeparator: ',',
+      placeholder: placeholder || '5,000.25'
+    };
+  };
+
+  const { decimalSeparator, groupSeparator, placeholder: defaultPlaceholder } = getLocaleConfig();
+
+  return (
+    <CurrencyInput
+      autoComplete="off"
+      data-form-type="other"
+      name="transaction-price"
+      value={value}
+      onValueChange={(value) => {
+        if (!value) {
+          onChange('');
+        } else if (!isNaN(parseFloat(value))) {
+          onChange(value);
+        }
+      }}
+      placeholder={placeholder || defaultPlaceholder}
+      decimalsLimit={2}
+      decimalSeparator={decimalSeparator}
+      groupSeparator={groupSeparator}
+      allowNegativeValue={false}
+      allowDecimals={true}
+      className={className}
+    />
+  );
+};
+
 interface FormInputs {
   amount: string;
   purchasePrice: string;
@@ -150,6 +198,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             render={({ field }) => (
               <input
                 {...field}
+                autoComplete="off"
+                data-form-type="other"
+                name="transaction-amount"
                 type="text"
                 placeholder="10.50"
                 onChange={(e) => {
@@ -194,29 +245,20 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             rules={{
               required: 'This field is required',
               validate: (value) => {
-                const num = parseFloat(value);
+                const normalizedValue = value.replace(',', '.');
+                const num = parseFloat(normalizedValue);
                 if (isNaN(num)) return 'Please enter a valid number';
                 if (num <= 0) return 'Price must be greater than 0';
                 return true;
               },
             }}
             render={({ field: { onChange, value, ...field } }) => (
-              <CurrencyInput
+              <CurrencyFormInput
                 {...field}
                 value={value}
-                onValueChange={(value) => {
-                  if (!value) {
-                    onChange('');
-                  } else if (!isNaN(parseFloat(value))) {
-                    onChange(value);
-                  }
-                }}
-                placeholder={`${currencyFormat(5000.25, currencyQuote)}`}
-                decimalsLimit={2}
-                decimalSeparator="."
-                groupSeparator=","
-                allowNegativeValue={false}
-                allowDecimals={true}
+                onChange={onChange}
+                currencyQuote={currencyQuote}
+                placeholder={currencyFormat(5000.25, currencyQuote)}
                 className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               />
             )}
@@ -252,6 +294,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             }}
             render={({ field: { onChange, value } }) => (
               <DatePicker
+                autoComplete="off"
+                data-form-type="other"
+                name="transaction-date"
                 date={value}
                 handleChange={(e) => {
                   const isoDate = displayToStorage(e.target.value, dateLocale);
