@@ -35,6 +35,7 @@ export function ChangeQuote() {
         <Button.Group>
             {priceOptions.map((option, index) => (
                 <Button
+                    key={index}
                     color={currencyQuote === option.quote ? 'dark' : 'gray'}
                     onClick={() => handleQuoteChange(option.quote)}
                     className={classNames('', {
