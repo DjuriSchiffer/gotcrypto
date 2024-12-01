@@ -152,10 +152,10 @@ const Dashboard: React.FC<DashboardProps> = () => {
               </div>
             )}
           </div>
-          <div className='flex row gap-4'>
+          <div className='flex row flex-wrap gap-4'>
             <ChangeLayout />
             <ChangeQuote />
-            <div className='ml-auto'>
+            <div className='ml-auto w-full md:w-6/12 lg:w-4/12'>
               <SearchInput
                 options={fetchedCurrencies}
                 selectedOptions={selectedOptions}
