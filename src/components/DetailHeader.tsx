@@ -25,7 +25,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
     onAddTransaction,
     onRemoveAllTransactions,
 }) => (
-    <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center justify-between mb-4 flex-wrap">
         <div className="flex items-center">
             <img
                 className="inline-block mr-4"
@@ -34,7 +34,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
                 src={getImage(currentFetchedCurrency.cmc_id, 64)}
                 alt={`${currentFetchedCurrency.name} icon`}
             />
-            <div>
+            <div className=' pr-1 mb-1'>
                 <h2 className="text-3xl font-bold text-white">
                     {currentFetchedCurrency.name}
                 </h2>
