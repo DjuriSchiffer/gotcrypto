@@ -39,7 +39,7 @@ const DetailTransactionTable: React.FC<DetailTransactionTableProps> = ({
                     type="detail"
                     item={transaction}
                     currencies={fetchedCurrencies}
-                    currentCurrency={currentFetchedCurrency}
+                    fetchedCurrency={currentFetchedCurrency}
                     currencyQuote={currencyQuote}
                 >
                     <Button
@@ -64,7 +64,7 @@ const DetailTransactionTable: React.FC<DetailTransactionTableProps> = ({
                     <TableRow
                         type="detail-totals"
                         item={selectedAsset.totals}
-                        currentCurrency={currentFetchedCurrency}
+                        fetchedCurrency={currentFetchedCurrency}
                         currencyQuote={currencyQuote}
                     ></TableRow>
                 )}
