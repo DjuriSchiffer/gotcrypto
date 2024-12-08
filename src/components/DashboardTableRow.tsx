@@ -66,7 +66,7 @@ const DashboardTableRow: React.FC<DashboardTableRow> = ({
           <Table.Cell className="py-2 text-gray-900 dark:text-white">
             <div className="flex flex-col">
               <div>  {currencyFormat(
-                getTotalPurchasePrice(assetMap, fetchedCurrency.cmc_id)
+                getTotalPurchasePrice(assetMap, fetchedCurrency.cmc_id), currencyQuote
               )}</div>
             </div>
           </Table.Cell>

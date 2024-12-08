@@ -131,7 +131,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
                   </div>
                   <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
                     {currencyFormat(
-                      getTotalPurchasePrice(assetMap, fetchedCurrency.cmc_id)
+                      getTotalPurchasePrice(assetMap, fetchedCurrency.cmc_id), currencyQuote
                     )}
                   </div>
                 </div>
