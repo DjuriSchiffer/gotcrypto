@@ -33,9 +33,9 @@ const DashboardTableRow: React.FC<DashboardTableRow> = ({
 
   return (
     <Table.Row
-      className={classNames('transition ease-in-out', {
+      className={classNames('transition ease-in-out !border-gray-400', {
         'opacity-50': !isSelected,
-        'hover:opacity-100': !isSelected,
+        'hover:opacity-100': !isSelected
       })}
     >
       <Table.Cell className="whitespace-nowrap dark:text-white">
