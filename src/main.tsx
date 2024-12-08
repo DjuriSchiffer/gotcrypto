@@ -18,11 +18,13 @@ Sentry.init({
   tracesSampleRate: 1.0,
   tracePropagationTargets: [
     "localhost",
-    /^https:\/\/yourserver\.io\/api/
+    /^https:\/\/gotcrypto\.vercel\.app/,
+    /^https:\/\/firestore\.googleapis\.com/,
   ],
   // Session Replay
   replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
   replaysOnErrorSampleRate: 1.0,
+  environment: process.env.NODE_ENV,
 });
 
 // Create Query Client
