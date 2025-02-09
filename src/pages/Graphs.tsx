@@ -7,8 +7,10 @@ import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import Charts from '../components/Charts';
 import { useAppState } from '../hooks/useAppState';
 import { createCryptoMap, currencyFormat, percentageFormat } from '../utils/helpers';
-import { getGlobalTotals } from '../utils/totals';
+import { getGlobalTotals, getTotalPercentageDifference } from '../utils/totals';
 import classNames from 'classnames';
+import { FetchedCurrency } from 'currency';
+import { getImage } from '../utils/images';
 
 
 const Graphs: React.FC = () => {
@@ -23,6 +25,7 @@ const Graphs: React.FC = () => {
     loading: storageIsLoading,
   } = useStorage();
 
+
   const assetMap = useMemo(
     () => createCryptoMap(selectedCurrencies),
     [selectedCurrencies]
@@ -31,6 +34,34 @@ const Graphs: React.FC = () => {
   const globalTotals = useMemo(() => {
     return getGlobalTotals(selectedCurrencies, fetchedCurrencies);
   }, [fetchedCurrencies, selectedCurrencies]);
+
+  const bestPerformingAsset = useMemo(() => {
+    const assetsWithPerformance = selectedCurrencies.map(selectedCurrency => {
+      const currentCurrency = fetchedCurrencies?.find(
+        (fetchedCurrency) => fetchedCurrency.cmc_id === selectedCurrency.cmc_id
+      );
+      const currentPrice = currentCurrency?.price ?? 0;
+      const currentCMCID = currentCurrency?.cmc_id ?? 0;
+      const percentageDifference = getTotalPercentageDifference(
+        assetMap,
+        currentCMCID,
+        currentPrice
+      );
+
+      return {
+        currentCurrency: currentCurrency,
+        percentageDifference
+      };
+    });
+
+    return assetsWithPerformance.reduce((best, current) => {
+      if (!best || (current.percentageDifference > best.percentageDifference)) {
+        return current;
+      }
+      return best;
+    }, null as { currentCurrency: FetchedCurrency | undefined, percentageDifference: number } | null);
+
+  }, [selectedCurrencies, fetchedCurrencies]);
 
   return (
     <LoadingErrorWrapper
@@ -41,7 +72,7 @@ const Graphs: React.FC = () => {
       <Page>
         <div className="grid gap-4 mb-4 w-full mt-14 lg:mt-auto">
           {globalTotals && (
-            <div className='grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-4 mb-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-4 gap-4 mb-4'>
               <div className="text-white">
                 Total value
                 <Tooltip content="Total Value">
@@ -72,6 +103,22 @@ const Graphs: React.FC = () => {
                   >
                     <div className="text-4xl">
                       {percentageFormat(globalTotals.totalPercentageDifference)}
+                    </div>
+                  </div>
+                </Tooltip>
+              </div>
+              <div className="text-white">
+                Best performing asset
+                <Tooltip content="Based by total profit per asset">
+                  <div className="text-4xl">
+                    <div className="flex items-center">
+                      <img
+                        width={32}
+                        height={32}
+                        src={getImage(bestPerformingAsset?.currentCurrency?.cmc_id)}
+                        alt={`${bestPerformingAsset?.currentCurrency?.name} icon`}
+                      />
+                      <div className="pl-2"> {bestPerformingAsset?.currentCurrency?.name}</div>
                     </div>
                   </div>
                 </Tooltip>
