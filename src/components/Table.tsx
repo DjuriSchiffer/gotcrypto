@@ -30,7 +30,8 @@ const TableHead: React.FC<TableHeadProps> = ({ type }) => {
   if (type === 'detail') {
     return (
       <Table.Head>
-        <Table.HeadCell className="text-left py-2 pl-3">Type</Table.HeadCell>
+        <Table.HeadCell className="text-left py-2 pl-3">Year</Table.HeadCell>
+        <Table.HeadCell className="text-left py-2">Type</Table.HeadCell>
         <Table.HeadCell className="text-left py-2">Amount</Table.HeadCell>
         <Table.HeadCell className="text-left py-2">
           Price

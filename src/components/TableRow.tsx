@@ -18,7 +18,9 @@ interface OverviewRowProps {
   fetchedCurrency: FetchedCurrency | null;
   currencies: FetchedCurrency[] | null;
   children: React.ReactNode;
-  currencyQuote: keyof CurrencyQuote
+  currencyQuote: keyof CurrencyQuote,
+  yearCell?: string;
+  isYearSeparator?: boolean
 }
 
 interface OverviewTotalsRowProps {
@@ -27,7 +29,10 @@ interface OverviewTotalsRowProps {
   fetchedCurrency: FetchedCurrency | null;
   currencies?: FetchedCurrency[] | null;
   children?: React.ReactNode;
-  currencyQuote: keyof CurrencyQuote
+  currencyQuote: keyof CurrencyQuote,
+  yearCell?: string;
+  isYearSeparator?: boolean
+
 }
 
 type TableRowComponentProps = OverviewRowProps | OverviewTotalsRowProps;
@@ -37,7 +42,10 @@ const TableRow: React.FC<TableRowComponentProps> = ({
   item,
   fetchedCurrency,
   children,
-  currencyQuote
+  currencyQuote,
+  yearCell,
+  isYearSeparator
+
 }) => {
   const { dateLocale } = useStorage();
   if (type === 'detail') {
@@ -56,7 +64,8 @@ const TableRow: React.FC<TableRowComponentProps> = ({
 
     return (
       <Table.Row>
-        <Table.Cell className="py-2 pl-3 text-gray-900 dark:text-white">
+        <Table.Cell className={classNames('py-2 pl-3 text-gray-900 dark:text-white')}>{yearCell}</Table.Cell>
+        <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
               {!type || type === 'buy' ? 'Buy' : 'Sell'}
@@ -66,19 +75,19 @@ const TableRow: React.FC<TableRowComponentProps> = ({
             </p>
           </div>
         </Table.Cell>
-        <Table.Cell className="py-2 text-gray-900 dark:text-white">
+        <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
           {amount}
         </Table.Cell>
-        <Table.Cell className="py-2 text-gray-900 dark:text-white">
+        <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
           {currencyFormat(purchasePrice, currencyQuote)}
         </Table.Cell>
-        <Table.Cell className="py-2 text-gray-900 dark:text-white">
+        <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
           {currencyFormat(currentValue, currencyQuote)}
         </Table.Cell>
-        <Table.Cell className="py-2 text-gray-900 dark:text-white">
+        <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
           {currencyFormat(averagePurchasePrice, currencyQuote)}
         </Table.Cell>
-        <Table.Cell className="py-2 text-gray-900 dark:text-white">
+        <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
           <div
             className={classNames('flex', {
               'text-blue-500': percentageDifference > 0,
@@ -88,7 +97,7 @@ const TableRow: React.FC<TableRowComponentProps> = ({
             {percentageFormat(percentageDifference)}
           </div>
         </Table.Cell>
-        <Table.Cell className="py-2 pr-2 text-right flex items-center justify-end text-gray-900 dark:text-white">
+        <Table.Cell className="py-2 pr-2 flex items-center justify-end text-gray-900 dark:text-white">
           {children}
         </Table.Cell>
       </Table.Row>
@@ -114,6 +123,7 @@ const TableRow: React.FC<TableRowComponentProps> = ({
 
     return (
       <Table.Row>
+        <Table.Cell></Table.Cell>
         <Table.Cell></Table.Cell>
         <Table.Cell className="py-2 text-gray-900 dark:text-white">
           {totalAmount}
