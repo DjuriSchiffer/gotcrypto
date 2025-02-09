@@ -106,22 +106,23 @@ const Graphs: React.FC = () => {
                   </div>
                 </Tooltip>
               </div>
-              <div className="text-white">
-                Best performing asset
-                <Tooltip content="Based by total profit per asset">
-                  <div className="text-4xl">
-                    <div className="flex items-center">
-                      <img
-                        width={32}
-                        height={32}
-                        src={getImage(bestPerformingAsset?.currentCurrency?.cmc_id)}
-                        alt={`${bestPerformingAsset?.currentCurrency?.name} icon`}
-                      />
-                      <div className="pl-2"> {bestPerformingAsset?.currentCurrency?.name}</div>
+              {bestPerformingAsset &&
+                <div className="text-white">
+                  Best performing asset
+                  <Tooltip content="Based by total profit per asset">
+                    <div className="text-4xl">
+                      <div className="flex items-center">
+                        <img
+                          width={32}
+                          height={32}
+                          src={getImage(bestPerformingAsset.currentCurrency?.cmc_id)}
+                          alt={`${bestPerformingAsset.currentCurrency?.name} icon`}
+                        />
+                        <div className="pl-2"> {bestPerformingAsset.currentCurrency?.name}</div>
+                      </div>
                     </div>
-                  </div>
-                </Tooltip>
-              </div>
+                  </Tooltip>
+                </div>}
             </div>
           )}
           <div className='grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4 mb-4'>
