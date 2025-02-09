@@ -72,7 +72,7 @@ const Graphs: React.FC = () => {
       <Page>
         <div className="grid gap-4 mb-4 w-full mt-14 lg:mt-auto">
           {globalTotals && (
-            <div className='grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-4 gap-4 mb-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4'>
               <div className="text-white">
                 Total value
                 <Tooltip content="Total Value">
@@ -80,7 +80,6 @@ const Graphs: React.FC = () => {
                     {currencyFormat(globalTotals.totalValue, currencyQuote)}
                   </div>
                 </Tooltip>
-
               </div>
               <div className="text-white">
                 Total invested
@@ -125,9 +124,11 @@ const Graphs: React.FC = () => {
               </div>
             </div>
           )}
-          <div className='grid grid-cols-1 gap-4 mb-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4 mb-4'>
             <Card>
               <Charts assetMap={assetMap} fetchedCurrencies={fetchedCurrencies} selectedAssets={selectedCurrencies} id="amount" />
+            </Card>
+            <Card>
               <Charts assetMap={assetMap} fetchedCurrencies={fetchedCurrencies} selectedAssets={selectedCurrencies} id="invested" />
             </Card>
           </div>
