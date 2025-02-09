@@ -1,4 +1,5 @@
 import { CurrencyQuote } from "api";
+import { SelectedAsset } from "currency";
 
 /**
  * Calculates the percentage difference between purchase price and current value.
@@ -137,3 +138,14 @@ export function displayToStorage(displayDate: string, locale: SupportedLocale = 
   }
   return dateToStorage(new Date());
 }
+
+
+export const createCryptoMap = (
+  selectedCurrencies: SelectedAsset[]
+): Map<number, SelectedAsset> => {
+  return new Map(
+    selectedCurrencies
+      .filter(currency => currency.transactions?.length > 0)
+      .map((currency) => [currency.cmc_id, currency])
+  );
+};

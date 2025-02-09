@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useAppState } from '../hooks/useAppState';
-import { percentageFormat, currencyFormat } from '../utils/helpers';
+import { percentageFormat, currencyFormat, createCryptoMap } from '../utils/helpers';
 import { Tooltip } from 'flowbite-react';
 import Page from '../components/Page';
 import { SelectedAsset } from 'currency';
@@ -16,16 +16,6 @@ import { ChangeQuote } from '../components/ChangeQuote';
 import { ChangeLayout } from '../components/ChangeLayout';
 import Table from '../components/Table';
 import DashboardTableRow from '../components/DashboardTableRow';
-
-const createCryptoMap = (
-  selectedCurrencies: SelectedAsset[]
-): Map<number, SelectedAsset> => {
-  return new Map(
-    selectedCurrencies
-      .filter(currency => currency.transactions?.length > 0)
-      .map((currency) => [currency.cmc_id, currency])
-  );
-};
 
 type DashboardProps = {};
 interface OptionType {

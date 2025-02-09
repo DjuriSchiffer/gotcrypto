@@ -80,7 +80,7 @@ const SideBar: React.FC<SideBarProps> = () => {
                 <Sidebar.ItemGroup>
                     <AppSideBarLogo to='/' text="Got Crypto" img={logo} imgAlt='Got Crypto' />
                     {isDashboard ? <AppSideBarItem to='/' text='Dashboard' icon={FaChartPie} /> : <AppSideBarItem to='/' text='Return to Dashboard' icon={FaArrowLeft} />}
-                    {/* <AppSideBarItem to='/graphs' text='Graphs' icon={FaChartBar} /> */}
+                    <AppSideBarItem to='/graphs' text='Graphs and stats' icon={FaChartBar} />
                 </Sidebar.ItemGroup>
                 <Sidebar.ItemGroup className='!mt-auto'  >
                     <AppSideBarItem to='/user-settings' text='User & Settings' icon={FaCog} />

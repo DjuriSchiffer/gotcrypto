@@ -14,7 +14,6 @@ import DetailHeader from '../components/DetailHeader';
 import DetailModals from '../components/DetailModals';
 import DetailCharts from '../components/DetailsCharts';
 import DetailTransactionTable from '../components/DetailTransactionTable';
-import classNames from 'classnames';
 
 interface FormInputs {
   amount: string;
@@ -43,7 +42,6 @@ const Detail: React.FC = () => {
   const [openRemoveAllTransactionsModal, setOpenRemoveAllTransactionsModal] = useState<boolean>(false);
   const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
 
-  // Memoized selectors
   const selectedAsset = useMemo(() => {
     return selectedCurrencies.find(
       (currency) => currency.slug === currentAssetSlug
@@ -56,7 +54,6 @@ const Detail: React.FC = () => {
     );
   }, [fetchedCurrencies, currentAssetSlug]);
 
-  // Modal handlers
   const handleOpenAddTransactionModal = () => {
     setCurrentTransaction(null);
     setOpenAddTransactionModal(true);

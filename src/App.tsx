@@ -6,6 +6,7 @@ import UserSettings from './pages/UserSettings';
 import ErrorComponent from './components/Error';
 import AuthChoice from './components/AuthChoice';
 import { useAuth } from './hooks/useAuth';
+import Graphs from './pages/Graphs';
 
 const App: React.FC = () => {
   const { user } = useAuth();
@@ -15,6 +16,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={user ? <Dashboard /> : <AuthChoice />} />
         <Route path="/:slug" element={user ? <Detail /> : <AuthChoice />} />
+        <Route path="/graphs" element={user ? <Graphs /> : <AuthChoice />} />
         <Route path="/user-settings" element={user ? <UserSettings /> : <AuthChoice />} />
         <Route path="*" element={<ErrorComponent />} />
       </Routes>
