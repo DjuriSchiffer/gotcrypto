@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { currencyFormat, dateForDisplay } from '../utils/helpers';
 import {
   Chart as ChartJS,
@@ -15,7 +15,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { Transaction, SelectedAsset } from 'currency';
-import useCoinMarketCap from '../hooks/useCoinMarketCap';
+import { useCoinMarketCap, useHistoricalPrices } from '../hooks/useCoinMarketCap';
 import { CurrencyQuote } from 'api';
 import { useStorage } from '../hooks/useStorage';
 
@@ -38,6 +38,24 @@ interface DetailChartsProps {
 const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuote }) => {
   const { dateLocale } = useStorage();
   const { data: fetchedCurrencies } = useCoinMarketCap(currencyQuote);
+
+  const earliestTransaction = useMemo(() => {
+    const dates = selectedAsset?.transactions.map(t => new Date(t.date).getTime());
+    return new Date(Math.min(...dates));
+  }, [selectedAsset.transactions]);
+
+  console.log('earliestTransaction', earliestTransaction)
+
+  // Fetch historical prices
+  const { data: historicalPrices, isLoading, isError } = useHistoricalPrices(
+    selectedAsset.cmc_id,
+    earliestTransaction,
+    new Date(),
+    currencyQuote
+  );
+
+  console.log('historicalPrices', historicalPrices)
+
 
   if (!selectedAsset) {
     return <div>No currency selected.</div>;

@@ -23,3 +23,12 @@ export type GetCurrenciesResponse = {
   };
   error?: string;
 };
+
+export type HistoricalPriceResponse = {
+  data?: Record<string, CurrencyData>;
+  status: {
+    error_code: number;
+    error_message: string;
+  };
+  error?: string;
+}

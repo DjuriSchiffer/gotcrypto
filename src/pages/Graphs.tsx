@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Card, Tooltip } from 'flowbite-react';
 import Page from '../components/Page';
 import { useStorage } from '../hooks/useStorage';
-import useCoinMarketCap from '../hooks/useCoinMarketCap';
+import { useCoinMarketCap } from '../hooks/useCoinMarketCap';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import Charts from '../components/Charts';
 import { useAppState } from '../hooks/useAppState';

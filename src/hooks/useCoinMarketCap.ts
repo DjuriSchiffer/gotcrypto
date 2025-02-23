@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getCurrencies } from '../api';
+import { getCurrencies, getHistoricalPrices } from '../api';
 import { FetchedCurrency } from '../types/currency';
 import { CurrencyData, CurrencyQuote, GetCurrenciesResponse } from 'api';
 
@@ -58,7 +58,7 @@ const transformCurrencies = (
  * Custom hook to fetch and manage currencies using React Query.
  * @returns The result of the useQuery hook.
  */
-const useCoinMarketCap = (currencyQuote: keyof CurrencyQuote = 'EUR') => {
+export const useCoinMarketCap = (currencyQuote: keyof CurrencyQuote = 'EUR') => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['fetchedCurrencies', currencyQuote],
     queryFn: async () => {
@@ -86,4 +86,42 @@ const useCoinMarketCap = (currencyQuote: keyof CurrencyQuote = 'EUR') => {
   };
 };
 
-export default useCoinMarketCap;
+
+export const useHistoricalPrices = (
+  cryptoId: number,
+  startDate: Date,
+  endDate: Date = new Date(),
+  currencyQuote: keyof CurrencyQuote = 'EUR'
+) => {
+  const formattedStartDate = startDate.toISOString().split('T')[0];
+  const formattedEndDate = endDate.toISOString().split('T')[0];
+
+  return useQuery({
+    queryKey: ['historicalPrices', cryptoId, formattedStartDate, formattedEndDate, currencyQuote],
+    queryFn: async () => {
+      const data = await getHistoricalPrices(
+        cryptoId,
+        formattedStartDate,
+        formattedEndDate
+      );
+
+      if (data.status.error_code === 0) {
+        if (data.data && data.data[cryptoId]) {
+          return data.data[cryptoId].quotes.map(quote => ({
+            timestamp: quote.timestamp,
+            price: quote.quote[currencyQuote].price,
+            volume_24h: quote.quote[currencyQuote].volume_24h,
+            market_cap: quote.quote[currencyQuote].market_cap
+          }));
+        }
+      }
+      throw new Error(data.status.error_message || 'Failed to fetch historical data');
+    },
+    staleTime: 24 * 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    retry: false
+  });
+};
+

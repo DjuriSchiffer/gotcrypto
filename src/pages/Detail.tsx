@@ -6,7 +6,7 @@ import Page from '../components/Page';
 import { Transaction, SelectedAsset, TransactionType } from '../types/currency';
 import { useStorage } from '../hooks/useStorage';
 import totals from '../utils/totals';
-import useCoinMarketCap from '../hooks/useCoinMarketCap';
+import { useCoinMarketCap } from '../hooks/useCoinMarketCap';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import { useAppState } from '../hooks/useAppState';
 import { FaArrowLeft } from 'react-icons/fa';
