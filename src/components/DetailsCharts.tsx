@@ -57,22 +57,55 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
     dateForDisplay(today.toISOString(), dateLocale)
   ];
 
-  const amountData: number[] = [
-    ...transactions.map((_, index) => {
-      const transactionsUpToIndex = transactions.slice(0, index + 1);
-      return transactionsUpToIndex.reduce((sum, transaction) =>
-        sum + parseFloat(transaction.amount), 0);
-    })
-  ];
+  // Calculate cumulative amounts at each transaction point
+  const amountData: number[] = [];
+  let cumulativeAmount = 0;
 
-  const currentAmount = amountData[amountData.length - 1] || 0;
-  amountData.push(currentAmount);
+  transactions.forEach(transaction => {
+    cumulativeAmount += parseFloat(transaction.amount);
+    amountData.push(cumulativeAmount);
+  });
 
+  // Add current amount as the final point
+  amountData.push(cumulativeAmount);
+
+  // Calculate cumulative spent amount at each transaction point
+  const spentData: number[] = [];
+  let totalSpent = 0;
+
+  transactions.forEach(transaction => {
+    totalSpent += parseFloat(transaction.purchasePrice);
+    spentData.push(totalSpent);
+  });
+
+  // Add current spent amount as the final point (doesn't change since last transaction)
+  spentData.push(totalSpent);
+
+  // Find current price from API data
   const currentCurrency = fetchedCurrencies?.find(
     (currency) => currency.cmc_id === selectedAsset.cmc_id
   );
   const currentPrice = currentCurrency?.price ?? 0;
-  const valueData: number[] = amountData.map(amount => amount * currentPrice);
+
+  // Calculate price per unit for each transaction (implied historical price)
+  const priceData: number[] = transactions.map(transaction =>
+    parseFloat(transaction.purchasePrice) / parseFloat(transaction.amount)
+  );
+  // Add current price as the final point
+  priceData.push(currentPrice);
+
+  // Calculate portfolio value at each point using historical implied prices
+  const valueData: number[] = [];
+
+  // For each historical point, calculate the value using that day's implied price
+  for (let i = 0; i < transactions.length; i++) {
+    const pricePerUnit = priceData[i];
+    const portfolioValue = amountData[i] * pricePerUnit;
+    valueData.push(portfolioValue);
+  }
+
+  // Add current value as the final point using current price
+  valueData.push(cumulativeAmount * currentPrice);
 
   const options: ChartOptions<'line'> = {
     responsive: true,
@@ -118,7 +151,13 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
         callbacks: {
           label: function (context) {
             if (context.dataset.label === 'Value') {
-              return 'Value: ' + currencyFormat(Number(context.parsed.y), currencyQuote);
+              return 'Portfolio Value: ' + currencyFormat(Number(context.parsed.y), currencyQuote);
+            }
+            if (context.dataset.label === 'Spent') {
+              return 'Amount Spent: ' + currencyFormat(Number(context.parsed.y), currencyQuote);
+            }
+            if (context.dataset.label === 'Price') {
+              return 'Price Per Unit: ' + currencyFormat(Number(context.parsed.y), currencyQuote);
             }
             return `${context.dataset.label}: ${Number(context.parsed.y).toFixed(4)}`;
           },
@@ -144,13 +183,31 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
         stepped: 'before',
         tension: 0,
       },
+      // {
+      //   label: 'Price',
+      //   data: priceData,
+      //   borderColor: '#10B981', // green 500
+      //   backgroundColor: '#059669', // green 600
+      //   yAxisID: 'y1',
+      //   stepped: 'before',
+      //   tension: 0,
+      // },
       {
         label: 'Value',
         data: valueData,
-        borderColor: '#C27803', // yellow 500
-        backgroundColor: '#9F580A', // yellow 600
+        borderColor: '#10B981', // green 500
+        backgroundColor: '#059669', // green 600
         yAxisID: 'y1',
-        stepped: 'before',
+        stepped: false,
+        tension: 0,
+      },
+      {
+        label: 'Spent',
+        data: spentData,
+        borderColor: '#EF4444', // red 500
+        backgroundColor: '#DC2626', // red 600
+        yAxisID: 'y1',
+        stepped: false,
         tension: 0,
       },
     ],
