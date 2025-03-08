@@ -98,7 +98,7 @@ const Detail: React.FC = () => {
         amount: adjustedAmount,
         purchasePrice: parseFloat(purchasePrice).toFixed(2),
         date,
-        id: currentTransaction?.id || uniqueId(),
+        id: currentTransaction?.id || uniqueId(`trans_${Date.now()}_`),
         type: transactionType,
       };
 
