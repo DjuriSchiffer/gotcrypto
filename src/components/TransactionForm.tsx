@@ -122,11 +122,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   }, [isEdit, defaultValues, reset]);
 
   const handleFormSubmit = (data: FormInputs) => {
-    const formattedData = {
-      ...data,
-      purchasePrice: parseFloat(data.purchasePrice).toFixed(2),
-    };
-    onSubmit(formattedData);
+    onSubmit(data);
   };
 
   return (

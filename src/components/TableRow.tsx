@@ -44,8 +44,6 @@ const TableRow: React.FC<TableRowComponentProps> = ({
   children,
   currencyQuote,
   yearCell,
-  isYearSeparator
-
 }) => {
   const { dateLocale } = useStorage();
   if (type === 'detail') {
@@ -82,10 +80,10 @@ const TableRow: React.FC<TableRowComponentProps> = ({
           {currencyFormat(purchasePrice, currencyQuote)}
         </Table.Cell>
         <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
-          {currencyFormat(currentValue, currencyQuote)}
+          {type === 'buy' ? currencyFormat(currentValue, currencyQuote) : ''}
         </Table.Cell>
         <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
-          {currencyFormat(averagePurchasePrice, currencyQuote)}
+          {type === 'buy' ? currencyFormat(averagePurchasePrice, currencyQuote) : ''}
         </Table.Cell>
         <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
           <div
@@ -94,7 +92,7 @@ const TableRow: React.FC<TableRowComponentProps> = ({
               'text-red-500': percentageDifference < 0,
             })}
           >
-            {percentageFormat(percentageDifference)}
+            {type === 'buy' ? percentageFormat(percentageDifference) : ''}
           </div>
         </Table.Cell>
         <Table.Cell className="py-2 pr-2 flex items-center justify-end text-gray-900 dark:text-white">

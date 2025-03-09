@@ -34,7 +34,7 @@ const TableHead: React.FC<TableHeadProps> = ({ type }) => {
         <Table.HeadCell className="text-left py-2">Type</Table.HeadCell>
         <Table.HeadCell className="text-left py-2">Amount</Table.HeadCell>
         <Table.HeadCell className="text-left py-2">
-          Price
+          Buy/sell Price
         </Table.HeadCell>
         <Table.HeadCell className="text-left py-2">
           Current Value

@@ -90,13 +90,24 @@ const Detail: React.FC = () => {
     try {
       const { amount, purchasePrice, date, transactionType } = formData;
 
-      const adjustedAmount = transactionType === 'sell'
-        ? (-Math.abs(parseFloat(amount))).toString()
-        : Math.abs(parseFloat(amount)).toString();
+      let normalizedPrice = purchasePrice.toString().replace(',', '.');
+      const parsedPrice = parseFloat(normalizedPrice);
+      const signedPrice = transactionType === 'sell'
+        ? -Math.abs(parsedPrice)
+        : Math.abs(parsedPrice);
+      const formattedPrice = signedPrice.toFixed(2);
+
+
+      const normalizedAmount = amount.toString().replace(',', '.');
+      const parsedAmount = parseFloat(normalizedAmount);
+      const signedAmount = transactionType === 'sell'
+        ? -Math.abs(parsedAmount)
+        : Math.abs(parsedAmount);
+      const formattedAmount = signedAmount.toString();
 
       const newTransaction: Transaction = {
-        amount: adjustedAmount,
-        purchasePrice: parseFloat(purchasePrice).toFixed(2),
+        amount: formattedAmount,
+        purchasePrice: formattedPrice,
         date,
         id: currentTransaction?.id || uniqueId(`trans_${Date.now()}_`),
         type: transactionType,
