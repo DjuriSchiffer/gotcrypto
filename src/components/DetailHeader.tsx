@@ -30,7 +30,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
 
     const totalAmount = totalsItem?.totalAmount ?? 0;
     const totalValue = totalAmount * currentFetchedCurrency.price;
-    const totalInvested = totalsItem ? parseFloat(
+    const totalInvested = totalsItem && totalsItem?.totalInvested ? parseFloat(
         totalsItem.totalInvested.toString()
     ) : 0;
 
