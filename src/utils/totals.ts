@@ -88,60 +88,69 @@ export const getGlobalTotals = (
   selectedCurrencies: SelectedAsset[] = [],
   fetchedCurrencies: FetchedCurrency[] | null = []
 ): GlobalTotals => {
-  const filteredSelectedCurrencies = selectedCurrencies.filter(
-    (currency) => currency.transactions && currency.transactions.length > 0
-  );
-
-  let totalAmount = 0;
-  let totalPurchasePrice = 0;
-  let totalValue = 0;
-
-  filteredSelectedCurrencies.forEach((selectCurrency) => {
-    const fetchedCurrency = fetchedCurrencies?.find(
-      (currency) => currency.cmc_id === selectCurrency.cmc_id
-    );
-
-    const currentPrice = fetchedCurrency?.price || 0;
-
-    selectCurrency.transactions.forEach((transaction) => {
-      const amount =
-        typeof transaction.amount === 'string'
-          ? parseFloat(transaction.amount)
-          : transaction.amount;
-      const purchasePrice =
-        typeof transaction.purchasePrice === 'string'
-          ? parseFloat(transaction.purchasePrice)
-          : transaction.purchasePrice;
-
-      totalAmount += amount;
-      totalPurchasePrice += purchasePrice;
-      totalValue += amount * currentPrice;
-    });
-  });
-
-  let totalPercentageDifference = percentageDifference(
-    totalPurchasePrice,
-    totalValue
-  );
-
-  const totalAveragePurchasePrice = averagePurchasePrice(
-    totalPurchasePrice,
-    totalAmount
-  );
-
-  if (typeof totalPercentageDifference !== 'number') {
-    totalPercentageDifference = 0;
+  if (!selectedCurrencies.length || !fetchedCurrencies?.length) {
+    return {
+      totalAmount: 0,
+      totalValue: 0,
+      totalPurchasePrice: 0,
+      totalPercentageDifference: 0,
+      totalAveragePurchasePrice: 0,
+    };
   }
 
+  const filteredSelectedCurrencies = selectedCurrencies.filter(
+    (currency) => currency.transactions?.length > 0
+  );
+
+  // Early return if no currencies have transactions
+  if (!filteredSelectedCurrencies.length) {
+    return {
+      totalAmount: 0,
+      totalValue: 0,
+      totalPurchasePrice: 0,
+      totalPercentageDifference: 0,
+      totalAveragePurchasePrice: 0,
+    };
+  }
+
+  // Create a lookup map for faster currency price lookups
+  const currencyPriceMap = new Map(
+    fetchedCurrencies.map(currency => [currency.cmc_id, currency.price || 0])
+  );
+
+  // Calculate totals in a single pass
+  const totals = filteredSelectedCurrencies.reduce((acc, selectCurrency) => {
+    const currentPrice = currencyPriceMap.get(selectCurrency.cmc_id) || 0;
+    const currencyAmount = selectCurrency.totals.totalAmount || 0;
+    const currencyPurchasePrice = selectCurrency.totals.totalPurchasePrice || 0;
+    const currencyValue = currencyAmount * currentPrice;
+
+    return {
+      amount: acc.amount + currencyAmount,
+      purchasePrice: acc.purchasePrice + currencyPurchasePrice,
+      value: acc.value + currencyValue
+    };
+  }, { amount: 0, purchasePrice: 0, value: 0 });
+
+  const totalPercentageDifference = typeof percentageDifference(
+    totals.purchasePrice,
+    totals.value
+  ) === 'number' ? percentageDifference(
+    totals.purchasePrice,
+    totals.value
+  ) : 0;
+
+  const totalAveragePurchasePrice = averagePurchasePrice(
+    totals.purchasePrice,
+    totals.amount
+  );
+
   return {
-    totalAmount: filteredSelectedCurrencies.length > 0 ? totalAmount : 0,
-    totalValue: filteredSelectedCurrencies.length > 0 ? totalValue : 0,
-    totalPurchasePrice:
-      filteredSelectedCurrencies.length > 0 ? totalPurchasePrice : 0,
-    totalPercentageDifference:
-      filteredSelectedCurrencies.length > 0 ? totalPercentageDifference : 0,
-    totalAveragePurchasePrice:
-      filteredSelectedCurrencies.length > 0 ? totalAveragePurchasePrice : 0,
+    totalAmount: totals.amount,
+    totalValue: totals.value,
+    totalPurchasePrice: totals.purchasePrice,
+    totalPercentageDifference,
+    totalAveragePurchasePrice,
   };
 };
 export default totals;
