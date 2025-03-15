@@ -69,7 +69,8 @@ export function averagePurchasePrice(
 export function currencyFormat(
   data: number,
   currencyQuote: keyof CurrencyQuote = 'EUR',
-  maxDecimals?: number
+  maxDecimals?: number,
+  formatNegativeValue: boolean = false
 ): string {
   const format = currencyQuote === 'EUR' ? 'nl-NL' : 'en-US';
   const abs = Math.abs(data);
@@ -91,8 +92,9 @@ export function currencyFormat(
     style: 'currency',
     currency: currencyQuote,
     minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
-  }).format(data);
+    maximumFractionDigits: decimals,
+    signDisplay: formatNegativeValue ? 'always' : 'auto'
+  }).format(formatNegativeValue && data > 0 ? -data : data);
 }
 
 type SupportedLocale = 'nl' | 'en' | 'de' | string;

@@ -57,7 +57,7 @@ const DetailTransactionTable: React.FC<DetailTransactionTableProps> = ({
                 return yearTransactions.map((transaction: Transaction, index: number) => {
                     const isLastInYear = index === yearTransactions.length - 1;
                     const isYearSeparator = isLastInYear && !isLastYear;
-                    
+
                     return (
                         <TableRow
                             key={transaction.id}
@@ -88,15 +88,6 @@ const DetailTransactionTable: React.FC<DetailTransactionTableProps> = ({
                     );
                 });
             })}
-
-            {selectedAsset?.totals && (
-                <TableRow
-                    type="detail-totals"
-                    item={selectedAsset.totals}
-                    fetchedCurrency={currentFetchedCurrency}
-                    currencyQuote={currencyQuote}
-                />
-            )}
         </Table>
     );
 };

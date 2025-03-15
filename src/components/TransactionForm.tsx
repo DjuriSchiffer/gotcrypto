@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import { Button } from 'flowbite-react';
+import { Button, Label, Radio } from 'flowbite-react';
 import { useForm, Controller } from 'react-hook-form';
 import DatePicker from './DatePicker';
 import CurrencyInput from 'react-currency-input-field';
 import { CurrencyQuote } from 'api';
 import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
-import { TransactionType } from 'currency';
+import { TransactionType, TransferType } from 'currency';
 import classNames from 'classnames';
 import { currencyFormat, dateToStorage, displayToStorage } from '../utils/helpers';
 import { useStorage } from '../hooks/useStorage';
@@ -63,6 +63,8 @@ interface FormInputs {
   purchasePrice: string;
   date: string;
   transactionType: TransactionType;
+  transferType?: TransferType,
+  description?: string
 }
 
 interface TransactionFormProps {
@@ -72,6 +74,8 @@ interface TransactionFormProps {
     purchasePrice: string;
     date: string;
     transactionType: TransactionType;
+    transferType?: TransferType;
+    description?: string
   };
   submitLabel: string;
   currencyQuote: keyof CurrencyQuote;
@@ -90,26 +94,39 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     control,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
+    watch,
   } = useForm<FormInputs>({
     defaultValues: {
       amount: '',
       purchasePrice: '',
       date: dateToStorage(new Date()),
       transactionType: 'buy',
+      description: '',
+      transferType: 'in'
     },
   });
 
+  const transactionType = watch('transactionType');
+  const isTransfer = transactionType === 'transfer';
+
   useEffect(() => {
     if (isEdit && defaultValues) {
-      const displayAmount = defaultValues.transactionType === 'sell'
+      const displayAmount = defaultValues.transactionType === 'sell' || (isTransfer && defaultValues.transferType === 'out')
         ? Math.abs(parseFloat(defaultValues.amount)).toString()
         : defaultValues.amount;
+
+      const displayPurchasePrise = defaultValues.transactionType === 'sell' || (isTransfer && defaultValues.transferType === 'out')
+        ? Math.abs(parseFloat(defaultValues.purchasePrice)).toFixed(2).toString()
+        : parseFloat(defaultValues.purchasePrice).toFixed(2);
 
       reset({
         ...defaultValues,
         amount: displayAmount,
-        date: dateToStorage(new Date(defaultValues.date))
+        purchasePrice: displayPurchasePrise,
+        date: dateToStorage(new Date(defaultValues.date)),
+        transferType: defaultValues.transferType || 'in',
+        description: defaultValues.description || ''
       });
     } else if (!isEdit) {
       reset({
@@ -117,6 +134,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         purchasePrice: '',
         date: dateToStorage(new Date()),
         transactionType: 'buy',
+        description: '',
+        transferType: 'in'
       });
     }
   }, [isEdit, defaultValues, reset]);
@@ -137,7 +156,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
           render={({ field: { value, onChange } }) => (
             <Button.Group className='w-full'>
               <Button
-                className={classNames('w-6/12', {
+                className={classNames('w-4/12', {
                   'opacity-50': value !== 'buy',
                   '!border-blue-400': value === 'buy',
                 })}
@@ -148,7 +167,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 Buy
               </Button>
               <Button
-                className={classNames('w-6/12 border-l', {
+                className={classNames('w-4/12 border-l', {
                   'opacity-50': value !== 'sell',
                   '!border-blue-400': value === 'sell',
                   '!border-l-[1px]': value === 'sell',
@@ -160,10 +179,74 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               >
                 Sell
               </Button>
+              <Button
+                className={classNames('w-4/12 border-l', {
+                  'opacity-50': value !== 'transfer',
+                  '!border-blue-400': value === 'transfer',
+                  '!border-l-[1px]': value === 'transfer',
+                })}
+                color='dark'
+                onClick={() => onChange('transfer')}
+                type="button"
+                outline={value === 'buy'}
+              >
+                Transfer
+              </Button>
             </Button.Group>
           )}
         />
       </div>
+      {isTransfer && (
+        <div>
+          <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+            Transfer Direction
+          </label>
+          <div className="flex items-center space-x-4">
+            <Controller
+              name="transferType"
+              control={control}
+              rules={{ required: isTransfer ? 'Please select a transfer direction' : false }}
+              render={({ field: { value, onChange } }) => (
+                <>
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      id="transfer-type-in"
+                      checked={value === 'in'}
+                      onChange={() => onChange('in')}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                    />
+                    <label
+                      htmlFor="transfer-type-in"
+                      className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
+                    >
+                      Transfer In
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      id="transfer-type-out"
+                      checked={value === 'out'}
+                      onChange={() => onChange('out')}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                    />
+                    <label
+                      htmlFor="transfer-type-out"
+                      className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
+                    >
+                      Transfer Out
+                    </label>
+                  </div>
+                </>
+              )}
+            />
+          </div>
+          {errors.transferType && (
+            <p className="mt-1 text-sm text-red-600">{errors.transferType.message}</p>
+          )}
+        </div>
+      )}
       <div>
         <label
           htmlFor="amount"
@@ -227,7 +310,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             name="transactionType"
             control={control}
             render={({ field: { value } }) => (
-              <>{value === 'sell' ? 'Sell Price' : 'Purchase Price'}</>
+              <>{value === 'sell' ? 'Sell Price' : value === 'buy' ? 'Purchase Price' : 'Transfer value'}</>
             )}
           />
         </label>
@@ -274,7 +357,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             name="transactionType"
             control={control}
             render={({ field: { value } }) => (
-              <>{value === 'sell' ? 'Sell Date' : 'Purchase Date'}</>
+              <>{value === 'sell' ? 'Sell Date' : value === 'buy' ? 'Purchase Date' : 'Transfer Date'}</>
             )}
           />
         </label>
@@ -305,6 +388,29 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         {errors.date && (
           <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>
         )}
+      </div>
+
+      <div>
+        <label
+          htmlFor="description"
+          className="block text-sm font-medium text-gray-900 dark:text-white mb-2"
+        >
+          Description (optional)
+        </label>
+        <Controller
+          name="description"
+          control={control}
+          render={({ field: { value, onChange, ...restField } }) => (
+            <textarea
+              value={value}
+              onChange={onChange}
+              {...restField}
+              rows={2}
+              placeholder={isTransfer ? "e.g., Transferred to hardware wallet" : "e.g., DCA purchase"}
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            />
+          )}
+        />
       </div>
 
       <Button type="submit">{submitLabel}</Button>

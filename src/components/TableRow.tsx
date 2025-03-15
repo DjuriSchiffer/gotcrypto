@@ -7,10 +7,11 @@ import {
   dateForDisplay,
 } from '../utils/helpers';
 import classNames from 'classnames';
-import { Table } from 'flowbite-react';
+import { Table, Tooltip } from 'flowbite-react';
 import { Transaction, FetchedCurrency, SelectedAsset } from '../types/currency';
 import { CurrencyQuote } from 'api';
 import { useStorage } from '../hooks/useStorage';
+import { FaInfoCircle } from "react-icons/fa";
 
 interface OverviewRowProps {
   type: 'detail';
@@ -32,7 +33,6 @@ interface OverviewTotalsRowProps {
   currencyQuote: keyof CurrencyQuote,
   yearCell?: string;
   isYearSeparator?: boolean
-
 }
 
 type TableRowComponentProps = OverviewRowProps | OverviewTotalsRowProps;
@@ -49,16 +49,19 @@ const TableRow: React.FC<TableRowComponentProps> = ({
   if (type === 'detail') {
     const transactionItem = item;
 
-    const type = transactionItem.type;
+    const transactionType = transactionItem.type;
+    const transferType = transactionItem.transferType;
     const amount = parseFloat(transactionItem.amount);
-    const purchasePrice = parseFloat(transactionItem.purchasePrice);
+    const price = parseFloat(transactionItem.purchasePrice);
     const purchaseDate = dateForDisplay(transactionItem.date, dateLocale);
     const currentValue = currentValueFn(amount, fetchedCurrency?.price || 0);
-    const averagePurchasePrice = averagePurchasePriceFn(purchasePrice, amount);
     const percentageDifference = percentageDifferenceFn(
-      purchasePrice,
+      price,
       currentValue
     );
+    const description = transactionItem.description ?? '';
+
+    const formatNegativeValue = transactionType === 'sell' || (transactionType === 'transfer' && transferType === 'out')
 
     return (
       <Table.Row>
@@ -66,7 +69,8 @@ const TableRow: React.FC<TableRowComponentProps> = ({
         <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-              {!type || type === 'buy' ? 'Buy' : 'Sell'}
+              {!transactionType || transactionType === 'buy' ? 'Buy' : transactionType === 'sell' ? 'Sell' : 'Transfered'}
+              {transactionType === 'transfer' && transferType && ` ${transferType}`}
             </p>
             <p className="truncate text-sm text-gray-500 dark:text-gray-400">
               {purchaseDate}
@@ -74,26 +78,32 @@ const TableRow: React.FC<TableRowComponentProps> = ({
           </div>
         </Table.Cell>
         <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
-          {amount}
+          {currencyFormat(price, currencyQuote, undefined, formatNegativeValue)}
         </Table.Cell>
         <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
-          {currencyFormat(purchasePrice, currencyQuote)}
-        </Table.Cell>
-        <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
-          {type === 'buy' ? currencyFormat(currentValue, currencyQuote) : ''}
-        </Table.Cell>
-        <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
-          {type === 'buy' ? currencyFormat(averagePurchasePrice, currencyQuote) : ''}
+          <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+            {formatNegativeValue && '-'}{amount}
+          </p>
+          <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+            {transactionType !== 'sell' ? currencyFormat(currentValue, currencyQuote, undefined, formatNegativeValue) : currencyFormat(price, currencyQuote, undefined, formatNegativeValue)}
+          </p>
         </Table.Cell>
         <Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
           <div
             className={classNames('flex', {
-              'text-blue-500': percentageDifference > 0,
-              'text-red-500': percentageDifference < 0,
+              'text-blue-500': transactionType === 'buy' && percentageDifference > 0,
+              'text-red-500': transactionType === 'buy' && percentageDifference < 0,
             })}
           >
-            {type === 'buy' ? percentageFormat(percentageDifference) : ''}
+            {transactionType === 'buy' ? percentageFormat(percentageDifference) : '-'}
           </div>
+        </Table.Cell>
+        <Table.Cell>
+          {description &&
+            <Tooltip content={description}>
+              <FaInfoCircle className='ml-auto' />
+            </Tooltip>
+          }
         </Table.Cell>
         <Table.Cell className="py-2 pr-2 flex items-center justify-end text-gray-900 dark:text-white">
           {children}

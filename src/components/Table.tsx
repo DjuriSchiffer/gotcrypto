@@ -32,18 +32,15 @@ const TableHead: React.FC<TableHeadProps> = ({ type }) => {
       <Table.Head>
         <Table.HeadCell className="text-left py-2 pl-3">Year</Table.HeadCell>
         <Table.HeadCell className="text-left py-2">Type</Table.HeadCell>
-        <Table.HeadCell className="text-left py-2">Amount</Table.HeadCell>
         <Table.HeadCell className="text-left py-2">
-          Buy/sell Price
+          Price
         </Table.HeadCell>
-        <Table.HeadCell className="text-left py-2">
-          Current Value
-        </Table.HeadCell>
-        <Table.HeadCell className="text-left py-2">
-          Average Price
-        </Table.HeadCell>
+        <Table.HeadCell className="text-left py-2">Holdings</Table.HeadCell>
         <Table.HeadCell className="text-left py-2">
           Profit
+        </Table.HeadCell>
+        <Table.HeadCell className="text-left py-2">
+          Description
         </Table.HeadCell>
         <Table.HeadCell className="text-right py-2 pr-3">
           Actions

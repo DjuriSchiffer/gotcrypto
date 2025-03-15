@@ -8,28 +8,73 @@ import { GlobalTotals } from 'store';
 
 /**
  * Calculates totals based on the selected currencies and their transactions.
- * @param transactions - The array of selected currencies.
+ * @param transactions - The array of transactions.
  * @returns An object containing various totals.
  */
 const totals = (transactions: Transaction[] = []): SelectedAsset['totals'] => {
-  const totalAmount = transactions.reduce(
-    (acc, transaction) => acc + parseFloat(transaction.amount),
-    0
-  );
-  const totalPurchasePrice = transactions.reduce(
-    (acc, transaction) => acc + parseFloat(transaction.purchasePrice),
-    0
-  );
-  const totalAveragePurchasePrice = averagePurchasePrice(
-    totalPurchasePrice,
-    totalAmount
-  );
+  if (transactions.length === 0) {
+    return {
+      totalAmount: 0,
+      totalAmountBought: 0,
+      totalAmountSold: 0,
+      totalPurchasePrice: 0,
+      totalSellPrice: 0,
+      totalAveragePurchasePrice: 0,
+      totalAverageSellPrice: 0,
+      totalInvested: 0
+    };
+  }
+
+  const sums = transactions.reduce((acc, transaction) => {
+    const amount = parseFloat(transaction.amount);
+    const purchasePrice = parseFloat(transaction.purchasePrice);
+
+    switch (transaction?.type) {
+      case 'buy':
+        acc.amountBought += amount;
+        acc.purchasePrice += purchasePrice;
+        break;
+      case 'sell':
+        acc.amountSold += amount;
+        acc.sellPrice += purchasePrice;
+        break;
+      case 'transfer':
+        if (transaction.transferType === 'in') {
+          acc.amountTransferedIn += amount;
+          acc.valueTransferedIn += purchasePrice;
+        } else if (transaction.transferType === 'out') {
+          acc.amountTransferedOut += amount;
+          acc.valueTransferedOut += purchasePrice;
+        }
+        break;
+    }
+
+    return acc;
+  }, {
+    amountBought: 0,
+    amountSold: 0,
+    amountTransferedIn: 0,
+    amountTransferedOut: 0,
+    purchasePrice: 0,
+    sellPrice: 0,
+    valueTransferedIn: 0,
+    valueTransferedOut: 0
+  });
+
+  const totalAmount = (sums.amountBought + sums.amountTransferedIn) -
+    (sums.amountSold + sums.amountTransferedOut);
+
+  const totalInvested = sums.purchasePrice - sums.sellPrice;
 
   return {
-    totalAmount: transactions.length > 0 ? totalAmount : 0,
-    totalPurchasePrice: transactions.length > 0 ? totalPurchasePrice : 0,
-    totalAveragePurchasePrice:
-      transactions.length > 0 ? totalAveragePurchasePrice : 0,
+    totalAmount,
+    totalAmountBought: sums.amountBought,
+    totalAmountSold: sums.amountSold,
+    totalPurchasePrice: sums.purchasePrice,
+    totalSellPrice: sums.sellPrice,
+    totalAveragePurchasePrice: averagePurchasePrice(sums.purchasePrice, sums.amountBought),
+    totalAverageSellPrice: averagePurchasePrice(sums.sellPrice, sums.amountSold),
+    totalInvested
   };
 };
 

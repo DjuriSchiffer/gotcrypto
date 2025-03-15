@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { currencyFormat, dateForDisplay } from '../utils/helpers';
 import {
   Chart as ChartJS,
@@ -43,69 +43,68 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
     return <div>No currency selected.</div>;
   }
 
-  const transactions: Transaction[] = [...selectedAsset.transactions].reverse();
-  const today = new Date();
+  const chartData = useMemo(() => {
+    const transactions: Transaction[] = [...selectedAsset.transactions].reverse();
+    const today = new Date();
 
-  // Format dates consistently using dateForDisplay
-  const labels: string[] = [
-    ...transactions.map((transaction) => {
-      // Convert the transaction date to ISO string for consistent handling
-      const date = new Date(transaction.date);
-      const isoString = date.toISOString();
-      return dateForDisplay(isoString, dateLocale);
-    }),
-    dateForDisplay(today.toISOString(), dateLocale)
-  ];
+    const isNegativeTransaction = (transaction: Transaction): boolean =>
+      transaction.type === 'sell' || (transaction.type === 'transfer' && transaction.transferType === 'out');
 
-  // Calculate cumulative amounts at each transaction point
-  const amountData: number[] = [];
-  let cumulativeAmount = 0;
+    const labels: string[] = [
+      ...transactions.map((transaction) => {
+        const date = new Date(transaction.date);
+        return dateForDisplay(date.toISOString(), dateLocale);
+      }),
+      dateForDisplay(today.toISOString(), dateLocale)
+    ];
 
-  transactions.forEach(transaction => {
-    cumulativeAmount += parseFloat(transaction.amount);
+    const amountData: number[] = [];
+    const investedData: number[] = [];
+    const priceData: number[] = [];
+
+    let cumulativeAmount = 0;
+    let totalSpent = 0;
+
+    transactions.forEach(transaction => {
+      const amount = parseFloat(transaction.amount);
+      const purchasePrice = parseFloat(transaction.purchasePrice);
+
+      if (isNegativeTransaction(transaction)) {
+        cumulativeAmount -= amount;
+      } else {
+        cumulativeAmount += amount;
+      }
+      amountData.push(cumulativeAmount);
+
+      if (transaction.type === 'sell') {
+        totalSpent -= purchasePrice;
+      } else if (transaction.type === 'buy') {
+        totalSpent += purchasePrice;
+      }
+      investedData.push(totalSpent);
+
+      priceData.push(purchasePrice / amount);
+    });
+
+    const currentCurrency = fetchedCurrencies?.find(
+      (currency) => currency.cmc_id === selectedAsset.cmc_id
+    );
+    const currentPrice = currentCurrency?.price ?? 0;
+
     amountData.push(cumulativeAmount);
-  });
+    investedData.push(totalSpent);
+    priceData.push(currentPrice);
 
-  // Add current amount as the final point
-  amountData.push(cumulativeAmount);
+    const valueData: number[] = amountData.map((amount, i) => amount * priceData[i]);
 
-  // Calculate cumulative spent amount at each transaction point
-  const spentData: number[] = [];
-  let totalSpent = 0;
-
-  transactions.forEach(transaction => {
-    totalSpent += parseFloat(transaction.purchasePrice);
-    spentData.push(totalSpent);
-  });
-
-  // Add current spent amount as the final point (doesn't change since last transaction)
-  spentData.push(totalSpent);
-
-  // Find current price from API data
-  const currentCurrency = fetchedCurrencies?.find(
-    (currency) => currency.cmc_id === selectedAsset.cmc_id
-  );
-  const currentPrice = currentCurrency?.price ?? 0;
-
-  // Calculate price per unit for each transaction (implied historical price)
-  const priceData: number[] = transactions.map(transaction =>
-    parseFloat(transaction.purchasePrice) / parseFloat(transaction.amount)
-  );
-  // Add current price as the final point
-  priceData.push(currentPrice);
-
-  // Calculate portfolio value at each point using historical implied prices
-  const valueData: number[] = [];
-
-  // For each historical point, calculate the value using that day's implied price
-  for (let i = 0; i < transactions.length; i++) {
-    const pricePerUnit = priceData[i];
-    const portfolioValue = amountData[i] * pricePerUnit;
-    valueData.push(portfolioValue);
-  }
-
-  // Add current value as the final point using current price
-  valueData.push(cumulativeAmount * currentPrice);
+    return {
+      labels,
+      amountData,
+      investedData,
+      priceData,
+      valueData,
+    };
+  }, [selectedAsset.transactions, fetchedCurrencies, dateLocale, selectedAsset.cmc_id]);
 
   const options: ChartOptions<'line'> = {
     responsive: true,
@@ -150,16 +149,13 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
       tooltip: {
         callbacks: {
           label: function (context) {
-            if (context.dataset.label === 'Value') {
-              return 'Portfolio Value: ' + currencyFormat(Number(context.parsed.y), currencyQuote);
-            }
-            if (context.dataset.label === 'Spent') {
-              return 'Amount Spent: ' + currencyFormat(Number(context.parsed.y), currencyQuote);
-            }
-            if (context.dataset.label === 'Price') {
-              return 'Price Per Unit: ' + currencyFormat(Number(context.parsed.y), currencyQuote);
-            }
-            return `${context.dataset.label}: ${Number(context.parsed.y).toFixed(4)}`;
+            const value = Number(context.parsed.y);
+            const label = context.dataset.label || '';
+
+            if (label === 'Value') return 'Portfolio Value: ' + currencyFormat(value, currencyQuote);
+            if (label === 'Invested') return 'Total invested: ' + currencyFormat(value, currencyQuote);
+            if (label === 'Price') return 'Price Per Unit: ' + currencyFormat(value, currencyQuote);
+            return `${label}: ${value.toFixed(4)}`;
           },
         },
       },
@@ -171,30 +167,21 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
     },
   };
 
-  const chartData: ChartData<'line'> = {
-    labels: labels,
+  const chartDataConfig: ChartData<'line'> = {
+    labels: chartData.labels,
     datasets: [
       {
         label: 'Amount',
-        data: amountData,
+        data: chartData.amountData,
         borderColor: '#1C64F2', // blue 600
         backgroundColor: '#1A56DB', // blue 700
         yAxisID: 'y',
         stepped: 'before',
         tension: 0,
       },
-      // {
-      //   label: 'Price',
-      //   data: priceData,
-      //   borderColor: '#10B981', // green 500
-      //   backgroundColor: '#059669', // green 600
-      //   yAxisID: 'y1',
-      //   stepped: 'before',
-      //   tension: 0,
-      // },
       {
         label: 'Value',
-        data: valueData,
+        data: chartData.valueData,
         borderColor: '#10B981', // green 500
         backgroundColor: '#059669', // green 600
         yAxisID: 'y1',
@@ -202,8 +189,8 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
         tension: 0,
       },
       {
-        label: 'Spent',
-        data: spentData,
+        label: 'Invested',
+        data: chartData.investedData,
         borderColor: '#EF4444', // red 500
         backgroundColor: '#DC2626', // red 600
         yAxisID: 'y1',
@@ -213,7 +200,7 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
     ],
   };
 
-  return <Line data={chartData} options={options} />;
+  return <Line data={chartDataConfig} options={options} />;
 };
 
 export default DetailCharts;

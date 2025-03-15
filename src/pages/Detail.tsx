@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Card } from 'flowbite-react';
 import uniqueId from 'lodash.uniqueid';
 import Page from '../components/Page';
-import { Transaction, SelectedAsset, TransactionType } from '../types/currency';
+import { Transaction, SelectedAsset, TransactionType, TransferType } from '../types/currency';
 import { useStorage } from '../hooks/useStorage';
 import totals from '../utils/totals';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
@@ -20,6 +20,8 @@ interface FormInputs {
   purchasePrice: string;
   date: string;
   transactionType: TransactionType;
+  transferType?: TransferType,
+  description?: string
 }
 
 const Detail: React.FC = () => {
@@ -88,22 +90,15 @@ const Detail: React.FC = () => {
     }
 
     try {
-      const { amount, purchasePrice, date, transactionType } = formData;
+      const { amount, purchasePrice, date, transactionType, transferType, description } = formData;
 
       let normalizedPrice = purchasePrice.toString().replace(',', '.');
       const parsedPrice = parseFloat(normalizedPrice);
-      const signedPrice = transactionType === 'sell'
-        ? -Math.abs(parsedPrice)
-        : Math.abs(parsedPrice);
-      const formattedPrice = signedPrice.toFixed(2);
-
+      const formattedPrice = Math.abs(parsedPrice).toFixed(2);
 
       const normalizedAmount = amount.toString().replace(',', '.');
       const parsedAmount = parseFloat(normalizedAmount);
-      const signedAmount = transactionType === 'sell'
-        ? -Math.abs(parsedAmount)
-        : Math.abs(parsedAmount);
-      const formattedAmount = signedAmount.toString();
+      const formattedAmount = Math.abs(parsedAmount).toString();
 
       const newTransaction: Transaction = {
         amount: formattedAmount,
@@ -111,6 +106,8 @@ const Detail: React.FC = () => {
         date,
         id: currentTransaction?.id || uniqueId(`trans_${Date.now()}_`),
         type: transactionType,
+        description: description || '',
+        ...(transactionType === 'transfer' ? { transferType: transferType || 'in' } : {})
       };
 
       let updatedSelectedCurrency: SelectedAsset;
