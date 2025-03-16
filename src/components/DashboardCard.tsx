@@ -126,7 +126,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
                       Total invested
                     </p>
                     <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                      Total costs minus total sold
+                      Total spend minus total sold
                     </p>
                   </div>
                   <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">

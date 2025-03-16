@@ -83,7 +83,7 @@ const Graphs: React.FC = () => {
               </div>
               <div className="text-white">
                 Total invested
-                <Tooltip content="Total Costs">
+                <Tooltip content="Total Invested">
                   <div className="text-4xl">
                     {currencyFormat(globalTotals.totalInvested, currencyQuote)}
                   </div>
@@ -91,7 +91,7 @@ const Graphs: React.FC = () => {
               </div>
               <div className="text-white">
                 Total Profit/loss
-                <Tooltip content="((Total Value - Total Costs) / Total Costs) × 100">
+                <Tooltip content="((Total Value - Total Invested) / Total Invested) × 100">
                   <div
                     className={classNames('text-xl', {
                       'text-blue-500':

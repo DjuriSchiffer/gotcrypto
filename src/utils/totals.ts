@@ -148,10 +148,10 @@ export const getGlobalTotals = (
   }, { amount: 0, purchasePrice: 0, value: 0, invested: 0 });
 
   const totalPercentageDifference = typeof percentageDifference(
-    totals.purchasePrice,
+    totals.invested,
     totals.value
   ) === 'number' ? percentageDifference(
-    totals.purchasePrice,
+    totals.invested,
     totals.value
   ) : 0;
 

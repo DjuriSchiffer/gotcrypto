@@ -127,7 +127,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
                     {currencyFormat(globalTotals.totalValue, currencyQuote)}
                   </div>
                 </Tooltip>
-                <Tooltip content="((Total Value - Total Costs) / Total Costs) × 100">
+                <Tooltip content="((Total Value - Total Invested) / Total Invested) × 100">
                   <div
                     className={classNames('text-xl', {
                       'text-blue-500':
