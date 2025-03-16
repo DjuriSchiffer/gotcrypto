@@ -28,4 +28,5 @@ export interface GlobalTotals {
   totalPurchasePrice: number;
   totalPercentageDifference: number;
   totalAveragePurchasePrice: number;
+  totalInvested: number;
 }

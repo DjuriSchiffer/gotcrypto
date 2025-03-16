@@ -115,13 +115,11 @@ const Charts: React.FC<ChartsProps> = ({ assetMap, fetchedCurrencies, selectedAs
     }
 
     if (id === 'invested') {
-      // Create array of [value, label] pairs for sorting
       const dataPoints = selectedAssets.map(selectedAsset => ({
-        value: selectedAsset.totals.totalPurchasePrice,
+        value: selectedAsset.totals.totalInvested,
         label: selectedAsset.name
       }));
 
-      // Sort by value in descending order
       const sortedData = dataPoints.sort((a, b) => b.value - a.value);
 
       return {

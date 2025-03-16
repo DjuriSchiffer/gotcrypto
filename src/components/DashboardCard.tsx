@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import { CurrencyQuote } from 'api';
 import { FaPen } from 'react-icons/fa';
-import { getTotalAmount, getTotalPercentageDifference, getTotalPurchasePrice } from '../utils/totals';
+import { getTotalAmount, getTotalInvested, getTotalPercentageDifference, getTotalPurchasePrice } from '../utils/totals';
 
 type DashboardCard = {
   fetchedCurrency: FetchedCurrency;
@@ -131,7 +131,7 @@ const DashboardCard: React.FC<DashboardCard> = ({
                   </div>
                   <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
                     {currencyFormat(
-                      getTotalPurchasePrice(assetMap, fetchedCurrency.cmc_id), currencyQuote
+                      getTotalInvested(assetMap, fetchedCurrency.cmc_id), currencyQuote
                     )}
                   </div>
                 </div>

@@ -107,6 +107,7 @@ export const getGlobalTotals = (
       totalPurchasePrice: 0,
       totalPercentageDifference: 0,
       totalAveragePurchasePrice: 0,
+      totalInvested: 0
     };
   }
 
@@ -122,6 +123,7 @@ export const getGlobalTotals = (
       totalPurchasePrice: 0,
       totalPercentageDifference: 0,
       totalAveragePurchasePrice: 0,
+      totalInvested: 0
     };
   }
 
@@ -130,19 +132,20 @@ export const getGlobalTotals = (
     fetchedCurrencies.map(currency => [currency.cmc_id, currency.price || 0])
   );
 
-  // Calculate totals in a single pass
   const totals = filteredSelectedCurrencies.reduce((acc, selectCurrency) => {
     const currentPrice = currencyPriceMap.get(selectCurrency.cmc_id) || 0;
     const currencyAmount = selectCurrency.totals.totalAmount || 0;
+    const currencyInvested = selectCurrency.totals.totalInvested || 0;
     const currencyPurchasePrice = selectCurrency.totals.totalPurchasePrice || 0;
     const currencyValue = currencyAmount * currentPrice;
 
     return {
       amount: acc.amount + currencyAmount,
       purchasePrice: acc.purchasePrice + currencyPurchasePrice,
-      value: acc.value + currencyValue
+      value: acc.value + currencyValue,
+      invested: acc.invested + currencyInvested
     };
-  }, { amount: 0, purchasePrice: 0, value: 0 });
+  }, { amount: 0, purchasePrice: 0, value: 0, invested: 0 });
 
   const totalPercentageDifference = typeof percentageDifference(
     totals.purchasePrice,
@@ -163,6 +166,7 @@ export const getGlobalTotals = (
     totalPurchasePrice: totals.purchasePrice,
     totalPercentageDifference,
     totalAveragePurchasePrice,
+    totalInvested: totals.invested
   };
 };
 export default totals;
@@ -188,6 +192,13 @@ export const getTotalPurchasePrice = (
   cmcId: number
 ): number => {
   return cryptoMap.get(cmcId)?.totals.totalPurchasePrice || 0;
+};
+
+export const getTotalInvested = (
+  cryptoMap: Map<number, SelectedAsset>,
+  cmcId: number
+): number => {
+  return cryptoMap.get(cmcId)?.totals.totalInvested || 0;
 };
 
 export const getTotalPercentageDifference = (

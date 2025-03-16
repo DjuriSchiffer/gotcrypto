@@ -85,7 +85,7 @@ const Graphs: React.FC = () => {
                 Total invested
                 <Tooltip content="Total Costs">
                   <div className="text-4xl">
-                    {currencyFormat(globalTotals.totalPurchasePrice, currencyQuote)}
+                    {currencyFormat(globalTotals.totalInvested, currencyQuote)}
                   </div>
                 </Tooltip>
               </div>
