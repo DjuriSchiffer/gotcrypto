@@ -25,9 +25,13 @@ const totals = (transactions: Transaction[] = []): SelectedAsset['totals'] => {
     };
   }
 
+  const parseNumber = (value: string): number => {
+    return Number(parseFloat(value).toFixed(8));
+  };
+
   const sums = transactions.reduce((acc, transaction) => {
-    const amount = parseFloat(transaction.amount);
-    const purchasePrice = parseFloat(transaction.purchasePrice);
+    const amount = parseNumber(transaction.amount);
+    const purchasePrice = parseNumber(transaction.purchasePrice);
 
     switch (transaction?.type) {
       case 'buy':
@@ -61,19 +65,27 @@ const totals = (transactions: Transaction[] = []): SelectedAsset['totals'] => {
     valueTransferedOut: 0
   });
 
-  const totalAmount = (sums.amountBought + sums.amountTransferedIn) -
-    (sums.amountSold + sums.amountTransferedOut);
+  const totalAmount = Number(
+    (sums.amountBought + sums.amountTransferedIn -
+      sums.amountSold - sums.amountTransferedOut).toFixed(8)
+  );
 
-  const totalInvested = sums.purchasePrice - sums.sellPrice;
+  const totalInvested = Number(
+    (sums.purchasePrice - sums.sellPrice)
+  );
 
   return {
     totalAmount,
-    totalAmountBought: sums.amountBought,
-    totalAmountSold: sums.amountSold,
-    totalPurchasePrice: sums.purchasePrice,
-    totalSellPrice: sums.sellPrice,
-    totalAveragePurchasePrice: averagePurchasePrice(sums.purchasePrice, sums.amountBought),
-    totalAverageSellPrice: averagePurchasePrice(sums.sellPrice, sums.amountSold),
+    totalAmountBought: Number(sums.amountBought.toFixed(8)),
+    totalAmountSold: Number(sums.amountSold.toFixed(8)),
+    totalPurchasePrice: Number(sums.purchasePrice),
+    totalSellPrice: Number(sums.sellPrice),
+    totalAveragePurchasePrice: Number(
+      averagePurchasePrice(sums.purchasePrice, sums.amountBought)
+    ),
+    totalAverageSellPrice: Number(
+      averagePurchasePrice(sums.sellPrice, sums.amountSold)
+    ),
     totalInvested
   };
 };
