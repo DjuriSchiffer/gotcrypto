@@ -19,15 +19,14 @@ module.exports = async (req, res) => {
             return true;
         }
 
-        const isDevelopment = process.env.NODE_ENV !== 'production';
-        if (isDevelopment) {
-            if (origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:')) {
-                return true;
-            }
+        if (origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:')) {
+            return true;
+        }
 
-            if (originalPreviewPattern.test(origin) || featureBranchPattern.test(origin)) {
-                return true;
-            }
+        const vercelPreviewPattern = /^https:\/\/gotcrypto-[a-z0-9]+-djurischiffers-projects\.vercel\.app$/;
+
+        if (vercelPreviewPattern.test(origin)) {
+            return true;
         }
 
         return false;
