@@ -15,7 +15,7 @@ import { ChangeQuote } from '../components/ChangeQuote';
 import { ChangeLayout } from '../components/ChangeLayout';
 import Table from '../components/Table';
 import DashboardTableRow from '../components/DashboardTableRow';
-import useCryptoQuote from '../hooks/useCryptoQuote';
+import useQuoteBytTimeStamp from '../hooks/useQuoteByTimeStamp';
 
 type DashboardProps = {};
 interface OptionType {
@@ -25,10 +25,8 @@ interface OptionType {
 }
 
 const Dashboard: React.FC<DashboardProps> = () => {
-  const { data, isLoading, isError, error } = useCryptoQuote({
-
-  });
-  console.log(data, isLoading, isError, error)
+  // const { data: test, isLoading, isError, error } = useQuoteBytTimeStamp({});
+  // console.log(test, isLoading, isError, error)
   const [selectedOptions, setSelectedOptions] = useState<
     MultiValue<OptionType>
   >([]);

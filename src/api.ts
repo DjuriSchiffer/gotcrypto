@@ -34,6 +34,7 @@ export const getQuoteByTimestamp = async (
         }
       }
     );
+    console.log('response', response.data.data)
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {

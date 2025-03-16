@@ -23,6 +23,8 @@ function formatPrice(price: number) {
 }
 
 const transformQuoteData = (data: QuoteByTimestampResponse): CryptoQuote | null => {
+    console.log('data', data);
+
     if (!data.data || !data.data.quotes || data.data.quotes.length === 0) {
         return null;
     }
@@ -41,25 +43,25 @@ const transformQuoteData = (data: QuoteByTimestampResponse): CryptoQuote | null 
     };
 };
 
-interface UseCryptoQuoteOptions {
+interface UseQuoteByTimeStampOptions {
     coinId?: number;
     convertId?: number;
     timestamp?: number;
     enabled?: boolean;
 }
 
-const useCryptoQuote = ({
+const useQuoteBytTimeStamp = ({
     coinId = 1, // Bitcoin by default
     convertId = 2790, // USD by default
     timestamp = Math.floor(Date.now() / 1000),
-    enabled = true
-}: UseCryptoQuoteOptions = {}) => {
+}: UseQuoteByTimeStampOptions = {}) => {
     return useQuery({
         queryKey: ['quoteByTimeStamp', coinId, convertId, timestamp],
         queryFn: async () => {
             const response = await getQuoteByTimestamp(coinId, convertId, timestamp);
 
-            if (response.status.error_code === 0) {
+
+            if (response.status.error_code == 0) {
                 if (response.error) {
                     throw new Error(response.status.error_message || response.error);
                 } else {
@@ -70,6 +72,7 @@ const useCryptoQuote = ({
                     return transformedData;
                 }
             } else {
+                console.log('error', response)
                 throw new Error(response.status.error_message || 'An error occurred');
             }
         },
@@ -77,4 +80,4 @@ const useCryptoQuote = ({
     });
 };
 
-export default useCryptoQuote;
+export default useQuoteBytTimeStamp;
