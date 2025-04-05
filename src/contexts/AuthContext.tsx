@@ -5,6 +5,7 @@ export type AuthContextType = {
   user: User | null;
   loading: boolean;
   isAnonymous: boolean;
+  isAdmin: boolean;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(
