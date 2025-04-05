@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import { CurrencyQuote } from 'api';
 import { FaPen } from 'react-icons/fa';
-import { getTotalAmount, getTotalPercentageDifference, getTotalPurchasePrice } from '../utils/totals';
+import { getTotalAmount, getTotalInvested, getTotalPercentageDifference, getTotalPurchasePrice } from '../utils/totals';
 
 type DashboardTableRow = {
   fetchedCurrency: FetchedCurrency;
@@ -66,7 +66,7 @@ const DashboardTableRow: React.FC<DashboardTableRow> = ({
           <Table.Cell className="py-2 text-gray-900 dark:text-white">
             <div className="flex flex-col">
               <div>  {currencyFormat(
-                getTotalPurchasePrice(assetMap, fetchedCurrency.cmc_id), currencyQuote
+                getTotalInvested(assetMap, fetchedCurrency.cmc_id), currencyQuote
               )}</div>
             </div>
           </Table.Cell>
