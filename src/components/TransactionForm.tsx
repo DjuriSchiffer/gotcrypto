@@ -9,6 +9,8 @@ import { TransactionType, TransferType } from 'currency';
 import classNames from 'classnames';
 import { currencyFormat, dateToStorage, displayToStorage } from '../utils/helpers';
 import { useStorage } from '../hooks/useStorage';
+import { useAuth } from '../hooks/useAuth';
+
 
 const CurrencyFormInput: React.FC<{
   value: string;
@@ -63,8 +65,9 @@ interface FormInputs {
   purchasePrice: string;
   date: string;
   transactionType: TransactionType;
-  transferType?: TransferType,
-  description?: string
+  transferType?: TransferType;
+  description?: string;
+  excludeForTax?: boolean;
 }
 
 interface TransactionFormProps {
@@ -76,6 +79,7 @@ interface TransactionFormProps {
     transactionType: TransactionType;
     transferType?: TransferType;
     description?: string
+    excludeForTax?: boolean;
   };
   submitLabel: string;
   currencyQuote: keyof CurrencyQuote;
@@ -90,6 +94,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   isEdit = false,
 }) => {
   const { dateLocale } = useStorage();
+  const { isAdmin } = useAuth()
+
   const {
     control,
     handleSubmit,
@@ -103,7 +109,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       date: dateToStorage(new Date()),
       transactionType: 'buy',
       description: '',
-      transferType: 'in'
+      transferType: 'in',
+      excludeForTax: false,
     },
   });
 
@@ -126,7 +133,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         purchasePrice: displayPurchasePrise,
         date: dateToStorage(new Date(defaultValues.date)),
         transferType: defaultValues.transferType || 'in',
-        description: defaultValues.description || ''
+        description: defaultValues.description || '',
+        excludeForTax: defaultValues.excludeForTax || false
       });
     } else if (!isEdit) {
       reset({
@@ -135,7 +143,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         date: dateToStorage(new Date()),
         transactionType: 'buy',
         description: '',
-        transferType: 'in'
+        transferType: 'in',
+        excludeForTax: false,
       });
     }
   }, [isEdit, defaultValues, reset]);
@@ -412,7 +421,32 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
           )}
         />
       </div>
-
+      {isAdmin && (
+        <div className="flex items-center">
+          <Controller
+            name="excludeForTax"
+            control={control}
+            render={({ field: { onChange, value, ...field } }) => (
+              <>
+                <input
+                  {...field}
+                  id="excludeForTax"
+                  type="checkbox"
+                  checked={value}
+                  onChange={(e) => onChange(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <label
+                  htmlFor="excludeForTax"
+                  className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                >
+                  Exclude for tax calculations
+                </label>
+              </>
+            )}
+          />
+        </div>
+      )}
       <Button type="submit">{submitLabel}</Button>
     </form >
   );

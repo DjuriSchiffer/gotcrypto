@@ -17,6 +17,7 @@ export type Transaction = {
   type: TransactionType;
   transferType?: TransferType;
   description?: string;
+  excludeForTax?: boolean;
 };
 
 export type Totals = {

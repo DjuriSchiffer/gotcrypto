@@ -22,6 +22,7 @@ interface FormInputs {
   transactionType: TransactionType;
   transferType?: TransferType,
   description?: string
+  excludeForTax?: boolean
 }
 
 const Detail: React.FC = () => {
@@ -90,7 +91,7 @@ const Detail: React.FC = () => {
     }
 
     try {
-      const { amount, purchasePrice, date, transactionType, transferType, description } = formData;
+      const { amount, purchasePrice, date, transactionType, transferType, description, excludeForTax } = formData;
 
       let normalizedPrice = purchasePrice.toString().replace(',', '.');
       const parsedPrice = parseFloat(normalizedPrice);
@@ -107,6 +108,7 @@ const Detail: React.FC = () => {
         id: currentTransaction?.id || uniqueId(`trans_${Date.now()}_`),
         type: transactionType,
         description: description || '',
+        excludeForTax: excludeForTax || false,
         ...(transactionType === 'transfer' ? { transferType: transferType || 'in' } : {})
       };
 
