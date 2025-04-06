@@ -4,7 +4,7 @@ import { FetchedCurrency } from '../types/currency';
 import { CurrencyData, CurrencyQuote, GetCurrenciesResponse } from 'api';
 
 
-function formatPrice(price: number) {
+export function formatPrice(price: number) {
   if (typeof price !== 'number') return price;
   if (price === 0) return 0;
 
