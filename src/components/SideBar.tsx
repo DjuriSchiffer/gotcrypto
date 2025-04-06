@@ -8,6 +8,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
 import { useAuth } from '../hooks/useAuth';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { ChangeQuote } from './ChangeQuote';
 
 
 export interface AppSideBarLogoProps {
@@ -82,7 +83,8 @@ const SideBar: React.FC<SideBarProps> = () => {
                     {isDashboard ? <AppSideBarItem to='/' text='Dashboard' icon={FaChartPie} /> : <AppSideBarItem to='/' text='Return to Dashboard' icon={FaArrowLeft} />}
                     <AppSideBarItem to='/graphs' text='Graphs and stats' icon={FaChartBar} />
                 </Sidebar.ItemGroup>
-                <Sidebar.ItemGroup className='!mt-auto'  >
+                <ChangeQuote className='mt-auto w-full' />
+                <Sidebar.ItemGroup>
                     <AppSideBarItem to='/user-settings' text='User & Settings' icon={FaCog} />
                     {user && !isAnonymous && (
                         <Sidebar.Item className="cursor-pointer" onClick={handleSignOut} icon={FaSignOutAlt}>

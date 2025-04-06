@@ -11,7 +11,7 @@ interface PriceOption {
     symbol: React.ReactNode;
 }
 
-export function ChangeQuote() {
+export function ChangeQuote({ className }: { className: string }) {
     const { setCurrencyQuote, currencyQuote } = useStorage();
     const queryClient = useQueryClient();
 
@@ -32,13 +32,13 @@ export function ChangeQuote() {
     ], []);
 
     return (
-        <Button.Group>
+        <Button.Group className={className}>
             {priceOptions.map((option, index) => (
                 <Button
                     key={index}
                     color={currencyQuote === option.quote ? 'dark' : 'gray'}
                     onClick={() => handleQuoteChange(option.quote)}
-                    className={classNames('', {
+                    className={classNames('w-6/12', {
                         '!border-blue-400': currencyQuote === option.quote,
                         'border-l': index > 0 && currencyQuote === option.quote,
                         '!border-l-[1px]': index > 0 && currencyQuote === option.quote,
