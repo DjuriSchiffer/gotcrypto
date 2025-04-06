@@ -51,6 +51,8 @@ const corsMiddleware = (req, res) => {
     }
 };
 
+let browserCache = {};
+
 module.exports = async (req, res) => {
     corsMiddleware(req, res);
 
@@ -63,6 +65,10 @@ module.exports = async (req, res) => {
 
     try {
         const cacheKey = `${coinId}-${convertId}-${timestamp}`;
+
+        if (browserCache[cacheKey]) {
+            return res.status(200).json(browserCache[cacheKey]);
+        }
 
         const docRef = db.collection('cachedData').doc('historical');
         const doc = await docRef.get();
@@ -89,6 +95,7 @@ module.exports = async (req, res) => {
 
         const dataToCache = response.data;
 
+        browserCache[cacheKey] = dataToCache;
 
         const updateData = {};
         updateData[cacheKey] = dataToCache;
