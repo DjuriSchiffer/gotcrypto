@@ -22,9 +22,7 @@ function formatPrice(price: number) {
     return parseFloat(price.toFixed(significant + 1));
 }
 
-const transformQuoteData = (data: QuoteByTimestampResponse): CryptoQuote | null => {
-    console.log('data', data);
-
+export const transformQuoteData = (data: QuoteByTimestampResponse): CryptoQuote | null => {
     if (!data.data || !data.data.quotes || data.data.quotes.length === 0) {
         return null;
     }

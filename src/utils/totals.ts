@@ -90,6 +90,8 @@ const totals = (transactions: Transaction[] = []): SelectedAsset['totals'] => {
   };
 };
 
+export default totals;
+
 /**
  * Calculates global totals including total value and percentage differences.
  * @param selectedCurrencies - The array of selected currencies.
@@ -169,8 +171,6 @@ export const getGlobalTotals = (
     totalInvested: totals.invested
   };
 };
-export default totals;
-
 
 export const getTotalAmount = (
   assetMap: Map<number, SelectedAsset>,

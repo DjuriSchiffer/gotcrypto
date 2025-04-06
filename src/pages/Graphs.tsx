@@ -11,6 +11,7 @@ import { getGlobalTotals, getTotalPercentageDifference } from '../utils/totals';
 import classNames from 'classnames';
 import { FetchedCurrency } from 'currency';
 import { getImage } from '../utils/images';
+import { HistoricalPortfolioValues } from '../components/HistoricalPortfolioValues';
 
 
 const Graphs: React.FC = () => {
@@ -133,6 +134,7 @@ const Graphs: React.FC = () => {
               <Charts assetMap={assetMap} fetchedCurrencies={fetchedCurrencies} selectedAssets={selectedCurrencies} id="invested" />
             </Card>
           </div>
+          <HistoricalPortfolioValues fetchedCurrencies={fetchedCurrencies} selectedAssets={selectedCurrencies} currencyQuote={currencyQuote} />
         </div>
       </Page>
     </LoadingErrorWrapper>
