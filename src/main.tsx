@@ -17,7 +17,6 @@ Sentry.init({
   // Performance Monitoring
   tracesSampleRate: 1.0,
   tracePropagationTargets: [
-    "localhost",
     /^https:\/\/gotcrypto\.vercel\.app/,
     /^https:\/\/firestore\.googleapis\.com/,
   ],
