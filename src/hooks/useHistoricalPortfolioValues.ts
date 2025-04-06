@@ -156,12 +156,22 @@ export const useHistoricalPortfolioValues = (
                             amount: holding.amount
                         };
                     }
-                }
+                },
             }))
     );
 
     const results = useQueries({
-        queries: queryOptions
+        queries: queryOptions,
+        combine: (results) => {
+            return results.map(result => ({
+                ...result,
+                staleTime: 1000 * 60 * 60 * 24, // 24 hours
+                cacheTime: 1000 * 60 * 60 * 24 * 7, // 7 days
+                refetchOnWindowFocus: false,
+                refetchOnMount: false,
+                refetchOnReconnect: false
+            }))
+        }
     });
 
     const isLoading = results.some(result => result.isLoading);
