@@ -1,26 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { CryptoQuote, QuoteByTimestampResponse } from 'api';
 import { getQuoteByTimestamp } from '../api';
-
-function formatPrice(price: number) {
-    if (typeof price !== 'number') return price;
-    if (price === 0) return 0;
-
-    const abs = Math.abs(price);
-
-    if (abs >= 0.01) {
-        return parseFloat(price.toFixed(2));
-    }
-
-    let significant = 0;
-    let temp = abs;
-    while (temp < 1) {
-        temp *= 10;
-        significant++;
-    }
-
-    return parseFloat(price.toFixed(significant + 1));
-}
+import { formatPrice } from './useCoinMarketCap';
 
 export const transformQuoteData = (data: QuoteByTimestampResponse): CryptoQuote | null => {
     if (!data.data || !data.data.quotes || data.data.quotes.length === 0) {

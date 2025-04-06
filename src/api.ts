@@ -9,10 +9,8 @@ export const getCurrencies = async (): Promise<GetCurrenciesResponse> => {
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {
-      // If the API responds with an error message
       return error.response.data as GetCurrenciesResponse;
     } else {
-      // For network or other unexpected errors
       throw new Error(error.message || 'An unexpected error occurred');
     }
   }
@@ -34,7 +32,6 @@ export const getQuoteByTimestamp = async (
         }
       }
     );
-    console.log('response', response.data.data)
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.data) {

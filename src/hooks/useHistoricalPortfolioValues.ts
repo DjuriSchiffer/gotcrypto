@@ -9,7 +9,6 @@ export interface YearlyTotal {
     totalValue: number;
 }
 
-
 function extractPriceFromResponse(response: any): number | null {
     try {
         if (response &&
@@ -47,17 +46,27 @@ export const useHistoricalPortfolioValues = (
 
     if (uniqueYears.length > 0) {
         const earliestYear = Math.min(...uniqueYears);
-        for (let year = earliestYear; year <= currentYear; year++) {
+        const lastCompletedYear = currentYear - 1;
+
+        for (let year = earliestYear; year <= lastCompletedYear; year++) {
             if (!uniqueYears.includes(year)) {
                 uniqueYears.push(year);
             }
         }
         uniqueYears.sort();
+
+        const currentYearIndex = uniqueYears.indexOf(currentYear);
+        if (currentYearIndex !== -1) {
+            uniqueYears.splice(currentYearIndex, 1);
+        }
     }
 
     const yearEndHoldings = uniqueYears.map(year => {
         const endOfYear = new Date(year, 11, 31, 23, 59, 59);
-        const endOfYearTimestamp = Math.floor(endOfYear.getTime() / 1000);
+
+        const nextYear = year + 1;
+        const januaryFirstNextYear = new Date(nextYear, 0, 1, 0, 0, 0);
+        const priceTimestamp = Math.floor(januaryFirstNextYear.getTime() / 1000);
 
         const holdings = selectedCurrencies.map(currency => {
             if (!currency.transactions || !currency.cmc_id) {
@@ -101,14 +110,14 @@ export const useHistoricalPortfolioValues = (
                 cmc_id: currency.cmc_id,
                 name: currency.name,
                 amount,
-                timestamp: endOfYearTimestamp
+                timestamp: priceTimestamp
             };
         }).filter(Boolean);
 
         return {
             year,
             holdings,
-            timestamp: endOfYearTimestamp
+            timestamp: priceTimestamp
         };
     });
 
@@ -120,17 +129,6 @@ export const useHistoricalPortfolioValues = (
             .map(holding => ({
                 queryKey: ['quoteByTimeStamp', holding.cmc_id, convertId, yearData.timestamp, currencyQuote],
                 queryFn: async () => {
-                    if (yearData.year === currentYear) {
-                        const currentPrice = fetchedCurrencies?.find(c => c.cmc_id === holding.cmc_id)?.price || 0;
-                        return {
-                            year: yearData.year,
-                            cmc_id: holding.cmc_id,
-                            name: holding.name,
-                            price: currentPrice,
-                            amount: holding.amount
-                        };
-                    }
-
                     try {
                         const response = await getQuoteByTimestamp(holding.cmc_id, convertId, yearData.timestamp);
 
