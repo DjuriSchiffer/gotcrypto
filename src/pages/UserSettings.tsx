@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
-import Page from '../components/Page';
 import { Button } from 'flowbite-react';
-import { useStorage } from '../hooks/useStorage';
-import Modal from '../components/Modal';
+import { useState } from 'react';
 import { FaExclamationTriangle, FaTrashAlt } from 'react-icons/fa';
+
+import Modal from '../components/Modal';
+import Page from '../components/Page';
 import SettingsDateFormat from '../components/SettingsDateFormat';
 import SettingsPriceFormat from '../components/SettingsPriceFormat';
+import { useStorage } from '../hooks/useStorage';
 
-type UserProps = {};
-
-const UserSettings: React.FC<UserProps> = () => {
+function UserSettings() {
     const { setSelectedCurrencies } = useStorage();
     const [openRemoveAllDataModal, setOpenRemoveAllDataModal] = useState<boolean>(false);
 
@@ -19,9 +18,13 @@ const UserSettings: React.FC<UserProps> = () => {
     const handleCloseClearAllStoredDataModal = () => {
         setOpenRemoveAllDataModal(false);
     }
-    const onRemoveAllData = () => {
-        setSelectedCurrencies([]);
+    const handleRemoveAllData = async () => {
+        await setSelectedCurrencies([]);
         handleCloseClearAllStoredDataModal();
+    }
+
+    const onRemoveAllData = () => {
+        void handleRemoveAllData();
     }
 
     return (
@@ -55,9 +58,9 @@ const UserSettings: React.FC<UserProps> = () => {
                         This action will permanently delete all your stored information and cannot be reversed
                     </p>
                     <Button
+                        className="w-fit"
                         color="failure"
                         onClick={handleOpenClearAllStoredDataModal}
-                        className="w-fit"
                     >
                         Delete All Data
                     </Button>
@@ -71,15 +74,15 @@ const UserSettings: React.FC<UserProps> = () => {
             >
                 <div className="flex flex-col items-center">
                     <FaExclamationTriangle
-                        color="white"
                         className="flex mx-auto mb-4 text-6xl"
+                        color="white"
                     />
                     <p className="mb-4 text-white">
                         Are you sure you want to remove all your data?
                     </p>
                     <div className="flex space-x-2">
                         <Button color="failure" onClick={onRemoveAllData}>
-                            <FaTrashAlt color="white" className="mr-1" />
+                            <FaTrashAlt className="mr-1" color="white" />
                             Remove All Transactions
                         </Button>
                         <Button color="dark" onClick={handleCloseClearAllStoredDataModal}>Cancel</Button>
@@ -88,6 +91,6 @@ const UserSettings: React.FC<UserProps> = () => {
             </Modal>
         </Page>
     );
-};
+}
 
 export default UserSettings;

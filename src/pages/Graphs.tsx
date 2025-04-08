@@ -1,29 +1,31 @@
-import React, { useMemo } from 'react';
-import { Card, Tooltip } from 'flowbite-react';
-import Page from '../components/Page';
-import { useStorage } from '../hooks/useStorage';
-import useCoinMarketCap from '../hooks/useCoinMarketCap';
-import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
-import Charts from '../components/Charts';
-import { useAppState } from '../hooks/useAppState';
-import { createCryptoMap, currencyFormat, percentageFormat } from '../utils/helpers';
-import { getGlobalTotals, getTotalPercentageDifference } from '../utils/totals';
+import type { FetchedCurrency } from 'currency';
+
 import classNames from 'classnames';
-import { FetchedCurrency } from 'currency';
-import { getImage } from '../utils/images';
+import { Card, Tooltip } from 'flowbite-react';
+import { useMemo } from 'react';
+
+import Charts from '../components/Charts';
 import { HistoricalPortfolioValues } from '../components/HistoricalPortfolioValues';
+import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
+import Page from '../components/Page';
+import { useAppState } from '../hooks/useAppState';
+import useCoinMarketCap from '../hooks/useCoinMarketCap';
+import { useStorage } from '../hooks/useStorage';
+import { createCryptoMap, currencyFormat, percentageFormat } from '../utils/helpers';
+import { getImage } from '../utils/images';
+import { getGlobalTotals, getTotalPercentageDifference } from '../utils/totals';
 
 
-const Graphs: React.FC = () => {
+function Graphs() {
   const { currencyQuote } = useAppState();
   const {
     data: fetchedCurrencies,
-    isLoading: fetchedCurrenciesIsLoading,
     isError: fetchedCurrenciesIsError,
+    isLoading: fetchedCurrenciesIsLoading,
   } = useCoinMarketCap(currencyQuote);
   const {
-    selectedCurrencies,
     loading: storageIsLoading,
+    selectedCurrencies,
   } = useStorage();
 
 
@@ -55,90 +57,89 @@ const Graphs: React.FC = () => {
       };
     });
 
-    return assetsWithPerformance.reduce((best, current) => {
+    return assetsWithPerformance.reduce<null | { currentCurrency: FetchedCurrency | undefined, percentageDifference: number }>((best, current) => {
       if (!best || (current.percentageDifference > best.percentageDifference)) {
         return current;
       }
       return best;
-    }, null as { currentCurrency: FetchedCurrency | undefined, percentageDifference: number } | null);
+    }, null);
 
-  }, [selectedCurrencies, fetchedCurrencies]);
+  }, [selectedCurrencies, fetchedCurrencies, assetMap]);
 
   return (
     <LoadingErrorWrapper
-      storageIsLoading={storageIsLoading}
       fetchedIsLoading={fetchedCurrenciesIsLoading}
       isError={fetchedCurrenciesIsError}
+      storageIsLoading={storageIsLoading}
     >
       <Page>
         <div className="grid gap-4 mb-4 w-full mt-14 lg:mt-auto">
-          {globalTotals && (
-            <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4'>
-              <div className="text-white">
-                Total value
-                <Tooltip content="Total Value">
-                  <div className="text-4xl">
-                    {currencyFormat(globalTotals.totalValue, currencyQuote)}
-                  </div>
-                </Tooltip>
-              </div>
-              <div className="text-white">
-                Total invested
-                <Tooltip content="Total Invested">
-                  <div className="text-4xl">
-                    {currencyFormat(globalTotals.totalInvested, currencyQuote)}
-                  </div>
-                </Tooltip>
-              </div>
-              <div className="text-white">
-                Total Profit/loss
-                <Tooltip content="((Total Value - Total Invested) / Total Invested) × 100">
-                  <div
-                    className={classNames('text-xl', {
-                      'text-blue-500':
-                        globalTotals.totalPercentageDifference > 0,
-                      'text-red-500':
-                        globalTotals.totalPercentageDifference < 0,
-                    })}
-                  >
-                    <div className="text-4xl">
-                      {percentageFormat(globalTotals.totalPercentageDifference)}
-                    </div>
-                  </div>
-                </Tooltip>
-              </div>
-              {bestPerformingAsset &&
-                <div className="text-white">
-                  Best performing asset
-                  <Tooltip content="Based by total profit per asset">
-                    <div className="text-4xl">
-                      <div className="flex items-center">
-                        <img
-                          width={32}
-                          height={32}
-                          src={getImage(bestPerformingAsset.currentCurrency?.cmc_id)}
-                          alt={`${bestPerformingAsset.currentCurrency?.name} icon`}
-                        />
-                        <div className="pl-2"> {bestPerformingAsset.currentCurrency?.name}</div>
-                      </div>
-                    </div>
-                  </Tooltip>
-                </div>}
+          <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4'>
+            <div className="text-white">
+              Total value
+              <Tooltip content="Total Value">
+                <div className="text-4xl">
+                  {currencyFormat(globalTotals.totalValue, currencyQuote)}
+                </div>
+              </Tooltip>
             </div>
-          )}
+            <div className="text-white">
+              Total invested
+              <Tooltip content="Total Invested">
+                <div className="text-4xl">
+                  {currencyFormat(globalTotals.totalInvested, currencyQuote)}
+                </div>
+              </Tooltip>
+            </div>
+            <div className="text-white">
+              Total Profit/loss
+              <Tooltip content="((Total Value - Total Invested) / Total Invested) × 100">
+                <div
+                  className={classNames('text-xl', {
+                    'text-blue-500':
+                      globalTotals.totalPercentageDifference > 0,
+                    'text-red-500':
+                      globalTotals.totalPercentageDifference < 0,
+                  })}
+                >
+                  <div className="text-4xl">
+                    {percentageFormat(globalTotals.totalPercentageDifference)}
+                  </div>
+                </div>
+              </Tooltip>
+            </div>
+            {bestPerformingAsset && (
+              <div className="text-white">
+                Best performing asset
+                <Tooltip content="Based by total profit per asset">
+                  <div className="text-4xl">
+                    <div className="flex items-center">
+                      <img
+                        alt={`${bestPerformingAsset.currentCurrency?.name || 'Asset'} icon`}
+                        height={32}
+                        src={getImage(bestPerformingAsset.currentCurrency?.cmc_id)}
+                        width={32}
+                      />
+                      <div className="pl-2"> {bestPerformingAsset.currentCurrency?.name}</div>
+                    </div>
+                  </div>
+                </Tooltip>
+              </div>
+            )}
+          </div>
           <div className='grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4 mb-4'>
             <Card>
-              <Charts assetMap={assetMap} fetchedCurrencies={fetchedCurrencies} selectedAssets={selectedCurrencies} id="amount" />
+              <Charts assetMap={assetMap} fetchedCurrencies={fetchedCurrencies} id="amount" selectedAssets={selectedCurrencies} />
             </Card>
             <Card>
-              <Charts assetMap={assetMap} fetchedCurrencies={fetchedCurrencies} selectedAssets={selectedCurrencies} id="invested" />
+              <Charts assetMap={assetMap} fetchedCurrencies={fetchedCurrencies} id="invested" selectedAssets={selectedCurrencies} />
             </Card>
           </div>
-          <HistoricalPortfolioValues fetchedCurrencies={fetchedCurrencies} selectedAssets={selectedCurrencies} currencyQuote={currencyQuote} />
+          <HistoricalPortfolioValues currencyQuote={currencyQuote} fetchedCurrencies={fetchedCurrencies} selectedAssets={selectedCurrencies} />
         </div>
       </Page>
     </LoadingErrorWrapper>
   );
-};
+}
 
 export default Graphs;

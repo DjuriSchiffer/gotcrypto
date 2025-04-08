@@ -1,41 +1,43 @@
-import React, { useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
 import { Card } from 'flowbite-react';
 import uniqueId from 'lodash.uniqueid';
-import Page from '../components/Page';
-import { Transaction, SelectedAsset, TransactionType, TransferType } from '../types/currency';
-import { useStorage } from '../hooks/useStorage';
-import totals from '../utils/totals';
-import useCoinMarketCap from '../hooks/useCoinMarketCap';
-import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
-import { useAppState } from '../hooks/useAppState';
+import { useMemo, useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
+import { Link, useParams } from 'react-router-dom';
+
+import type { SelectedAsset, Transaction, TransactionType, TransferType } from '../types/currency';
+
 import DetailHeader from '../components/DetailHeader';
 import DetailModals from '../components/DetailModals';
 import DetailCharts from '../components/DetailsCharts';
 import DetailTransactionTable from '../components/DetailTransactionTable';
+import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
+import Page from '../components/Page';
+import { useAppState } from '../hooks/useAppState';
+import useCoinMarketCap from '../hooks/useCoinMarketCap';
+import { useStorage } from '../hooks/useStorage';
+import totals from '../utils/totals';
 
-interface FormInputs {
+type FormInputs = {
   amount: string;
-  purchasePrice: string;
   date: string;
-  transactionType: TransactionType;
-  transferType?: TransferType,
   description?: string
   excludeForTax?: boolean
+  purchasePrice: string;
+  transactionType: TransactionType;
+  transferType?: TransferType,
 }
 
-const Detail: React.FC = () => {
+function Detail() {
   const { currencyQuote } = useAppState();
   const {
     data: fetchedCurrencies,
-    isLoading: fetchedCurrenciesIsLoading,
     isError: fetchedCurrenciesIsError,
+    isLoading: fetchedCurrenciesIsLoading,
   } = useCoinMarketCap(currencyQuote);
   const {
-    updateCurrency,
-    selectedCurrencies,
     loading: storageIsLoading,
+    selectedCurrencies,
+    updateCurrency,
   } = useStorage();
   const { slug: currentAssetSlug } = useParams<{ slug: string }>();
 
@@ -43,7 +45,7 @@ const Detail: React.FC = () => {
   const [openEditTransactionModal, setOpenEditTransactionModal] = useState<boolean>(false);
   const [openRemoveTransactionModal, setOpenRemoveTransactionModal] = useState<boolean>(false);
   const [openRemoveAllTransactionsModal, setOpenRemoveAllTransactionsModal] = useState<boolean>(false);
-  const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
+  const [currentTransaction, setCurrentTransaction] = useState<null | Transaction>(null);
 
   const selectedAsset = useMemo(() => {
     return selectedCurrencies.find(
@@ -91,9 +93,9 @@ const Detail: React.FC = () => {
     }
 
     try {
-      const { amount, purchasePrice, date, transactionType, transferType, description, excludeForTax } = formData;
+      const { amount, date, description, excludeForTax, purchasePrice, transactionType, transferType } = formData;
 
-      let normalizedPrice = purchasePrice.toString().replace(',', '.');
+      const normalizedPrice = purchasePrice.toString().replace(',', '.');
       const parsedPrice = parseFloat(normalizedPrice);
       const formattedPrice = Math.abs(parsedPrice).toFixed(2);
 
@@ -103,13 +105,13 @@ const Detail: React.FC = () => {
 
       const newTransaction: Transaction = {
         amount: formattedAmount,
-        purchasePrice: formattedPrice,
         date,
-        id: currentTransaction?.id || uniqueId(`trans_${Date.now()}_`),
+        description: description ?? '',
+        excludeForTax: excludeForTax ?? false,
+        id: currentTransaction?.id ?? uniqueId(`trans_${Date.now()}_`),
+        purchasePrice: formattedPrice,
         type: transactionType,
-        description: description || '',
-        excludeForTax: excludeForTax || false,
-        ...(transactionType === 'transfer' ? { transferType: transferType || 'in' } : {})
+        ...(transactionType === 'transfer' ? { transferType: transferType ?? 'in' } : {})
       };
 
       let updatedSelectedCurrency: SelectedAsset;
@@ -123,19 +125,19 @@ const Detail: React.FC = () => {
 
         updatedSelectedCurrency = {
           ...selectedAsset,
+          totals: totals(updatedTransactions),
           transactions: updatedTransactions.sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
           ),
-          totals: totals(updatedTransactions),
         };
       } else if (currentFetchedCurrency) {
         updatedSelectedCurrency = {
-          name: currentFetchedCurrency.name,
-          slug: currentFetchedCurrency.slug,
           cmc_id: currentFetchedCurrency.cmc_id,
           index: selectedCurrencies.length,
-          transactions: [newTransaction],
+          name: currentFetchedCurrency.name,
+          slug: currentFetchedCurrency.slug,
           totals: totals([newTransaction]),
+          transactions: [newTransaction],
         };
       } else {
         throw new Error('No currency context available');
@@ -159,8 +161,8 @@ const Detail: React.FC = () => {
 
       const updatedSelectedCurrency: SelectedAsset = {
         ...selectedAsset,
-        transactions: updatedTransactions,
         totals: totals(updatedTransactions),
+        transactions: updatedTransactions,
       };
 
       await updateCurrency(updatedSelectedCurrency);
@@ -177,8 +179,8 @@ const Detail: React.FC = () => {
     try {
       const updatedSelectedCurrency: SelectedAsset = {
         ...selectedAsset,
-        transactions: [],
         totals: totals([]),
+        transactions: [],
       };
 
       await updateCurrency(updatedSelectedCurrency);
@@ -189,14 +191,34 @@ const Detail: React.FC = () => {
     }
   };
 
+  const handleAddTransactionClick = () => {
+    handleOpenAddTransactionModal();
+  };
+
+  const handleRemoveAllTransactionsClick = () => {
+    handleOpenRemoveAllTransactionsModal();
+  };
+
+  const handleRemoveAllTransactionsCallback = () => {
+    void handleRemoveAllTransactions();
+  };
+
+  const handleFormSubmitCallback = (formData: FormInputs) => {
+    void handleFormSubmit(formData);
+  };
+
+  const handleRemoveTransactionCallback = () => {
+    void handleRemoveTransaction();
+  };
+
   if (!currentFetchedCurrency) {
     return (
       <Page>
         <div className="text-white flex flex-col items-center justify-center h-screen">
           <p className="mb-4">Could not fetch data from Coinmarketcap....</p>
           <Link
-            to="/"
             className="inline-flex items-center justify-center p-3 text-base font-medium text-gray-500 rounded-lg bg-gray-50 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
+            to="/"
           >
             <FaArrowLeft className="mr-2" color="white" />
             Return to dashboard
@@ -208,54 +230,54 @@ const Detail: React.FC = () => {
 
   return (
     <LoadingErrorWrapper
-      storageIsLoading={storageIsLoading}
       fetchedIsLoading={fetchedCurrenciesIsLoading}
       isError={fetchedCurrenciesIsError}
+      storageIsLoading={storageIsLoading}
     >
       <Page>
         <div className="grid gap-4 mb-4 w-full mt-14 lg:mt-auto">
           <div className='grid grid-cols-1 gap-4 mb-4'>
             <Card>
               <DetailHeader
-                currentFetchedCurrency={currentFetchedCurrency}
-                selectedAsset={selectedAsset}
                 currencyQuote={currencyQuote}
-                onAddTransaction={handleOpenAddTransactionModal}
-                onRemoveAllTransactions={handleOpenRemoveAllTransactionsModal}
+                currentFetchedCurrency={currentFetchedCurrency}
+                onAddTransaction={handleAddTransactionClick}
+                onRemoveAllTransactions={handleRemoveAllTransactionsClick}
+                selectedAsset={selectedAsset}
               />
               <DetailTransactionTable
-                selectedAsset={selectedAsset}
-                fetchedCurrencies={fetchedCurrencies || []}
-                currentFetchedCurrency={currentFetchedCurrency}
                 currencyQuote={currencyQuote}
+                currentFetchedCurrency={currentFetchedCurrency}
+                fetchedCurrencies={fetchedCurrencies ?? []}
                 onEditTransaction={handleOpenEditTransactionModal}
                 onRemoveTransaction={handleOpenRemoveTransactionModal}
+                selectedAsset={selectedAsset}
               />
             </Card>
             {selectedAsset && selectedAsset.transactions.length > 0 &&
               <Card>
-                <DetailCharts selectedAsset={selectedAsset} currencyQuote={currencyQuote} />
+                <DetailCharts currencyQuote={currencyQuote} selectedAsset={selectedAsset} />
               </Card>}
 
           </div>
 
           <DetailModals
+            currencyQuote={currencyQuote}
+            currentTransaction={currentTransaction}
+            onCloseModals={handleCloseModals}
+            onFormSubmit={handleFormSubmitCallback}
+            onRemoveAllTransactions={handleRemoveAllTransactionsCallback}
+            onRemoveTransaction={handleRemoveTransactionCallback}
             openAddTransactionModal={openAddTransactionModal}
             openEditTransactionModal={openEditTransactionModal}
-            openRemoveTransactionModal={openRemoveTransactionModal}
             openRemoveAllTransactionsModal={openRemoveAllTransactionsModal}
-            currentTransaction={currentTransaction}
-            currencyQuote={currencyQuote}
+            openRemoveTransactionModal={openRemoveTransactionModal}
             selectedAssetName={selectedAsset?.name}
-            onCloseModals={handleCloseModals}
-            onFormSubmit={handleFormSubmit}
-            onRemoveTransaction={handleRemoveTransaction}
-            onRemoveAllTransactions={handleRemoveAllTransactions}
           />
         </div>
       </Page>
     </LoadingErrorWrapper>
   );
-};
+}
 
 export default Detail;
