@@ -1,7 +1,10 @@
+import type { CurrencyData, CurrencyQuote, GetCurrenciesResponse } from 'api';
+
 import { useQuery } from '@tanstack/react-query';
+
+import type { FetchedCurrency } from '../types/currency';
+
 import { getCurrencies } from '../api';
-import { FetchedCurrency } from '../types/currency';
-import { CurrencyData, CurrencyQuote, GetCurrenciesResponse } from 'api';
 
 
 export function formatPrice(price: number) {
@@ -32,14 +35,14 @@ export function formatPrice(price: number) {
 const transformCurrencies = (
   data: Record<string, CurrencyData>,
   currencyQuote: keyof CurrencyQuote
-): FetchedCurrency[] => {
+): Array<FetchedCurrency> => {
   return Object.values(data)
     .map((asset) => ({
+      cmc_id: asset.id,
+      cmc_rank: asset.cmc_rank ?? null,
       name: asset.name,
       price: formatPrice(asset.quote[currencyQuote].price),
       slug: asset.slug,
-      cmc_id: asset.id,
-      cmc_rank: asset.cmc_rank || null,
     }))
     .sort((a, b) => {
       if (a.cmc_rank !== null && b.cmc_rank !== null) {
@@ -59,8 +62,7 @@ const transformCurrencies = (
  * @returns The result of the useQuery hook.
  */
 const useCoinMarketCap = (currencyQuote: keyof CurrencyQuote = 'EUR') => {
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['fetchedCurrencies', currencyQuote],
+  const { data, error, isError, isLoading } = useQuery({
     queryFn: async () => {
       const data: GetCurrenciesResponse = await getCurrencies();
 
@@ -76,13 +78,14 @@ const useCoinMarketCap = (currencyQuote: keyof CurrencyQuote = 'EUR') => {
 
       throw new Error('Unknown error occurred while fetching currencies');
     },
+    queryKey: ['fetchedCurrencies', currencyQuote],
   });
 
   return {
     data,
-    isLoading,
-    isError,
     error,
+    isError,
+    isLoading,
   };
 };
 

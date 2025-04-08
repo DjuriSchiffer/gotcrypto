@@ -1,27 +1,44 @@
+import type { CurrencyQuote } from 'api';
+import type { FetchedCurrency, SelectedAsset } from 'currency';
+
 import { useQueries } from '@tanstack/react-query';
-import { CurrencyQuote } from 'api';
-import { FetchedCurrency, SelectedAsset } from 'currency';
+
 import { getQuoteByTimestamp } from '../api';
 import { formatPrice } from './useCoinMarketCap';
 
-export interface YearlyTotal {
-    year: number;
+export type YearlyTotal = {
     totalValue: number;
+    year: number;
 }
 
-function extractPriceFromResponse(response: any): number | null {
+type ApiResponse = {
+    data: {
+        convertQuotes: Array<{
+            name: string;
+            price: number;
+        }>;
+        id: number;
+        timestamp: string;
+    };
+    status: {
+        credit_count: number;
+        elapsed: string;
+        error_code: string;
+        error_message: string;
+        timestamp: string;
+    };
+}
+
+function extractPriceFromResponse(response: ApiResponse): null | number {
     try {
-        if (response &&
-            response.data &&
-            response.data.convertQuotes &&
-            Array.isArray(response.data.convertQuotes) &&
+        if (Array.isArray(response.data.convertQuotes) &&
             response.data.convertQuotes.length > 0 &&
             typeof response.data.convertQuotes[0].price === 'number') {
 
             return response.data.convertQuotes[0].price;
         }
         return null;
-    } catch (error) {
+    } catch (_error) {
         return null;
     }
 }
@@ -33,12 +50,12 @@ function extractPriceFromResponse(response: any): number | null {
  * @param currencyQuote - The currency to use for quotes (EUR or USD)
  */
 export const useHistoricalPortfolioValues = (
-    selectedCurrencies: SelectedAsset[] = [],
-    fetchedCurrencies: FetchedCurrency[] | null = [],
+    selectedCurrencies: Array<SelectedAsset> = [],
+    fetchedCurrencies: Array<FetchedCurrency> | null = [],
     currencyQuote: keyof CurrencyQuote = 'EUR'
 ) => {
     const allTransactionYears = selectedCurrencies.flatMap(currency =>
-        (currency.transactions || []).map(transaction => new Date(transaction.date).getFullYear())
+        currency.transactions.map(transaction => new Date(transaction.date).getFullYear())
     );
 
     const uniqueYears = [...new Set(allTransactionYears)].sort();
@@ -69,7 +86,7 @@ export const useHistoricalPortfolioValues = (
         const priceTimestamp = Math.floor(januaryFirstNextYear.getTime() / 1000);
 
         const holdings = selectedCurrencies.map(currency => {
-            if (!currency.transactions || !currency.cmc_id) {
+            if (!currency.cmc_id) {
                 return null;
             }
 
@@ -85,7 +102,7 @@ export const useHistoricalPortfolioValues = (
                 }
 
                 const transactionAmount = parseFloat(transaction.amount) || 0;
-                const transactionType = transaction.type || 'unknown';
+                const transactionType = transaction.type;
 
                 if (transactionType === 'buy') {
                     amount += transactionAmount;
@@ -93,7 +110,7 @@ export const useHistoricalPortfolioValues = (
                 else if (transactionType === 'sell') {
                     amount -= transactionAmount;
                 }
-                else if (transactionType === 'transfer') {
+                else {
                     if (transaction.transferType === 'in') {
                         amount += transactionAmount;
                     } else if (transaction.transferType === 'out') {
@@ -107,17 +124,17 @@ export const useHistoricalPortfolioValues = (
             }
 
             return {
+                amount,
                 cmc_id: currency.cmc_id,
                 name: currency.name,
-                amount,
                 timestamp: priceTimestamp
             };
         }).filter(Boolean);
 
         return {
-            year,
             holdings,
-            timestamp: priceTimestamp
+            timestamp: priceTimestamp,
+            year
         };
     });
 
@@ -127,79 +144,80 @@ export const useHistoricalPortfolioValues = (
         yearData.holdings
             .filter(holding => holding !== null)
             .map(holding => ({
-                queryKey: ['quoteByTimeStamp', holding.cmc_id, convertId, yearData.timestamp, currencyQuote],
                 queryFn: async () => {
                     try {
-                        const response = await getQuoteByTimestamp(holding.cmc_id, convertId, yearData.timestamp);
+                        const response = await getQuoteByTimestamp(holding.cmc_id, convertId, yearData.timestamp) as unknown as ApiResponse;
 
                         const price = extractPriceFromResponse(response);
 
                         if (price !== null) {
                             const formattedPrice = formatPrice(price);
                             return {
-                                year: yearData.year,
+                                amount: holding.amount,
                                 cmc_id: holding.cmc_id,
                                 name: holding.name,
                                 price: formattedPrice,
-                                amount: holding.amount
+                                year: yearData.year
                             };
                         }
 
                         throw new Error('Could not extract price from response');
-                    } catch (error) {
-                        const currentPrice = fetchedCurrencies?.find(c => c.cmc_id === holding.cmc_id)?.price || 0;
+                    } catch (_error) {
+                        const foundCurrency = fetchedCurrencies?.find(c => c.cmc_id === holding.cmc_id);
+                        const currentPrice = foundCurrency?.price ?? 0;
                         return {
-                            year: yearData.year,
+                            amount: holding.amount,
                             cmc_id: holding.cmc_id,
                             name: holding.name,
                             price: currentPrice,
-                            amount: holding.amount
+                            year: yearData.year
                         };
                     }
                 },
+                queryKey: ['quoteByTimeStamp', holding.cmc_id, convertId, yearData.timestamp, currencyQuote],
             }))
     );
 
     const results = useQueries({
-        queries: queryOptions,
         combine: (results) => {
             return results.map(result => ({
                 ...result,
-                staleTime: 1000 * 60 * 60 * 24, // 24 hours
                 cacheTime: 1000 * 60 * 60 * 24 * 7, // 7 days
-                refetchOnWindowFocus: false,
                 refetchOnMount: false,
-                refetchOnReconnect: false
+                refetchOnReconnect: false,
+                refetchOnWindowFocus: false,
+                staleTime: 1000 * 60 * 60 * 24 // 24 hours
             }))
-        }
+        },
+        queries: queryOptions
     });
 
     const isLoading = results.some(result => result.isLoading);
     const isError = results.some(result => result.isError);
 
-    let yearlyTotals: YearlyTotal[] = [];
+    let yearlyTotals: Array<YearlyTotal> = [];
 
     if (!isLoading && !isError) {
-        const yearlyData = results.reduce((acc, result) => {
+        const yearlyData = results.reduce<Record<number, number>>((acc, result) => {
             if (!result.data) return acc;
 
-            const { year, price, amount } = result.data;
+            const { amount, price, year } = result.data;
             if (!acc[year]) acc[year] = 0;
 
             const assetValue = price * amount;
             acc[year] += assetValue;
             return acc;
-        }, {} as Record<number, number>);
+        }, {});
 
         yearlyTotals = Object.entries(yearlyData).map(([year, totalValue]) => ({
-            year: parseInt(year),
-            totalValue
+            totalValue,
+            year: parseInt(year)
         })).sort((a, b) => a.year - b.year);
     }
 
     return {
-        yearlyTotals,
+        isError,
         isLoading,
-        isError
+        yearlyTotals
     };
 };

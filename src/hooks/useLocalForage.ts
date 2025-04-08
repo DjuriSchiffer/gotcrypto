@@ -1,13 +1,15 @@
+import type { SelectedAsset } from 'currency';
+
 import localForage from 'localforage';
 import { useCallback } from 'react';
-import { SelectedAsset } from 'currency';
+
 import { useAppDispatch } from './useAppDispatch';
 
 export const useLocalForage = () => {
   const dispatch = useAppDispatch();
 
   const setLocalForage = useCallback(
-    (key: string, value: SelectedAsset[], callback?: () => void): void => {
+    (key: string, value: Array<SelectedAsset>, callback?: () => void): void => {
       localForage
         .setItem(key, value)
         .then(() => {
@@ -15,10 +17,10 @@ export const useLocalForage = () => {
             callback();
           }
         })
-        .catch((err: any) => {
+        .catch((err: unknown) => {
           dispatch({
-            type: 'SET_ERROR',
             payload: true,
+            type: 'SET_ERROR',
           });
           console.error(`Error setting ${key} in localForage:`, err);
         });
@@ -27,14 +29,14 @@ export const useLocalForage = () => {
   );
 
   const getSelectedCurrencies = useCallback(
-    async (key: string): Promise<SelectedAsset[]> => {
+    async (key: string): Promise<Array<SelectedAsset>> => {
       try {
-        const values = await localForage.getItem<SelectedAsset[]>(key);
-        return values || [];
-      } catch (err) {
+        const values = await localForage.getItem<Array<SelectedAsset>>(key);
+        return values ?? [];
+      } catch (err: unknown) {
         dispatch({
-          type: 'SET_ERROR',
           payload: true,
+          type: 'SET_ERROR',
         });
         console.error(`Error getting ${key} from localForage:`, err);
         return [];
@@ -44,7 +46,7 @@ export const useLocalForage = () => {
   );
 
   return {
-    setLocalForage,
     getSelectedCurrencies,
+    setLocalForage,
   };
 };

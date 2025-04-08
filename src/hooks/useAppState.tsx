@@ -1,7 +1,9 @@
-import React, {
+import type { Store } from 'store';
+
+import {
   useContext,
 } from 'react';
-import { Store } from 'store';
+
 import { StateContext } from '../contexts/StateContext';
 
 export const useAppState = (): Store => {

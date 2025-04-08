@@ -1,5 +1,8 @@
-import React, { useContext, Dispatch } from 'react';
-import { Action } from 'store';
+import type { Dispatch } from 'react';
+import type { Action } from 'store';
+
+import { useContext } from 'react';
+
 import { DispatchContext } from '../contexts/DispatchContext';
 
 export const useAppDispatch = (): Dispatch<Action> => {
