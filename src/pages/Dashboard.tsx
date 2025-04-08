@@ -1,38 +1,38 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import classNames from 'classnames';
-import { useAppState } from '../hooks/useAppState';
-import { percentageFormat, currencyFormat, createCryptoMap } from '../utils/helpers';
-import { Tooltip } from 'flowbite-react';
-import Page from '../components/Page';
-import DashboardCard from '../components/DashboardCard';
-import { useStorage } from '../hooks/useStorage';
-import SearchInput from '../components/SearchInput';
-import { MultiValue } from 'react-select';
-import { getGlobalTotals } from '../utils/totals';
-import useCoinMarketCap from '../hooks/useCoinMarketCap';
-import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
-import { ChangeQuote } from '../components/ChangeQuote';
-import { ChangeLayout } from '../components/ChangeLayout';
-import Table from '../components/Table';
-import DashboardTableRow from '../components/DashboardTableRow';
+import type { MultiValue } from 'react-select';
 
-type DashboardProps = {};
-interface OptionType {
-  value: number;
-  label: string;
+import classNames from 'classnames';
+import { Tooltip } from 'flowbite-react';
+import { useCallback, useMemo, useState } from 'react';
+
+import { ChangeLayout } from '../components/ChangeLayout';
+import DashboardCard from '../components/DashboardCard';
+import DashboardTableRow from '../components/DashboardTableRow';
+import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
+import Page from '../components/Page';
+import SearchInput from '../components/SearchInput';
+import Table from '../components/Table';
+import { useAppState } from '../hooks/useAppState';
+import useCoinMarketCap from '../hooks/useCoinMarketCap';
+import { useStorage } from '../hooks/useStorage';
+import { createCryptoMap, currencyFormat, percentageFormat } from '../utils/helpers';
+import { getGlobalTotals } from '../utils/totals';
+
+type OptionType = {
   image: string;
+  label: string;
+  value: number;
 }
 
-const Dashboard: React.FC<DashboardProps> = () => {
+function Dashboard() {
   const [selectedOptions, setSelectedOptions] = useState<
     MultiValue<OptionType>
   >([]);
-  const { sortMethod, currencyQuote, dashboardLayout } = useAppState();
-  const { selectedCurrencies, loading: storageIsLoading } = useStorage();
+  const { currencyQuote, dashboardLayout, sortMethod } = useAppState();
+  const { loading: storageIsLoading, selectedCurrencies } = useStorage();
   const {
     data: fetchedCurrencies,
-    isLoading: fetchedCurrenciesIsLoading,
     isError: fetchedCurrenciesIsError,
+    isLoading: fetchedCurrenciesIsLoading,
   } = useCoinMarketCap(currencyQuote);
 
   const assetMap = useMemo(
@@ -41,29 +41,22 @@ const Dashboard: React.FC<DashboardProps> = () => {
   );
 
   const filteredFetchedCurrencies = useMemo(() => {
-    if (
-      fetchedCurrencies === undefined ||
-      fetchedCurrencies === null ||
-      selectedOptions.length === 0
-    ) {
+    if (selectedOptions.length === 0) {
       return fetchedCurrencies;
     }
 
     const selectedIds = selectedOptions.map((option) => option.value);
 
-    return fetchedCurrencies.filter((currency) =>
+    return fetchedCurrencies?.filter((currency) =>
       selectedIds.includes(currency.cmc_id)
     );
   }, [fetchedCurrencies, selectedOptions]);
 
   const sortedFetchedCurrencies = useMemo(() => {
-    if (
-      filteredFetchedCurrencies === undefined ||
-      filteredFetchedCurrencies === null
-    ) {
+    if (!filteredFetchedCurrencies) {
       return [];
     }
-    let sorted = [...filteredFetchedCurrencies];
+    const sorted = [...filteredFetchedCurrencies];
 
     if (sortMethod === 'cmc_rank') {
       sorted.sort((a, b) => {
@@ -77,7 +70,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
           return 0;
         }
       });
-    } else if (sortMethod === 'has_selected') {
+    } else {
       sorted.sort((a, b) => {
         const aSelected = assetMap.has(a.cmc_id) ? 0 : 1;
         const bSelected = assetMap.has(b.cmc_id) ? 0 : 1;
@@ -111,60 +104,60 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   return (
     <LoadingErrorWrapper
-      storageIsLoading={storageIsLoading}
       fetchedIsLoading={fetchedCurrenciesIsLoading}
       isError={fetchedCurrenciesIsError}
+      storageIsLoading={storageIsLoading}
     >
       <Page>
         <div className="grid gap-4 mb-4 w-full">
           <div className='grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-4 mb-4'>
-            {globalTotals && (
-              <div className="text-white">
-                Current ballance
-                <Tooltip content="Total Value">
-                  <div className="text-4xl">
-                    {currencyFormat(globalTotals.totalValue, currencyQuote)}
-                  </div>
-                </Tooltip>
-                <Tooltip content="((Total Value - Total Invested) / Total Invested) × 100">
-                  <div
-                    className={classNames('text-xl', {
-                      'text-blue-500':
-                        globalTotals.totalPercentageDifference > 0,
-                      'text-red-500':
-                        globalTotals.totalPercentageDifference < 0,
-                    })}
-                  >
-                    {percentageFormat(globalTotals.totalPercentageDifference)}
-                  </div>
-                </Tooltip>
-              </div>
-            )}
+            <div className="text-white">
+              Current ballance
+              <Tooltip content="Total Value">
+                <div className="text-4xl">
+                  {currencyFormat(globalTotals.totalValue, currencyQuote)}
+                </div>
+              </Tooltip>
+              <Tooltip content="((Total Value - Total Invested) / Total Invested) × 100">
+                <div
+                  className={classNames('text-xl', {
+                    'text-blue-500':
+                      globalTotals.totalPercentageDifference > 0,
+                    'text-red-500':
+                      globalTotals.totalPercentageDifference < 0,
+                  })}
+                >
+                  {percentageFormat(globalTotals.totalPercentageDifference)}
+                </div>
+              </Tooltip>
+            </div>
           </div>
           <div className='flex row flex-wrap gap-4'>
             <ChangeLayout />
             <div className='ml-auto w-full md:w-6/12 lg:w-4/12'>
               <SearchInput
-                options={fetchedCurrencies}
-                selectedOptions={selectedOptions}
                 onChange={handleSelectChange}
+                options={fetchedCurrencies}
                 placeholder="Search and select assets..."
+                selectedOptions={selectedOptions}
               />
             </div>
           </div>
           {dashboardLayout === 'Grid' &&
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {sortedFetchedCurrencies.map((fetchedCurrency) => {
+                const asset = assetMap.get(fetchedCurrency.cmc_id);
                 const isSelected =
                   assetMap.has(fetchedCurrency.cmc_id) &&
-                  assetMap.get(fetchedCurrency.cmc_id)!?.transactions.length > 0;
+                  asset !== undefined &&
+                  asset.transactions.length > 0;
                 return (
                   <DashboardCard
-                    fetchedCurrency={fetchedCurrency}
-                    key={fetchedCurrency.cmc_id}
                     assetMap={assetMap}
-                    isSelected={isSelected}
                     currencyQuote={currencyQuote}
+                    fetchedCurrency={fetchedCurrency}
+                    isSelected={isSelected}
+                    key={fetchedCurrency.cmc_id}
                   />
                 );
               })}
@@ -173,24 +166,25 @@ const Dashboard: React.FC<DashboardProps> = () => {
           {dashboardLayout === 'Table' &&
             <Table type="dashboard">
               {sortedFetchedCurrencies.map((fetchedCurrency) => {
+                const asset = assetMap.get(fetchedCurrency.cmc_id);
                 const isSelected =
                   assetMap.has(fetchedCurrency.cmc_id) &&
-                  assetMap.get(fetchedCurrency.cmc_id)!?.transactions.length > 0;
+                  asset !== undefined &&
+                  asset.transactions.length > 0;
                 return (
                   <DashboardTableRow
-                    fetchedCurrency={fetchedCurrency}
-                    key={fetchedCurrency.cmc_id}
                     assetMap={assetMap}
-                    isSelected={isSelected}
                     currencyQuote={currencyQuote}
+                    fetchedCurrency={fetchedCurrency}
+                    isSelected={isSelected}
+                    key={fetchedCurrency.cmc_id}
                   />)
               })}
             </Table>}
-
         </div>
       </Page>
     </LoadingErrorWrapper>
   );
-};
+}
 
 export default Dashboard;
