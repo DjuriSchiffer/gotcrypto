@@ -1,41 +1,41 @@
 export type FetchedCurrency = {
+  cmc_id: number;
+  cmc_rank: null | number;
   name: string;
   price: number;
   slug: string;
-  cmc_id: number;
-  cmc_rank: number | null;
 };
 
-export type TransactionType = 'buy' | 'sell' | "transfer";
+export type TransactionType = "transfer" | 'buy' | 'sell';
 export type TransferType = 'in' | 'out';
 
 export type Transaction = {
   amount: string;
-  purchasePrice: string;
   date: string;
-  id: string;
-  type: TransactionType;
-  transferType?: TransferType;
   description?: string;
   excludeForTax?: boolean;
+  id: string;
+  purchasePrice: string;
+  transferType?: TransferType;
+  type: TransactionType;
 };
 
 export type Totals = {
   totalAmount: number;
   totalAmountBought: number;
   totalAmountSold: number;
-  totalPurchasePrice: number;
-  totalSellPrice: number;
   totalAveragePurchasePrice: number;
   totalAverageSellPrice: number,
   totalInvested: number
+  totalPurchasePrice: number;
+  totalSellPrice: number;
 };
 
 export type SelectedAsset = {
-  name: string;
-  slug: string;
   cmc_id: number;
   index: number;
+  name: string;
+  slug: string;
   totals: Totals;
-  transactions: Transaction[];
+  transactions: Array<Transaction>;
 };

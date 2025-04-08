@@ -1,32 +1,32 @@
-import { CurrencyQuote } from "api";
+import type { CurrencyQuote } from "api";
 
 export type DashboardLayout = 'Grid' | 'Table'
 
-export type DateLocale = 'nl' | 'en'
+export type DateLocale = 'en' | 'nl'
 
-export interface Store {
+export type Store = {
+  currencyQuote: keyof CurrencyQuote,
+  dashboardLayout: DashboardLayout
+  dateLocale: DateLocale
   error: boolean;
   sortMethod: SortMethod;
-  currencyQuote: keyof CurrencyQuote,
-  dateLocale: DateLocale
-  dashboardLayout: DashboardLayout
 }
 
 export type SortMethod = 'cmc_rank' | 'has_selected';
 
 export type Action =
-  | { type: 'SET_ERROR'; payload: boolean }
+  | { payload: boolean; type: 'SET_ERROR'; }
+  | { payload: DashboardLayout; type: 'SET_DASHBOARD_LAYOUT'; }
+  | { payload: DateLocale; type: 'SET_DATE_LOCALE'; }
+  | { payload: keyof CurrencyQuote; type: 'SET_CURRENCY_QUOTE'; }
+  | { payload: SortMethod; type: 'SET_SORT_METHOD'; }
   | { type: 'CLEAR_ERROR' }
-  | { type: 'SET_SORT_METHOD'; payload: SortMethod }
-  | { type: 'SET_CURRENCY_QUOTE'; payload: keyof CurrencyQuote }
-  | { type: 'SET_DATE_LOCALE'; payload: DateLocale }
-  | { type: 'SET_DASHBOARD_LAYOUT'; payload: DashboardLayout }
 
-export interface GlobalTotals {
+export type GlobalTotals = {
   totalAmount: number;
-  totalValue: number;
-  totalPurchasePrice: number;
-  totalPercentageDifference: number;
   totalAveragePurchasePrice: number;
   totalInvested: number;
+  totalPercentageDifference: number;
+  totalPurchasePrice: number;
+  totalValue: number;
 }

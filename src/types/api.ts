@@ -8,54 +8,54 @@ export type CurrencyQuote = {
 };
 
 export type CurrencyData = {
-  slug: string;
+  cmc_rank: null | number;
+  id: number;
   name: string;
   quote: CurrencyQuote;
-  id: number;
-  cmc_rank: number | null;
+  slug: string;
 };
 
 export type GetCurrenciesResponse = {
   data?: Record<string, CurrencyData>;
+  error?: string;
   status: {
     error_code: number;
     error_message: string;
   };
-  error?: string;
 };
 
 
-export interface QuoteByTimestampResponse {
+export type QuoteByTimestampResponse = {
   data: {
+    id: number;
+    name: string;
     quotes: Array<{
       quote: {
-        price: number;
-        volume24h: number;
         marketCap: number;
         percentChange24h: number;
+        price: number;
+        volume24h: number;
       };
       timestamp: string;
     }>;
-    id: number;
-    name: string;
     symbol: string;
   };
-  status: {
-    timestamp: string;
-    error_code: number;
-    error_message: string | null;
-    elapsed: number;
-    credit_count: number;
-  };
   error?: string;
+  status: {
+    credit_count: number;
+    elapsed: number;
+    error_code: number;
+    error_message: null | string;
+    timestamp: string;
+  };
 }
 
-export interface CryptoQuote {
-  name: string;
-  symbol: string;
-  price: number;
-  volume24h: number;
+export type CryptoQuote = {
   marketCap: number;
+  name: string;
   percentChange24h: number;
+  price: number;
+  symbol: string;
   timestamp: string;
+  volume24h: number;
 }

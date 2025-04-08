@@ -1,43 +1,42 @@
 declare module 'tailwind-datepicker-react' {
-  import * as React from 'react';
+  import type * as React from 'react';
 
-  export interface DatepickerOptions {
-    title?: string;
+  export type DatepickerOptions = {
     autoHide?: boolean;
-    todayBtn?: boolean;
     clearBtn?: boolean;
+    datepickerClassNames?: string;
+    defaultDate?: Date;
+    icons?: {
+      next?: () => React.ReactNode;
+      prev?: () => React.ReactNode;
+    };
+    language?: string;
     maxDate?: Date;
     minDate?: Date;
     theme?: {
       background?: string;
-      todayBtn?: string;
       clearBtn?: string;
-      icons?: string;
-      text?: string;
       disabledText?: string;
+      icons?: string;
       input?: string;
       inputIcon?: string;
       selected?: string;
+      text?: string;
+      todayBtn?: string;
     };
-    icons?: {
-      prev?: () => React.ReactNode;
-      next?: () => React.ReactNode;
-    };
-    datepickerClassNames?: string;
-    language?: string;
-    defaultDate?: Date;
+    title?: string;
+    todayBtn?: boolean;
   }
 
-  export interface DatepickerProps {
-    options: DatepickerOptions;
-    show: boolean;
-    setShow: (state: boolean) => void;
-    onChange: (selectedDate: Date) => void;
+  export type DatepickerProps = {
     children: React.ReactElement;
+    onChange: (selectedDate: Date) => void;
+    options: DatepickerOptions;
+    setShow: (state: boolean) => void;
+    show: boolean;
 
   }
-
-  // Export the Datepicker component
+  
   const Datepicker: React.FC<DatepickerProps>;
 
   export default Datepicker;
