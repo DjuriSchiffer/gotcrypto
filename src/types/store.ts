@@ -20,7 +20,6 @@ export type Action =
   | { payload: DateLocale; type: 'SET_DATE_LOCALE'; }
   | { payload: keyof CurrencyQuote; type: 'SET_CURRENCY_QUOTE'; }
   | { payload: SortMethod; type: 'SET_SORT_METHOD'; }
-  | { type: 'CLEAR_ERROR' }
 
 export type GlobalTotals = {
   totalAmount: number;
