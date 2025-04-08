@@ -1,29 +1,32 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
+import * as Sentry from "@sentry/react";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as React from 'react';
+
 import './index.css';
+
+import * as ReactDOM from 'react-dom/client';
+
+import App from './App';
 import { AuthProvider } from './providers/AuthProvider';
 import ReducerProvider from './providers/ReducerProvider';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import * as Sentry from "@sentry/react";
 
 // Initialize Sentry
 Sentry.init({
   dsn: "https://b43fcdae2a1880738921aac9caf37b80@o4508432783245312.ingest.de.sentry.io/4508432787570768",
+  environment: process.env.NODE_ENV,
   integrations: [
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration(),
   ],
-  // Performance Monitoring
-  tracesSampleRate: 1.0,
+  replaysOnErrorSampleRate: 1.0,
+  // Session Replay
+  replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
   tracePropagationTargets: [
     /^https:\/\/gotcrypto\.vercel\.app/,
     /^https:\/\/firestore\.googleapis\.com/,
   ],
-  // Session Replay
-  replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-  replaysOnErrorSampleRate: 1.0,
-  environment: process.env.NODE_ENV,
+  // Performance Monitoring
+  tracesSampleRate: 1.0,
 });
 
 // Create Query Client
