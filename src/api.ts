@@ -1,5 +1,8 @@
-import axios, { AxiosResponse } from 'axios';
-import { GetCurrenciesResponse, QuoteByTimestampResponse } from './types/api';
+import type { AxiosError, AxiosResponse } from 'axios';
+
+import axios from 'axios';
+
+import type { GetCurrenciesResponse, QuoteByTimestampResponse } from './types/api';
 
 export const getCurrencies = async (): Promise<GetCurrenciesResponse> => {
   try {
@@ -7,18 +10,21 @@ export const getCurrencies = async (): Promise<GetCurrenciesResponse> => {
       `${import.meta.env.VITE_REACT_APP_HOST}/api/coinmarketcap`
     );
     return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data) {
-      return error.response.data as GetCurrenciesResponse;
-    } else {
-      throw new Error(error.message || 'An unexpected error occurred');
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError<GetCurrenciesResponse>;
+      if (axiosError.response?.data) {
+        return axiosError.response.data;
+      }
+      throw new Error(axiosError.message || 'API request failed');
     }
+    throw new Error('An unexpected error occurred');
   }
 };
 
 export const getQuoteByTimestamp = async (
-  coinId: number = 1,
-  convertId: number = 2790, // USD by default
+  coinId = 1,
+  convertId = 2790, // USD by default
   timestamp: number = Math.floor(Date.now() / 1000)
 ): Promise<QuoteByTimestampResponse> => {
   try {
@@ -33,12 +39,14 @@ export const getQuoteByTimestamp = async (
       }
     );
     return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.data) {
-      return error.response.data as QuoteByTimestampResponse;
-    } else {
-      throw new Error(error.message || 'An unexpected error occurred');
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError<QuoteByTimestampResponse>;
+      if (axiosError.response?.data) {
+        return axiosError.response.data;
+      }
+      throw new Error(axiosError.message || 'API request failed');
     }
+    throw new Error('An unexpected error occurred');
   }
 };
-
