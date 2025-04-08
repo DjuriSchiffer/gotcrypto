@@ -1,5 +1,5 @@
-import { CurrencyQuote } from "api";
-import { SelectedAsset } from "currency";
+import type { CurrencyQuote } from "api";
+import type { SelectedAsset } from "currency";
 
 /**
  * Calculates the percentage difference between purchase price and current value.
@@ -70,7 +70,7 @@ export function currencyFormat(
   data: number,
   currencyQuote: keyof CurrencyQuote = 'EUR',
   maxDecimals?: number,
-  formatNegativeValue: boolean = false
+  formatNegativeValue = false
 ): string {
   const format = currencyQuote === 'EUR' ? 'nl-NL' : 'en-US';
   const abs = Math.abs(data);
@@ -89,15 +89,15 @@ export function currencyFormat(
   }
 
   return new Intl.NumberFormat(format, {
-    style: 'currency',
     currency: currencyQuote,
-    minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-    signDisplay: formatNegativeValue ? 'always' : 'auto'
+    minimumFractionDigits: decimals,
+    signDisplay: formatNegativeValue ? 'always' : 'auto',
+    style: 'currency'
   }).format(formatNegativeValue && data > 0 ? -data : data);
 }
 
-type SupportedLocale = 'nl' | 'en' | 'de' | string;
+type SupportedLocale = 'de' | 'en' | 'nl';
 
 /**
  * Converts any date input to UTC midnight ISO string
@@ -121,9 +121,9 @@ export function dateForDisplay(isoString: string, locale: SupportedLocale = 'nl'
     }
 
     return new Intl.DateTimeFormat(locale, {
-      year: 'numeric',
-      month: '2-digit',
       day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
     }).format(date);
   } catch {
     return '';
@@ -133,7 +133,7 @@ export function dateForDisplay(isoString: string, locale: SupportedLocale = 'nl'
 /**
  * Converts a displayed date back to storage format
  */
-export function displayToStorage(displayDate: string, locale: SupportedLocale = 'nl'): string {
+export function displayToStorage(displayDate: string): string {
   const date = new Date(displayDate);
   if (!isNaN(date.getTime())) {
     return dateToStorage(date);
@@ -143,11 +143,11 @@ export function displayToStorage(displayDate: string, locale: SupportedLocale = 
 
 
 export const createCryptoMap = (
-  selectedCurrencies: SelectedAsset[]
+  selectedCurrencies: Array<SelectedAsset>
 ): Map<number, SelectedAsset> => {
   return new Map(
     selectedCurrencies
-      .filter(currency => currency.transactions?.length > 0)
+      .filter(currency => currency.transactions.length > 0)
       .map((currency) => [currency.cmc_id, currency])
   );
 };

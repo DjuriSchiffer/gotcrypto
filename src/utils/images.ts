@@ -1,8 +1,8 @@
-import logo from '../public/images/logo.svg';
 import gold from '../public/images/gold.png';
+import logo from '../public/images/logo.svg';
 import silver from '../public/images/silver.png';
 
-export const getImage = (id?: number, format: number = 32) => {
+export const getImage = (id?: number, format = 32) => {
   if (!id) return logo
 
   if (id === 3575) {

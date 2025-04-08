@@ -1,27 +1,29 @@
+import type { GlobalTotals } from 'store';
+
+import type { FetchedCurrency, SelectedAsset, Transaction } from '../types/currency';
+
 import {
-  percentageDifference,
   averagePurchasePrice,
   currentValue,
+  percentageDifference,
 } from './helpers';
-import { Transaction, FetchedCurrency, SelectedAsset } from '../types/currency';
-import { GlobalTotals } from 'store';
 
 /**
  * Calculates totals based on the selected currencies and their transactions.
  * @param transactions - The array of transactions.
  * @returns An object containing various totals.
  */
-const totals = (transactions: Transaction[] = []): SelectedAsset['totals'] => {
+const totals = (transactions: Array<Transaction> = []): SelectedAsset['totals'] => {
   if (transactions.length === 0) {
     return {
       totalAmount: 0,
       totalAmountBought: 0,
       totalAmountSold: 0,
-      totalPurchasePrice: 0,
-      totalSellPrice: 0,
       totalAveragePurchasePrice: 0,
       totalAverageSellPrice: 0,
-      totalInvested: 0
+      totalInvested: 0,
+      totalPurchasePrice: 0,
+      totalSellPrice: 0
     };
   }
 
@@ -33,7 +35,7 @@ const totals = (transactions: Transaction[] = []): SelectedAsset['totals'] => {
     const amount = parseNumber(transaction.amount);
     const purchasePrice = parseNumber(transaction.purchasePrice);
 
-    switch (transaction?.type) {
+    switch (transaction.type) {
       case 'buy':
         acc.amountBought += amount;
         acc.purchasePrice += purchasePrice;
@@ -78,15 +80,15 @@ const totals = (transactions: Transaction[] = []): SelectedAsset['totals'] => {
     totalAmount,
     totalAmountBought: Number(sums.amountBought.toFixed(8)),
     totalAmountSold: Number(sums.amountSold.toFixed(8)),
-    totalPurchasePrice: Number(sums.purchasePrice),
-    totalSellPrice: Number(sums.sellPrice),
     totalAveragePurchasePrice: Number(
       averagePurchasePrice(sums.purchasePrice, sums.amountBought)
     ),
     totalAverageSellPrice: Number(
       averagePurchasePrice(sums.sellPrice, sums.amountSold)
     ),
-    totalInvested
+    totalInvested,
+    totalPurchasePrice: Number(sums.purchasePrice),
+    totalSellPrice: Number(sums.sellPrice)
   };
 };
 
@@ -99,33 +101,33 @@ export default totals;
  * @returns An object adhering to the GlobalTotals interface.
  */
 export const getGlobalTotals = (
-  selectedCurrencies: SelectedAsset[] = [],
-  fetchedCurrencies: FetchedCurrency[] | null = []
+  selectedCurrencies: Array<SelectedAsset> = [],
+  fetchedCurrencies: Array<FetchedCurrency> | null = []
 ): GlobalTotals => {
   if (!selectedCurrencies.length || !fetchedCurrencies?.length) {
     return {
       totalAmount: 0,
-      totalValue: 0,
-      totalPurchasePrice: 0,
-      totalPercentageDifference: 0,
       totalAveragePurchasePrice: 0,
-      totalInvested: 0
+      totalInvested: 0,
+      totalPercentageDifference: 0,
+      totalPurchasePrice: 0,
+      totalValue: 0
     };
   }
 
   const filteredSelectedCurrencies = selectedCurrencies.filter(
-    (currency) => currency.transactions?.length > 0
+    (currency) => currency.transactions.length > 0
   );
 
   // Early return if no currencies have transactions
   if (!filteredSelectedCurrencies.length) {
     return {
       totalAmount: 0,
-      totalValue: 0,
-      totalPurchasePrice: 0,
-      totalPercentageDifference: 0,
       totalAveragePurchasePrice: 0,
-      totalInvested: 0
+      totalInvested: 0,
+      totalPercentageDifference: 0,
+      totalPurchasePrice: 0,
+      totalValue: 0
     };
   }
 
@@ -135,7 +137,7 @@ export const getGlobalTotals = (
   );
 
   const totals = filteredSelectedCurrencies.reduce((acc, selectCurrency) => {
-    const currentPrice = currencyPriceMap.get(selectCurrency.cmc_id) || 0;
+    const currentPrice = currencyPriceMap.get(selectCurrency.cmc_id) ?? 0;
     const currencyAmount = selectCurrency.totals.totalAmount || 0;
     const currencyInvested = selectCurrency.totals.totalInvested || 0;
     const currencyPurchasePrice = selectCurrency.totals.totalPurchasePrice || 0;
@@ -143,11 +145,11 @@ export const getGlobalTotals = (
 
     return {
       amount: acc.amount + currencyAmount,
+      invested: acc.invested + currencyInvested,
       purchasePrice: acc.purchasePrice + currencyPurchasePrice,
-      value: acc.value + currencyValue,
-      invested: acc.invested + currencyInvested
+      value: acc.value + currencyValue
     };
-  }, { amount: 0, purchasePrice: 0, value: 0, invested: 0 });
+  }, { amount: 0, invested: 0, purchasePrice: 0, value: 0 });
 
   const totalPercentageDifference = typeof percentageDifference(
     totals.invested,
@@ -164,11 +166,11 @@ export const getGlobalTotals = (
 
   return {
     totalAmount: totals.amount,
-    totalValue: totals.value,
-    totalPurchasePrice: totals.purchasePrice,
-    totalPercentageDifference,
     totalAveragePurchasePrice,
-    totalInvested: totals.invested
+    totalInvested: totals.invested,
+    totalPercentageDifference,
+    totalPurchasePrice: totals.purchasePrice,
+    totalValue: totals.value
   };
 };
 
@@ -176,14 +178,14 @@ export const getTotalAmount = (
   assetMap: Map<number, SelectedAsset>,
   cmcId: number
 ): number => {
-  return assetMap.get(cmcId)?.totals.totalAmount || 0;
+  return assetMap.get(cmcId)?.totals.totalAmount ?? 0;
 };
 
 export const getTotalValue = (
   assetMap: Map<number, SelectedAsset>,
   cmcId: number
 ): number => {
-  const totalAmount = assetMap.get(cmcId)?.totals.totalAmount || 0;
+  const totalAmount = assetMap.get(cmcId)?.totals.totalAmount ?? 0;
   return totalAmount || 0;
 };
 
@@ -191,14 +193,14 @@ export const getTotalPurchasePrice = (
   cryptoMap: Map<number, SelectedAsset>,
   cmcId: number
 ): number => {
-  return cryptoMap.get(cmcId)?.totals.totalPurchasePrice || 0;
+  return cryptoMap.get(cmcId)?.totals.totalPurchasePrice ?? 0;
 };
 
 export const getTotalInvested = (
   cryptoMap: Map<number, SelectedAsset>,
   cmcId: number
 ): number => {
-  return cryptoMap.get(cmcId)?.totals.totalInvested || 0;
+  return cryptoMap.get(cmcId)?.totals.totalInvested ?? 0;
 };
 
 export const getTotalPercentageDifference = (
@@ -208,8 +210,7 @@ export const getTotalPercentageDifference = (
 ): number => {
   const currency = assetMap.get(cmcId);
   if (
-    !currency ||
-    !currency.totals.totalAmount ||
+    !currency?.totals.totalAmount ||
     !currency.totals.totalPurchasePrice
   ) {
     return 0;
