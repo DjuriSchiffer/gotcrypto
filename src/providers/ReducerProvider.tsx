@@ -1,13 +1,16 @@
-import { ReactNode, useReducer } from 'react';
-import { reducer, initialStore } from '../store';
-import { StateContext } from '../contexts/StateContext';
+import type { ReactNode } from 'react';
+
+import { useReducer } from 'react';
+
 import { DispatchContext } from '../contexts/DispatchContext';
+import { StateContext } from '../contexts/StateContext';
+import { initialStore, reducer } from '../store';
 
 type ReducerProviderProps = {
   children: ReactNode;
 };
 
-const ReducerProvider: React.FC<ReducerProviderProps> = ({ children }) => {
+function ReducerProvider({ children }: ReducerProviderProps) {
   const [state, dispatch] = useReducer(reducer, initialStore);
 
   return (
@@ -17,6 +20,6 @@ const ReducerProvider: React.FC<ReducerProviderProps> = ({ children }) => {
       </DispatchContext.Provider>
     </StateContext.Provider>
   );
-};
+}
 
 export default ReducerProvider;
