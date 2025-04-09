@@ -1,7 +1,8 @@
-import { db } from '../firebase/firebaseConfig';
+import type { SelectedAsset } from 'currency';
 
-import { doc, setDoc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { SelectedAsset } from 'currency';
+import { arrayUnion, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+
+import { db } from '../firebase/firebaseConfig';
 
 export const getUserDocRef = (userId: string) => doc(db, 'users', userId);
 
@@ -10,11 +11,13 @@ export const getUserDocRef = (userId: string) => doc(db, 'users', userId);
  */
 export const fetchSelectedCurrenciesFromFirestore = async (
   userId: string
-): Promise<SelectedAsset[]> => {
+): Promise<Array<SelectedAsset>> => {
   const userDocRef = getUserDocRef(userId);
   const userDoc = await getDoc(userDocRef);
   if (userDoc.exists()) {
-    return userDoc.data().selectedCurrencies || [];
+    const data = userDoc.data();
+    // Type assertion to ensure we're returning the correct type
+    return (data.selectedCurrencies || []) as Array<SelectedAsset>;
   } else {
     // Initialize the document with an empty array
     await setDoc(userDocRef, { selectedCurrencies: [] });
@@ -27,7 +30,7 @@ export const fetchSelectedCurrenciesFromFirestore = async (
  */
 export const setSelectedCurrenciesInFirestore = async (
   userId: string,
-  selectedAssets: SelectedAsset[]
+  selectedAssets: Array<SelectedAsset>
 ) => {
   const userDocRef = getUserDocRef(userId);
   await setDoc(userDocRef, { selectedCurrencies: selectedAssets }, { merge: true });
