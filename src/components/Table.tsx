@@ -1,13 +1,14 @@
+import type { ReactNode } from 'react';
+
 import { Table } from 'flowbite-react';
-import { ReactNode } from 'react';
 
 export type TableType = 'dashboard' | 'detail';
 
-interface TableHeadProps {
+type TableHeadProps = {
   type?: TableType;
 }
 
-const TableHead: React.FC<TableHeadProps> = ({ type }) => {
+function TableHead({ type }: TableHeadProps) {
   if (type === "dashboard") {
     return (
       <Table.Head>
@@ -50,23 +51,23 @@ const TableHead: React.FC<TableHeadProps> = ({ type }) => {
   }
 };
 
-interface TableBodyProps {
+type TableBodyProps = {
   children: ReactNode;
 }
 
-const TableBody: React.FC<TableBodyProps> = ({ children }) => {
+function TableBody({ children }: TableBodyProps) {
   return <Table.Body className="divide-y">{children}</Table.Body>;
 };
 
-interface TableComponentProps {
-  type?: TableType;
+type TableComponentProps = {
   children: ReactNode;
+  type?: TableType;
 }
 
-const TableComponent: React.FC<TableComponentProps> = ({
-  type,
+function TableComponent({
   children,
-}) => {
+  type,
+}: TableComponentProps) {
   return (
     <Table striped={true}>
       <TableHead type={type} />
