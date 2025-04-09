@@ -1,10 +1,10 @@
-import React from 'react';
-import { useAppState } from '../hooks/useAppState';
-import Modal from './Modal';
 import { Button } from 'flowbite-react';
 import { FaExclamationTriangle } from 'react-icons/fa';
 
-const Error: React.FC = () => {
+import { useAppState } from '../hooks/useAppState';
+import Modal from './Modal';
+
+function Error() {
   const { error } = useAppState();
 
   /**
@@ -16,11 +16,11 @@ const Error: React.FC = () => {
 
   return (
     <Modal
-      title="Oops, an error has occurred"
-      open={error}
       onClose={handleError}
+      open={error}
+      title="Oops, an error has occurred"
     >
-      <FaExclamationTriangle color="white" className="flex mx-auto mb-4 text-6xl" />
+      <FaExclamationTriangle className="flex mx-auto mb-4 text-6xl" color="white" />
       <div className="flex justify-center">
         <Button color="failure" onClick={handleError}>
           Reload page
