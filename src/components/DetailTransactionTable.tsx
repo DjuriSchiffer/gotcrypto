@@ -1,28 +1,30 @@
-import React from 'react';
+import type { CurrencyQuote } from 'api';
+
 import { Button } from 'flowbite-react';
 import { FaPen, FaTrashAlt } from 'react-icons/fa';
+
+import type { FetchedCurrency, SelectedAsset, Transaction } from '../types/currency';
+
 import Table from './Table';
 import TableRow from './TableRow';
-import { Transaction, SelectedAsset } from '../types/currency';
-import { CurrencyQuote } from 'api';
 
-interface DetailTransactionTableProps {
-    selectedAsset?: SelectedAsset;
-    fetchedCurrencies: any[];
-    currentFetchedCurrency: any;
+type DetailTransactionTableProps = {
     currencyQuote: keyof CurrencyQuote;
+    currentFetchedCurrency: FetchedCurrency;
+    fetchedCurrencies: Array<FetchedCurrency>;
     onEditTransaction: (transaction: Transaction) => void;
     onRemoveTransaction: (transaction: Transaction) => void;
+    selectedAsset?: SelectedAsset;
 }
 
-const DetailTransactionTable: React.FC<DetailTransactionTableProps> = ({
-    selectedAsset,
-    fetchedCurrencies,
-    currentFetchedCurrency,
+function DetailTransactionTable({
     currencyQuote,
+    currentFetchedCurrency,
+    fetchedCurrencies,
     onEditTransaction,
     onRemoveTransaction,
-}) => {
+    selectedAsset,
+}: DetailTransactionTableProps) {
     if (!selectedAsset || selectedAsset.transactions.length === 0) {
         return (
             <div className="text-white flex items-center justify-center h-40">
@@ -31,18 +33,15 @@ const DetailTransactionTable: React.FC<DetailTransactionTableProps> = ({
         );
     }
 
-    const groupTransactionsByYear = (transactions: Transaction[]) => {
-        return transactions.reduce((acc, transaction) => {
+    const groupTransactionsByYear = (transactions: Array<Transaction>) => {
+        return transactions.reduce<Record<number, Array<Transaction>>>((acc, transaction) => {
             const year = new Date(transaction.date).getFullYear();
-            if (!acc[year]) {
-                acc[year] = [];
-            }
-            acc[year].push(transaction);
+            (acc[year] ??= []).push(transaction);
             return acc;
-        }, {} as { [key: number]: Transaction[] });
+        }, {});
     };
 
-    const groupedTransactions: { [key: number]: Transaction[] } = groupTransactionsByYear(selectedAsset.transactions);
+    const groupedTransactions: Record<number, Array<Transaction>> = groupTransactionsByYear(selectedAsset.transactions);
 
     const years = Object.keys(groupedTransactions)
         .map(Number)
@@ -60,27 +59,27 @@ const DetailTransactionTable: React.FC<DetailTransactionTableProps> = ({
 
                     return (
                         <TableRow
+                            currencies={fetchedCurrencies}
+                            currencyQuote={currencyQuote}
+                            fetchedCurrency={currentFetchedCurrency}
+                            isYearSeparator={isYearSeparator}
+                            item={transaction}
                             key={transaction.id}
                             type="detail"
-                            item={transaction}
-                            currencies={fetchedCurrencies}
-                            fetchedCurrency={currentFetchedCurrency}
-                            currencyQuote={currencyQuote}
                             yearCell={index === 0 ? year.toString() : ''}
-                            isYearSeparator={isYearSeparator}
                         >
                             <Button
-                                size="sm"
-                                onClick={() => onEditTransaction(transaction)}
                                 className="mr-2"
                                 color="gray"
+                                onClick={() => { onEditTransaction(transaction); }}
+                                size="sm"
                             >
                                 <FaPen color="white" />
                             </Button>
                             <Button
-                                size="sm"
                                 color="dark"
-                                onClick={() => onRemoveTransaction(transaction)}
+                                onClick={() => { onRemoveTransaction(transaction); }}
+                                size="sm"
                             >
                                 <FaTrashAlt color="white" />
                             </Button>
