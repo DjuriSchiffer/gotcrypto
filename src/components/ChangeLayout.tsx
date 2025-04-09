@@ -1,23 +1,25 @@
-import { Button } from "flowbite-react";
-import { useStorage } from "../hooks/useStorage";
-import { useMemo } from "react";
+import type { DashboardLayout } from "store";
+
 import classNames from "classnames";
-import { DashboardLayout } from "store";
+import { Button } from "flowbite-react";
+import { useMemo } from "react";
 import { FaTh, FaThList } from 'react-icons/fa';
 
-interface LayoutOption {
+import { useStorage } from "../hooks/useStorage";
+
+type LayoutOption = {
     label: DashboardLayout;
     symbol: React.ReactNode;
 }
 
 export function ChangeLayout() {
-    const { setDashboardLayout, dashboardLayout } = useStorage();
+    const { dashboardLayout, setDashboardLayout } = useStorage();
 
     const handleLayoutChange = (layout: DashboardLayout) => {
-        setDashboardLayout(layout);
+        void setDashboardLayout(layout);
     };
 
-    const layoutOptions: LayoutOption[] = useMemo(() => [
+    const layoutOptions: Array<LayoutOption> = useMemo(() => [
         {
             label: 'Grid',
             symbol: <FaTh className="mr-1" />,
@@ -32,15 +34,15 @@ export function ChangeLayout() {
         <Button.Group>
             {layoutOptions.map((option, index) => (
                 <Button
-                    key={option.label}
-                    title={option.label}
-                    color={dashboardLayout === option.label ? 'dark' : 'gray'}
-                    onClick={() => handleLayoutChange(option.label)}
                     className={classNames('', {
                         '!border-blue-400': dashboardLayout === option.label,
-                        'border-l': index > 0 && dashboardLayout === option.label,
                         '!border-l-[1px]': index > 0 && dashboardLayout === option.label,
+                        'border-l': index > 0 && dashboardLayout === option.label,
                     })}
+                    color={dashboardLayout === option.label ? 'dark' : 'gray'}
+                    key={option.label}
+                    onClick={() => { handleLayoutChange(option.label); }}
+                    title={option.label}
                 >
                     {option.symbol}
                     {option.label}
