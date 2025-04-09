@@ -1,18 +1,22 @@
-import React from 'react';
-import { currencyFormat } from '../utils/helpers';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartOptions,
+import type {
   ChartData,
+  ChartOptions
+} from 'chart.js';
+
+import {
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  Title,
+  Tooltip
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import { FetchedCurrency, SelectedAsset } from '../types/currency';
+
+import type { FetchedCurrency, SelectedAsset } from '../types/currency';
+
+import { currencyFormat } from '../utils/helpers';
 
 ChartJS.register(
   CategoryScale,
@@ -23,27 +27,28 @@ ChartJS.register(
   Legend
 );
 
-interface ChartsProps {
+type ChartsProps = {
   assetMap: Map<number, SelectedAsset>;
-  fetchedCurrencies?: FetchedCurrency[];
-  selectedAssets: SelectedAsset[];
+  fetchedCurrencies?: Array<FetchedCurrency>;
   id: 'amount' | 'invested';
+  selectedAssets: Array<SelectedAsset>;
 }
 
-const Charts: React.FC<ChartsProps> = ({ assetMap, fetchedCurrencies, selectedAssets, id }) => {
+function Charts({ fetchedCurrencies, id, selectedAssets }: ChartsProps) {
   const getChartOptions = (title: string): ChartOptions<'bar'> => ({
     indexAxis: 'y' as const,
+    maintainAspectRatio: false,
     plugins: {
+      legend: {
+        display: false,
+      },
       title: {
-        display: true,
-        text: title,
         color: 'white',
+        display: true,
         font: {
           size: 20,
         },
-      },
-      legend: {
-        display: false,
+        text: title,
       },
       tooltip: {
         callbacks: {
@@ -54,17 +59,16 @@ const Charts: React.FC<ChartsProps> = ({ assetMap, fetchedCurrencies, selectedAs
       }
     },
     responsive: true,
-    maintainAspectRatio: false,
     scales: {
       x: {
         grid: {
           color: 'rgba(255, 255, 255, 0.3)',
         },
         ticks: {
-          color: 'white',
           callback: function (value) {
             return currencyFormat(value as number);
-          }
+          },
+          color: 'white'
         }
       },
       y: {
@@ -73,16 +77,16 @@ const Charts: React.FC<ChartsProps> = ({ assetMap, fetchedCurrencies, selectedAs
         },
         ticks: {
           color: 'white',
-          padding: 0,
           font: {
             size: 12
-          }
+          },
+          padding: 0
         }
       }
     }
   });
 
-  const getChartData = (): ChartData<'bar', number[], string> => {
+  const getChartData = (): ChartData<'bar', Array<number>, string> => {
     if (id === 'amount') {
       const dataPoints = selectedAssets.map((selectedAsset) => {
         const currentCurrency = fetchedCurrencies?.find(
@@ -92,61 +96,56 @@ const Charts: React.FC<ChartsProps> = ({ assetMap, fetchedCurrencies, selectedAs
         const value = currentPrice * selectedAsset.totals.totalAmount || 0;
 
         return {
-          value,
-          label: selectedAsset.name
+          label: selectedAsset.name,
+          value
         };
       });
 
       const sortedData = dataPoints.sort((a, b) => b.value - a.value);
 
       return {
-        labels: sortedData.map(item => item.label),
         datasets: [{
-          data: sortedData.map(item => item.value),
           backgroundColor: 'rgba(16, 185, 129, 1)',
+          barPercentage: 0.9, // Control the space between bars
           borderColor: 'rgba(16, 185, 129, 1)',
-          borderWidth: 1,
           borderRadius: 4,
-          maxBarThickness: 20,  // Control maximum thickness
+          borderWidth: 1,
           categoryPercentage: 0.8, // Control the width of the bar relative to the category
-          barPercentage: 0.9 // Control the space between bars
-        }]
+          data: sortedData.map(item => item.value),
+          maxBarThickness: 20  // Control maximum thickness
+        }],
+        labels: sortedData.map(item => item.label)
       };
-    }
-
-    if (id === 'invested') {
+    } else {
       const dataPoints = selectedAssets.map(selectedAsset => ({
-        value: selectedAsset.totals.totalInvested,
-        label: selectedAsset.name
+        label: selectedAsset.name,
+        value: selectedAsset.totals.totalInvested
       }));
 
       const sortedData = dataPoints.sort((a, b) => b.value - a.value);
 
       return {
-        labels: sortedData.map(item => item.label),
         datasets: [{
-          data: sortedData.map(item => item.value),
           backgroundColor: 'rgba(16, 185, 129, 1)',
+          barPercentage: 0.9, // Control the space between bars
           borderColor: 'rgba(16, 185, 129, 1)',
-          borderWidth: 1,
           borderRadius: 4,
-          maxBarThickness: 20,  // Control maximum thickness
+          borderWidth: 1,
           categoryPercentage: 0.8, // Control the width of the bar relative to the category
-          barPercentage: 0.9 // Control the space between bars
-        }]
+          data: sortedData.map(item => item.value),
+          maxBarThickness: 20  // Control maximum thickness
+        }],
+        labels: sortedData.map(item => item.label)
       };
     }
-
-    return {
-      labels: [],
-      datasets: []
-    };
   };
 
   const getTitle = (): string => {
-    if (id === 'amount') return 'Total value per asset';
-    if (id === 'invested') return 'Total amount invested per asset';
-    return '';
+    if (id === 'amount') {
+      return 'Total value per asset';
+    } else {
+      return 'Total amount invested per asset';
+    }
   };
 
   const chartData = getChartData();
