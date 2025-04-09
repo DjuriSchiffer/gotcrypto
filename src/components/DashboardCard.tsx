@@ -1,29 +1,31 @@
-import { FetchedCurrency, SelectedAsset } from 'currency';
-import { Card, Button } from 'flowbite-react';
+import type { CurrencyQuote } from 'api';
+import type { FetchedCurrency, SelectedAsset } from 'currency';
+
+import classNames from 'classnames';
+import { Button, Card } from 'flowbite-react';
+import { FaPen } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+
 import {
   currencyFormat,
   percentageFormat,
 } from '../utils/helpers';
 import { getImage } from '../utils/images';
-import { Link } from 'react-router-dom';
-import classNames from 'classnames';
-import { CurrencyQuote } from 'api';
-import { FaPen } from 'react-icons/fa';
-import { getTotalAmount, getTotalInvested, getTotalPercentageDifference, getTotalPurchasePrice } from '../utils/totals';
+import { getTotalAmount, getTotalInvested, getTotalPercentageDifference } from '../utils/totals';
 
 type DashboardCard = {
-  fetchedCurrency: FetchedCurrency;
   assetMap: Map<number, SelectedAsset>;
-  isSelected: boolean;
   currencyQuote: keyof CurrencyQuote
+  fetchedCurrency: FetchedCurrency;
+  isSelected: boolean;
 };
 
-const DashboardCard: React.FC<DashboardCard> = ({
-  fetchedCurrency,
+function DashboardCard({
   assetMap,
-  isSelected,
-  currencyQuote
-}) => {
+  currencyQuote,
+  fetchedCurrency,
+  isSelected
+}: DashboardCard) {
   const percentageDifference = getTotalPercentageDifference(
     assetMap,
     fetchedCurrency.cmc_id,
@@ -34,24 +36,24 @@ const DashboardCard: React.FC<DashboardCard> = ({
   return (
     <Card
       className={classNames('transition ease-in-out', {
-        'opacity-50': !isSelected,
         'hover:opacity-100': !isSelected,
+        'opacity-50': !isSelected,
       })}
     >
       <div className="flex space-x-2">
         <div className="shrink-0">
           <img
-            width={32}
+            alt={`${fetchedCurrency.name} icon`}
             height={32}
             src={getImage(fetchedCurrency.cmc_id)}
-            alt={`${fetchedCurrency.name} icon`}
+            width={32}
           />
         </div>
         <div className="min-w-0 flex-1 flex items-center">
           <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
             {fetchedCurrency.name}
           </h5>
-          <Link to={fetchedCurrency.slug} className="ml-auto">
+          <Link className="ml-auto" to={fetchedCurrency.slug}>
             <Button>
               <FaPen color="white" />
             </Button>
@@ -150,9 +152,9 @@ const DashboardCard: React.FC<DashboardCard> = ({
                     className={classNames(
                       'inline-flex items-center text-base font-semibold text-gray-900',
                       {
+                        'dark:text-white': percentageDifference === 0,
                         'text-blue-500': percentageDifference > 0,
                         'text-red-500': percentageDifference < 0,
-                        'dark:text-white': percentageDifference === 0,
                       }
                     )}
                   >
