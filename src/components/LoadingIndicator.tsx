@@ -1,21 +1,22 @@
-import React from 'react';
 import { Spinner } from 'flowbite-react';
 
-interface LoadingIndicatorProps {
+type LoadingIndicatorProps = {
+  color?: 'failure' | 'info' | 'success' | 'warning';
   message?: string;
-  color?: 'success' | 'failure' | 'warning' | 'info';
 }
 
-const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
-  message = 'Loading...',
+function LoadingIndicator({
   color = 'success',
-}) => (
-  <div
-    className="text-white flex items-center justify-center w-full min-h-screen"
-  >
-    <Spinner color={color} aria-label="Loading" />
-    <span className="ml-2">{message}</span>
-  </div>
-);
+  message = 'Loading...',
+}: LoadingIndicatorProps) {
+  return (
+    <div
+      className="text-white flex items-center justify-center w-full min-h-screen"
+    >
+      <Spinner aria-label="Loading" color={color} />
+      <span className="ml-2">{message}</span>
+    </div>
+  )
+};
 
 export default LoadingIndicator;
