@@ -1,15 +1,17 @@
-import { FetchedCurrency, SelectedAsset } from "currency";
-import { useHistoricalPortfolioValues } from "../hooks/useHistoricalPortfolioValues";
-import { CurrencyQuote } from "api";
-import { currencyFormat } from "../utils/helpers";
+import type { CurrencyQuote } from "api";
+import type { FetchedCurrency, SelectedAsset } from "currency";
+
 import { Card } from "flowbite-react";
 
-export const HistoricalPortfolioValues: React.FC<{
-    selectedAssets: SelectedAsset[];
-    fetchedCurrencies: FetchedCurrency[] | undefined;
+import { useHistoricalPortfolioValues } from "../hooks/useHistoricalPortfolioValues";
+import { currencyFormat } from "../utils/helpers";
+
+export function HistoricalPortfolioValues({ currencyQuote = 'EUR', fetchedCurrencies, selectedAssets }: {
     currencyQuote?: keyof CurrencyQuote;
-}> = ({ selectedAssets, fetchedCurrencies, currencyQuote = 'EUR' }) => {
-    const { yearlyTotals, isLoading, isError } = useHistoricalPortfolioValues(
+    fetchedCurrencies: Array<FetchedCurrency> | undefined;
+    selectedAssets: Array<SelectedAsset>;
+}) {
+    const { isError, isLoading, yearlyTotals } = useHistoricalPortfolioValues(
         selectedAssets,
         fetchedCurrencies,
         currencyQuote
