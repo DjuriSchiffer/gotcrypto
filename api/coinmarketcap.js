@@ -5,9 +5,9 @@ const admin = require('firebase-admin');
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      projectId: process.env.FIREBASE_PROJECT_ID,
     }),
   });
 }
@@ -102,8 +102,8 @@ const fetchSpecificCurrencies = async (ids, currency) => {
           'X-CMC_PRO_API_KEY': CMC_API_KEY,
         },
         params: {
-          id: ids.join(','),
           convert: currency,
+          id: ids.join(','),
         },
       }
     );
@@ -137,8 +137,8 @@ module.exports = async (req, res) => {
 
     // Fetch top 100 currencies
     const [usdData, eurData] = await Promise.all([
-      fetchData('USD', { start: 1, limit: 100 }),
-      fetchData('EUR', { start: 1, limit: 100 }),
+      fetchData('USD', { limit: 100, start: 1 }),
+      fetchData('EUR', { limit: 100, start: 1 }),
     ]);
 
     // Combine USD and EUR data
@@ -147,8 +147,8 @@ module.exports = async (req, res) => {
       return {
         ...coin,
         quote: {
-          USD: coin.quote.USD,
           EUR: eurCoin ? eurCoin.quote.EUR : null,
+          USD: coin.quote.USD,
         },
       };
     });
@@ -168,8 +168,8 @@ module.exports = async (req, res) => {
         return {
           ...coin,
           quote: {
-            USD: coin.quote.USD,
             EUR: eurCoin ? eurCoin.quote.EUR : null,
+            USD: coin.quote.USD,
           },
         };
       });
@@ -178,12 +178,12 @@ module.exports = async (req, res) => {
     }
 
     const apiResponse = {
+      data: combinedData,
       status: {
         ...usdData.status,
         credit_count: usdData.status.credit_count + eurData.status.credit_count +
           (missingIds.length > 0 ? 2 : 0),
       },
-      data: combinedData,
     };
 
     // Update cache in Firestore

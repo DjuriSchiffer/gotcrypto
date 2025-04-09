@@ -4,9 +4,9 @@ const admin = require('firebase-admin');
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
             clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
             privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+            projectId: process.env.FIREBASE_PROJECT_ID,
         }),
     });
 }
@@ -85,8 +85,8 @@ module.exports = async (req, res) => {
             `https://api.coinmarketcap.com/data-api/v3/cryptocurrency/quote-by-timestamp`,
             {
                 params: {
-                    id: coinId,
                     convertId: convertId,
+                    id: coinId,
                     timestamp: timestamp
                 }
             }
@@ -112,14 +112,14 @@ module.exports = async (req, res) => {
 
         res.status(500).json({
             data: null,
+            error: 'Failed to fetch cryptocurrency data',
             status: {
-                timestamp: new Date().toISOString(),
+                credit_count: 0,
+                elapsed: 0,
                 error_code: 500,
                 error_message: error.message || 'Failed to fetch cryptocurrency data',
-                elapsed: 0,
-                credit_count: 0
-            },
-            error: 'Failed to fetch cryptocurrency data'
+                timestamp: new Date().toISOString()
+            }
         });
     }
 };

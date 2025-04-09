@@ -1,24 +1,25 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Detail from './pages/Detail';
-import Dashboard from './pages/Dashboard';
-import UserSettings from './pages/UserSettings';
-import ErrorComponent from './components/Error';
-import AuthChoice from './components/AuthChoice';
-import { useAuth } from './hooks/useAuth';
-import Graphs from './pages/Graphs';
 
-const App: React.FC = () => {
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+
+import AuthChoice from './components/AuthChoice';
+import ErrorComponent from './components/Error';
+import { useAuth } from './hooks/useAuth';
+import Dashboard from './pages/Dashboard';
+import Detail from './pages/Detail';
+import Graphs from './pages/Graphs';
+import UserSettings from './pages/UserSettings';
+
+function App() {
   const { user } = useAuth();
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={user ? <Dashboard /> : <AuthChoice />} />
-        <Route path="/:slug" element={user ? <Detail /> : <AuthChoice />} />
-        <Route path="/graphs" element={user ? <Graphs /> : <AuthChoice />} />
-        <Route path="/user-settings" element={user ? <UserSettings /> : <AuthChoice />} />
-        <Route path="*" element={<ErrorComponent />} />
+        <Route element={user ? <Dashboard /> : <AuthChoice />} path="/" />
+        <Route element={user ? <Detail /> : <AuthChoice />} path="/:slug" />
+        <Route element={user ? <Graphs /> : <AuthChoice />} path="/graphs" />
+        <Route element={user ? <UserSettings /> : <AuthChoice />} path="/user-settings" />
+        <Route element={<ErrorComponent />} path="*" />
       </Routes>
       <ErrorComponent />
     </Router>

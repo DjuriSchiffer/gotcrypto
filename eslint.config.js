@@ -16,10 +16,12 @@ export default [
 	{
 		ignores: [
 			"coverage",
+			"src/env.d.ts",
+			"eslint-config",
+			"vite.config.ts",
+			"postcss.config.ts",
 			"node_modules",
 			"dist",
-			"src/**/*.styled.ts",
-			"src/**/*.styled.tsx",
 		],
 	},
 	{
