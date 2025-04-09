@@ -1,28 +1,28 @@
-import React from 'react';
-import { Select } from 'flowbite-react';
-import { SortMethod } from 'store';
+import type { SortMethod } from 'store';
 
-interface SortSelectorProps {
-  sortMethod: SortMethod;
+import { Select } from 'flowbite-react';
+
+type SortSelectorProps = {
   onChange: (method: SortMethod) => void;
+  sortMethod: SortMethod;
 }
 
-const SortSelector: React.FC<SortSelectorProps> = ({
-  sortMethod,
+function SortSelector({
   onChange,
-}) => {
+  sortMethod,
+}: SortSelectorProps) {
   return (
     <>
       <label
-        htmlFor="sort"
         className="block mb-2 text-sm font-medium text-gray-300"
+        htmlFor="sort"
       >
         Sort By:
       </label>
       <Select
         id="sort"
+        onChange={(e) => { onChange(e.target.value as SortMethod); }}
         value={sortMethod}
-        onChange={(e) => onChange(e.target.value as SortMethod)}
       >
         {/* <option value="cmc_rank">Coinmarketcap Ranking</option> */}
         <option value="has_selected">Selected Status</option>
