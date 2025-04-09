@@ -46,7 +46,6 @@ function DatePicker({ date, handleChange }: DatePickerProps) {
 
       const utcDate = new Date(Date.UTC(year, month, day));
 
-      // Fix for the spread operator issue
       Object.defineProperty(event, 'target', {
         value: {
           id: inputElement.id,
