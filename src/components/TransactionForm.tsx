@@ -60,7 +60,7 @@ const CurrencyFormInput: React.FC<{
   );
 };
 
-interface FormInputs {
+export type FormInputs = {
   amount: string;
   purchasePrice: string;
   date: string;
