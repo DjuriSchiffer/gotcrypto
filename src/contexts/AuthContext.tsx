@@ -1,11 +1,12 @@
-import React, { createContext } from 'react';
-import { User } from 'firebase/auth';
+import type { User } from 'firebase/auth';
+
+import { createContext } from 'react';
 
 export type AuthContextType = {
-  user: User | null;
-  loading: boolean;
-  isAnonymous: boolean;
   isAdmin: boolean;
+  isAnonymous: boolean;
+  loading: boolean;
+  user: null | User;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(
