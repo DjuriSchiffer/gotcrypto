@@ -1,24 +1,26 @@
-import React, { useEffect } from 'react';
-import { Button } from 'flowbite-react';
-import { useForm, Controller } from 'react-hook-form';
-import DatePicker from './DatePicker';
-import CurrencyInput from 'react-currency-input-field';
-import { CurrencyQuote } from 'api';
-import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
-import { TransactionType, TransferType } from 'currency';
+import type { CurrencyQuote } from 'api';
+import type { TransactionType, TransferType } from 'currency';
+
 import classNames from 'classnames';
-import { currencyFormat, dateToStorage, displayToStorage } from '../utils/helpers';
-import { useStorage } from '../hooks/useStorage';
+import { Button } from 'flowbite-react';
+import { useEffect } from 'react';
+import CurrencyInput from 'react-currency-input-field';
+import { Controller, useForm } from 'react-hook-form';
+import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
+
 import { useAuth } from '../hooks/useAuth';
+import { currencyFormat, dateToStorage, displayToStorage } from '../utils/helpers';
+import DatePicker from './DatePicker';
 
-
-const CurrencyFormInput: React.FC<{
-  value: string;
-  onChange: (value: string) => void;
-  currencyQuote: keyof CurrencyQuote;
-  placeholder?: string;
+type CurrencyFormInputProps = {
   className?: string;
-}> = ({ value, onChange, currencyQuote, placeholder, className }) => {
+  currencyQuote: keyof CurrencyQuote;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  value: string;
+}
+
+function CurrencyFormInput({ className, currencyQuote, onChange, placeholder, value }: CurrencyFormInputProps) {
   const getLocaleConfig = () => {
     if (currencyQuote === 'EUR') {
       return {
@@ -38,10 +40,15 @@ const CurrencyFormInput: React.FC<{
 
   return (
     <CurrencyInput
+      allowDecimals={true}
+      allowNegativeValue={false}
       autoComplete="off"
+      className={className}
       data-form-type="other"
+      decimalSeparator={decimalSeparator}
+      decimalsLimit={2}
+      groupSeparator={groupSeparator}
       name="transaction-price"
-      value={value}
       onValueChange={(value) => {
         if (!value) {
           onChange('');
@@ -50,67 +57,61 @@ const CurrencyFormInput: React.FC<{
         }
       }}
       placeholder={placeholder || defaultPlaceholder}
-      decimalsLimit={2}
-      decimalSeparator={decimalSeparator}
-      groupSeparator={groupSeparator}
-      allowNegativeValue={false}
-      allowDecimals={true}
-      className={className}
+      value={value}
     />
   );
 };
 
 export type FormInputs = {
   amount: string;
-  purchasePrice: string;
   date: string;
-  transactionType: TransactionType;
-  transferType?: TransferType;
   description?: string;
   excludeForTax?: boolean;
+  purchasePrice: string;
+  transactionType: TransactionType;
+  transferType?: TransferType;
 }
 
-interface TransactionFormProps {
-  onSubmit: (data: FormInputs) => void;
+type TransactionFormProps = {
+  currencyQuote: keyof CurrencyQuote;
   defaultValues?: {
     amount: string;
-    purchasePrice: string;
     date: string;
-    transactionType: TransactionType;
-    transferType?: TransferType;
     description?: string
     excludeForTax?: boolean;
+    purchasePrice: string;
+    transactionType: TransactionType;
+    transferType?: TransferType;
   };
-  submitLabel: string;
-  currencyQuote: keyof CurrencyQuote;
   isEdit?: boolean;
+  onSubmit: (data: FormInputs) => void;
+  submitLabel: string;
 }
 
-const TransactionForm: React.FC<TransactionFormProps> = ({
-  onSubmit,
-  defaultValues,
-  submitLabel,
+function TransactionForm({
   currencyQuote,
+  defaultValues,
   isEdit = false,
-}) => {
-  const { dateLocale } = useStorage();
+  onSubmit,
+  submitLabel,
+}: TransactionFormProps) {
   const { isAdmin } = useAuth()
 
   const {
     control,
-    handleSubmit,
     formState: { errors },
+    handleSubmit,
     reset,
     watch,
   } = useForm<FormInputs>({
     defaultValues: {
       amount: '',
-      purchasePrice: '',
       date: dateToStorage(new Date()),
-      transactionType: 'buy',
       description: '',
-      transferType: 'in',
       excludeForTax: false,
+      purchasePrice: '',
+      transactionType: 'buy',
+      transferType: 'in',
     },
   });
 
@@ -130,74 +131,74 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       reset({
         ...defaultValues,
         amount: displayAmount,
-        purchasePrice: displayPurchasePrise,
         date: dateToStorage(new Date(defaultValues.date)),
-        transferType: defaultValues.transferType || 'in',
         description: defaultValues.description || '',
-        excludeForTax: defaultValues.excludeForTax || false
+        excludeForTax: defaultValues.excludeForTax ?? false,
+        purchasePrice: displayPurchasePrise,
+        transferType: defaultValues.transferType || 'in'
       });
     } else if (!isEdit) {
       reset({
         amount: '',
-        purchasePrice: '',
         date: dateToStorage(new Date()),
-        transactionType: 'buy',
         description: '',
-        transferType: 'in',
         excludeForTax: false,
+        purchasePrice: '',
+        transactionType: 'buy',
+        transferType: 'in',
       });
     }
-  }, [isEdit, defaultValues, reset]);
+  }, [isEdit, defaultValues, reset, isTransfer]);
 
   const handleFormSubmit = (data: FormInputs) => {
     onSubmit(data);
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4">
+    <form className="flex flex-col gap-4" onSubmit={() => void handleSubmit(handleFormSubmit)}>
       <div>
         <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
           Transaction Type
         </label>
         <Controller
-          name="transactionType"
           control={control}
-          render={({ field: { value, onChange } }) => (
+          name="transactionType"
+          render={({ field: { onChange, value } }) => (
             <Button.Group className='w-full'>
               <Button
                 className={classNames('w-4/12', {
-                  'opacity-50': value !== 'buy',
                   '!border-blue-400': value === 'buy',
+                  'opacity-50': value !== 'buy',
                 })}
                 color='dark'
-                onClick={() => onChange('buy')}
+                onClick={() => { onChange('buy'); }}
                 type="button"
               >
                 Buy
               </Button>
               <Button
                 className={classNames('w-4/12 border-l', {
-                  'opacity-50': value !== 'sell',
                   '!border-blue-400': value === 'sell',
                   '!border-l-[1px]': value === 'sell',
+                  'opacity-50': value !== 'sell',
                 })}
                 color='dark'
-                onClick={() => onChange('sell')}
-                type="button"
+                onClick={() => { onChange('sell'); }}
                 outline={value === 'buy'}
+                type="button"
               >
                 Sell
               </Button>
               <Button
                 className={classNames('w-4/12 border-l', {
-                  'opacity-50': value !== 'transfer',
                   '!border-blue-400': value === 'transfer',
                   '!border-l-[1px]': value === 'transfer',
+                  'opacity-50': value !== 'transfer',
                 })}
                 color='dark'
-                onClick={() => onChange('transfer')}
-                type="button"
+                onClick={() => { onChange('transfer'); }}
                 outline={value === 'buy'}
+                type="button"
               >
                 Transfer
               </Button>
@@ -212,43 +213,43 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
           </label>
           <div className="flex items-center space-x-4">
             <Controller
-              name="transferType"
               control={control}
-              rules={{ required: isTransfer ? 'Please select a transfer direction' : false }}
-              render={({ field: { value, onChange } }) => (
+              name="transferType"
+              render={({ field: { onChange, value } }) => (
                 <>
                   <div className="flex items-center">
                     <input
-                      type="radio"
-                      id="transfer-type-in"
                       checked={value === 'in'}
-                      onChange={() => onChange('in')}
                       className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                      id="transfer-type-in"
+                      onChange={() => { onChange('in'); }}
+                      type="radio"
                     />
                     <label
-                      htmlFor="transfer-type-in"
                       className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
+                      htmlFor="transfer-type-in"
                     >
                       Transfer In
                     </label>
                   </div>
                   <div className="flex items-center">
                     <input
-                      type="radio"
-                      id="transfer-type-out"
                       checked={value === 'out'}
-                      onChange={() => onChange('out')}
                       className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                      id="transfer-type-out"
+                      onChange={() => { onChange('out'); }}
+                      type="radio"
                     />
                     <label
-                      htmlFor="transfer-type-out"
                       className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer"
+                      htmlFor="transfer-type-out"
                     >
                       Transfer Out
                     </label>
                   </div>
                 </>
               )}
+              rules={{ required: 'Please select a transfer direction' }}
             />
           </div>
           {errors.transferType && (
@@ -258,8 +259,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       )}
       <div>
         <label
-          htmlFor="amount"
           className="block text-sm font-medium text-gray-900 dark:text-white mb-2"
+          htmlFor="amount"
         >
           Quantity
         </label>
@@ -268,29 +269,15 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             <FaCoins color="white" />
           </span>
           <Controller
-            name="amount"
             control={control}
-            rules={{
-              required: 'This field is required',
-              pattern: {
-                value: /^\d*\.?\d*$/,
-                message: 'Please enter a valid number',
-              },
-              validate: (value) => {
-                const num = parseFloat(value);
-                if (isNaN(num)) return 'Please enter a valid number';
-                if (num <= 0) return 'Quantity must be greater than 0';
-                return true;
-              },
-            }}
+            name="amount"
             render={({ field }) => (
               <input
                 {...field}
                 autoComplete="off"
+                className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 data-form-type="other"
                 name="transaction-amount"
-                type="text"
-                placeholder="10.50"
                 onChange={(e) => {
                   let value = e.target.value.replace(',', '.');
                   if (/^\d*\.?\d*$/.test(value)) {
@@ -300,9 +287,23 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                     field.onChange(value);
                   }
                 }}
-                className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="10.50"
+                type="text"
               />
             )}
+            rules={{
+              pattern: {
+                message: 'Please enter a valid number',
+                value: /^\d*\.?\d*$/,
+              },
+              required: 'This field is required',
+              validate: (value) => {
+                const num = parseFloat(value);
+                if (isNaN(num)) return 'Please enter a valid number';
+                if (num <= 0) return 'Quantity must be greater than 0';
+                return true;
+              },
+            }}
           />
         </div>
         {errors.amount && (
@@ -312,12 +313,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
       <div>
         <label
-          htmlFor="purchasePrice"
           className="block text-sm font-medium text-gray-900 dark:text-white mb-2"
+          htmlFor="purchasePrice"
         >
           <Controller
-            name="transactionType"
             control={control}
+            name="transactionType"
             render={({ field: { value } }) => (
               <>{value === 'sell' ? 'Sell Price' : value === 'buy' ? 'Purchase Price' : 'Transfer value'}</>
             )}
@@ -328,8 +329,18 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             {currencyQuote === 'EUR' ? <FaEuroSign color="white" /> : <FaDollarSign color="white" />}
           </span>
           <Controller
-            name="purchasePrice"
             control={control}
+            name="purchasePrice"
+            render={({ field: { onChange, value, ...field } }) => (
+              <CurrencyFormInput
+                {...field}
+                className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                currencyQuote={currencyQuote}
+                onChange={onChange}
+                placeholder={currencyFormat(5000.25, currencyQuote)}
+                value={value}
+              />
+            )}
             rules={{
               required: 'This field is required',
               validate: (value) => {
@@ -340,16 +351,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 return true;
               },
             }}
-            render={({ field: { onChange, value, ...field } }) => (
-              <CurrencyFormInput
-                {...field}
-                value={value}
-                onChange={onChange}
-                currencyQuote={currencyQuote}
-                placeholder={currencyFormat(5000.25, currencyQuote)}
-                className="rounded-none rounded-r-lg bg-gray-50 border text-gray-900 focus:ring-blue-500 focus:border-blue-500 block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              />
-            )}
           />
         </div>
         {errors.purchasePrice && (
@@ -359,12 +360,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
       <div>
         <label
-          htmlFor="purchaseDate"
           className="block text-sm font-medium text-gray-900 dark:text-white mb-2"
+          htmlFor="purchaseDate"
         >
           <Controller
-            name="transactionType"
             control={control}
+            name="transactionType"
             render={({ field: { value } }) => (
               <>{value === 'sell' ? 'Sell Date' : value === 'buy' ? 'Purchase Date' : 'Transfer Date'}</>
             )}
@@ -375,23 +376,23 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             <FaCalendar color="white" />
           </span>
           <Controller
-            name="date"
             control={control}
-            rules={{
-              required: 'This field is required',
-            }}
+            name="date"
             render={({ field: { onChange, value } }) => (
               <DatePicker
                 autoComplete="off"
                 data-form-type="other"
-                name="transaction-date"
                 date={value}
                 handleChange={(e) => {
-                  const isoDate = displayToStorage(e.target.value, dateLocale);
+                  const isoDate = displayToStorage(e.target.value);
                   onChange(isoDate);
                 }}
+                name="transaction-date"
               />
             )}
+            rules={{
+              required: 'This field is required',
+            }}
           />
         </div>
         {errors.date && (
@@ -401,22 +402,22 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
       <div>
         <label
-          htmlFor="description"
           className="block text-sm font-medium text-gray-900 dark:text-white mb-2"
+          htmlFor="description"
         >
           Description (optional)
         </label>
         <Controller
-          name="description"
           control={control}
-          render={({ field: { value, onChange, ...restField } }) => (
+          name="description"
+          render={({ field: { onChange, value, ...restField } }) => (
             <textarea
-              value={value}
               onChange={onChange}
+              value={value}
               {...restField}
-              rows={2}
-              placeholder={isTransfer ? "e.g., Transferred to hardware wallet" : "e.g., DCA purchase"}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder={isTransfer ? "e.g., Transferred to hardware wallet" : "e.g., DCA purchase"}
+              rows={2}
             />
           )}
         />
@@ -424,21 +425,21 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       {isAdmin && (
         <div className="flex items-center">
           <Controller
-            name="excludeForTax"
             control={control}
+            name="excludeForTax"
             render={({ field: { onChange, value, ...field } }) => (
               <>
                 <input
                   {...field}
-                  id="excludeForTax"
-                  type="checkbox"
                   checked={value}
-                  onChange={(e) => onChange(e.target.checked)}
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                  id="excludeForTax"
+                  onChange={(e) => { onChange(e.target.checked); }}
+                  type="checkbox"
                 />
                 <label
-                  htmlFor="excludeForTax"
                   className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                  htmlFor="excludeForTax"
                 >
                   Exclude for tax calculations
                 </label>
