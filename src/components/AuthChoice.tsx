@@ -1,11 +1,11 @@
-import React from 'react';
-import {
-  signInWithGoogle,
-  signInAnonymouslyUser,
-} from '../services/authService';
 import { Card } from 'flowbite-react';
 
-const AuthChoice: React.FC = () => {
+import {
+  signInAnonymouslyUser,
+  signInWithGoogle,
+} from '../services/authService';
+
+function AuthChoice() {
   return (
     <main className="bg-white dark:bg-gray-dark min-h-screen">
       <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
@@ -24,8 +24,8 @@ const AuthChoice: React.FC = () => {
               <li>⚠️ Requires a Google account</li>
             </ul>
             <button
-              onClick={signInWithGoogle}
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+              onClick={() => void signInWithGoogle()}
             >
               Sign in with Google
             </button>
@@ -44,8 +44,8 @@ const AuthChoice: React.FC = () => {
               <li>⚠️ Data is device-specific and not backed up</li>
             </ul>
             <button
-              onClick={signInAnonymouslyUser}
               className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full"
+              onClick={() => void signInAnonymouslyUser()}
             >
               Continue Anonymously
             </button>
