@@ -1,19 +1,22 @@
-import React from 'react';
-import Select, { MultiValue, StylesConfig } from 'react-select';
-import { FetchedCurrency } from '../types/currency';
+import type { MultiValue, StylesConfig } from 'react-select';
+
+import Select from 'react-select';
+
+import type { FetchedCurrency } from '../types/currency';
+
 import { getImage } from '../utils/images';
 
-interface OptionType {
-  value: number;
-  label: string;
+type OptionType = {
   image: string;
+  label: string;
+  value: number;
 }
 
-interface SearchInputProps {
-  options: FetchedCurrency[] | undefined;
-  selectedOptions: MultiValue<OptionType>;
+type SearchInputProps = {
   onChange: (selected: MultiValue<OptionType>) => void;
+  options: Array<FetchedCurrency> | undefined;
   placeholder?: string;
+  selectedOptions: MultiValue<OptionType>;
 }
 
 const customStyles: StylesConfig<OptionType, true> = {
@@ -24,17 +27,13 @@ const customStyles: StylesConfig<OptionType, true> = {
     color: 'white',
     minHeight: '42px'
   }),
+  input: (provided) => ({
+    ...provided,
+    color: 'white',
+  }),
   menu: (provided) => ({
     ...provided,
     backgroundColor: '#1F2937',
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    backgroundColor: state.isFocused ? '#374151' : '#1F2937',
-    color: 'white',
-    ':active': {
-      backgroundColor: '#4B5563',
-    },
   }),
   multiValue: (provided) => ({
     ...provided,
@@ -47,14 +46,18 @@ const customStyles: StylesConfig<OptionType, true> = {
   }),
   multiValueRemove: (provided) => ({
     ...provided,
-    color: 'white',
     ':hover': {
       backgroundColor: '#4B5563',
       color: 'white',
     },
+    color: 'white',
   }),
-  input: (provided) => ({
+  option: (provided, state) => ({
     ...provided,
+    ':active': {
+      backgroundColor: '#4B5563',
+    },
+    backgroundColor: state.isFocused ? '#374151' : '#1F2937',
     color: 'white',
   }),
   singleValue: (provided) => ({
@@ -63,26 +66,26 @@ const customStyles: StylesConfig<OptionType, true> = {
   }),
 };
 
-const SearchInput: React.FC<SearchInputProps> = ({
-  options,
-  selectedOptions,
+function SearchInput({
   onChange,
+  options,
   placeholder = 'Search and select currencies...',
-}) => {
-  const selectOptions: OptionType[] = options
+  selectedOptions,
+}: SearchInputProps) {
+  const selectOptions: Array<OptionType> = options
     ? options.map((asset) => ({
-      value: asset.cmc_id,
-      label: asset.name,
       image: getImage(asset.cmc_id),
+      label: asset.name,
+      value: asset.cmc_id,
     }))
     : [];
 
   const formatOptionLabel = ({ image, label }: OptionType) => (
     <div className="flex items-center">
       <img
-        src={image}
         alt={`${label} icon`}
         className="w-6 h-6 mr-2 rounded-full"
+        src={image}
       />
       <span>{label}</span>
     </div>
@@ -90,14 +93,14 @@ const SearchInput: React.FC<SearchInputProps> = ({
 
   return (
     <Select
+      classNamePrefix="react-select"
+      formatOptionLabel={formatOptionLabel}
       isMulti
-      options={selectOptions}
-      value={selectedOptions}
       onChange={onChange}
+      options={selectOptions}
       placeholder={placeholder}
       styles={customStyles}
-      formatOptionLabel={formatOptionLabel}
-      classNamePrefix="react-select"
+      value={selectedOptions}
     />
   );
 };
