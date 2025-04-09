@@ -1,23 +1,27 @@
-import React, { useMemo } from 'react';
-import { currencyFormat, dateForDisplay } from '../utils/helpers';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title as ChartTitle,
-  Tooltip,
-  Legend,
-  ArcElement,
-  ChartOptions,
+import type { CurrencyQuote } from 'api';
+import type {
   ChartData,
+  ChartOptions
 } from 'chart.js';
+import type { SelectedAsset, Transaction } from 'currency';
+
+import {
+  ArcElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Title as ChartTitle,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Tooltip
+} from 'chart.js';
+import { useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
-import { Transaction, SelectedAsset } from 'currency';
+
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
-import { CurrencyQuote } from 'api';
 import { useStorage } from '../hooks/useStorage';
+import { currencyFormat, dateForDisplay } from '../utils/helpers';
 
 ChartJS.register(
   CategoryScale,
@@ -30,27 +34,35 @@ ChartJS.register(
   ArcElement
 );
 
-interface DetailChartsProps {
-  selectedAsset?: SelectedAsset;
+type DetailChartsProps = {
   currencyQuote: keyof CurrencyQuote;
+  selectedAsset?: SelectedAsset;
 }
 
-const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuote }) => {
+function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
   const { dateLocale } = useStorage();
   const { data: fetchedCurrencies } = useCoinMarketCap(currencyQuote);
 
-  if (!selectedAsset) {
-    return <div>No currency selected.</div>;
-  }
-
+  // Move useMemo before any conditional returns
   const chartData = useMemo(() => {
-    const transactions: Transaction[] = [...selectedAsset.transactions].reverse();
+    // If no selected asset, return empty data structure
+    if (!selectedAsset) {
+      return {
+        amountData: [],
+        investedData: [],
+        labels: [],
+        priceData: [],
+        valueData: [],
+      };
+    }
+
+    const transactions: Array<Transaction> = [...selectedAsset.transactions].reverse();
     const today = new Date();
 
     const isNegativeTransaction = (transaction: Transaction): boolean =>
       transaction.type === 'sell' || (transaction.type === 'transfer' && transaction.transferType === 'out');
 
-    const labels: string[] = [
+    const labels: Array<string> = [
       ...transactions.map((transaction) => {
         const date = new Date(transaction.date);
         return dateForDisplay(date.toISOString(), dateLocale);
@@ -58,9 +70,9 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
       dateForDisplay(today.toISOString(), dateLocale)
     ];
 
-    const amountData: number[] = [];
-    const investedData: number[] = [];
-    const priceData: number[] = [];
+    const amountData: Array<number> = [];
+    const investedData: Array<number> = [];
+    const priceData: Array<number> = [];
 
     let cumulativeAmount = 0;
     let totalSpent = 0;
@@ -95,56 +107,37 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
     investedData.push(totalSpent);
     priceData.push(currentPrice);
 
-    const valueData: number[] = amountData.map((amount, i) => amount * priceData[i]);
+    const valueData: Array<number> = amountData.map((amount, i) => amount * priceData[i]);
 
     return {
-      labels,
       amountData,
       investedData,
+      labels,
       priceData,
       valueData,
     };
-  }, [selectedAsset.transactions, fetchedCurrencies, dateLocale, selectedAsset.cmc_id]);
+  }, [selectedAsset, fetchedCurrencies, dateLocale]);
+
+  // Early return after useMemo
+  if (!selectedAsset) {
+    return <div>No currency selected.</div>;
+  }
 
   const options: ChartOptions<'line'> = {
-    responsive: true,
     interaction: {
-      mode: 'index',
       intersect: true,
-    },
-    scales: {
-      y: {
-        type: 'linear',
-        display: true,
-        position: 'left',
-        ticks: {
-          color: 'white',
-          callback: (value) => Number(value),
-        },
-      },
-      y1: {
-        type: 'linear',
-        display: true,
-        position: 'right',
-        ticks: {
-          color: 'white',
-          callback: (value) => currencyFormat(Number(value), currencyQuote),
-        },
-        grid: {
-          drawOnChartArea: false,
-        },
-      },
-      x: {
-        ticks: {
-          color: 'white',
-        },
-      },
+      mode: 'index',
     },
     plugins: {
       legend: {
         labels: {
           color: 'white',
         },
+      },
+      title: {
+        color: 'white',
+        display: true,
+        text: 'Transaction Overview',
       },
       tooltip: {
         callbacks: {
@@ -159,45 +152,69 @@ const DetailCharts: React.FC<DetailChartsProps> = ({ selectedAsset, currencyQuot
           },
         },
       },
-      title: {
+    },
+    responsive: true,
+    scales: {
+      x: {
+        ticks: {
+          color: 'white',
+        },
+      },
+      y: {
         display: true,
-        text: 'Transaction Overview',
-        color: 'white',
+        position: 'left',
+        ticks: {
+          callback: (value) => Number(value),
+          color: 'white',
+        },
+        type: 'linear',
+      },
+      y1: {
+        display: true,
+        grid: {
+          drawOnChartArea: false,
+        },
+        position: 'right',
+        ticks: {
+          callback: (value) => currencyFormat(Number(value), currencyQuote),
+          color: 'white',
+        },
+        type: 'linear',
       },
     },
   };
 
   const chartDataConfig: ChartData<'line'> = {
-    labels: chartData.labels,
     datasets: [
       {
-        label: 'Amount',
-        data: chartData.amountData,
-        borderColor: '#1C64F2', // blue 600
         backgroundColor: '#1A56DB', // blue 700
-        yAxisID: 'y',
+        borderColor: '#1C64F2', // blue 600
+        data: chartData.amountData,
+        label: 'Amount',
         stepped: 'before',
         tension: 0,
+        yAxisID: 'y',
       },
       {
-        label: 'Value',
-        data: chartData.valueData,
-        borderColor: '#10B981', // green 500
         backgroundColor: '#059669', // green 600
-        yAxisID: 'y1',
+        borderColor: '#10B981', // green 500
+        data: chartData.valueData,
+        label: 'Value',
         stepped: false,
         tension: 0,
+        yAxisID: 'y1',
       },
       {
-        label: 'Invested',
-        data: chartData.investedData,
-        borderColor: '#EF4444', // red 500
         backgroundColor: '#DC2626', // red 600
-        yAxisID: 'y1',
+        borderColor: '#EF4444', // red 500
+        data: chartData.investedData,
+        label: 'Invested',
         stepped: false,
         tension: 0,
+        yAxisID: 'y1',
       },
     ],
+    labels: chartData.labels,
   };
 
   return <Line data={chartDataConfig} options={options} />;
