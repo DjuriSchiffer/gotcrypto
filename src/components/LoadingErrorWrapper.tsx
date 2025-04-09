@@ -1,20 +1,19 @@
-import React from 'react';
-import Page from './Page';
 import LoadingIndicator from './LoadingIndicator';
+import Page from './Page';
 
-interface LoadingErrorWrapperProps {
-  storageIsLoading: boolean;
+type LoadingErrorWrapperProps = {
+  children: React.ReactNode;
   fetchedIsLoading: boolean;
   isError: boolean;
-  children: React.ReactNode;
+  storageIsLoading: boolean;
 }
 
-const LoadingErrorWrapper: React.FC<LoadingErrorWrapperProps> = ({
-  storageIsLoading,
+function LoadingErrorWrapper({
+  children,
   fetchedIsLoading,
   isError,
-  children,
-}) => {
+  storageIsLoading,
+}: LoadingErrorWrapperProps) {
   if (storageIsLoading) {
     return (
       <Page>
