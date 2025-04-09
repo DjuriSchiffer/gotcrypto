@@ -1,36 +1,38 @@
-import React from 'react';
+import type { CurrencyQuote } from 'api';
+
+import classNames from 'classnames';
 import { Button, Card, Dropdown } from 'flowbite-react';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
-import { getImage } from '../utils/images';
-import { averagePurchasePrice, currencyFormat, currentValue, percentageDifference, percentageFormat } from '../utils/helpers';
-import { SelectedAsset } from '../types/currency';
-import { CurrencyQuote } from 'api';
-import classNames from 'classnames';
 
-interface DetailHeaderProps {
+import type { SelectedAsset } from '../types/currency';
+
+import { currencyFormat, percentageDifference, percentageFormat } from '../utils/helpers';
+import { getImage } from '../utils/images';
+
+type DetailHeaderProps = {
+    currencyQuote: keyof CurrencyQuote;
     currentFetchedCurrency: {
-        name: string;
         cmc_id: number;
+        name: string;
         price: number;
     };
-    selectedAsset?: SelectedAsset;
-    currencyQuote: keyof CurrencyQuote;
     onAddTransaction: () => void;
     onRemoveAllTransactions: () => void;
+    selectedAsset?: SelectedAsset;
 }
 
-const DetailHeader: React.FC<DetailHeaderProps> = ({
-    currentFetchedCurrency,
-    selectedAsset,
+function DetailHeader({
     currencyQuote,
+    currentFetchedCurrency,
     onAddTransaction,
     onRemoveAllTransactions,
-}) => {
+    selectedAsset,
+}: DetailHeaderProps) {
     const totalsItem = selectedAsset?.totals;
 
     const totalAmount = totalsItem?.totalAmount ?? 0;
     const totalValue = totalAmount * currentFetchedCurrency.price;
-    const totalInvested = totalsItem && totalsItem?.totalInvested ? parseFloat(
+    const totalInvested = totalsItem?.totalInvested ? parseFloat(
         totalsItem.totalInvested.toString()
     ) : 0;
 
@@ -47,11 +49,11 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
         <div className="flex items-center justify-between mb-4 flex-wrap">
             <div className="flex items-center">
                 <img
+                    alt={`${currentFetchedCurrency.name} icon`}
                     className="inline-block mr-4"
-                    width={48}
                     height={48}
                     src={getImage(currentFetchedCurrency.cmc_id, 64)}
-                    alt={`${currentFetchedCurrency.name} icon`}
+                    width={48}
                 />
                 <div className=' pr-1 mb-1'>
                     <h2 className="text-3xl font-bold text-white">
@@ -64,11 +66,11 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
             </div>
             <div className="flex space-x-2">
                 <Button onClick={onAddTransaction}>
-                    <FaPlus color="white" className="mr-1" />
+                    <FaPlus className="mr-1" color="white" />
                     Add Transaction
                 </Button>
                 {selectedAsset && selectedAsset.transactions.length > 0 && (
-                    <Dropdown label="..." color="gray" size="md" placement="bottom">
+                    <Dropdown color="gray" label="..." placement="bottom" size="md">
                         <Dropdown.Item icon={FaTrashAlt} onClick={onRemoveAllTransactions}>Remove All Transactions</Dropdown.Item>
                     </Dropdown>
                 )}
