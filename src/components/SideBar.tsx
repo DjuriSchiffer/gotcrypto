@@ -1,23 +1,23 @@
-import React, { ReactNode } from 'react';
+import type { IconType } from "react-icons";
+
+import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { Sidebar } from "flowbite-react";
-import { IconType } from "react-icons";
+import { FaArrowLeft, FaChartBar, FaChartPie, FaCog, FaSignInAlt, FaSignOutAlt } from "react-icons/fa";
 import { useLinkClickHandler, useLocation } from "react-router-dom";
-import { FaArrowLeft, FaArrowRight, FaChartPie, FaCog, FaChartBar, FaSignOutAlt, FaSignInAlt } from "react-icons/fa";
-import logo from '../public/images/logo.svg';
-import { signOut } from 'firebase/auth';
+
 import { auth } from '../firebase/firebaseConfig';
 import { useAuth } from '../hooks/useAuth';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import logo from '../public/images/logo.svg';
 import { ChangeQuote } from './ChangeQuote';
 
 
-export interface AppSideBarLogoProps {
-    to: string;
+export type AppSideBarLogoProps = {
     img: string;
     imgAlt: string;
     text: string;
+    to: string;
 }
-function AppSideBarLogo({ to, img, imgAlt, text }: AppSideBarLogoProps) {
+function AppSideBarLogo({ img, imgAlt, text, to }: AppSideBarLogoProps) {
     const clickHandler = useLinkClickHandler(to);
 
     return <span onClick={clickHandler}>
@@ -27,29 +27,24 @@ function AppSideBarLogo({ to, img, imgAlt, text }: AppSideBarLogoProps) {
     </span>;
 }
 
-export interface AppSideBarItemProps {
-    to: string;
-    text: string;
+export type AppSideBarItemProps = {
     icon: IconType;
+    text: string;
+    to: string;
 }
-function AppSideBarItem({ to, text, icon }: AppSideBarItemProps) {
+function AppSideBarItem({ icon, text, to }: AppSideBarItemProps) {
     const location = useLocation();
     const clickHandler = useLinkClickHandler(to)
 
     return <span onClick={clickHandler}>
-        <Sidebar.Item className="mb-1" href={to} icon={icon} active={location.pathname === to}>
+        <Sidebar.Item active={location.pathname === to} className="mb-1" href={to} icon={icon}>
             {text}
         </Sidebar.Item>
     </span>;
 }
 
-
-interface SideBarProps {
-    children?: ReactNode;
-}
-
-const SideBar: React.FC<SideBarProps> = () => {
-    const { user, isAnonymous } = useAuth();
+function SideBar() {
+    const { isAnonymous, user } = useAuth();
     const location = useLocation();
     const isDashboard = location.pathname === '/'
 
@@ -70,29 +65,33 @@ const SideBar: React.FC<SideBarProps> = () => {
             // The Auth Context will automatically update the user state
             // You can handle additional user setup here if needed
             console.log('User signed in:', result.user);
-        } catch (error: any) {
-            console.error('Error during sign-in:', error.message);
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Error during sign-in:', error.message);
+            } else {
+                console.error('Unknown error during sign-in');
+            }
         }
     };
 
     return (
-        <Sidebar className='w-full h-full lg:sticky lg:top-4 lg:h-[calc(100vh_-_32px)]' aria-label="Sidebar">
+        <Sidebar aria-label="Sidebar" className='w-full h-full lg:sticky lg:top-4 lg:h-[calc(100vh_-_32px)]'>
             <Sidebar.Items className='flex flex-col h-full'>
                 <Sidebar.ItemGroup>
-                    <AppSideBarLogo to='/' text="Got Crypto" img={logo} imgAlt='Got Crypto' />
-                    {isDashboard ? <AppSideBarItem to='/' text='Dashboard' icon={FaChartPie} /> : <AppSideBarItem to='/' text='Return to Dashboard' icon={FaArrowLeft} />}
-                    <AppSideBarItem to='/graphs' text='Graphs and stats' icon={FaChartBar} />
+                    <AppSideBarLogo img={logo} imgAlt='Got Crypto' text="Got Crypto" to='/' />
+                    {isDashboard ? <AppSideBarItem icon={FaChartPie} text='Dashboard' to='/' /> : <AppSideBarItem icon={FaArrowLeft} text='Return to Dashboard' to='/' />}
+                    <AppSideBarItem icon={FaChartBar} text='Graphs and stats' to='/graphs' />
                 </Sidebar.ItemGroup>
                 <ChangeQuote className='mt-auto w-full' />
                 <Sidebar.ItemGroup>
-                    <AppSideBarItem to='/user-settings' text='User & Settings' icon={FaCog} />
+                    <AppSideBarItem icon={FaCog} text='User & Settings' to='/user-settings' />
                     {user && !isAnonymous && (
-                        <Sidebar.Item className="cursor-pointer" onClick={handleSignOut} icon={FaSignOutAlt}>
+                        <Sidebar.Item className="cursor-pointer" icon={FaSignOutAlt} onClick={handleSignOut}>
                             Sign Out
                         </Sidebar.Item>
                     )}
                     {user && isAnonymous && (
-                        <Sidebar.Item className="cursor-pointer" onClick={handleSignInGoogle} icon={FaSignInAlt} >
+                        <Sidebar.Item className="cursor-pointer" icon={FaSignInAlt} onClick={handleSignInGoogle} >
                             Sign In
                         </Sidebar.Item>
                     )}
