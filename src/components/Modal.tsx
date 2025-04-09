@@ -1,21 +1,22 @@
-import React, { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+
 import { Modal } from 'flowbite-react';
 
-interface ModalComponentProps {
-  title?: string;
+type ModalComponentProps = {
   children: ReactNode;
-  open?: boolean;
   onClose: () => void;
+  open?: boolean;
+  title?: string;
 }
 
-const ModalComponent: React.FC<ModalComponentProps> = ({
-  title = 'Modal',
+function ModalComponent({
   children,
-  open = false,
   onClose,
-}) => {
+  open = false,
+  title = 'Modal',
+}: ModalComponentProps) {
   return (
-    <Modal show={open} onClose={onClose}>
+    <Modal onClose={onClose} show={open}>
       <Modal.Header>{title}</Modal.Header>
       <Modal.Body>
         <div className="space-y-6">{children}</div>
