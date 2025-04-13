@@ -165,7 +165,8 @@ function TransactionForm({
 	};
 
 	return (
-		<form className="flex flex-col gap-4" onSubmit={() => void handleSubmit(handleFormSubmit)}>
+		// eslint-disable-next-line @typescript-eslint/no-misused-promises
+		<form className="flex flex-col gap-4" onSubmit={handleSubmit(handleFormSubmit)}>
 			<div>
 				<label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
 					Transaction Type
