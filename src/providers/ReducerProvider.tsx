@@ -7,19 +7,17 @@ import { StateContext } from '../contexts/StateContext';
 import { initialStore, reducer } from '../store';
 
 type ReducerProviderProps = {
-  children: ReactNode;
+	children: ReactNode;
 };
 
 function ReducerProvider({ children }: ReducerProviderProps) {
-  const [state, dispatch] = useReducer(reducer, initialStore);
+	const [state, dispatch] = useReducer(reducer, initialStore);
 
-  return (
-    <StateContext.Provider value={state}>
-      <DispatchContext.Provider value={dispatch}>
-        {children}
-      </DispatchContext.Provider>
-    </StateContext.Provider>
-  );
+	return (
+		<StateContext.Provider value={state}>
+			<DispatchContext.Provider value={dispatch}>{children}</DispatchContext.Provider>
+		</StateContext.Provider>
+	);
 }
 
 export default ReducerProvider;
