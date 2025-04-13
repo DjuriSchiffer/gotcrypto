@@ -6,7 +6,7 @@ export type FetchedCurrency = {
 	slug: string;
 };
 
-export type TransactionType = 'transfer' | 'buy' | 'sell';
+export type TransactionType = 'buy' | 'sell' | 'transfer';
 export type TransferType = 'in' | 'out';
 
 export type Transaction = {
