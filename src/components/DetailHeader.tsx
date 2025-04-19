@@ -1,7 +1,7 @@
 import type { CurrencyQuote } from 'api';
 
 import classNames from 'classnames';
-import { Button, Card, Dropdown } from 'flowbite-react';
+import { Button, Card, Dropdown, DropdownItem } from 'flowbite-react';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 
 import type { SelectedAsset } from '../types/currency';
@@ -66,9 +66,9 @@ function DetailHeader({
 					</Button>
 					{selectedAsset && selectedAsset.transactions.length > 0 && (
 						<Dropdown color="gray" label="..." placement="bottom" size="md">
-							<Dropdown.Item icon={FaTrashAlt} onClick={onRemoveAllTransactions}>
+							<DropdownItem icon={FaTrashAlt} onClick={onRemoveAllTransactions}>
 								Remove All Transactions
-							</Dropdown.Item>
+							</DropdownItem>
 						</Dropdown>
 					)}
 				</div>

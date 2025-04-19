@@ -2,7 +2,7 @@ import type { CurrencyQuote } from 'api';
 import type { TransactionType, TransferType } from 'currency';
 
 import classNames from 'classnames';
-import { Button } from 'flowbite-react';
+import { Button, ButtonGroup } from 'flowbite-react';
 import { useEffect } from 'react';
 import CurrencyInput from 'react-currency-input-field';
 import { Controller, useForm } from 'react-hook-form';
@@ -175,7 +175,7 @@ function TransactionForm({
 					control={control}
 					name="transactionType"
 					render={({ field: { onChange, value } }) => (
-						<Button.Group className="w-full">
+						<ButtonGroup className="w-full">
 							<Button
 								className={classNames('w-4/12', {
 									'!border-blue-400': value === 'buy',
@@ -219,7 +219,7 @@ function TransactionForm({
 							>
 								Transfer
 							</Button>
-						</Button.Group>
+						</ButtonGroup>
 					)}
 				/>
 			</div>

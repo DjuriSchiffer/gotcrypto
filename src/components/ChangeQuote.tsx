@@ -2,7 +2,7 @@ import type { CurrencyQuote } from 'api';
 
 import { useQueryClient } from '@tanstack/react-query';
 import classNames from 'classnames';
-import { Button } from 'flowbite-react';
+import { Button, ButtonGroup } from 'flowbite-react';
 import { useMemo } from 'react';
 import { FaDollarSign, FaEuroSign } from 'react-icons/fa';
 
@@ -37,7 +37,7 @@ export function ChangeQuote({ className }: { className: string }) {
 	);
 
 	return (
-		<Button.Group className={className}>
+		<ButtonGroup className={className}>
 			{priceOptions.map((option, index) => (
 				<Button
 					className={classNames('w-6/12', {
@@ -55,6 +55,6 @@ export function ChangeQuote({ className }: { className: string }) {
 					{option.quote}
 				</Button>
 			))}
-		</Button.Group>
+		</ButtonGroup>
 	);
 }

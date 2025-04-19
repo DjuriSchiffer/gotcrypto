@@ -1,7 +1,7 @@
 import type { CurrencyQuote } from 'api';
 
 import classNames from 'classnames';
-import { Table, Tooltip } from 'flowbite-react';
+import { Tooltip, TableRow as FBTableRow, TableCell } from 'flowbite-react';
 import { FaInfoCircle } from 'react-icons/fa';
 
 import type { FetchedCurrency, SelectedAsset, Transaction } from '../types/currency';
@@ -65,11 +65,11 @@ function TableRow({
 			transactionType === 'sell' || (transactionType === 'transfer' && transferType === 'out');
 
 		return (
-			<Table.Row>
-				<Table.Cell className={classNames('py-2 pl-3 text-gray-900 dark:text-white')}>
+			<FBTableRow>
+				<TableCell className={classNames('py-2 pl-3 text-gray-900 dark:text-white')}>
 					{yearCell}
-				</Table.Cell>
-				<Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
+				</TableCell>
+				<TableCell className={classNames('py-2 text-gray-900 dark:text-white')}>
 					<div className="min-w-0 flex-1">
 						<p className="truncate text-sm font-medium text-gray-900 dark:text-white">
 							{transactionType === 'buy'
@@ -81,11 +81,11 @@ function TableRow({
 						</p>
 						<p className="truncate text-sm text-gray-500 dark:text-gray-400">{purchaseDate}</p>
 					</div>
-				</Table.Cell>
-				<Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
+				</TableCell>
+				<TableCell className={classNames('py-2 text-gray-900 dark:text-white')}>
 					{currencyFormat(price, currencyQuote, undefined, formatNegativeValue)}
-				</Table.Cell>
-				<Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
+				</TableCell>
+				<TableCell className={classNames('py-2 text-gray-900 dark:text-white')}>
 					<p className="truncate text-sm font-medium text-gray-900 dark:text-white">
 						{formatNegativeValue && '-'}
 						{amount}
@@ -95,8 +95,8 @@ function TableRow({
 							? currencyFormat(currentValue, currencyQuote, undefined, formatNegativeValue)
 							: currencyFormat(price, currencyQuote, undefined, formatNegativeValue)}
 					</p>
-				</Table.Cell>
-				<Table.Cell className={classNames('py-2 text-gray-900 dark:text-white')}>
+				</TableCell>
+				<TableCell className={classNames('py-2 text-gray-900 dark:text-white')}>
 					<div
 						className={classNames('flex', {
 							'text-blue-500': transactionType === 'buy' && percentageDifference > 0,
@@ -105,18 +105,18 @@ function TableRow({
 					>
 						{transactionType === 'buy' ? percentageFormat(percentageDifference) : '-'}
 					</div>
-				</Table.Cell>
-				<Table.Cell>
+				</TableCell>
+				<TableCell>
 					{description && (
 						<Tooltip content={description}>
 							<FaInfoCircle className="ml-auto" />
 						</Tooltip>
 					)}
-				</Table.Cell>
-				<Table.Cell className="flex items-center justify-end py-2 pr-2 text-gray-900 dark:text-white">
+				</TableCell>
+				<TableCell className="flex items-center justify-end py-2 pr-2 text-gray-900 dark:text-white">
 					{children}
-				</Table.Cell>
-			</Table.Row>
+				</TableCell>
+			</FBTableRow>
 		);
 	} else {
 		const totalsItem = item;
@@ -128,20 +128,20 @@ function TableRow({
 		const totalPercentageDifference = percentageDifferenceFn(totalPurchasePrice, totalValue);
 
 		return (
-			<Table.Row>
-				<Table.Cell></Table.Cell>
-				<Table.Cell></Table.Cell>
-				<Table.Cell className="py-2 text-gray-900 dark:text-white">{totalAmount}</Table.Cell>
-				<Table.Cell className="py-2 text-gray-900 dark:text-white">
+			<FBTableRow>
+				<TableCell></TableCell>
+				<TableCell></TableCell>
+				<TableCell className="py-2 text-gray-900 dark:text-white">{totalAmount}</TableCell>
+				<TableCell className="py-2 text-gray-900 dark:text-white">
 					{currencyFormat(totalPurchasePrice, currencyQuote)}
-				</Table.Cell>
-				<Table.Cell className="py-2 text-gray-900 dark:text-white">
+				</TableCell>
+				<TableCell className="py-2 text-gray-900 dark:text-white">
 					{currencyFormat(totalValue, currencyQuote)}
-				</Table.Cell>
-				<Table.Cell className="py-2 text-gray-900 dark:text-white">
+				</TableCell>
+				<TableCell className="py-2 text-gray-900 dark:text-white">
 					{currencyFormat(totalAveragePurchasePrice)}
-				</Table.Cell>
-				<Table.Cell className="py-2 text-gray-900 dark:text-white">
+				</TableCell>
+				<TableCell className="py-2 text-gray-900 dark:text-white">
 					<div
 						className={classNames('flex', {
 							'text-blue-500': totalPercentageDifference > 0,
@@ -150,9 +150,9 @@ function TableRow({
 					>
 						{percentageFormat(totalPercentageDifference)}
 					</div>
-				</Table.Cell>
-				<Table.Cell></Table.Cell>
-			</Table.Row>
+				</TableCell>
+				<TableCell></TableCell>
+			</FBTableRow>
 		);
 	}
 }
