@@ -57,10 +57,12 @@ type TableComponentProps = {
 
 function TableComponent({ children, type }: TableComponentProps) {
 	return (
-		<Table striped={true}>
-			<TableHead type={type} />
-			<TableBody>{children}</TableBody>
-		</Table>
+		<div className="overflow-x-auto">
+			<Table striped={true}>
+				<TableHead type={type} />
+				<TableBody>{children}</TableBody>
+			</Table>
+		</div>
 	);
 }
 

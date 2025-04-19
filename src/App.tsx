@@ -12,10 +12,11 @@ import { createTheme, ThemeProvider } from 'flowbite-react';
 const customTheme = createTheme({
 	button: {
 		color: {
-			primary: 'bg-blue-500 hover:bg-blue-600',
+			primary: 'bg-green-500 hover:bg-green-600 text-white',
+			failure: 'bg-red-600 hover:bg-red-700 text-white',
 		},
 		size: {
-			lg: 'px-6 py-3 text-lg',
+			icon: 'text-sm h-9 w-auto px-5',
 		},
 	},
 });

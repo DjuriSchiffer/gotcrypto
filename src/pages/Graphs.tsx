@@ -90,7 +90,7 @@ function Graphs() {
 							<Tooltip content="((Total Value - Total Invested) / Total Invested) × 100">
 								<div
 									className={classNames('text-xl', {
-										'text-blue-500': globalTotals.totalPercentageDifference > 0,
+										'text-green-500': globalTotals.totalPercentageDifference > 0,
 										'text-red-500': globalTotals.totalPercentageDifference < 0,
 									})}
 								>

@@ -41,7 +41,7 @@ export function ChangeQuote({ className }: { className: string }) {
 			{priceOptions.map((option, index) => (
 				<Button
 					className={classNames('w-6/12', {
-						'!border-blue-400': currencyQuote === option.quote,
+						'!border-green-400': currencyQuote === option.quote,
 						'!border-l-[1px]': index > 0 && currencyQuote === option.quote,
 						'border-l': index > 0 && currencyQuote === option.quote,
 					})}

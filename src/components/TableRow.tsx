@@ -99,7 +99,7 @@ function TableRow({
 				<TableCell className={classNames('py-2 text-gray-900 dark:text-white')}>
 					<div
 						className={classNames('flex', {
-							'text-blue-500': transactionType === 'buy' && percentageDifference > 0,
+							'text-green-500': transactionType === 'buy' && percentageDifference > 0,
 							'text-red-500': transactionType === 'buy' && percentageDifference < 0,
 						})}
 					>
@@ -144,7 +144,7 @@ function TableRow({
 				<TableCell className="py-2 text-gray-900 dark:text-white">
 					<div
 						className={classNames('flex', {
-							'text-blue-500': totalPercentageDifference > 0,
+							'text-green-500': totalPercentageDifference > 0,
 							'text-red-500': totalPercentageDifference < 0,
 						})}
 					>

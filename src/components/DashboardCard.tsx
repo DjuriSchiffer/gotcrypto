@@ -46,7 +46,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 						{fetchedCurrency.name}
 					</h5>
 					<Link className="ml-auto" to={fetchedCurrency.slug}>
-						<Button color="primary">
+						<Button color="primary" size="icon">
 							<FaPen color="white" />
 						</Button>
 					</Link>
@@ -146,7 +146,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 											'inline-flex items-center text-base font-semibold text-gray-900',
 											{
 												'dark:text-white': percentageDifference === 0,
-												'text-blue-500': percentageDifference > 0,
+												'text-green-500': percentageDifference > 0,
 												'text-red-500': percentageDifference < 0,
 											}
 										)}
