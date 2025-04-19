@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { Modal } from 'flowbite-react';
+import { Modal, ModalBody, ModalHeader } from 'flowbite-react';
 
 type ModalComponentProps = {
 	children: ReactNode;
@@ -12,10 +12,10 @@ type ModalComponentProps = {
 function ModalComponent({ children, onClose, open = false, title = 'Modal' }: ModalComponentProps) {
 	return (
 		<Modal onClose={onClose} show={open}>
-			<Modal.Header>{title}</Modal.Header>
-			<Modal.Body>
+			<ModalHeader>{title}</ModalHeader>
+			<ModalBody>
 				<div className="space-y-6">{children}</div>
-			</Modal.Body>
+			</ModalBody>
 		</Modal>
 	);
 }

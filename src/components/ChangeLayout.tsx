@@ -1,7 +1,7 @@
 import type { DashboardLayout } from 'store';
 
 import classNames from 'classnames';
-import { Button } from 'flowbite-react';
+import { Button, ButtonGroup } from 'flowbite-react';
 import { useMemo } from 'react';
 import { FaTh, FaThList } from 'react-icons/fa';
 
@@ -34,7 +34,7 @@ export function ChangeLayout() {
 	);
 
 	return (
-		<Button.Group>
+		<ButtonGroup>
 			{layoutOptions.map((option, index) => (
 				<Button
 					className={classNames('', {
@@ -53,6 +53,6 @@ export function ChangeLayout() {
 					{option.label}
 				</Button>
 			))}
-		</Button.Group>
+		</ButtonGroup>
 	);
 }

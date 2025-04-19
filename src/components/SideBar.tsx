@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { IconType } from 'react-icons';
 
 import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { Badge, Sidebar } from 'flowbite-react';
+import { Badge, Sidebar, SidebarCTA, SidebarItem, SidebarItemGroup, SidebarItems, SidebarLogo } from 'flowbite-react';
 import {
 	FaArrowLeft,
 	FaChartBar,
@@ -32,9 +32,9 @@ function AppSideBarLogo({ img, imgAlt, text, to }: AppSideBarLogoProps) {
 
 	return (
 		<span onClick={clickHandler}>
-			<Sidebar.Logo className="mt-3 mb-7" href={to} img={img} imgAlt={imgAlt}>
+			<SidebarLogo className="mt-3 mb-7" href={to} img={img} imgAlt={imgAlt}>
 				{text}
-			</Sidebar.Logo>
+			</SidebarLogo>
 		</span>
 	);
 }
@@ -50,9 +50,9 @@ function AppSideBarItem({ icon, text, to }: AppSideBarItemProps) {
 
 	return (
 		<span onClick={clickHandler}>
-			<Sidebar.Item active={location.pathname === to} className="mb-1" href={to} icon={icon}>
+			<SidebarItem active={location.pathname === to} className="mb-1" href={to} icon={icon}>
 				{text}
-			</Sidebar.Item>
+			</SidebarItem>
 		</span>
 	);
 }
@@ -112,8 +112,8 @@ function SideBar() {
 			aria-label="Sidebar"
 			className="h-full w-full lg:sticky lg:top-4 lg:h-[calc(100vh_-_32px)]"
 		>
-			<Sidebar.Items className="flex h-full flex-col">
-				<Sidebar.ItemGroup>
+			<SidebarItems className="flex h-full flex-col">
+				<SidebarItemGroup>
 					<AppSideBarLogo img={logo} imgAlt="Got Crypto" text="Got Crypto" to="/" />
 					{isDashboard ? (
 						<AppSideBarItem icon={FaChartPie} text="Dashboard" to="/" />
@@ -121,9 +121,9 @@ function SideBar() {
 						<AppSideBarItem icon={FaArrowLeft} text="Return to Dashboard" to="/" />
 					)}
 					<AppSideBarItem icon={FaChartBar} text="Graphs and stats" to="/graphs" />
-				</Sidebar.ItemGroup>
+				</SidebarItemGroup>
 				<ChangeQuote className="mt-auto w-full" />
-				<Sidebar.ItemGroup>
+				<SidebarItemGroup>
 					{isAnonymous && (
 						<div className="text-md mb-3 ml-3 font-medium dark:text-white">
 							<span className="flex items-center">
@@ -143,12 +143,12 @@ function SideBar() {
 
 					<AppSideBarItem icon={FaCog} text="User & Settings" to="/user-settings" />
 					{user && !isAnonymous && (
-						<Sidebar.Item className="cursor-pointer" icon={FaSignOutAlt} onClick={handleSignOut}>
+						<SidebarItem className="cursor-pointer" icon={FaSignOutAlt} onClick={handleSignOut}>
 							Sign Out
-						</Sidebar.Item>
+						</SidebarItem>
 					)}
 					{isAnonymous && showCTA && (
-						<Sidebar.CTA>
+						<SidebarCTA>
 							<div className="mb-3 flex items-center">
 								<Badge color="warning">Heads up</Badge>
 								<button
@@ -178,19 +178,19 @@ function SideBar() {
 								but can't be accessed from other devices. Sign in to unlock cloud backup and
 								multi-device access.
 							</div>
-						</Sidebar.CTA>
+						</SidebarCTA>
 					)}
 					{isAnonymous && (
-						<Sidebar.Item
+						<SidebarItem
 							className="cursor-pointer"
 							icon={FaSignInAlt}
 							onClick={handleSignInGoogle}
 						>
 							Sign In
-						</Sidebar.Item>
+						</SidebarItem>
 					)}
-				</Sidebar.ItemGroup>
-			</Sidebar.Items>
+				</SidebarItemGroup>
+			</SidebarItems>
 		</Sidebar>
 	);
 }

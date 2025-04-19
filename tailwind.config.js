@@ -1,13 +1,15 @@
 const colors = require('tailwindcss/colors');
+const flowbiteReact = require('flowbite-react/plugin/tailwindcss');
 
 const config = {
 	content: [
 		'./src/**/*.{js,jsx,ts,tsx}',
 		'./node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}',
 		'./node_modules/tailwind-datepicker-react/dist/**/*.js',
+		'.flowbite-react/class-list.json',
 	],
 	darkMode: 'class',
-	plugins: [require('flowbite/plugin')],
+	plugins: [require('flowbite/plugin'), flowbiteReact],
 	theme: {
 		colors: {
 			dark: '#1e293b',
@@ -18,7 +20,6 @@ const config = {
 		extend: {
 			colors: {
 				blue: {
-					// primary
 					50: '#ecfdf5',
 					100: '#d1fae5',
 					200: '#a7f3d0',
