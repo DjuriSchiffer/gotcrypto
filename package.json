@@ -19,7 +19,7 @@
 		"firebase": "^10.14.0",
 		"firebase-admin": "^12.6.0",
 		"firebaseui": "^6.1.0",
-		"flowbite": "^1.6.3",
+		"flowbite": "^3.1.2",
 		"flowbite-react": "^0.11.7",
 		"localforage": "^1.10.0",
 		"lodash.isempty": "^4.4.0",
