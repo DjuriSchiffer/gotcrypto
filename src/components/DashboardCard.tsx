@@ -46,7 +46,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 						{fetchedCurrency.name}
 					</h5>
 					<Link className="ml-auto" to={fetchedCurrency.slug}>
-						<Button color="primary" size="icon">
+						<Button color="primary" size="sm">
 							<FaPen color="white" />
 						</Button>
 					</Link>

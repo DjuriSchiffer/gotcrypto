@@ -46,7 +46,7 @@ function Page({ children }: PageProps) {
 					>
 						<SideBar />
 					</div>
-					<div className="col-span-6 lg:col-span-5 lg:ml-6">{children}</div>
+					<div className="col-span-6 lg:col-span-5">{children}</div>
 				</div>
 			</div>
 		</main>

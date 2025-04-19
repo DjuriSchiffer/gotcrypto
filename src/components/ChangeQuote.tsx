@@ -40,10 +40,12 @@ export function ChangeQuote({ className }: { className: string }) {
 		<ButtonGroup className={className}>
 			{priceOptions.map((option, index) => (
 				<Button
-					className={classNames('w-6/12', {
-						'!border-green-400': currencyQuote === option.quote,
-						'!border-l-[1px]': index > 0 && currencyQuote === option.quote,
-						'border-l': index > 0 && currencyQuote === option.quote,
+					className={classNames('w-6/12 !border-0', {
+						'z-10 !border-[1px] !border-green-400': currencyQuote === option.quote,
+						'!rounded-l-lg': index === 0,
+						'!rounded-r-lg': index === priceOptions.length - 1,
+						'!rounded-none': index > 0 && index < priceOptions.length - 1,
+						'!first:border-l-0': index === 0,
 					})}
 					color={currencyQuote === option.quote ? 'dark' : 'gray'}
 					key={index}

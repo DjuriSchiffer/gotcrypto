@@ -34,13 +34,17 @@ export function ChangeLayout() {
 	);
 
 	return (
-		<ButtonGroup>
+		<ButtonGroup className="">
 			{layoutOptions.map((option, index) => (
 				<Button
-					className={classNames('', {
-						'!border-green-400': dashboardLayout === option.label,
-						'!border-[1px]': index > 0 && dashboardLayout === option.label,
-						'border-l': index > 0 && dashboardLayout === option.label,
+					className={classNames('!border-0', {
+						'z-10 !border-[1px] !border-green-400': dashboardLayout === option.label,
+
+						'!rounded-l-lg': index === 0,
+						'!rounded-r-lg': index === layoutOptions.length - 1,
+						'!rounded-none': index > 0 && index < layoutOptions.length - 1,
+
+						'!first:border-l-0': index === 0,
 					})}
 					color={dashboardLayout === option.label ? 'dark' : 'gray'}
 					key={option.label}

@@ -15,9 +15,6 @@ const customTheme = createTheme({
 			primary: 'bg-green-500 hover:bg-green-600 text-white',
 			failure: 'bg-red-600 hover:bg-red-700 text-white',
 		},
-		size: {
-			icon: 'text-sm h-9 w-auto px-5',
-		},
 	},
 });
 

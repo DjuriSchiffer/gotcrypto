@@ -1,4 +1,4 @@
-import { Card } from 'flowbite-react';
+import { Button, Card } from 'flowbite-react';
 
 import { signInAnonymouslyUser, signInWithGoogle } from '../services/authService';
 
@@ -20,16 +20,13 @@ function AuthChoice() {
 							<li>✅ Easy backup and recovery</li>
 							<li>⚠️ Requires a Google account</li>
 						</ul>
-						<button
-							className="w-full rounded bg-green-600 py-2 px-4 font-bold text-white hover:bg-green-700"
-							onClick={() => void signInWithGoogle()}
-						>
+						<Button color="primary" onClick={() => void signInWithGoogle()}>
 							Sign in with Google
-						</button>
+						</Button>
 					</Card>
 
 					<Card className="max-w-sm">
-						<h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+						<h5 className="text-2xl font-bold tracking-tight text-white dark:text-white">
 							Browse Anonymously
 						</h5>
 						<p className="mb-4 font-normal text-gray-700 dark:text-gray-400">
@@ -40,12 +37,9 @@ function AuthChoice() {
 							<li>✅ No personal information needed</li>
 							<li>⚠️ Data is device-specific and not backed up</li>
 						</ul>
-						<button
-							className="w-full rounded bg-green-600 py-2 px-4 font-bold text-white hover:bg-green-700"
-							onClick={() => void signInAnonymouslyUser()}
-						>
+						<Button color="primary" onClick={() => void signInAnonymouslyUser()}>
 							Continue Anonymously
-						</button>
+						</Button>
 					</Card>
 				</div>
 			</div>

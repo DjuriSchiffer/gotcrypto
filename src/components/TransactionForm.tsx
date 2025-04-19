@@ -3,7 +3,7 @@ import type { TransactionType, TransferType } from 'currency';
 
 import classNames from 'classnames';
 import { Button, ButtonGroup } from 'flowbite-react';
-import { useEffect } from 'react';
+import { forwardRef, useEffect } from 'react';
 import CurrencyInput from 'react-currency-input-field';
 import { Controller, useForm } from 'react-hook-form';
 import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
@@ -20,53 +20,52 @@ type CurrencyFormInputProps = {
 	value: string;
 };
 
-function CurrencyFormInput({
-	className,
-	currencyQuote,
-	onChange,
-	placeholder,
-	value,
-}: CurrencyFormInputProps) {
-	const getLocaleConfig = () => {
-		if (currencyQuote === 'EUR') {
+const CurrencyFormInput = forwardRef<HTMLInputElement, CurrencyFormInputProps>(
+	({ className, currencyQuote, onChange, placeholder, value }, ref) => {
+		const getLocaleConfig = () => {
+			if (currencyQuote === 'EUR') {
+				return {
+					decimalSeparator: ',',
+					groupSeparator: '.',
+					placeholder: placeholder || '5.000,25',
+				};
+			}
 			return {
-				decimalSeparator: ',',
-				groupSeparator: '.',
-				placeholder: placeholder || '5.000,25',
+				decimalSeparator: '.',
+				groupSeparator: ',',
+				placeholder: placeholder || '5,000.25',
 			};
-		}
-		return {
-			decimalSeparator: '.',
-			groupSeparator: ',',
-			placeholder: placeholder || '5,000.25',
 		};
-	};
 
-	const { decimalSeparator, groupSeparator, placeholder: defaultPlaceholder } = getLocaleConfig();
+		const { decimalSeparator, groupSeparator, placeholder: defaultPlaceholder } = getLocaleConfig();
 
-	return (
-		<CurrencyInput
-			allowDecimals={true}
-			allowNegativeValue={false}
-			autoComplete="off"
-			className={className}
-			data-form-type="other"
-			decimalSeparator={decimalSeparator}
-			decimalsLimit={2}
-			groupSeparator={groupSeparator}
-			name="transaction-price"
-			onValueChange={(value) => {
-				if (!value) {
-					onChange('');
-				} else if (!isNaN(parseFloat(value))) {
-					onChange(value);
-				}
-			}}
-			placeholder={placeholder || defaultPlaceholder}
-			value={value}
-		/>
-	);
-}
+		return (
+			<CurrencyInput
+				allowDecimals={true}
+				allowNegativeValue={false}
+				autoComplete="off"
+				className={className}
+				data-form-type="other"
+				decimalSeparator={decimalSeparator}
+				decimalsLimit={2}
+				groupSeparator={groupSeparator}
+				name="transaction-price"
+				onValueChange={(value) => {
+					if (!value) {
+						onChange('');
+					} else if (!isNaN(parseFloat(value))) {
+						onChange(value);
+					}
+				}}
+				placeholder={placeholder || defaultPlaceholder}
+				value={value}
+				ref={ref}
+			/>
+		);
+	}
+);
+
+CurrencyFormInput.displayName = 'CurrencyFormInput';
 
 export type FormInputs = {
 	amount: string;
@@ -158,7 +157,7 @@ function TransactionForm({
 				transferType: 'in',
 			});
 		}
-	}, [isEdit, defaultValues, reset, isTransfer]);
+	}, [isEdit, defaultValues, reset]);
 
 	const handleFormSubmit = (data: FormInputs) => {
 		onSubmit(data);
@@ -177,9 +176,12 @@ function TransactionForm({
 					render={({ field: { onChange, value } }) => (
 						<ButtonGroup className="w-full">
 							<Button
-								className={classNames('w-4/12', {
-									'!border-green-400': value === 'buy',
-									'opacity-50': value !== 'buy',
+								className={classNames('w-4/12 !border-0', {
+									'z-10 !border-[1px] !border-green-400': value === 'buy',
+									'!rounded-l-lg': true,
+									'!rounded-r-lg': false,
+									'!rounded-none': false,
+									'!first:border-l-0': true,
 								})}
 								color="dark"
 								onClick={() => {
@@ -190,31 +192,31 @@ function TransactionForm({
 								Buy
 							</Button>
 							<Button
-								className={classNames('w-4/12 border-l', {
-									'!border-green-400': value === 'sell',
-									'!border-l-[1px]': value === 'sell',
-									'opacity-50': value !== 'sell',
+								className={classNames('w-4/12 !border-0', {
+									'z-10 !border-[1px] !border-green-400': value === 'sell',
+									'!rounded-l-lg': false,
+									'!rounded-r-lg': false,
+									'!rounded-none': true,
 								})}
 								color="dark"
 								onClick={() => {
 									onChange('sell');
 								}}
-								outline={value === 'buy'}
 								type="button"
 							>
 								Sell
 							</Button>
 							<Button
-								className={classNames('w-4/12 border-l', {
-									'!border-green-400': value === 'transfer',
-									'!border-l-[1px]': value === 'transfer',
-									'opacity-50': value !== 'transfer',
+								className={classNames('w-4/12 !border-0', {
+									'z-10 !border-[1px] !border-green-400': value === 'transfer',
+									'!rounded-l-lg': false,
+									'!rounded-r-lg': true,
+									'!rounded-none': false,
 								})}
 								color="dark"
 								onClick={() => {
 									onChange('transfer');
 								}}
-								outline={value === 'buy'}
 								type="button"
 							>
 								Transfer
@@ -368,6 +370,7 @@ function TransactionForm({
 								onChange={onChange}
 								placeholder={currencyFormat(5000.25, currencyQuote)}
 								value={value}
+								ref={field.ref}
 							/>
 						)}
 						rules={{
@@ -386,7 +389,6 @@ function TransactionForm({
 					<p className="mt-1 text-sm text-red-600">{errors.purchasePrice.message}</p>
 				)}
 			</div>
-
 			<div>
 				<label
 					className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -432,7 +434,6 @@ function TransactionForm({
 				</div>
 				{errors.date && <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>}
 			</div>
-
 			<div>
 				<label
 					className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
@@ -485,7 +486,9 @@ function TransactionForm({
 					/>
 				</div>
 			)}
-			<Button type="submit">{submitLabel}</Button>
+			<Button color="primary" type="submit">
+				{submitLabel}
+			</Button>
 		</form>
 	);
 }

@@ -12,6 +12,7 @@ const config = {
 	plugins: [require('flowbite/plugin'), flowbiteReact],
 	theme: {
 		colors: {
+			white: '#ffffff',
 			dark: '#1e293b',
 			emerald: colors.emerald,
 			gray: '#8492a6',
