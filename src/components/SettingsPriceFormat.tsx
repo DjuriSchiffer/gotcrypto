@@ -50,7 +50,7 @@ function SettingsPriceFormat() {
 				<Card
 					className={`cursor-pointer transition-all ${
 						currencyQuote === option.quote
-							? 'border-2 border-blue-500 dark:border-blue-400'
+							? 'border-2 border-green-500 dark:border-green-400'
 							: 'hover:border-gray-400'
 					}`}
 					key={option.quote}
@@ -62,7 +62,7 @@ function SettingsPriceFormat() {
 						<div className="flex items-center">
 							<input
 								checked={currencyQuote === option.quote}
-								className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+								className="h-4 w-4 border-gray-300 bg-gray-100 text-green-600 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-green-600"
 								id={`currency-format-${option.quote}`}
 								name="currency-format"
 								onChange={() => {

@@ -60,7 +60,7 @@ function DetailHeader({
 					</div>
 				</div>
 				<div className="flex space-x-2">
-					<Button onClick={onAddTransaction}>
+					<Button color="primary" onClick={onAddTransaction}>
 						<FaPlus className="mr-1" color="white" />
 						Add Transaction
 					</Button>
@@ -119,7 +119,7 @@ function DetailHeader({
 								<h5 className="text-md font-bold text-gray-900 dark:text-white">
 									<div
 										className={classNames('flex', {
-											'text-blue-500': totalPercentageDifference > 0,
+											'text-green-500': totalPercentageDifference > 0,
 											'text-red-500': totalPercentageDifference < 0,
 										})}
 									>

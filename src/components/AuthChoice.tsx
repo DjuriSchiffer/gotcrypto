@@ -21,7 +21,7 @@ function AuthChoice() {
 							<li>⚠️ Requires a Google account</li>
 						</ul>
 						<button
-							className="w-full rounded bg-blue-600 py-2 px-4 font-bold text-white hover:bg-blue-700"
+							className="w-full rounded bg-green-600 py-2 px-4 font-bold text-white hover:bg-green-700"
 							onClick={() => void signInWithGoogle()}
 						>
 							Sign in with Google

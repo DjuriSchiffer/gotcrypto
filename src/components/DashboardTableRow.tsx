@@ -2,7 +2,7 @@ import type { CurrencyQuote } from 'api';
 import type { FetchedCurrency, SelectedAsset } from 'currency';
 
 import classNames from 'classnames';
-import { Button, Table, TableCell, TableRow } from 'flowbite-react';
+import { Button, TableCell, TableRow } from 'flowbite-react';
 import { FaPen } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
@@ -78,7 +78,7 @@ function DashboardTableRow({
 						<div
 							className={classNames('inline-flex items-center text-gray-900', {
 								'dark:text-white': percentageDifference === 0,
-								'text-blue-500': percentageDifference > 0,
+								'text-green-500': percentageDifference > 0,
 								'text-red-500': percentageDifference < 0,
 							})}
 						>
@@ -90,7 +90,7 @@ function DashboardTableRow({
 
 			<TableCell className="flex items-center justify-end py-2 pr-2 text-right">
 				<Link className="ml-auto" to={fetchedCurrency.slug}>
-					<Button>
+					<Button color="primary" size="icon">
 						<FaPen color="white" />
 					</Button>
 				</Link>

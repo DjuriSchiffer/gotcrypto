@@ -38,8 +38,8 @@ export function ChangeLayout() {
 			{layoutOptions.map((option, index) => (
 				<Button
 					className={classNames('', {
-						'!border-blue-400': dashboardLayout === option.label,
-						'!border-l-[1px]': index > 0 && dashboardLayout === option.label,
+						'!border-green-400': dashboardLayout === option.label,
+						'!border-[1px]': index > 0 && dashboardLayout === option.label,
 						'border-l': index > 0 && dashboardLayout === option.label,
 					})}
 					color={dashboardLayout === option.label ? 'dark' : 'gray'}

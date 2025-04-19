@@ -178,7 +178,7 @@ function TransactionForm({
 						<ButtonGroup className="w-full">
 							<Button
 								className={classNames('w-4/12', {
-									'!border-blue-400': value === 'buy',
+									'!border-green-400': value === 'buy',
 									'opacity-50': value !== 'buy',
 								})}
 								color="dark"
@@ -191,7 +191,7 @@ function TransactionForm({
 							</Button>
 							<Button
 								className={classNames('w-4/12 border-l', {
-									'!border-blue-400': value === 'sell',
+									'!border-green-400': value === 'sell',
 									'!border-l-[1px]': value === 'sell',
 									'opacity-50': value !== 'sell',
 								})}
@@ -206,7 +206,7 @@ function TransactionForm({
 							</Button>
 							<Button
 								className={classNames('w-4/12 border-l', {
-									'!border-blue-400': value === 'transfer',
+									'!border-green-400': value === 'transfer',
 									'!border-l-[1px]': value === 'transfer',
 									'opacity-50': value !== 'transfer',
 								})}
@@ -237,7 +237,7 @@ function TransactionForm({
 									<div className="flex items-center">
 										<input
 											checked={value === 'in'}
-											className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+											className="h-4 w-4 border-gray-300 bg-gray-100 text-green-600 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-green-600"
 											id="transfer-type-in"
 											onChange={() => {
 												onChange('in');
@@ -254,7 +254,7 @@ function TransactionForm({
 									<div className="flex items-center">
 										<input
 											checked={value === 'out'}
-											className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
+											className="h-4 w-4 border-gray-300 bg-gray-100 text-green-600 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-green-600"
 											id="transfer-type-out"
 											onChange={() => {
 												onChange('out');
@@ -296,7 +296,7 @@ function TransactionForm({
 							<input
 								{...field}
 								autoComplete="off"
-								className="block w-full min-w-0 flex-1 rounded-none rounded-r-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+								className="block w-full min-w-0 flex-1 rounded-none rounded-r-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-green-500 dark:focus:ring-green-500"
 								data-form-type="other"
 								name="transaction-amount"
 								onChange={(e) => {
@@ -363,7 +363,7 @@ function TransactionForm({
 						render={({ field: { onChange, value, ...field } }) => (
 							<CurrencyFormInput
 								{...field}
-								className="block w-full min-w-0 flex-1 rounded-none rounded-r-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+								className="block w-full min-w-0 flex-1 rounded-none rounded-r-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-green-500 dark:focus:ring-green-500"
 								currencyQuote={currencyQuote}
 								onChange={onChange}
 								placeholder={currencyFormat(5000.25, currencyQuote)}
@@ -448,7 +448,7 @@ function TransactionForm({
 							onChange={onChange}
 							value={value}
 							{...restField}
-							className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+							className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-green-500 dark:focus:ring-green-500"
 							placeholder={
 								isTransfer ? 'e.g., Transferred to hardware wallet' : 'e.g., DCA purchase'
 							}
@@ -467,7 +467,7 @@ function TransactionForm({
 								<input
 									{...field}
 									checked={value}
-									className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
+									className="h-4 w-4 rounded border-gray-300 bg-gray-100 text-green-600 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-green-600 dark:focus:ring-offset-gray-800"
 									id="excludeForTax"
 									onChange={(e) => {
 										onChange(e.target.checked);
