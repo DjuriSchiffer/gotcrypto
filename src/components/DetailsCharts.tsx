@@ -113,6 +113,8 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 				group: 'crypto-transactions',
 				height: 300,
 				fontFamily: 'Inter, sans-serif',
+				background: 'transparent', // Ensure transparent background
+				foreColor: '#ffffff', // Set default text color for dark theme
 				toolbar: {
 					show: true,
 					tools: {
@@ -142,14 +144,10 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 				},
 			},
 			grid: {
+				show: true,
 				borderColor: '#6B7280',
 				strokeDashArray: 4,
-				padding: {
-					left: 16,
-					right: 16,
-					top: 16,
-					bottom: 16,
-				},
+				position: 'back',
 				xaxis: {
 					lines: {
 						show: true,
@@ -160,10 +158,23 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 						show: true,
 					},
 				},
+				row: {
+					colors: undefined,
+					opacity: 0.1,
+				},
+				column: {
+					colors: undefined,
+					opacity: 0.1,
+				},
+				padding: {
+					left: 16,
+					right: 16,
+					top: 16,
+					bottom: 16,
+				},
 			},
 			tooltip: {
 				shared: true,
-
 				theme: 'dark',
 				style: {
 					fontSize: '12px',
@@ -201,6 +212,14 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 				axisTicks: {
 					color: '#6B7280',
 				},
+			},
+			markers: {
+				size: 4,
+				strokeWidth: 0,
+				hover: {
+					size: 8,
+				},
+				discrete: [],
 			},
 		};
 
@@ -266,6 +285,10 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 					},
 				},
 			},
+			markers: {
+				...commonOptions.markers,
+				colors: ['#1C64F2'],
+			},
 		};
 
 		const valueOptions = {
@@ -329,6 +352,10 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 						return `Value: ${currencyFormat(value, currencyQuote)}`;
 					},
 				},
+			},
+			markers: {
+				...commonOptions.markers,
+				colors: ['#10B981'],
 			},
 		};
 
@@ -400,6 +427,10 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 						strokeDashArray: 0,
 					},
 				],
+			},
+			markers: {
+				...commonOptions.markers,
+				colors: ['#EF4444'],
 			},
 		};
 
