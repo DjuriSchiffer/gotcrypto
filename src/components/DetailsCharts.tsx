@@ -1,35 +1,11 @@
 import type { CurrencyQuote } from 'api';
-import type { ChartData, ChartOptions } from 'chart.js';
 import type { SelectedAsset, Transaction } from 'currency';
-
-import {
-	ArcElement,
-	CategoryScale,
-	Chart as ChartJS,
-	Title as ChartTitle,
-	Legend,
-	LinearScale,
-	LineElement,
-	PointElement,
-	Tooltip,
-} from 'chart.js';
-import { useMemo } from 'react';
-import { Line } from 'react-chartjs-2';
+import ApexCharts from 'apexcharts';
+import { useMemo, useEffect, useRef } from 'react';
 
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import { currencyFormat, dateForDisplay } from '../utils/helpers';
-
-ChartJS.register(
-	CategoryScale,
-	LinearScale,
-	PointElement,
-	LineElement,
-	ChartTitle,
-	Tooltip,
-	Legend,
-	ArcElement
-);
 
 type DetailChartsProps = {
 	currencyQuote: keyof CurrencyQuote;
@@ -40,9 +16,15 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 	const { dateLocale } = useStorage();
 	const { data: fetchedCurrencies } = useCoinMarketCap(currencyQuote);
 
-	// Move useMemo before any conditional returns
+	const amountChartRef = useRef<HTMLDivElement>(null);
+	const valueChartRef = useRef<HTMLDivElement>(null);
+	const investedChartRef = useRef<HTMLDivElement>(null);
+
+	const amountChartInstance = useRef<ApexCharts | null>(null);
+	const valueChartInstance = useRef<ApexCharts | null>(null);
+	const investedChartInstance = useRef<ApexCharts | null>(null);
+
 	const chartData = useMemo(() => {
-		// If no selected asset, return empty data structure
 		if (!selectedAsset) {
 			return {
 				amountData: [],
@@ -116,108 +98,353 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 		};
 	}, [selectedAsset, fetchedCurrencies, dateLocale]);
 
-	// Early return after useMemo
+	useEffect(() => {
+		if (
+			!selectedAsset ||
+			!amountChartRef.current ||
+			!valueChartRef.current ||
+			!investedChartRef.current
+		) {
+			return;
+		}
+
+		const commonOptions = {
+			chart: {
+				group: 'crypto-transactions',
+				height: 300,
+				fontFamily: 'Inter, sans-serif',
+				toolbar: {
+					show: true,
+					tools: {
+						download: false,
+						selection: true,
+						zoom: false,
+						zoomin: true,
+						zoomout: true,
+						pan: true,
+						reset: true,
+					},
+					autoSelected: 'zoom',
+					background: '#FFFFFF',
+					offsetX: 0,
+					offsetY: 0,
+					style: {
+						color: '#000000',
+					},
+				},
+				zoom: {
+					enabled: true,
+				},
+				animations: {
+					enabled: true,
+					easing: 'easeinout',
+					speed: 800,
+				},
+			},
+			grid: {
+				borderColor: '#6B7280',
+				strokeDashArray: 4,
+				padding: {
+					left: 16,
+					right: 16,
+					top: 16,
+					bottom: 16,
+				},
+				xaxis: {
+					lines: {
+						show: true,
+					},
+				},
+				yaxis: {
+					lines: {
+						show: true,
+					},
+				},
+			},
+			tooltip: {
+				shared: true,
+
+				theme: 'dark',
+				style: {
+					fontSize: '12px',
+					fontFamily: 'Inter, sans-serif',
+				},
+				marker: {
+					show: true,
+				},
+				fixed: {
+					enabled: false,
+				},
+				fillSeriesColor: false,
+				backgroundColor: '#FFFFFF',
+				borderColor: '#e3e3e3',
+				opacity: 1,
+			},
+			dataLabels: {
+				enabled: false,
+			},
+			legend: {
+				show: false,
+			},
+			xaxis: {
+				categories: chartData.labels,
+				labels: {
+					style: {
+						colors: '#ffffff',
+						fontFamily: 'Inter, sans-serif',
+						cssClass: 'text-xs font-normal',
+					},
+				},
+				axisBorder: {
+					color: '#6B7280',
+				},
+				axisTicks: {
+					color: '#6B7280',
+				},
+			},
+		};
+
+		const amountOptions = {
+			...commonOptions,
+			chart: {
+				...commonOptions.chart,
+				id: 'amount',
+				type: 'line',
+				height: 300,
+			},
+			title: {
+				text: 'Amount',
+				align: 'left',
+				style: {
+					color: '#ffffff',
+				},
+			},
+			series: [
+				{
+					name: 'Amount',
+					data: chartData.amountData,
+					color: '#1C64F2',
+					type: 'line',
+				},
+			],
+			stroke: {
+				width: 4,
+				curve: 'stepline',
+				lineCap: 'round',
+			},
+			yaxis: {
+				title: {
+					text: 'Amount',
+					style: {
+						color: '#ffffff',
+					},
+				},
+				labels: {
+					formatter: function (value: number) {
+						return value.toFixed(4);
+					},
+					style: {
+						colors: '#ffffff',
+					},
+				},
+				forceNiceScale: true,
+				tickAmount: 6,
+				floating: false,
+				min: function (min: number) {
+					if (min >= 0) return 0;
+					return min * 0.9;
+				},
+				max: function (max: number) {
+					return max * 1.2;
+				},
+			},
+			tooltip: {
+				...commonOptions.tooltip,
+				y: {
+					formatter: function (value: number) {
+						return `Amount: ${value.toFixed(4)}`;
+					},
+				},
+			},
+		};
+
+		const valueOptions = {
+			...commonOptions,
+			chart: {
+				...commonOptions.chart,
+				id: 'value',
+				type: 'line',
+				height: 300,
+			},
+			title: {
+				text: 'Portfolio Value',
+				align: 'left',
+				style: {
+					color: '#ffffff',
+				},
+			},
+			series: [
+				{
+					name: 'Value',
+					data: chartData.valueData,
+					color: '#10B981',
+					type: 'line',
+				},
+			],
+			stroke: {
+				width: 4,
+				curve: 'smooth',
+				lineCap: 'round',
+			},
+			yaxis: {
+				title: {
+					text: 'Value',
+					style: {
+						color: '#ffffff',
+					},
+				},
+				labels: {
+					formatter: function (value: number) {
+						return currencyFormat(value, currencyQuote);
+					},
+					style: {
+						colors: '#ffffff',
+					},
+				},
+				forceNiceScale: true,
+				tickAmount: 6,
+				floating: false,
+				min: function (min: number) {
+					if (min >= 0) return 0;
+					return min * 0.9;
+				},
+				max: function (max: number) {
+					return max * 1.2;
+				},
+			},
+			tooltip: {
+				...commonOptions.tooltip,
+				y: {
+					formatter: function (value: number) {
+						return `Value: ${currencyFormat(value, currencyQuote)}`;
+					},
+				},
+			},
+		};
+
+		const investedOptions = {
+			...commonOptions,
+			chart: {
+				...commonOptions.chart,
+				id: 'invested',
+				type: 'line',
+				height: 300,
+			},
+			title: {
+				text: 'Total Invested',
+				align: 'left',
+				style: {
+					color: '#ffffff',
+				},
+			},
+			series: [
+				{
+					name: 'Invested',
+					data: chartData.investedData,
+					color: '#EF4444',
+					type: 'line',
+				},
+			],
+			stroke: {
+				width: 4,
+				curve: 'smooth',
+			},
+			yaxis: {
+				title: {
+					text: 'Invested',
+					style: {
+						color: '#ffffff',
+					},
+				},
+				labels: {
+					formatter: function (value: number) {
+						return currencyFormat(value, currencyQuote);
+					},
+					style: {
+						colors: '#ffffff',
+					},
+				},
+				forceNiceScale: true,
+				tickAmount: 6,
+				floating: false,
+				min: function (min: number) {
+					return Math.min(0, min * 1.2);
+				},
+				max: function (max: number) {
+					return Math.max(0, max * 1.2);
+				},
+			},
+			tooltip: {
+				...commonOptions.tooltip,
+				y: {
+					formatter: function (value: number) {
+						return `Invested: ${currencyFormat(value, currencyQuote)}`;
+					},
+				},
+			},
+			annotations: {
+				yaxis: [
+					{
+						y: 0,
+						borderColor: '#6B7280',
+						strokeDashArray: 0,
+					},
+				],
+			},
+		};
+
+		if (amountChartInstance.current) {
+			amountChartInstance.current.destroy();
+		}
+		if (valueChartInstance.current) {
+			valueChartInstance.current.destroy();
+		}
+		if (investedChartInstance.current) {
+			investedChartInstance.current.destroy();
+		}
+
+		amountChartInstance.current = new ApexCharts(amountChartRef.current, amountOptions);
+		valueChartInstance.current = new ApexCharts(valueChartRef.current, valueOptions);
+		investedChartInstance.current = new ApexCharts(investedChartRef.current, investedOptions);
+
+		amountChartInstance.current.render();
+		valueChartInstance.current.render();
+		investedChartInstance.current.render();
+
+		return () => {
+			if (amountChartInstance.current) {
+				amountChartInstance.current.destroy();
+			}
+			if (valueChartInstance.current) {
+				valueChartInstance.current.destroy();
+			}
+			if (investedChartInstance.current) {
+				investedChartInstance.current.destroy();
+			}
+		};
+	}, [chartData, currencyQuote, selectedAsset]);
+
 	if (!selectedAsset) {
 		return <div>No currency selected.</div>;
 	}
 
-	const options: ChartOptions<'line'> = {
-		interaction: {
-			intersect: true,
-			mode: 'index',
-		},
-		plugins: {
-			legend: {
-				labels: {
-					color: 'white',
-				},
-			},
-			title: {
-				color: 'white',
-				display: true,
-				text: 'Transaction Overview',
-			},
-			tooltip: {
-				callbacks: {
-					label: function (context) {
-						const value = Number(context.parsed.y);
-						const label = context.dataset.label || '';
-
-						if (label === 'Value')
-							return 'Portfolio Value: ' + currencyFormat(value, currencyQuote);
-						if (label === 'Invested')
-							return 'Total invested: ' + currencyFormat(value, currencyQuote);
-						if (label === 'Price') return 'Price Per Unit: ' + currencyFormat(value, currencyQuote);
-						return `${label}: ${value.toFixed(4)}`;
-					},
-				},
-			},
-		},
-		responsive: true,
-		scales: {
-			x: {
-				ticks: {
-					color: 'white',
-				},
-			},
-			y: {
-				display: true,
-				position: 'left',
-				ticks: {
-					callback: (value) => Number(value),
-					color: 'white',
-				},
-				type: 'linear',
-			},
-			y1: {
-				display: true,
-				grid: {
-					drawOnChartArea: false,
-				},
-				position: 'right',
-				ticks: {
-					callback: (value) => currencyFormat(Number(value), currencyQuote),
-					color: 'white',
-				},
-				type: 'linear',
-			},
-		},
-	};
-
-	const chartDataConfig: ChartData<'line'> = {
-		datasets: [
-			{
-				backgroundColor: '#1A56DB', // blue 700
-				borderColor: '#1C64F2', // blue 600
-				data: chartData.amountData,
-				label: 'Amount',
-				stepped: 'before',
-				tension: 0,
-				yAxisID: 'y',
-			},
-			{
-				backgroundColor: '#059669', // green 600
-				borderColor: '#10B981', // green 500
-				data: chartData.valueData,
-				label: 'Value',
-				stepped: false,
-				tension: 0,
-				yAxisID: 'y1',
-			},
-			{
-				backgroundColor: '#DC2626', // red 600
-				borderColor: '#EF4444', // red 500
-				data: chartData.investedData,
-				label: 'Invested',
-				stepped: false,
-				tension: 0,
-				yAxisID: 'y1',
-			},
-		],
-		labels: chartData.labels,
-	};
-
-	return <Line data={chartDataConfig} options={options} />;
+	return (
+		<div className="flex h-auto w-full flex-col space-y-6">
+			<div ref={valueChartRef} className="h-[300px] w-full"></div>
+			<div ref={amountChartRef} className="h-[300px] w-full"></div>
+			<div ref={investedChartRef} className="h-[300px] w-full"></div>
+		</div>
+	);
 }
 
 export default DetailCharts;

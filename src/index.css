@@ -1,3 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.dark .apexcharts-canvas .apexcharts-tooltip {
+	background-color: white !important;
+	color: #000 !important;
+	border-color: #e3e3e3 !important;
+}
+
+.dark .apexcharts-canvas .apexcharts-tooltip .apexcharts-tooltip-title,
+.dark .apexcharts-canvas .apexcharts-tooltip .apexcharts-tooltip-text,
+.dark .apexcharts-canvas .apexcharts-tooltip .apexcharts-tooltip-y-group,
+.dark .apexcharts-canvas .apexcharts-tooltip .apexcharts-tooltip-text-y-value {
+	color: #000 !important;
+}
+
+.dark .apexcharts-canvas .apexcharts-tooltip .apexcharts-tooltip-title {
+	background-color: #f8f9fa !important;
+	border-bottom: 1px solid #e3e3e3 !important;
+}
+
+.dark .apexcharts-canvas .apexcharts-xaxistooltip {
+	background-color: #f8f9fa !important;
+	color: #000 !important;
+}
+
+.dark .apexcharts-canvas .apexcharts-xaxistooltip:before {
+	border-bottom-color: #f8f9fa !important;
+}
