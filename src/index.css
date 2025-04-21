@@ -21,10 +21,14 @@
 }
 
 .dark .apexcharts-canvas .apexcharts-xaxistooltip {
-	background-color: #f8f9fa !important;
+	background-color: #8492a6 !important;
 	color: #000 !important;
 }
 
 .dark .apexcharts-canvas .apexcharts-xaxistooltip:before {
-	border-bottom-color: #f8f9fa !important;
+	border-bottom-color: #8492a6 !important;
+}
+
+.dark .apexcharts-gridline {
+	stroke: #8492a6 !important;
 }

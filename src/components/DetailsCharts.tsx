@@ -145,12 +145,12 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			},
 			grid: {
 				show: true,
-				borderColor: '#6B7280',
-				strokeDashArray: 4,
+				borderColor: 'red',
+				strokeDashArray: 6,
 				position: 'back',
 				xaxis: {
 					lines: {
-						show: true,
+						show: false,
 					},
 				},
 				yaxis: {
