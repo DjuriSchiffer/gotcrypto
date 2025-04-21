@@ -33,25 +33,32 @@ export function ChangeLayout() {
 		[]
 	);
 
+	const getButtonStyles = (label: DashboardLayout) => {
+		const isActive = dashboardLayout === label;
+
+		return isActive
+			? 'bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-dark dark:hover:bg-gray-900 dark:text-white'
+			: 'bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-gray-200';
+	};
+
 	return (
-		<ButtonGroup className="">
+		<ButtonGroup>
 			{layoutOptions.map((option, index) => (
 				<Button
-					className={classNames('!border-0', {
-						'z-10 !border-[1px] !border-green-400': dashboardLayout === option.label,
-
-						'!rounded-l-lg': index === 0,
-						'!rounded-r-lg': index === layoutOptions.length - 1,
-						'!rounded-none': index > 0 && index < layoutOptions.length - 1,
-
-						'!first:border-l-0': index === 0,
-					})}
-					color={dashboardLayout === option.label ? 'dark' : 'gray'}
 					key={option.label}
 					onClick={() => {
 						handleLayoutChange(option.label);
 					}}
 					title={option.label}
+					color="gray"
+					className={classNames('!border-0', getButtonStyles(option.label), {
+						'z-10 !border-[1px] !border-green-400 dark:!border-green-500':
+							dashboardLayout === option.label,
+						'!rounded-l-lg': index === 0,
+						'!rounded-r-lg': index === layoutOptions.length - 1,
+						'!rounded-none': index > 0 && index < layoutOptions.length - 1,
+						'!first:border-l-0': index === 0,
+					})}
 				>
 					{option.symbol}
 					{option.label}

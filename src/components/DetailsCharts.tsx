@@ -6,6 +6,7 @@ import { useMemo, useEffect, useRef } from 'react';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import { currencyFormat, dateForDisplay } from '../utils/helpers';
+import { useThemeMode } from 'flowbite-react';
 
 type DetailChartsProps = {
 	currencyQuote: keyof CurrencyQuote;
@@ -15,6 +16,8 @@ type DetailChartsProps = {
 function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 	const { dateLocale } = useStorage();
 	const { data: fetchedCurrencies } = useCoinMarketCap(currencyQuote);
+	const { computedMode } = useThemeMode();
+	const isDarkMode = computedMode === 'dark';
 
 	const amountChartRef = useRef<HTMLDivElement>(null);
 	const valueChartRef = useRef<HTMLDivElement>(null);
@@ -110,11 +113,10 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 
 		const commonOptions = {
 			chart: {
-				group: 'crypto-transactions',
+				group: 'transactions',
 				height: 300,
 				fontFamily: 'Inter, sans-serif',
-				background: 'transparent', // Ensure transparent background
-				foreColor: '#ffffff', // Set default text color for dark theme
+				background: 'transparent',
 				toolbar: {
 					show: true,
 					tools: {
@@ -127,12 +129,8 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 						reset: true,
 					},
 					autoSelected: 'zoom',
-					background: '#FFFFFF',
 					offsetX: 0,
 					offsetY: 0,
-					style: {
-						color: '#000000',
-					},
 				},
 				zoom: {
 					enabled: true,
@@ -145,9 +143,7 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			},
 			grid: {
 				show: true,
-				borderColor: 'red',
 				strokeDashArray: 6,
-				position: 'back',
 				xaxis: {
 					lines: {
 						show: false,
@@ -175,21 +171,10 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			},
 			tooltip: {
 				shared: true,
-				theme: 'dark',
-				style: {
-					fontSize: '12px',
-					fontFamily: 'Inter, sans-serif',
-				},
-				marker: {
-					show: true,
-				},
 				fixed: {
 					enabled: false,
 				},
 				fillSeriesColor: false,
-				backgroundColor: '#FFFFFF',
-				borderColor: '#e3e3e3',
-				opacity: 1,
 			},
 			dataLabels: {
 				enabled: false,
@@ -198,20 +183,8 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 				show: false,
 			},
 			xaxis: {
+				tooltip: false,
 				categories: chartData.labels,
-				labels: {
-					style: {
-						colors: '#ffffff',
-						fontFamily: 'Inter, sans-serif',
-						cssClass: 'text-xs font-normal',
-					},
-				},
-				axisBorder: {
-					color: '#6B7280',
-				},
-				axisTicks: {
-					color: '#6B7280',
-				},
 			},
 			markers: {
 				size: 4,
@@ -234,9 +207,6 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			title: {
 				text: 'Amount',
 				align: 'left',
-				style: {
-					color: '#ffffff',
-				},
 			},
 			series: [
 				{
@@ -254,16 +224,10 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			yaxis: {
 				title: {
 					text: 'Amount',
-					style: {
-						color: '#ffffff',
-					},
 				},
 				labels: {
 					formatter: function (value: number) {
 						return value.toFixed(4);
-					},
-					style: {
-						colors: '#ffffff',
 					},
 				},
 				forceNiceScale: true,
@@ -302,9 +266,6 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			title: {
 				text: 'Portfolio Value',
 				align: 'left',
-				style: {
-					color: '#ffffff',
-				},
 			},
 			series: [
 				{
@@ -322,16 +283,10 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			yaxis: {
 				title: {
 					text: 'Value',
-					style: {
-						color: '#ffffff',
-					},
 				},
 				labels: {
 					formatter: function (value: number) {
 						return currencyFormat(value, currencyQuote);
-					},
-					style: {
-						colors: '#ffffff',
 					},
 				},
 				forceNiceScale: true,
@@ -370,9 +325,6 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			title: {
 				text: 'Total Invested',
 				align: 'left',
-				style: {
-					color: '#ffffff',
-				},
 			},
 			series: [
 				{
@@ -389,16 +341,10 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			yaxis: {
 				title: {
 					text: 'Invested',
-					style: {
-						color: '#ffffff',
-					},
 				},
 				labels: {
 					formatter: function (value: number) {
 						return currencyFormat(value, currencyQuote);
-					},
-					style: {
-						colors: '#ffffff',
 					},
 				},
 				forceNiceScale: true,
@@ -418,15 +364,6 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 						return `Invested: ${currencyFormat(value, currencyQuote)}`;
 					},
 				},
-			},
-			annotations: {
-				yaxis: [
-					{
-						y: 0,
-						borderColor: '#6B7280',
-						strokeDashArray: 0,
-					},
-				],
 			},
 			markers: {
 				...commonOptions.markers,

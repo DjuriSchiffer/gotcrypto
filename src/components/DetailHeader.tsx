@@ -1,7 +1,7 @@
 import type { CurrencyQuote } from 'api';
 
 import classNames from 'classnames';
-import { Button, Card, Dropdown, DropdownItem } from 'flowbite-react';
+import { Button, Card, Dropdown, DropdownItem, useThemeMode } from 'flowbite-react';
 import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 
 import type { SelectedAsset } from '../types/currency';
@@ -28,6 +28,8 @@ function DetailHeader({
 	onRemoveAllTransactions,
 	selectedAsset,
 }: DetailHeaderProps) {
+	const { computedMode } = useThemeMode();
+	const isDarkMode = computedMode === 'dark';
 	const totalsItem = selectedAsset?.totals;
 
 	const totalAmount = totalsItem?.totalAmount ?? 0;
@@ -53,9 +55,12 @@ function DetailHeader({
 						width={48}
 					/>
 					<div className="mb-1 pr-1">
-						<h2 className="text-3xl font-bold text-white">{currentFetchedCurrency.name}</h2>
+						<h2 className="text-3xl font-bold text-dark dark:text-white">
+							{currentFetchedCurrency.name}
+						</h2>
 						<p className="text-lg text-gray-400">
-							{currencyFormat(currentFetchedCurrency.price, currencyQuote)} per unit
+							Current market price <br />{' '}
+							{currencyFormat(currentFetchedCurrency.price, currencyQuote)}
 						</p>
 					</div>
 				</div>
@@ -65,7 +70,12 @@ function DetailHeader({
 						Add Transaction
 					</Button>
 					{selectedAsset && selectedAsset.transactions.length > 0 && (
-						<Dropdown color="gray" label="..." placement="bottom" size="md">
+						<Dropdown
+							color={isDarkMode ? 'gray' : 'light'}
+							label="..."
+							placement="bottom"
+							size="md"
+						>
 							<DropdownItem icon={FaTrashAlt} onClick={onRemoveAllTransactions}>
 								Remove All Transactions
 							</DropdownItem>

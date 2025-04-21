@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+.dark .apexcharts-title-text,
+.dark .apexcharts-text {
+	fill: #e3e3e3;
+}
+
 .dark .apexcharts-canvas .apexcharts-tooltip {
 	background-color: white !important;
 	color: #000 !important;
@@ -21,12 +26,12 @@
 }
 
 .dark .apexcharts-canvas .apexcharts-xaxistooltip {
-	background-color: #8492a6 !important;
+	background-color: #ffffff !important;
 	color: #000 !important;
 }
 
 .dark .apexcharts-canvas .apexcharts-xaxistooltip:before {
-	border-bottom-color: #8492a6 !important;
+	border-color: transparent !important;
 }
 
 .dark .apexcharts-gridline {
