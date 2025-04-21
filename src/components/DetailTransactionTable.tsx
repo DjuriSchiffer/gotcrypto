@@ -1,6 +1,6 @@
 import type { CurrencyQuote } from 'api';
 
-import { Button } from 'flowbite-react';
+import { Button, useThemeMode } from 'flowbite-react';
 import { FaPen, FaTrashAlt } from 'react-icons/fa';
 
 import type { FetchedCurrency, SelectedAsset, Transaction } from '../types/currency';
@@ -25,9 +25,11 @@ function DetailTransactionTable({
 	onRemoveTransaction,
 	selectedAsset,
 }: DetailTransactionTableProps) {
+	const { computedMode } = useThemeMode();
+	const isDarkMode = computedMode === 'dark';
 	if (!selectedAsset || selectedAsset.transactions.length === 0) {
 		return (
-			<div className="flex h-40 items-center justify-center text-white">
+			<div className="flex h-40 items-center justify-center text-dark dark:text-white">
 				<span>No transactions added yet.</span>
 			</div>
 		);
@@ -72,22 +74,22 @@ function DetailTransactionTable({
 						>
 							<Button
 								className="mr-2"
-								color="gray"
+								color={isDarkMode ? 'gray' : 'light'}
 								onClick={() => {
 									onEditTransaction(transaction);
 								}}
 								size="sm"
 							>
-								<FaPen color="white" />
+								<FaPen color={isDarkMode ? 'white' : 'black'} />
 							</Button>
 							<Button
-								color="dark"
+								color={isDarkMode ? 'gray' : 'light'}
 								onClick={() => {
 									onRemoveTransaction(transaction);
 								}}
 								size="sm"
 							>
-								<FaTrashAlt color="white" />
+								<FaTrashAlt color={isDarkMode ? 'white' : 'black'} />
 							</Button>
 						</TableRow>
 					);

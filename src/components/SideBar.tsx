@@ -2,7 +2,16 @@ import { useEffect, useState } from 'react';
 import type { IconType } from 'react-icons';
 
 import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { Badge, Sidebar, SidebarCTA, SidebarItem, SidebarItemGroup, SidebarItems, SidebarLogo } from 'flowbite-react';
+import {
+	Badge,
+	Sidebar,
+	SidebarCTA,
+	SidebarItem,
+	SidebarItemGroup,
+	SidebarItems,
+	SidebarLogo,
+	DarkThemeToggle,
+} from 'flowbite-react';
 import {
 	FaArrowLeft,
 	FaChartBar,
@@ -18,7 +27,6 @@ import { useAuth } from '../hooks/useAuth';
 import logo from '../public/images/logo.svg';
 import { ChangeQuote } from './ChangeQuote';
 
-// Constants for localStorage
 const CTA_DISMISSED_KEY = 'gotcrypto_cta_dismissed';
 
 export type AppSideBarLogoProps = {
@@ -32,7 +40,12 @@ function AppSideBarLogo({ img, imgAlt, text, to }: AppSideBarLogoProps) {
 
 	return (
 		<span onClick={clickHandler}>
-			<SidebarLogo className="mt-3 mb-7" href={to} img={img} imgAlt={imgAlt}>
+			<SidebarLogo
+				className="mt-3 mb-7 text-gray-900 dark:text-white"
+				href={to}
+				img={img}
+				imgAlt={imgAlt}
+			>
 				{text}
 			</SidebarLogo>
 		</span>
@@ -50,7 +63,12 @@ function AppSideBarItem({ icon, text, to }: AppSideBarItemProps) {
 
 	return (
 		<span onClick={clickHandler}>
-			<SidebarItem active={location.pathname === to} className="mb-1" href={to} icon={icon}>
+			<SidebarItem
+				active={location.pathname === to}
+				className="mb-1 text-gray-900 dark:text-white"
+				href={to}
+				icon={icon}
+			>
 				{text}
 			</SidebarItem>
 		</span>
@@ -63,7 +81,6 @@ function SideBar() {
 	const isDashboard = location.pathname === '/';
 	const [showCTA, setShowCTA] = useState(false);
 
-	// Check localStorage on component mount to determine if CTA should be shown
 	useEffect(() => {
 		if (isAnonymous) {
 			const ctaDismissed = localStorage.getItem(CTA_DISMISSED_KEY) === 'true';
@@ -77,7 +94,6 @@ function SideBar() {
 		try {
 			await signOut(auth);
 			console.log('User signed out');
-			// Clear the dismissed state when user signs out
 			localStorage.removeItem(CTA_DISMISSED_KEY);
 		} catch (error) {
 			console.error('Error signing out:', error);
@@ -89,8 +105,6 @@ function SideBar() {
 			const provider = new GoogleAuthProvider();
 			const result = await signInWithPopup(auth, provider);
 
-			// The Auth Context will automatically update the user state
-			// You can handle additional user setup here if needed
 			console.log('User signed in:', result.user);
 		} catch (error) {
 			if (error instanceof Error) {
@@ -102,7 +116,6 @@ function SideBar() {
 	};
 
 	const handleDismissCTA = () => {
-		// Store the user's preference in localStorage
 		localStorage.setItem(CTA_DISMISSED_KEY, 'true');
 		setShowCTA(false);
 	};
@@ -125,7 +138,7 @@ function SideBar() {
 				<ChangeQuote className="mt-auto w-full" />
 				<SidebarItemGroup>
 					{isAnonymous && (
-						<div className="text-md mb-3 ml-3 font-medium dark:text-white">
+						<div className="text-md mb-3 ml-3 text-gray-900 dark:text-white">
 							<span className="flex items-center">
 								<span className="mr-2 h-2 w-2 rounded-full bg-yellow-400"></span>
 								Anonymous session
@@ -133,7 +146,7 @@ function SideBar() {
 						</div>
 					)}
 					{user && !isAnonymous && (
-						<div className="text-md mb-3 ml-3 font-medium dark:text-white">
+						<div className="text-md mb-3 ml-3 text-gray-900 dark:text-white">
 							<span className="flex items-center">
 								<span className="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
 								Signed in with Google
@@ -173,7 +186,7 @@ function SideBar() {
 								</button>
 							</div>
 
-							<div className="text-cyan-900 mb-3 text-sm dark:text-gray-400">
+							<div className="mb-3 text-sm text-gray-900 dark:text-gray-400">
 								You're currently in an anonymous session. Your data will be saved on this browser,
 								but can't be accessed from other devices. Sign in to unlock cloud backup and
 								multi-device access.
@@ -181,11 +194,7 @@ function SideBar() {
 						</SidebarCTA>
 					)}
 					{isAnonymous && (
-						<SidebarItem
-							className="cursor-pointer"
-							icon={FaSignInAlt}
-							onClick={handleSignInGoogle}
-						>
+						<SidebarItem className="cursor-pointer" icon={FaSignInAlt} onClick={handleSignInGoogle}>
 							Sign In
 						</SidebarItem>
 					)}

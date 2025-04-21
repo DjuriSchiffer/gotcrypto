@@ -104,7 +104,7 @@ function Dashboard() {
 			<Page>
 				<div className="mb-4 grid w-full gap-4">
 					<div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-1 lg:grid-cols-3">
-						<div className="text-white">
+						<div className="text-gray-900 dark:text-white">
 							Current ballance
 							<Tooltip content="Total Value">
 								<div className="text-4xl">

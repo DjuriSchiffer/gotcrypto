@@ -1,4 +1,4 @@
-import { Button } from 'flowbite-react';
+import { Button, useThemeMode } from 'flowbite-react';
 import { useState } from 'react';
 import { FaExclamationTriangle, FaTrashAlt } from 'react-icons/fa';
 
@@ -11,6 +11,9 @@ import { useStorage } from '../hooks/useStorage';
 function UserSettings() {
 	const { setSelectedCurrencies } = useStorage();
 	const [openRemoveAllDataModal, setOpenRemoveAllDataModal] = useState<boolean>(false);
+
+	const { computedMode } = useThemeMode();
+	const isDarkMode = computedMode === 'dark';
 
 	const handleOpenClearAllStoredDataModal = () => {
 		setOpenRemoveAllDataModal(true);
@@ -70,12 +73,15 @@ function UserSettings() {
 				title="Confirm Removal of All Data"
 			>
 				<div className="flex flex-col items-center">
-					<FaExclamationTriangle className="mx-auto mb-4 flex text-6xl" color="white" />
-					<p className="mb-4 text-white">Are you sure you want to remove all your data?</p>
+					<FaExclamationTriangle
+						className="mx-auto mb-4 flex text-6xl"
+						color={isDarkMode ? 'white' : 'dark'}
+					/>
+					<p className="mb-4 dark:text-white">Are you sure you want to remove all your data?</p>
 					<div className="flex space-x-2">
 						<Button color="failure" onClick={onRemoveAllData}>
 							<FaTrashAlt className="mr-1" color="white" />
-							Remove All Transactions
+							Remove All Data
 						</Button>
 						<Button color="dark" onClick={handleCloseClearAllStoredDataModal}>
 							Cancel

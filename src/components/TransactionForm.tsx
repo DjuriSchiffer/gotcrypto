@@ -163,6 +163,14 @@ function TransactionForm({
 		onSubmit(data);
 	};
 
+	const getButtonStyles = (buttonType: TransactionType, currentValue: string) => {
+		const isActive = buttonType === currentValue;
+
+		return isActive
+			? 'bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-dark dark:hover:bg-gray-900 dark:text-white'
+			: 'bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-gray-200';
+	};
+
 	return (
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		<form className="flex flex-col gap-4" onSubmit={handleSubmit(handleFormSubmit)}>
@@ -176,14 +184,12 @@ function TransactionForm({
 					render={({ field: { onChange, value } }) => (
 						<ButtonGroup className="w-full">
 							<Button
-								className={classNames('w-4/12 !border-0', {
-									'z-10 !border-[1px] !border-green-400': value === 'buy',
+								className={classNames('w-4/12 !border-0', getButtonStyles('buy', value), {
+									'z-10 !border-[1px] !border-green-400 dark:!border-green-500': value === 'buy',
 									'!rounded-l-lg': true,
-									'!rounded-r-lg': false,
-									'!rounded-none': false,
 									'!first:border-l-0': true,
 								})}
-								color="dark"
+								color="gray"
 								onClick={() => {
 									onChange('buy');
 								}}
@@ -192,13 +198,11 @@ function TransactionForm({
 								Buy
 							</Button>
 							<Button
-								className={classNames('w-4/12 !border-0', {
-									'z-10 !border-[1px] !border-green-400': value === 'sell',
-									'!rounded-l-lg': false,
-									'!rounded-r-lg': false,
+								className={classNames('w-4/12 !border-0', getButtonStyles('sell', value), {
+									'z-10 !border-[1px] !border-green-400 dark:!border-green-500': value === 'sell',
 									'!rounded-none': true,
 								})}
-								color="dark"
+								color="gray"
 								onClick={() => {
 									onChange('sell');
 								}}
@@ -207,13 +211,12 @@ function TransactionForm({
 								Sell
 							</Button>
 							<Button
-								className={classNames('w-4/12 !border-0', {
-									'z-10 !border-[1px] !border-green-400': value === 'transfer',
-									'!rounded-l-lg': false,
+								className={classNames('w-4/12 !border-0', getButtonStyles('transfer', value), {
+									'z-10 !border-[1px] !border-green-400 dark:!border-green-500':
+										value === 'transfer',
 									'!rounded-r-lg': true,
-									'!rounded-none': false,
 								})}
-								color="dark"
+								color="gray"
 								onClick={() => {
 									onChange('transfer');
 								}}

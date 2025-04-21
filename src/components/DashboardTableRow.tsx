@@ -32,12 +32,12 @@ function DashboardTableRow({
 
 	return (
 		<TableRow
-			className={classNames('!border-gray-400 transition ease-in-out', {
+			className={classNames('transition ease-in-out dark:!border-gray-400', {
 				'hover:opacity-100': !isSelected,
 				'opacity-50': !isSelected,
 			})}
 		>
-			<TableCell className="whitespace-nowrap dark:text-white">
+			<TableCell className="whitespace-nowrap text-gray-700 dark:text-white">
 				<div className="flex items-center">
 					<img
 						alt={`${fetchedCurrency.name} icon`}
@@ -48,35 +48,36 @@ function DashboardTableRow({
 					<div className="pl-2">{fetchedCurrency.name}</div>
 				</div>
 			</TableCell>
-			<TableCell className="py-2 text-gray-900 dark:text-white">
+			<TableCell className="py-2 text-gray-700 dark:text-white">
 				<div>{currencyFormat(fetchedCurrency.price, currencyQuote)}</div>
 			</TableCell>
 			{!isSelected && (
 				<>
-					<TableCell className="dark:text-white">No transactions added yet.</TableCell>
+					<TableCell className="text-gray-700 dark:text-white">
+						No transactions added yet.
+					</TableCell>
 					<TableCell />
-					<TableCell />{' '}
+					<TableCell />
 				</>
 			)}
 			{isSelected && (
 				<>
-					<TableCell className="py-2 text-gray-900 dark:text-white">
+					<TableCell className="py-2 text-gray-700 dark:text-white">
 						<div className="flex flex-col">
 							<div>{currencyFormat(totalAmount * fetchedCurrency.price, currencyQuote)}</div>
 							<div className="text-sm">{totalAmount}</div>
 						</div>
 					</TableCell>
-					<TableCell className="py-2 text-gray-900 dark:text-white">
+					<TableCell className="py-2 text-gray-700 dark:text-white">
 						<div className="flex flex-col">
 							<div>
-								{' '}
 								{currencyFormat(getTotalInvested(assetMap, fetchedCurrency.cmc_id), currencyQuote)}
 							</div>
 						</div>
 					</TableCell>
-					<TableCell className="py-2 text-gray-900 dark:text-white">
+					<TableCell className="py-2">
 						<div
-							className={classNames('inline-flex items-center text-gray-900', {
+							className={classNames('inline-flex items-center', {
 								'dark:text-white': percentageDifference === 0,
 								'text-green-500': percentageDifference > 0,
 								'text-red-500': percentageDifference < 0,

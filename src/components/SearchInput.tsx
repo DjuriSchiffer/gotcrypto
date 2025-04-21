@@ -1,9 +1,8 @@
 import type { MultiValue, StylesConfig } from 'react-select';
-
 import Select from 'react-select';
+import { useThemeMode } from 'flowbite-react';
 
 import type { FetchedCurrency } from '../types/currency';
-
 import { getImage } from '../utils/images';
 
 type OptionType = {
@@ -19,59 +18,68 @@ type SearchInputProps = {
 	selectedOptions: MultiValue<OptionType>;
 };
 
-const customStyles: StylesConfig<OptionType, true> = {
-	control: (provided) => ({
-		...provided,
-		backgroundColor: 'transparent',
-		borderColor: '#374151',
-		color: 'white',
-		minHeight: '42px',
-	}),
-	input: (provided) => ({
-		...provided,
-		color: 'white',
-	}),
-	menu: (provided) => ({
-		...provided,
-		backgroundColor: '#1F2937',
-	}),
-	multiValue: (provided) => ({
-		...provided,
-		backgroundColor: '#374151',
-		color: 'white',
-	}),
-	multiValueLabel: (provided) => ({
-		...provided,
-		color: 'white',
-	}),
-	multiValueRemove: (provided) => ({
-		...provided,
-		':hover': {
-			backgroundColor: '#4B5563',
-			color: 'white',
-		},
-		color: 'white',
-	}),
-	option: (provided, state) => ({
-		...provided,
-		':active': {
-			backgroundColor: '#4B5563',
-		},
-		backgroundColor: state.isFocused ? '#374151' : '#1F2937',
-		color: 'white',
-	}),
-	singleValue: (provided) => ({
-		...provided,
-		color: 'white',
-	}),
-};
-
 function SearchInput({
 	onChange,
 	options,
 	placeholder = 'Search and select currencies...',
 	selectedOptions,
 }: SearchInputProps) {
+	const { computedMode } = useThemeMode();
+	const isDarkMode = computedMode === 'dark';
+
+	const customStyles: StylesConfig<OptionType, true> = {
+		control: (provided) => ({
+			...provided,
+			backgroundColor: 'transparent',
+			borderColor: isDarkMode ? '#374151' : '#E5E7EB',
+			color: isDarkMode ? 'white' : 'black',
+			minHeight: '42px',
+		}),
+		input: (provided) => ({
+			...provided,
+			color: isDarkMode ? 'white' : 'black',
+		}),
+		menu: (provided) => ({
+			...provided,
+			backgroundColor: isDarkMode ? '#1F2937' : 'white',
+		}),
+		multiValue: (provided) => ({
+			...provided,
+			backgroundColor: isDarkMode ? '#374151' : '#F3F4F6',
+			color: isDarkMode ? 'white' : 'black',
+		}),
+		multiValueLabel: (provided) => ({
+			...provided,
+			color: isDarkMode ? 'white' : 'black',
+		}),
+		multiValueRemove: (provided) => ({
+			...provided,
+			':hover': {
+				backgroundColor: isDarkMode ? '#4B5563' : '#E5E7EB',
+				color: isDarkMode ? 'white' : 'black',
+			},
+			color: isDarkMode ? 'white' : 'black',
+		}),
+		option: (provided, state) => ({
+			...provided,
+			':active': {
+				backgroundColor: isDarkMode ? '#4B5563' : '#F3F4F6',
+			},
+			backgroundColor: state.isFocused
+				? isDarkMode
+					? '#374151'
+					: '#F3F4F6'
+				: isDarkMode
+					? '#1F2937'
+					: 'white',
+			color: isDarkMode ? 'white' : 'black',
+		}),
+		singleValue: (provided) => ({
+			...provided,
+			color: isDarkMode ? 'white' : 'black',
+		}),
+	};
+
 	const selectOptions: Array<OptionType> = options
 		? options.map((asset) => ({
 				image: getImage(asset.cmc_id),

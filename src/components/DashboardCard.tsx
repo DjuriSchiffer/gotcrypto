@@ -27,7 +27,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 
 	return (
 		<Card
-			className={classNames('transition ease-in-out', {
+			className={classNames('bg-gray-50 transition ease-in-out', {
 				'hover:opacity-100': !isSelected,
 				'opacity-50': !isSelected,
 			})}
@@ -42,7 +42,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 					/>
 				</div>
 				<div className="flex min-w-0 flex-1 items-center">
-					<h5 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
+					<h5 className="text-xl font-bold leading-none text-gray-700 dark:text-white">
 						{fetchedCurrency.name}
 					</h5>
 					<Link className="ml-auto" to={fetchedCurrency.slug}>
@@ -61,7 +61,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 					<li className="py-3 sm:py-4">
 						<div className="flex items-center space-x-4">
 							<div className="min-w-0 flex-1">
-								<p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+								<p className="truncate text-sm font-medium text-gray-700 dark:text-white">
 									Current market price
 								</p>
 								<p className="truncate text-sm text-gray-500 dark:text-gray-400">
@@ -74,7 +74,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 						<li className="pt-6 pb-1">
 							<div className="flex items-center space-x-4">
 								<div className="min-w-0 flex-1">
-									<p className="truncate text-center text-sm font-medium text-gray-900 dark:text-white">
+									<p className="truncate text-center text-sm font-medium text-gray-700 dark:text-white">
 										No transactions added yet.
 									</p>
 								</div>
@@ -86,14 +86,14 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 							<li className="py-3 sm:py-4">
 								<div className="flex items-center space-x-4">
 									<div className="min-w-0 flex-1">
-										<p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+										<p className="truncate text-sm font-medium text-gray-700 dark:text-white">
 											Total holdings
 										</p>
 										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
 											Total amount bougth minus total sold
 										</p>
 									</div>
-									<div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+									<div className="inline-flex items-center text-base font-semibold text-gray-700 dark:text-white">
 										{totalAmount}
 									</div>
 								</div>
@@ -101,14 +101,14 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 							<li className="py-3 sm:py-4">
 								<div className="flex items-center space-x-4">
 									<div className="min-w-0 flex-1">
-										<p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+										<p className="truncate text-sm font-medium text-gray-700 dark:text-white">
 											Total value
 										</p>
 										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
 											Total amount bougth times current market price
 										</p>
 									</div>
-									<div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+									<div className="inline-flex items-center text-base font-semibold text-gray-700 dark:text-white">
 										{currencyFormat(totalAmount * fetchedCurrency.price, currencyQuote)}
 									</div>
 								</div>
@@ -116,14 +116,14 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 							<li className="py-3 sm:py-4">
 								<div className="flex items-center space-x-4">
 									<div className="min-w-0 flex-1">
-										<p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+										<p className="truncate text-sm font-medium text-gray-700 dark:text-white">
 											Total invested
 										</p>
 										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
 											Total spend minus total sold
 										</p>
 									</div>
-									<div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+									<div className="inline-flex items-center text-base font-semibold text-gray-700 dark:text-white">
 										{currencyFormat(
 											getTotalInvested(assetMap, fetchedCurrency.cmc_id),
 											currencyQuote
@@ -134,7 +134,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 							<li className="pb-0 pt-3 sm:pt-4">
 								<div className="flex items-center space-x-4">
 									<div className="min-w-0 flex-1">
-										<p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+										<p className="truncate text-sm font-medium text-gray-700 dark:text-white">
 											Total profit
 										</p>
 										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
@@ -143,7 +143,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 									</div>
 									<div
 										className={classNames(
-											'inline-flex items-center text-base font-semibold text-gray-900',
+											'inline-flex items-center text-base font-semibold text-gray-700',
 											{
 												'dark:text-white': percentageDifference === 0,
 												'text-green-500': percentageDifference > 0,

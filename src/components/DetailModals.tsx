@@ -1,6 +1,6 @@
 import type { CurrencyQuote } from 'api';
 
-import { Button } from 'flowbite-react';
+import { Button, useThemeMode } from 'flowbite-react';
 import { FaExclamationTriangle, FaTrashAlt } from 'react-icons/fa';
 
 import type { Transaction } from '../types/currency';
@@ -36,6 +36,9 @@ function DetailModals({
 	openRemoveTransactionModal,
 	selectedAssetName,
 }: DetailModalsProps) {
+	const { computedMode } = useThemeMode();
+	const isDarkMode = computedMode === 'dark';
+
 	return (
 		<>
 			<Modal onClose={onCloseModals} open={openAddTransactionModal} title="Add Transaction">
@@ -73,8 +76,13 @@ function DetailModals({
 
 			<Modal onClose={onCloseModals} open={openRemoveTransactionModal} title="Confirm Removal">
 				<div className="flex flex-col items-center">
-					<FaExclamationTriangle className="mx-auto mb-4 flex text-6xl" color="white" />
-					<p className="mb-4 text-white">Are you sure you want to remove this transaction?</p>
+					<FaExclamationTriangle
+						className="mx-auto mb-4 flex text-6xl"
+						color={isDarkMode ? 'white' : 'dark'}
+					/>
+					<p className="mb-4 text-dark dark:text-white">
+						Are you sure you want to remove this transaction?
+					</p>
 					<div className="flex space-x-2">
 						<Button color="failure" onClick={onRemoveTransaction}>
 							<FaTrashAlt className="mr-1" color="white" />
@@ -93,8 +101,11 @@ function DetailModals({
 				title="Confirm Removal of All Transactions"
 			>
 				<div className="flex flex-col items-center">
-					<FaExclamationTriangle className="mx-auto mb-4 flex text-6xl" color="white" />
-					<p className="mb-4 text-white">
+					<FaExclamationTriangle
+						className="mx-auto mb-4 flex text-6xl"
+						color={isDarkMode ? 'white' : 'dark'}
+					/>
+					<p className="mb-4 text-dark dark:text-white">
 						Are you sure you want to remove all transactions for {selectedAssetName}?
 					</p>
 					<div className="flex space-x-2">
