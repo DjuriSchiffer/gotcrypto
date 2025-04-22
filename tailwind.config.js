@@ -18,7 +18,6 @@ const config = {
 				'gray-dark': '#1e2126',
 				emerald: colors.emerald,
 				light: colors.light,
-
 				gray: {
 					...colors.gray,
 					DEFAULT: '#8492a6',

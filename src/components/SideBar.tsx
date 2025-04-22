@@ -123,8 +123,9 @@ function SideBar() {
 	return (
 		<Sidebar
 			aria-label="Sidebar"
-			className="h-full w-full lg:sticky lg:top-4 lg:h-[calc(100vh_-_32px)]"
+			className="bg-red h-full w-full lg:sticky lg:top-4 lg:h-[calc(100vh_-_32px)]"
 		>
+			
 			<SidebarItems className="flex h-full flex-col">
 				<SidebarItemGroup>
 					<AppSideBarLogo img={logo} imgAlt="Got Crypto" text="Got Crypto" to="/" />

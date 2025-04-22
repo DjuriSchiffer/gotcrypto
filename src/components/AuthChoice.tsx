@@ -4,12 +4,12 @@ import { signInAnonymouslyUser, signInWithGoogle } from '../services/authService
 
 function AuthChoice() {
 	return (
-		<main className="min-h-screen bg-white dark:bg-gray-dark">
-			<div className="flex h-screen flex-col items-center justify-center bg-gray-900 text-white">
-				<h1 className="mb-8 text-3xl">Got Crypto?</h1>
+		<main className="min-h-screen bg-gray-50 dark:bg-gray-dark">
+			<div className="bg-light flex h-screen flex-col items-center justify-center dark:text-white">
+				<h1 className="mb-8 text-3xl text-dark dark:text-white">Got Crypto?</h1>
 				<div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-1 lg:grid-cols-2">
 					<Card className="max-w-sm">
-						<h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+						<h5 className="text-2xl font-bold tracking-tight text-dark dark:text-white">
 							Sign in with Google
 						</h5>
 						<p className="mb-4 font-normal text-gray-700 dark:text-gray-400">
@@ -26,7 +26,7 @@ function AuthChoice() {
 					</Card>
 
 					<Card className="max-w-sm">
-						<h5 className="text-2xl font-bold tracking-tight text-white dark:text-white">
+						<h5 className="text-2xl font-bold tracking-tight text-dark dark:text-white">
 							Browse Anonymously
 						</h5>
 						<p className="mb-4 font-normal text-gray-700 dark:text-gray-400">

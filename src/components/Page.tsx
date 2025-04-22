@@ -17,7 +17,7 @@ function Page({ children }: PageProps) {
 	};
 
 	return (
-		<main className="min-h-screen bg-white dark:bg-gray-dark">
+		<main className="min-h-screen bg-gray-50 dark:bg-gray-dark">
 			<button
 				aria-label={isOpen ? 'Close menu' : 'Open menu'}
 				className={classNames(

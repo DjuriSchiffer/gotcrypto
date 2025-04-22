@@ -16,6 +16,12 @@ const customTheme = createTheme({
 			failure: 'bg-red-600 hover:bg-red-700 text-white',
 		},
 	},
+	sidebar: {
+		root: {
+			inner:
+				'h-full overflow-y-auto overflow-x-hidden rounded  px-3 py-4 dark:bg-gray-800 border-gray-200 bg-white shadow-md dark:border-gray-700',
+		},
+	},
 });
 
 function App() {
