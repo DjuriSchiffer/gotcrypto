@@ -7,7 +7,8 @@ import Dashboard from './pages/Dashboard';
 import Detail from './pages/Detail';
 import Graphs from './pages/Graphs';
 import UserSettings from './pages/UserSettings';
-import { createTheme, ThemeProvider } from 'flowbite-react';
+import { createTheme, ThemeProvider, useThemeMode } from 'flowbite-react';
+import { useEffect } from 'react';
 
 const customTheme = createTheme({
 	button: {
@@ -22,10 +23,35 @@ const customTheme = createTheme({
 				'h-full overflow-y-auto overflow-x-hidden rounded  px-3 py-4 dark:bg-gray-800 border-gray-200 bg-white shadow-md dark:border-gray-700',
 		},
 	},
+	card: {
+		root: {
+			base: 'flex rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800',
+		},
+	},
+	buttonGroup: {
+		base: 'shadow-none',
+	},
 });
 
 function App() {
 	const { user } = useAuth();
+	const { setMode } = useThemeMode();
+
+	useEffect(() => {
+		const storedMode = localStorage.getItem('flowbite-theme-mode');
+		const htmlElement = document.documentElement;
+
+		if (!storedMode) {
+			void setMode('dark');
+			htmlElement.classList.add('dark');
+		} else if (storedMode === 'light') {
+			void setMode('light');
+			htmlElement.classList.remove('dark');
+		} else if (storedMode === 'dark' || storedMode === 'auto') {
+			void setMode('dark');
+			htmlElement.classList.add('dark');
+		}
+	}, [setMode]);
 
 	return (
 		<ThemeProvider theme={customTheme}>
