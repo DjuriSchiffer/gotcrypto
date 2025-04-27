@@ -27,7 +27,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 
 	return (
 		<Card
-			className={classNames('bg-gray-50 transition ease-in-out', {
+			className={classNames('transition ease-in-out', {
 				'hover:opacity-100': !isSelected,
 				'opacity-50': !isSelected,
 			})}

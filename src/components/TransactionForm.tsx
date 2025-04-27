@@ -2,7 +2,7 @@ import type { CurrencyQuote } from 'api';
 import type { TransactionType, TransferType } from 'currency';
 
 import classNames from 'classnames';
-import { Button, ButtonGroup } from 'flowbite-react';
+import { Button, ButtonGroup, useThemeMode } from 'flowbite-react';
 import { forwardRef, useEffect } from 'react';
 import CurrencyInput from 'react-currency-input-field';
 import { Controller, useForm } from 'react-hook-form';
@@ -101,6 +101,8 @@ function TransactionForm({
 	submitLabel,
 }: TransactionFormProps) {
 	const { isAdmin } = useAuth();
+	const { computedMode } = useThemeMode();
+	const isDarkMode = computedMode === 'dark';
 
 	const {
 		control,
@@ -292,7 +294,7 @@ function TransactionForm({
 				</label>
 				<div className="flex">
 					<span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-400">
-						<FaCoins color="white" />
+						<FaCoins color={isDarkMode ? 'white' : 'dark'} />
 					</span>
 					<Controller
 						control={control}
@@ -357,9 +359,9 @@ function TransactionForm({
 				<div className="flex">
 					<span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-400">
 						{currencyQuote === 'EUR' ? (
-							<FaEuroSign color="white" />
+							<FaEuroSign color={isDarkMode ? 'white' : 'dark'} />
 						) : (
-							<FaDollarSign color="white" />
+							<FaDollarSign color={isDarkMode ? 'white' : 'dark'} />
 						)}
 					</span>
 					<Controller
@@ -413,7 +415,7 @@ function TransactionForm({
 				</label>
 				<div className="flex">
 					<span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-400">
-						<FaCalendar color="white" />
+						<FaCalendar color={isDarkMode ? 'white' : 'dark'} />
 					</span>
 					<Controller
 						control={control}

@@ -30,7 +30,7 @@ function SearchInput({
 	const customStyles: StylesConfig<OptionType, true> = {
 		control: (provided) => ({
 			...provided,
-			backgroundColor: 'transparent',
+			backgroundColor: isDarkMode ? 'transparent' : '#ffffff',
 			borderColor: isDarkMode ? '#374151' : '#E5E7EB',
 			color: isDarkMode ? 'white' : 'black',
 			minHeight: '42px',

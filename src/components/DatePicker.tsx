@@ -22,7 +22,7 @@ const options: DatepickerOptions = {
 	maxDate: new Date(),
 	minDate: new Date('1970-01-01'),
 	theme: {
-		background: 'bg-gray-700 dark:bg-gray-800',
+		background: 'bg-white dark:bg-gray-800 shadow-xl',
 		disabledText: 'opacity-50',
 	},
 	title: 'Purchase Date',
