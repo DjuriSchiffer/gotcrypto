@@ -7,7 +7,7 @@ type LoadingIndicatorProps = {
 
 function LoadingIndicator({ color = 'success', message = 'Loading...' }: LoadingIndicatorProps) {
 	return (
-		<div className="flex min-h-screen w-full items-center justify-center text-white">
+		<div className="flex min-h-screen w-full items-center justify-center text-dark dark:text-white">
 			<Spinner aria-label="Loading" color={color} />
 			<span className="ml-2">{message}</span>
 		</div>

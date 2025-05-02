@@ -34,6 +34,7 @@ function SearchInput({
 			borderColor: isDarkMode ? '#374151' : '#E5E7EB',
 			color: isDarkMode ? 'white' : 'black',
 			minHeight: '42px',
+			borderRadius: '0.5rem',
 		}),
 		input: (provided) => ({
 			...provided,
