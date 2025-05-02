@@ -1,7 +1,7 @@
 import type { MultiValue } from 'react-select';
 
 import classNames from 'classnames';
-import { Tooltip } from 'flowbite-react';
+import { Card, Tooltip } from 'flowbite-react';
 import { useCallback, useMemo, useState } from 'react';
 
 import { ChangeLayout } from '../components/ChangeLayout';
@@ -16,6 +16,7 @@ import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import { createCryptoMap, currencyFormat, percentageFormat } from '../utils/helpers';
 import { getGlobalTotals } from '../utils/totals';
+import { cardTable } from '../theme';
 
 type OptionType = {
 	image: string;
@@ -155,24 +156,26 @@ function Dashboard() {
 						</div>
 					)}
 					{dashboardLayout === 'Table' && (
-						<Table type="dashboard">
-							{sortedFetchedCurrencies.map((fetchedCurrency) => {
-								const asset = assetMap.get(fetchedCurrency.cmc_id);
-								const isSelected =
-									assetMap.has(fetchedCurrency.cmc_id) &&
-									asset !== undefined &&
-									asset.transactions.length > 0;
-								return (
-									<DashboardTableRow
-										assetMap={assetMap}
-										currencyQuote={currencyQuote}
-										fetchedCurrency={fetchedCurrency}
-										isSelected={isSelected}
-										key={fetchedCurrency.cmc_id}
-									/>
-								);
-							})}
-						</Table>
+						<Card theme={cardTable.card}>
+							<Table type="dashboard">
+								{sortedFetchedCurrencies.map((fetchedCurrency) => {
+									const asset = assetMap.get(fetchedCurrency.cmc_id);
+									const isSelected =
+										assetMap.has(fetchedCurrency.cmc_id) &&
+										asset !== undefined &&
+										asset.transactions.length > 0;
+									return (
+										<DashboardTableRow
+											assetMap={assetMap}
+											currencyQuote={currencyQuote}
+											fetchedCurrency={fetchedCurrency}
+											isSelected={isSelected}
+											key={fetchedCurrency.cmc_id}
+										/>
+									);
+								})}
+							</Table>
+						</Card>
 					)}
 				</div>
 			</Page>

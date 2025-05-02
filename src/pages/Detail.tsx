@@ -16,6 +16,7 @@ import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import totals from '../utils/totals';
+import { cardTable } from '../theme';
 
 type FormInputs = {
 	amount: string;
@@ -238,14 +239,16 @@ function Detail() {
 			<Page>
 				<div className="mb-4 mt-14 grid w-full gap-4 lg:mt-auto">
 					<div className="mb-4 grid grid-cols-1 gap-4">
-						<Card>
-							<DetailHeader
-								currencyQuote={currencyQuote}
-								currentFetchedCurrency={currentFetchedCurrency}
-								onAddTransaction={handleAddTransactionClick}
-								onRemoveAllTransactions={handleRemoveAllTransactionsClick}
-								selectedAsset={selectedAsset}
-							/>
+						
+						<DetailHeader
+							currencyQuote={currencyQuote}
+							currentFetchedCurrency={currentFetchedCurrency}
+							onAddTransaction={handleAddTransactionClick}
+							onRemoveAllTransactions={handleRemoveAllTransactionsClick}
+							selectedAsset={selectedAsset}
+						/>
+						
+						<Card theme={cardTable.card}>
 							<DetailTransactionTable
 								currencyQuote={currencyQuote}
 								currentFetchedCurrency={currentFetchedCurrency}
