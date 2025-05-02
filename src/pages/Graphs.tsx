@@ -67,7 +67,7 @@ function Graphs() {
 			storageIsLoading={storageIsLoading}
 		>
 			<Page>
-				<div className="mb-4 mt-14 grid w-full gap-4 lg:mt-auto">
+				<div className="mb-4 grid w-full gap-4 lg:mt-auto">
 					<div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
 						<div className="text-dark dark:text-white">
 							Total value

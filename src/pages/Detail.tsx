@@ -237,9 +237,8 @@ function Detail() {
 			storageIsLoading={storageIsLoading}
 		>
 			<Page>
-				<div className="mb-4 mt-14 grid w-full gap-4 lg:mt-auto">
+				<div className="mb-4 grid w-full gap-4 lg:mt-auto">
 					<div className="mb-4 grid grid-cols-1 gap-4">
-						
 						<DetailHeader
 							currencyQuote={currencyQuote}
 							currentFetchedCurrency={currentFetchedCurrency}
@@ -247,7 +246,7 @@ function Detail() {
 							onRemoveAllTransactions={handleRemoveAllTransactionsClick}
 							selectedAsset={selectedAsset}
 						/>
-						
+
 						<Card theme={cardTable.card}>
 							<DetailTransactionTable
 								currencyQuote={currencyQuote}

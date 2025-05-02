@@ -45,8 +45,8 @@ function DetailHeader({
 
 	return (
 		<>
-			<div className="mb-4 flex flex-wrap items-center justify-between">
-				<div className="flex items-center">
+			<div className="mb-4 flex flex-col flex-wrap lg:flex-row lg:items-center lg:justify-between">
+				<div className="mb-4 flex items-center lg:mb-0">
 					<img
 						alt={`${currentFetchedCurrency.name} icon`}
 						className="mr-4 inline-block"
