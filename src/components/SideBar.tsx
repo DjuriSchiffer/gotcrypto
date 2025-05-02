@@ -132,8 +132,7 @@ function SideBar() {
 					)}
 					<AppSideBarItem icon={FaChartBar} text="Graphs and stats" to="/graphs" />
 				</SidebarItemGroup>
-				<ChangeQuote className="mt-auto w-full" />
-				<SidebarItemGroup>
+				<SidebarItemGroup className="mt-auto">
 					{isAnonymous && (
 						<div className="text-md mb-3 ml-3 text-gray-900 dark:text-white">
 							<span className="flex items-center">
