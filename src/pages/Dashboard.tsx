@@ -126,7 +126,7 @@ function Dashboard() {
 					</div>
 					<div className="row flex flex-wrap gap-4">
 						<ChangeLayout />
-						<div className="ml-auto w-full md:w-6/12 lg:w-4/12">
+						<div className="ml-auto w-full md:w-[calc(6/12*100%_-_12px)] lg:w-[calc(4/12*100%_-_12px)]">
 							<SearchInput
 								onChange={handleSelectChange}
 								options={fetchedCurrencies}
