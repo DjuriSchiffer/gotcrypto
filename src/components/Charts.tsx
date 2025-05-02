@@ -14,6 +14,7 @@ import { Bar } from 'react-chartjs-2';
 import type { FetchedCurrency, SelectedAsset } from '../types/currency';
 
 import { currencyFormat } from '../utils/helpers';
+import { useThemeMode } from 'flowbite-react';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -25,6 +26,9 @@ type ChartsProps = {
 };
 
 function Charts({ fetchedCurrencies, id, selectedAssets }: ChartsProps) {
+	const { computedMode } = useThemeMode();
+	const isDarkMode = computedMode === 'dark';
+
 	const getChartOptions = (title: string): ChartOptions<'bar'> => ({
 		indexAxis: 'y' as const,
 		maintainAspectRatio: false,
@@ -33,7 +37,7 @@ function Charts({ fetchedCurrencies, id, selectedAssets }: ChartsProps) {
 				display: false,
 			},
 			title: {
-				color: 'white',
+				color: isDarkMode ? 'white' : '#1e293b',
 				display: true,
 				font: {
 					size: 20,
@@ -52,13 +56,13 @@ function Charts({ fetchedCurrencies, id, selectedAssets }: ChartsProps) {
 		scales: {
 			x: {
 				grid: {
-					color: 'rgba(255, 255, 255, 0.3)',
+					color: isDarkMode ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
 				},
 				ticks: {
 					callback: function (value) {
 						return currencyFormat(value as number);
 					},
-					color: 'white',
+					color: isDarkMode ? 'white' : '#1e293b',
 				},
 			},
 			y: {
@@ -66,7 +70,7 @@ function Charts({ fetchedCurrencies, id, selectedAssets }: ChartsProps) {
 					display: true,
 				},
 				ticks: {
-					color: 'white',
+					color: isDarkMode ? 'white' : '#1e293b',
 					font: {
 						size: 12,
 					},

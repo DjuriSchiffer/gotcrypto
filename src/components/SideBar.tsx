@@ -121,11 +121,7 @@ function SideBar() {
 	};
 
 	return (
-		<Sidebar
-			aria-label="Sidebar"
-			className="bg-red h-full w-full lg:sticky lg:top-4 lg:h-[calc(100vh_-_32px)]"
-		>
-			
+		<Sidebar aria-label="Sidebar" className="h-full w-full lg:sticky lg:top-0 lg:h-screen">
 			<SidebarItems className="flex h-full flex-col">
 				<SidebarItemGroup>
 					<AppSideBarLogo img={logo} imgAlt="Got Crypto" text="Got Crypto" to="/" />
@@ -167,7 +163,7 @@ function SideBar() {
 								<Badge color="warning">Heads up</Badge>
 								<button
 									aria-label="Dismiss"
-									className="text-cyan-900 -m-1.5 ml-auto inline-flex h-6 w-6 rounded-lg bg-gray-100 p-1 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+									className="-m-1.5 ml-auto inline-flex h-6 w-6 rounded-lg bg-gray-100 p-1 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
 									type="button"
 									onClick={handleDismissCTA}
 								>

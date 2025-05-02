@@ -69,7 +69,7 @@ function Graphs() {
 			<Page>
 				<div className="mb-4 mt-14 grid w-full gap-4 lg:mt-auto">
 					<div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-						<div className="text-white">
+						<div className="text-dark dark:text-white">
 							Total value
 							<Tooltip content="Total Value">
 								<div className="text-4xl">
@@ -77,7 +77,7 @@ function Graphs() {
 								</div>
 							</Tooltip>
 						</div>
-						<div className="text-white">
+						<div className="text-dark dark:text-white">
 							Total invested
 							<Tooltip content="Total Invested">
 								<div className="text-4xl">
@@ -85,7 +85,7 @@ function Graphs() {
 								</div>
 							</Tooltip>
 						</div>
-						<div className="text-white">
+						<div className="text-dark dark:text-white">
 							Total Profit/loss
 							<Tooltip content="((Total Value - Total Invested) / Total Invested) × 100">
 								<div
@@ -101,7 +101,7 @@ function Graphs() {
 							</Tooltip>
 						</div>
 						{bestPerformingAsset && (
-							<div className="text-white">
+							<div className="text-dark dark:text-white">
 								Best performing asset
 								<Tooltip content="Based by total profit per asset">
 									<div className="text-4xl">
