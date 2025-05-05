@@ -14,14 +14,14 @@ type DashboardTableRow = {
 	assetMap: Map<number, SelectedAsset>;
 	currencyQuote: keyof CurrencyQuote;
 	fetchedCurrency: FetchedCurrency;
-	isSelected: boolean;
+	hasTransactions: boolean;
 };
 
 function DashboardTableRow({
 	assetMap,
 	currencyQuote,
 	fetchedCurrency,
-	isSelected,
+	hasTransactions,
 }: DashboardTableRow) {
 	const percentageDifference = getTotalPercentageDifference(
 		assetMap,
@@ -33,8 +33,8 @@ function DashboardTableRow({
 	return (
 		<TableRow
 			className={classNames('transition ease-in-out dark:!border-gray-400', {
-				'hover:opacity-100': !isSelected,
-				'opacity-50': !isSelected,
+				'hover:opacity-100': !hasTransactions,
+				'opacity-50': !hasTransactions,
 			})}
 		>
 			<TableCell className="whitespace-nowrap text-gray-700 dark:text-white">
@@ -51,7 +51,7 @@ function DashboardTableRow({
 			<TableCell className="py-2 text-gray-700 dark:text-white">
 				<div>{currencyFormat(fetchedCurrency.price, currencyQuote)}</div>
 			</TableCell>
-			{!isSelected && (
+			{!hasTransactions && (
 				<>
 					<TableCell className="text-gray-700 dark:text-white">
 						No transactions added yet.
@@ -60,7 +60,7 @@ function DashboardTableRow({
 					<TableCell />
 				</>
 			)}
-			{isSelected && (
+			{hasTransactions && (
 				<>
 					<TableCell className="py-2 text-gray-700 dark:text-white">
 						<div className="flex flex-col">
