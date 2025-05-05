@@ -1,15 +1,14 @@
-import type { MultiValue } from 'react-select';
+import { SelectedAsset } from 'currency';
 
 import classNames from 'classnames';
-import { Card, Tooltip } from 'flowbite-react';
-import { useCallback, useMemo, useState } from 'react';
+import { Button, Card, Tooltip } from 'flowbite-react';
+import { useMemo, useState } from 'react';
 
 import { ChangeLayout } from '../components/ChangeLayout';
 import DashboardCard from '../components/DashboardCard';
 import DashboardTableRow from '../components/DashboardTableRow';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import Page from '../components/Page';
-import SearchInput from '../components/SearchInput';
 import Table from '../components/Table';
 import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
@@ -17,17 +16,14 @@ import { useStorage } from '../hooks/useStorage';
 import { createCryptoMap, currencyFormat, percentageFormat } from '../utils/helpers';
 import { getGlobalTotals } from '../utils/totals';
 import { cardTable } from '../theme';
-
-type OptionType = {
-	image: string;
-	label: string;
-	value: number;
-};
+import DashboardModals from '../components/DashboardModals';
+import { FaPlus } from 'react-icons/fa';
 
 function Dashboard() {
-	const [selectedOptions, setSelectedOptions] = useState<MultiValue<OptionType>>([]);
+	const [openAddAssetModal, setOpenAddAssetModal] = useState<boolean>(false);
+
 	const { currencyQuote, dashboardLayout, sortMethod } = useAppState();
-	const { loading: storageIsLoading, selectedCurrencies } = useStorage();
+	const { loading: storageIsLoading, selectedCurrencies, setSelectedCurrencies } = useStorage();
 	const {
 		data: fetchedCurrencies,
 		isError: fetchedCurrenciesIsError,
@@ -37,14 +33,10 @@ function Dashboard() {
 	const assetMap = useMemo(() => createCryptoMap(selectedCurrencies), [selectedCurrencies]);
 
 	const filteredFetchedCurrencies = useMemo(() => {
-		if (selectedOptions.length === 0) {
-			return fetchedCurrencies;
-		}
-
-		const selectedIds = selectedOptions.map((option) => option.value);
-
-		return fetchedCurrencies?.filter((currency) => selectedIds.includes(currency.cmc_id));
-	}, [fetchedCurrencies, selectedOptions]);
+		if (!fetchedCurrencies) return [];
+		const savedIds = new Set(selectedCurrencies.map((currency) => currency.cmc_id));
+		return fetchedCurrencies.filter((currency) => savedIds.has(currency.cmc_id));
+	}, [fetchedCurrencies, selectedCurrencies]);
 
 	const sortedFetchedCurrencies = useMemo(() => {
 		if (!filteredFetchedCurrencies) {
@@ -92,9 +84,57 @@ function Dashboard() {
 		return getGlobalTotals(selectedCurrencies, fetchedCurrencies);
 	}, [fetchedCurrencies, selectedCurrencies]);
 
-	const handleSelectChange = useCallback((selected: MultiValue<OptionType>) => {
-		setSelectedOptions(selected);
-	}, []);
+	const handleFormSubmit = async ({ selectedAssets }: { selectedAssets: SelectedAsset[] }) => {
+		try {
+			if (!selectedAssets || selectedAssets.length === 0) {
+				return;
+			}
+
+			const existingIds = new Set(selectedCurrencies.map((currency) => currency.cmc_id));
+
+			const newAssets = selectedAssets.filter((asset) => !existingIds.has(asset.cmc_id));
+
+			if (newAssets.length === 0) {
+				return;
+			}
+
+			const updatedCurrencies = [...selectedCurrencies, ...newAssets];
+
+			await setSelectedCurrencies(updatedCurrencies);
+
+			handleCloseModals();
+		} catch (error) {
+			console.error('Failed to add assets:', error);
+			alert('Failed to add assets. Please try again.');
+		}
+	};
+
+	const handleRemoveAssets = async (assetIds: number[]) => {
+		try {
+			if (!assetIds || assetIds.length === 0) {
+				return;
+			}
+
+			const updatedCurrencies = selectedCurrencies.filter(
+				(currency) => !assetIds.includes(currency.cmc_id)
+			);
+
+			await setSelectedCurrencies(updatedCurrencies);
+
+			handleCloseModals();
+		} catch (error) {
+			console.error('Failed to remove assets:', error);
+			alert('Failed to remove assets. Please try again.');
+		}
+	};
+
+	const handleCloseModals = () => {
+		setOpenAddAssetModal(false);
+	};
+
+	const handleOpenAddAssetModal = () => {
+		setOpenAddAssetModal(true);
+	};
 
 	return (
 		<LoadingErrorWrapper
@@ -104,9 +144,9 @@ function Dashboard() {
 		>
 			<Page>
 				<div className="mb-4 grid w-full gap-4">
-					<div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-1 lg:grid-cols-3">
-						<div className="text-gray-900 dark:text-white">
-							Current ballance
+					<div className="mb-4 flex flex-col flex-wrap lg:flex-row lg:items-center lg:justify-between">
+						<div className="mb-4 text-gray-900 dark:text-white md:mb-0">
+							Current balance
 							<Tooltip content="Total Value">
 								<div className="text-4xl">
 									{currencyFormat(globalTotals.totalValue, currencyQuote)}
@@ -123,23 +163,20 @@ function Dashboard() {
 								</div>
 							</Tooltip>
 						</div>
-					</div>
-					<div className="row flex flex-wrap gap-4">
-						<ChangeLayout />
-						<div className="ml-auto w-full md:w-[calc(6/12*100%_-_12px)] lg:w-[calc(4/12*100%_-_12px)]">
-							<SearchInput
-								onChange={handleSelectChange}
-								options={fetchedCurrencies}
-								placeholder="Search and select assets..."
-								selectedOptions={selectedOptions}
-							/>
+						<div className="flex flex-wrap gap-2 space-x-2">
+							<ChangeLayout />
+							<Button color="primary" className="!mx-0" onClick={handleOpenAddAssetModal}>
+								<FaPlus className="mr-1" color="white" />
+								Manage Dashboard
+							</Button>
 						</div>
 					</div>
+
 					{dashboardLayout === 'Grid' && (
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 							{sortedFetchedCurrencies.map((fetchedCurrency) => {
 								const asset = assetMap.get(fetchedCurrency.cmc_id);
-								const isSelected =
+								const hasTransactions =
 									assetMap.has(fetchedCurrency.cmc_id) &&
 									asset !== undefined &&
 									asset.transactions.length > 0;
@@ -148,7 +185,7 @@ function Dashboard() {
 										assetMap={assetMap}
 										currencyQuote={currencyQuote}
 										fetchedCurrency={fetchedCurrency}
-										isSelected={isSelected}
+										hasTransactions={hasTransactions}
 										key={fetchedCurrency.cmc_id}
 									/>
 								);
@@ -160,7 +197,7 @@ function Dashboard() {
 							<Table type="dashboard">
 								{sortedFetchedCurrencies.map((fetchedCurrency) => {
 									const asset = assetMap.get(fetchedCurrency.cmc_id);
-									const isSelected =
+									const hasTransactions =
 										assetMap.has(fetchedCurrency.cmc_id) &&
 										asset !== undefined &&
 										asset.transactions.length > 0;
@@ -169,7 +206,7 @@ function Dashboard() {
 											assetMap={assetMap}
 											currencyQuote={currencyQuote}
 											fetchedCurrency={fetchedCurrency}
-											isSelected={isSelected}
+											hasTransactions={hasTransactions}
 											key={fetchedCurrency.cmc_id}
 										/>
 									);
@@ -177,6 +214,14 @@ function Dashboard() {
 							</Table>
 						</Card>
 					)}
+					<DashboardModals
+						onCloseModals={handleCloseModals}
+						onFormSubmit={handleFormSubmit}
+						onRemoveAssets={handleRemoveAssets}
+						openAddAssetModal={openAddAssetModal}
+						options={fetchedCurrencies}
+						preselectedOptions={selectedCurrencies}
+					/>
 				</div>
 			</Page>
 		</LoadingErrorWrapper>

@@ -14,10 +14,15 @@ type DashboardCard = {
 	assetMap: Map<number, SelectedAsset>;
 	currencyQuote: keyof CurrencyQuote;
 	fetchedCurrency: FetchedCurrency;
-	isSelected: boolean;
+	hasTransactions: boolean;
 };
 
-function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }: DashboardCard) {
+function DashboardCard({
+	assetMap,
+	currencyQuote,
+	fetchedCurrency,
+	hasTransactions,
+}: DashboardCard) {
 	const percentageDifference = getTotalPercentageDifference(
 		assetMap,
 		fetchedCurrency.cmc_id,
@@ -28,11 +33,11 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 	return (
 		<Card
 			className={classNames('transition ease-in-out', {
-				'hover:opacity-100': !isSelected,
-				'opacity-50': !isSelected,
+				'hover:opacity-100': !hasTransactions,
+				'opacity-50': !hasTransactions,
 			})}
 		>
-			<div className="flex space-x-2">
+			<div className="flex items-center space-x-2">
 				<div className="shrink-0">
 					<img
 						alt={`${fetchedCurrency.name} icon`}
@@ -54,7 +59,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 			</div>
 			<div
 				className={classNames('flex-root', {
-					'h-full': !isSelected,
+					'h-full': !hasTransactions,
 				})}
 			>
 				<ul className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -70,7 +75,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 							</div>
 						</div>
 					</li>
-					{!isSelected && (
+					{!hasTransactions && (
 						<li className="pt-6 pb-1">
 							<div className="flex items-center space-x-4">
 								<div className="min-w-0 flex-1">
@@ -81,7 +86,7 @@ function DashboardCard({ assetMap, currencyQuote, fetchedCurrency, isSelected }:
 							</div>
 						</li>
 					)}
-					{isSelected && (
+					{hasTransactions && (
 						<>
 							<li className="py-3 sm:py-4">
 								<div className="flex items-center space-x-4">
