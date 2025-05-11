@@ -163,16 +163,24 @@ function Dashboard() {
 								</div>
 							</Tooltip>
 						</div>
+
 						<div className="flex flex-wrap gap-2 space-x-2">
-							<ChangeLayout />
+							{sortedFetchedCurrencies.length > 0 && <ChangeLayout />}
 							<Button color="primary" className="!mx-0" onClick={handleOpenAddAssetModal}>
 								<FaPlus className="mr-1" color="white" />
 								Manage Dashboard
 							</Button>
 						</div>
 					</div>
+					{sortedFetchedCurrencies.length === 0 && (
+						<Card>
+							<div className="flex h-40 items-center justify-center text-dark dark:text-white">
+								<span>No assets added yet.</span>
+							</div>
+						</Card>
+					)}
 
-					{dashboardLayout === 'Grid' && (
+					{dashboardLayout === 'Grid' && sortedFetchedCurrencies.length > 0 && (
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 							{sortedFetchedCurrencies.map((fetchedCurrency) => {
 								const asset = assetMap.get(fetchedCurrency.cmc_id);
@@ -192,7 +200,7 @@ function Dashboard() {
 							})}
 						</div>
 					)}
-					{dashboardLayout === 'Table' && (
+					{dashboardLayout === 'Table' && sortedFetchedCurrencies.length > 0 && (
 						<Card theme={cardTable.card}>
 							<Table type="dashboard">
 								{sortedFetchedCurrencies.map((fetchedCurrency) => {

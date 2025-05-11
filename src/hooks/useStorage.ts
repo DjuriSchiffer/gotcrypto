@@ -21,6 +21,7 @@ const SORT_METHOD_KEY = 'sortMethod';
 const CURRENCY_QUOTE = 'currencyQuote';
 const DATE_LOCALE = 'dateLocale';
 const DASHBOARD_LAYOUT = 'dashboardLayout';
+const ONBOARDING_COMPLETED_KEY = 'onboardingCompleted';
 
 export const useStorage = () => {
 	const { isAnonymous, user } = useAuth();
@@ -34,6 +35,7 @@ export const useStorage = () => {
 	} = useAppState();
 	const [selectedCurrencies, setSelectedCurrenciesState] = useState<Array<SelectedAsset>>([]);
 	const [loading, setLoading] = useState<boolean>(true);
+	const [onboardingCompleted, setOnboardingCompletedState] = useState<boolean>(false);
 
 	// Initialize storage on mount
 	useEffect(() => {
@@ -52,6 +54,7 @@ export const useStorage = () => {
 			let savedCurrencyQuote: keyof CurrencyQuote = 'EUR';
 			let savedDateLocale: DateLocale = 'nl';
 			let savedDashboardLayout: DashboardLayout = 'Grid';
+			let savedOnboardingCompleted = false;
 
 			if (user && !isAnonymous) {
 				const userDocRef = getUserDocRef(user.uid);
@@ -63,6 +66,7 @@ export const useStorage = () => {
 					savedCurrencyQuote = data.currencyQuote as keyof CurrencyQuote;
 					savedDateLocale = data.dateLocale as DateLocale;
 					savedDashboardLayout = data.dashboardLayout as DashboardLayout;
+					savedOnboardingCompleted = data.onboardingCompleted || false;
 				}
 			} else {
 				const sortMethodFromStorage = await localforage.getItem<string>(SORT_METHOD_KEY);
@@ -71,10 +75,13 @@ export const useStorage = () => {
 				const dateLocaleFromStorage = await localforage.getItem<DateLocale>(DATE_LOCALE);
 				const dashboardLayoutFromStorage =
 					await localforage.getItem<DashboardLayout>(DASHBOARD_LAYOUT);
+				const onboardingCompletedFromStorage =
+					await localforage.getItem<boolean>(ONBOARDING_COMPLETED_KEY);
 				savedSortMethod = sortMethodFromStorage as SortMethod;
 				savedCurrencyQuote = currencyQuoteFromStorage || 'EUR';
 				savedDateLocale = dateLocaleFromStorage || 'nl';
 				savedDashboardLayout = dashboardLayoutFromStorage || 'Grid';
+				savedOnboardingCompleted = onboardingCompletedFromStorage || false;
 			}
 
 			dispatch({
@@ -94,6 +101,7 @@ export const useStorage = () => {
 				type: 'SET_DASHBOARD_LAYOUT',
 			});
 
+			setOnboardingCompletedState(savedOnboardingCompleted);
 			setLoading(false);
 		};
 		void initialize();
@@ -236,6 +244,28 @@ export const useStorage = () => {
 		[user, isAnonymous, dispatch]
 	);
 
+	const setOnboardingCompleted = useCallback(
+		async (completed: boolean) => {
+			try {
+				setOnboardingCompletedState(completed);
+
+				if (user && !isAnonymous) {
+					const userDocRef = getUserDocRef(user.uid);
+					await updateDoc(userDocRef, { onboardingCompleted: completed });
+				} else {
+					await localforage.setItem(ONBOARDING_COMPLETED_KEY, completed);
+				}
+			} catch (error) {
+				console.error('Error setting onboarding completed:', error);
+				dispatch({
+					payload: true,
+					type: 'SET_ERROR',
+				});
+			}
+		},
+		[user, isAnonymous, dispatch]
+	);
+
 	return {
 		currencyQuote: globalCurrencyQuote,
 		dashboardLayout: globalDashboardLayout,
@@ -249,5 +279,7 @@ export const useStorage = () => {
 		setSortMethod,
 		sortMethod: globalSortMethod,
 		updateCurrency,
+		onboardingCompleted,
+		setOnboardingCompleted,
 	};
 };

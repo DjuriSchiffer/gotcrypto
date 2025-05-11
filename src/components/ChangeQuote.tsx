@@ -1,19 +1,17 @@
 import type { CurrencyQuote } from 'api';
-
 import { useQueryClient } from '@tanstack/react-query';
-import classNames from 'classnames';
-import { Button, ButtonGroup } from 'flowbite-react';
+import { Card } from 'flowbite-react';
 import { useMemo } from 'react';
-import { FaDollarSign, FaEuroSign } from 'react-icons/fa';
-
+import { FaDollarSign, FaEuroSign, FaCheck } from 'react-icons/fa';
 import { useStorage } from '../hooks/useStorage';
 
 type PriceOption = {
 	quote: keyof CurrencyQuote;
 	symbol: React.ReactNode;
+	name: string;
 };
 
-export function ChangeQuote({ className }: { className: string }) {
+export function ChangeQuote({ className = '' }: { className?: string }) {
 	const { currencyQuote, setCurrencyQuote } = useStorage();
 	const queryClient = useQueryClient();
 
@@ -26,46 +24,47 @@ export function ChangeQuote({ className }: { className: string }) {
 		() => [
 			{
 				quote: 'EUR',
-				symbol: <FaEuroSign className="mr-1" />,
+				symbol: <FaEuroSign className="text-lg" />,
+				name: 'Euro',
 			},
 			{
 				quote: 'USD',
-				symbol: <FaDollarSign className="mr-1" />,
+				symbol: <FaDollarSign className="text-lg" />,
+				name: 'US Dollar',
 			},
 		],
 		[]
 	);
 
-	const getButtonStyles = (quote: keyof CurrencyQuote) => {
-		const isActive = currencyQuote === quote;
-
-		return isActive
-			? 'bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-dark dark:hover:bg-gray-900 dark:text-white'
-			: 'bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-gray-200';
-	};
-
 	return (
-		<ButtonGroup className={className}>
-			{priceOptions.map((option, index) => (
-				<Button
-					className={classNames('w-6/12 !border-0', getButtonStyles(option.quote), {
-						'z-10 !border-[1px] !border-green-400 dark:!border-green-500':
-							currencyQuote === option.quote,
-						'!rounded-l-lg': index === 0,
-						'!rounded-r-lg': index === priceOptions.length - 1,
-						'!rounded-none': index > 0 && index < priceOptions.length - 1,
-						'!first:border-l-0': index === 0,
-					})}
-					color="gray"
-					key={index}
-					onClick={() => {
-						handleQuoteChange(option.quote);
-					}}
-				>
-					{option.symbol}
-					{option.quote}
-				</Button>
-			))}
-		</ButtonGroup>
+		<div className={`${className}`}>
+			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+				{priceOptions.map((option) => (
+					<Card
+						key={option.quote}
+						onClick={() => handleQuoteChange(option.quote)}
+						className={`cursor-pointer transition-colors ${
+							currencyQuote === option.quote
+								? 'border-green-500 bg-green-50 dark:bg-green-900 dark:bg-opacity-20'
+								: ''
+						}`}
+					>
+						<div className="flex items-center space-x-2">
+							<div className="shrink-0">{option.symbol}</div>
+							<div className="flex min-w-0 flex-1 items-center">
+								<h5 className="text-sm font-bold leading-none text-gray-700 dark:text-white">
+									{option.name}
+								</h5>
+							</div>
+							{currencyQuote === option.quote && (
+								<div className="flex-shrink-0">
+									<FaCheck className="text-green-500" />
+								</div>
+							)}
+						</div>
+					</Card>
+				))}
+			</div>
+		</div>
 	);
 }
