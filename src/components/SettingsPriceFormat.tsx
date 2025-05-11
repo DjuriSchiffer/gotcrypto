@@ -1,21 +1,19 @@
 import type { CurrencyQuote } from 'api';
-
 import { useQueryClient } from '@tanstack/react-query';
-import { Card, Label } from 'flowbite-react';
+import { Card } from 'flowbite-react';
 import { useMemo } from 'react';
-import { FaDollarSign, FaEuroSign } from 'react-icons/fa';
-
+import { FaDollarSign, FaEuroSign, FaCheck } from 'react-icons/fa';
 import { useStorage } from '../hooks/useStorage';
 import { currencyFormat } from '../utils/helpers';
 
 type PriceOption = {
 	example: string;
-	label: string;
+	name: string;
 	quote: keyof CurrencyQuote;
 	symbol: React.ReactNode;
 };
 
-function SettingsPriceFormat() {
+function SettingsPriceFormat({ className = '' }: { className?: string }) {
 	const { currencyQuote, setCurrencyQuote } = useStorage();
 	const queryClient = useQueryClient();
 
@@ -30,62 +28,52 @@ function SettingsPriceFormat() {
 		() => [
 			{
 				example: currencyFormat(samplePrice, 'EUR'),
-				label: 'Euro (EUR)',
+				name: 'Euro (EUR)',
 				quote: 'EUR',
-				symbol: <FaEuroSign className="text-lg" />,
+				symbol: <FaEuroSign />,
 			},
 			{
 				example: currencyFormat(samplePrice, 'USD'),
-				label: 'US Dollar (USD)',
+				name: 'US Dollar (USD)',
 				quote: 'USD',
-				symbol: <FaDollarSign className="text-lg" />,
+				symbol: <FaDollarSign />,
 			},
 		],
 		[]
 	);
 
 	return (
-		<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-			{priceOptions.map((option) => (
-				<Card
-					className={`cursor-pointer transition-all ${
-						currencyQuote === option.quote
-							? 'border-2 border-green-500 dark:border-green-400'
-							: 'hover:border-gray-400'
-					}`}
-					key={option.quote}
-					onClick={() => {
-						handleQuoteChange(option.quote);
-					}}
-				>
-					<div className="flex items-center space-x-2">
-						<div className="flex items-center">
-							<input
-								checked={currencyQuote === option.quote}
-								className="h-4 w-4 border-gray-300 bg-gray-100 text-green-600 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-green-600"
-								id={`currency-format-${option.quote}`}
-								name="currency-format"
-								onChange={() => {
-									handleQuoteChange(option.quote);
-								}}
-								type="radio"
-							/>
-							<Label
-								className="ml-2 cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-								htmlFor={`currency-format-${option.quote}`}
-							>
-								<div className="flex items-center gap-2">
-									{option.symbol}
-									{option.label}
+		<div className={`${className}`}>
+			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+				{priceOptions.map((option) => (
+					<Card
+						key={option.quote}
+						onClick={() => handleQuoteChange(option.quote)}
+						className={`cursor-pointer transition-colors ${
+							currencyQuote === option.quote
+								? 'border-green-500 bg-green-50 dark:bg-green-900 dark:bg-opacity-20'
+								: ''
+						}`}
+					>
+						<div className="flex items-center space-x-2">
+							<div className="shrink-0 text-gray-700 dark:text-white">{option.symbol}</div>
+							<div className="flex min-w-0 flex-1 flex-col items-start text-gray-700">
+								<h5 className="text-sm font-bold leading-none text-gray-700 dark:text-white">
+									{option.name}
+								</h5>
+								<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+									Example: {option.example}
+								</p>
+							</div>
+							{currencyQuote === option.quote && (
+								<div className="flex-shrink-0">
+									<FaCheck className="text-green-500" />
 								</div>
-							</Label>
+							)}
 						</div>
-					</div>
-					<div className="mt-2">
-						<p className="text-sm text-gray-500 dark:text-gray-400">Example: {option.example}</p>
-					</div>
-				</Card>
-			))}
+					</Card>
+				))}
+			</div>
 		</div>
 	);
 }

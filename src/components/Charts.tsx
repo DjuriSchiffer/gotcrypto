@@ -87,7 +87,8 @@ function Charts({ fetchedCurrencies, id, selectedAssets }: ChartsProps) {
 					(fetchedCurrency) => fetchedCurrency.cmc_id === selectedAsset.cmc_id
 				);
 				const currentPrice = currentCurrency?.price ?? 0;
-				const value = currentPrice * selectedAsset.totals.totalAmount || 0;
+				const totalAmount = selectedAsset.totals?.totalAmount ?? 0;
+				const value = currentPrice * totalAmount;
 
 				return {
 					label: selectedAsset.name,
@@ -115,7 +116,7 @@ function Charts({ fetchedCurrencies, id, selectedAssets }: ChartsProps) {
 		} else {
 			const dataPoints = selectedAssets.map((selectedAsset) => ({
 				label: selectedAsset.name,
-				value: selectedAsset.totals.totalInvested,
+				value: selectedAsset.totals?.totalInvested ?? 0,
 			}));
 
 			const sortedData = dataPoints.sort((a, b) => b.value - a.value);

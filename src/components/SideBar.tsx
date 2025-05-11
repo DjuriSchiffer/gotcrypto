@@ -10,7 +10,6 @@ import {
 	SidebarItemGroup,
 	SidebarItems,
 	SidebarLogo,
-	DarkThemeToggle,
 } from 'flowbite-react';
 import {
 	FaArrowLeft,
@@ -25,7 +24,6 @@ import { useLinkClickHandler, useLocation } from 'react-router-dom';
 import { auth } from '../firebase/firebaseConfig';
 import { useAuth } from '../hooks/useAuth';
 import logo from '../public/images/logo.svg';
-import { ChangeQuote } from './ChangeQuote';
 
 const CTA_DISMISSED_KEY = 'gotcrypto_cta_dismissed';
 
@@ -41,7 +39,7 @@ function AppSideBarLogo({ img, imgAlt, text, to }: AppSideBarLogoProps) {
 	return (
 		<span onClick={clickHandler}>
 			<SidebarLogo
-				className="mt-3 mb-7 text-gray-900 dark:text-white"
+				className="mb-7 mt-3 text-gray-900 dark:text-white"
 				href={to}
 				img={img}
 				imgAlt={imgAlt}
@@ -151,11 +149,6 @@ function SideBar() {
 					)}
 
 					<AppSideBarItem icon={FaCog} text="User & Settings" to="/user-settings" />
-					{user && !isAnonymous && (
-						<SidebarItem className="cursor-pointer" icon={FaSignOutAlt} onClick={handleSignOut}>
-							Sign Out
-						</SidebarItem>
-					)}
 					{isAnonymous && showCTA && (
 						<SidebarCTA>
 							<div className="mb-3 flex items-center">
@@ -189,11 +182,14 @@ function SideBar() {
 							</div>
 						</SidebarCTA>
 					)}
-					{isAnonymous && (
+					{/* {isAnonymous && (
 						<SidebarItem className="cursor-pointer" icon={FaSignInAlt} onClick={handleSignInGoogle}>
 							Sign In
 						</SidebarItem>
-					)}
+					)} */}
+					<SidebarItem className="cursor-pointer" icon={FaSignOutAlt} onClick={handleSignOut}>
+						Sign Out
+					</SidebarItem>
 				</SidebarItemGroup>
 			</SidebarItems>
 		</Sidebar>

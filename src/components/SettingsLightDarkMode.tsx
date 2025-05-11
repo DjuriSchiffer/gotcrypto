@@ -1,14 +1,14 @@
-import { Card, Label, useThemeMode } from 'flowbite-react';
-import { FaMoon, FaSun } from 'react-icons/fa';
+import { Card, useThemeMode } from 'flowbite-react';
+import { FaMoon, FaSun, FaCheck } from 'react-icons/fa';
 
 type ThemeMode = 'light' | 'dark' | 'auto';
 type ThemeOption = {
-	label: string;
+	name: string;
 	mode: ThemeMode;
 	symbol: React.ReactNode;
 };
 
-function SettingsLightDarkMode() {
+function SettingsLightDarkMode({ className = '' }: { className?: string }) {
 	const { computedMode, setMode } = useThemeMode();
 
 	const handleModeChange = (mode: ThemeMode) => {
@@ -17,56 +17,46 @@ function SettingsLightDarkMode() {
 
 	const themeOptions: Array<ThemeOption> = [
 		{
-			label: 'Light mode',
+			name: 'Light mode',
 			mode: 'light',
-			symbol: <FaSun className="text-lg" />,
+			symbol: <FaSun />,
 		},
 		{
-			label: 'Dark mode',
+			name: 'Dark mode',
 			mode: 'dark',
-			symbol: <FaMoon className="text-lg" />,
+			symbol: <FaMoon />,
 		},
 	];
 
 	return (
-		<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-			{themeOptions.map((option) => (
-				<Card
-					className={`cursor-pointer transition-all ${
-						computedMode === option.mode
-							? 'border-2 border-green-500 dark:border-green-400'
-							: 'hover:border-gray-400'
-					}`}
-					key={option.mode}
-					onClick={() => {
-						handleModeChange(option.mode);
-					}}
-				>
-					<div className="flex items-center space-x-2">
-						<div className="flex items-center">
-							<input
-								checked={computedMode === option.mode}
-								className="h-4 w-4 border-gray-300 bg-gray-100 text-green-600 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-green-600"
-								id={`mode-${option.mode}`}
-								name="mode"
-								onChange={() => {
-									handleModeChange(option.mode);
-								}}
-								type="radio"
-							/>
-							<Label
-								className="ml-2 cursor-pointer text-sm font-medium text-gray-900 dark:text-gray-300"
-								htmlFor={`mode-${option.mode}`}
-							>
-								<div className="flex items-center gap-2">
-									{option.symbol}
-									{option.label}
+		<div className={`${className}`}>
+			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+				{themeOptions.map((option) => (
+					<Card
+						key={option.mode}
+						onClick={() => handleModeChange(option.mode)}
+						className={`cursor-pointer transition-colors ${
+							computedMode === option.mode
+								? 'border-green-500 bg-green-50 dark:bg-green-900 dark:bg-opacity-20'
+								: ''
+						}`}
+					>
+						<div className="flex items-center space-x-2">
+							<div className="shrink-0 text-gray-700 dark:text-white">{option.symbol}</div>
+							<div className="flex min-w-0 flex-1 items-center">
+								<h5 className="text-sm font-bold leading-none text-gray-700 dark:text-white">
+									{option.name}
+								</h5>
+							</div>
+							{computedMode === option.mode && (
+								<div className="flex-shrink-0">
+									<FaCheck className="text-green-500" />
 								</div>
-							</Label>
+							)}
 						</div>
-					</div>
-				</Card>
-			))}
+					</Card>
+				))}
+			</div>
 		</div>
 	);
 }

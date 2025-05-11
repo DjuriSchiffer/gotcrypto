@@ -1,9 +1,11 @@
-import { Button, Card, useThemeMode } from 'flowbite-react';
+import { Button, Card } from 'flowbite-react';
 import Modal from './Modal';
+import AssetSelector from './AssetSelector';
 import type { FetchedCurrency, SelectedAsset } from 'currency';
 import { getImage } from '../utils/images';
 import { useState, useEffect, useMemo } from 'react';
-import { FaPlus, FaTrash, FaCheck } from 'react-icons/fa';
+import { FaPlus, FaTrash } from 'react-icons/fa';
+import { useAssetSelection } from '../hooks/useAssetSelection';
 
 type DashboardModalsProps = {
 	onCloseModals: () => void;
@@ -22,29 +24,21 @@ function DashboardModals({
 	options,
 	preselectedOptions,
 }: DashboardModalsProps) {
-	const [selectedAssets, setSelectedAssets] = useState<number[]>([]);
+	const { selectedAssets, toggleAssetSelection, resetSelection } = useAssetSelection();
 	const [selectedToRemove, setSelectedToRemove] = useState<number[]>([]);
 	const [activeTab, setActiveTab] = useState<'add' | 'manage'>('add');
 
 	useEffect(() => {
 		if (openAddAssetModal) {
-			setSelectedAssets([]);
+			resetSelection();
 			setSelectedToRemove([]);
 			setActiveTab('add');
 		}
-	}, [openAddAssetModal]);
+	}, [openAddAssetModal, resetSelection]);
 
 	const handleTabChange = (tab: 'add' | 'manage') => {
 		setActiveTab(tab);
 	};
-
-	const availableOptions = useMemo(() => {
-		if (!options) return [];
-
-		const existingIds = new Set(preselectedOptions.map((asset) => asset.cmc_id));
-
-		return options.filter((option) => !existingIds.has(option.cmc_id));
-	}, [options, preselectedOptions]);
 
 	const existingAssets = useMemo(() => {
 		if (!options) return [];
@@ -82,24 +76,14 @@ function DashboardModals({
 		return assetsWithoutTransactions;
 	}, [options, preselectedOptions]);
 
-	const toggleAssetSelection = (cmcId: number) => {
-		if (activeTab === 'add') {
-			setSelectedAssets((prevSelected) => {
-				if (prevSelected.includes(cmcId)) {
-					return prevSelected.filter((id) => id !== cmcId);
-				} else {
-					return [...prevSelected, cmcId];
-				}
-			});
-		} else {
-			setSelectedToRemove((prevSelected) => {
-				if (prevSelected.includes(cmcId)) {
-					return prevSelected.filter((id) => id !== cmcId);
-				} else {
-					return [...prevSelected, cmcId];
-				}
-			});
-		}
+	const toggleRemovalSelection = (cmcId: number) => {
+		setSelectedToRemove((prevSelected) => {
+			if (prevSelected.includes(cmcId)) {
+				return prevSelected.filter((id) => id !== cmcId);
+			} else {
+				return [...prevSelected, cmcId];
+			}
+		});
 	};
 
 	const handleSubmit = () => {
@@ -123,7 +107,12 @@ function DashboardModals({
 	};
 
 	return (
-		<Modal onClose={onCloseModals} open={openAddAssetModal} title="Manage Dashboard Assets">
+		<Modal
+			onClose={onCloseModals}
+			open={openAddAssetModal}
+			title="Manage Dashboard Assets"
+			size="3xl"
+		>
 			<div className="mb-4">
 				<div className="mb-4 flex border-b-2">
 					<button
@@ -151,48 +140,13 @@ function DashboardModals({
 
 			{activeTab === 'add' && (
 				<>
-					{availableOptions.length > 0 ? (
-						<div className="mb-4 max-h-96 overflow-y-auto">
-							<div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-								{availableOptions.map((option) => (
-									<Card
-										key={option.cmc_id}
-										onClick={() => toggleAssetSelection(option.cmc_id)}
-										className={`cursor-pointer transition-colors ${
-											selectedAssets.includes(option.cmc_id)
-												? 'border-green-500 bg-green-50 dark:bg-green-900 dark:bg-opacity-20'
-												: ''
-										}`}
-									>
-										<div className="flex items-center space-x-2">
-											<div className="shrink-0">
-												<img
-													alt={`${option.name} icon`}
-													height={24}
-													src={getImage(option.cmc_id)}
-													width={24}
-												/>
-											</div>
-											<div className="flex min-w-0 flex-1 items-center">
-												<h5 className="text-sm font-bold leading-none text-gray-700 dark:text-white">
-													{option.name}
-												</h5>
-											</div>
-											{selectedAssets.includes(option.cmc_id) && (
-												<div className="flex-shrink-0">
-													<FaCheck className="text-green-500" />
-												</div>
-											)}
-										</div>
-									</Card>
-								))}
-							</div>
-						</div>
-					) : (
-						<div className="mb-4 py-8 text-center">
-							<p className="text-gray-500 dark:text-gray-400">No new assets available to add</p>
-						</div>
-					)}
+					<AssetSelector
+						options={options}
+						preselectedOptions={preselectedOptions}
+						selectedAssets={selectedAssets}
+						onToggleAsset={toggleAssetSelection}
+						className="mb-4"
+					/>
 
 					<div className="mt-4 flex flex-wrap items-center justify-between gap-2">
 						<div className="text-sm text-gray-500 dark:text-gray-400">
@@ -250,7 +204,7 @@ function DashboardModals({
 								{removableAssets.map((asset) => (
 									<Card
 										key={asset.cmc_id}
-										onClick={() => toggleAssetSelection(asset.cmc_id)}
+										onClick={() => toggleRemovalSelection(asset.cmc_id)}
 										className={`cursor-pointer transition-colors ${
 											selectedToRemove.includes(asset.cmc_id)
 												? 'border-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20'
