@@ -41,7 +41,7 @@ function OnboardingPage() {
 					{fetchedCurrenciesIsLoading ? (
 						<div className="py-8 text-center">
 							<Spinner aria-label="Loading" color="green" />
-							<span className="ml-2">Fetching data from CoinMarketCap...</span>
+							<span className="ml-2 dark:text-white">Fetching data from CoinMarketCap...</span>
 						</div>
 					) : (
 						<>
