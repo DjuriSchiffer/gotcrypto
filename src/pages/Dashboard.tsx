@@ -16,7 +16,7 @@ import { useStorage } from '../hooks/useStorage';
 import { createCryptoMap, currencyFormat, percentageFormat } from '../utils/helpers';
 import { getGlobalTotals } from '../utils/totals';
 import { cardTable } from '../theme';
-import DashboardModals from '../components/DashboardModals';
+import AssetManagerModal from '../components/AssetManagerModal';
 import { FaPlus } from 'react-icons/fa';
 
 function Dashboard() {
@@ -168,7 +168,7 @@ function Dashboard() {
 							{sortedFetchedCurrencies.length > 0 && <ChangeLayout />}
 							<Button color="primary" className="!mx-0" onClick={handleOpenAddAssetModal}>
 								<FaPlus className="mr-1" color="white" />
-								Manage Dashboard
+								Manage Assets
 							</Button>
 						</div>
 					</div>
@@ -222,7 +222,7 @@ function Dashboard() {
 							</Table>
 						</Card>
 					)}
-					<DashboardModals
+					<AssetManagerModal
 						onCloseModals={handleCloseModals}
 						onFormSubmit={handleFormSubmit}
 						onRemoveAssets={handleRemoveAssets}
