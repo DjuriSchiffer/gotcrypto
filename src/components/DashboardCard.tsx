@@ -50,11 +50,9 @@ function DashboardCard({
 					<h5 className="text-xl font-bold leading-none text-gray-700 dark:text-white">
 						{fetchedCurrency.name}
 					</h5>
-					<Link className="ml-auto" to={fetchedCurrency.slug}>
-						<Button color="primary" size="sm">
-							<FaPen color="white" />
-						</Button>
-					</Link>
+					<Button className="ml-auto" color="primary" size="sm" as={Link} to={fetchedCurrency.slug}>
+						<FaPen color="white" />
+					</Button>
 				</div>
 			</div>
 			<div

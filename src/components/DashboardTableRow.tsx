@@ -90,11 +90,9 @@ function DashboardTableRow({
 			)}
 
 			<TableCell className="flex items-center justify-end pr-2 text-right">
-				<Link className="my-auto" to={fetchedCurrency.slug}>
-					<Button color="primary" size="sm">
-						<FaPen color="white" />
-					</Button>
-				</Link>
+				<Button className="my-auto" color="primary" size="sm" as={Link} to={fetchedCurrency.slug}>
+					<FaPen color="white" />
+				</Button>
 			</TableCell>
 		</TableRow>
 	);
