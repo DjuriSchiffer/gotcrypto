@@ -3,6 +3,7 @@ import type { IconType } from 'react-icons';
 
 import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import {
+	Avatar,
 	Badge,
 	Sidebar,
 	SidebarCTA,
@@ -11,14 +12,7 @@ import {
 	SidebarItems,
 	SidebarLogo,
 } from 'flowbite-react';
-import {
-	FaArrowLeft,
-	FaChartBar,
-	FaChartPie,
-	FaCog,
-	FaSignInAlt,
-	FaSignOutAlt,
-} from 'react-icons/fa';
+import { FaArrowLeft, FaChartBar, FaChartPie, FaCog, FaSignOutAlt } from 'react-icons/fa';
 import { useLinkClickHandler, useLocation } from 'react-router-dom';
 
 import { auth } from '../firebase/firebaseConfig';
@@ -131,23 +125,19 @@ function SideBar() {
 					<AppSideBarItem icon={FaChartBar} text="Graphs and stats" to="/graphs" />
 				</SidebarItemGroup>
 				<SidebarItemGroup className="mt-auto">
-					{isAnonymous && (
-						<div className="text-md mb-3 ml-3 text-gray-900 dark:text-white">
-							<span className="flex items-center">
-								<span className="mr-2 h-2 w-2 rounded-full bg-yellow-400"></span>
-								Anonymous session
-							</span>
-						</div>
-					)}
-					{user && !isAnonymous && (
-						<div className="text-md mb-3 ml-3 text-gray-900 dark:text-white">
-							<span className="flex items-center">
-								<span className="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
-								Signed in with Google
-							</span>
-						</div>
-					)}
+					<div className="text-md mb-3 ml-2 text-gray-900 dark:text-white">
+						<span className="flex items-center">
+							<Avatar
+								rounded
+								status={isAnonymous ? 'away' : 'online'}
+								size="xs"
+								statusPosition="bottom-right"
+								className="mr-3"
+							/>
 
+							{isAnonymous ? 'Anonymous session' : 'Signed in with Google'}
+						</span>
+					</div>
 					<AppSideBarItem icon={FaCog} text="User & Settings" to="/user-settings" />
 					{isAnonymous && showCTA && (
 						<SidebarCTA>
@@ -182,11 +172,6 @@ function SideBar() {
 							</div>
 						</SidebarCTA>
 					)}
-					{/* {isAnonymous && (
-						<SidebarItem className="cursor-pointer" icon={FaSignInAlt} onClick={handleSignInGoogle}>
-							Sign In
-						</SidebarItem>
-					)} */}
 					<SidebarItem className="cursor-pointer" icon={FaSignOutAlt} onClick={handleSignOut}>
 						Sign Out
 					</SidebarItem>
