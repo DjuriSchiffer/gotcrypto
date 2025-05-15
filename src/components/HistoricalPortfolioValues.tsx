@@ -30,8 +30,8 @@ export function HistoricalPortfolioValues({
 					</h5>
 				</div>
 			</div>
-			{isLoading && <p>Loading historical values...</p>}
-			{isError && <p>Error loading historical values</p>}
+			{isLoading && <p className="text-gray-900 dark:text-white">Loading historical values...</p>}
+			{isError && <p className="text-gray-900 dark:text-white">Error loading historical values</p>}
 			{!isLoading && !isError && (
 				<ul className="divide-y divide-gray-200 dark:divide-gray-700">
 					{yearlyTotals.map((yearly) => (

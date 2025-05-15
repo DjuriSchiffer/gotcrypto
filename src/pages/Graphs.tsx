@@ -119,29 +119,40 @@ function Graphs() {
 							</div>
 						)}
 					</div>
-					<div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-1 lg:grid-cols-2">
+					{selectedCurrencies.length === 0 && (
 						<Card>
-							<Charts
-								assetMap={assetMap}
-								fetchedCurrencies={fetchedCurrencies}
-								id="amount"
-								selectedAssets={selectedCurrencies}
-							/>
+							<div className="flex h-40 items-center justify-center text-dark dark:text-white">
+								<span>No assets added yet.</span>
+							</div>
 						</Card>
-						<Card>
-							<Charts
-								assetMap={assetMap}
-								fetchedCurrencies={fetchedCurrencies}
-								id="invested"
-								selectedAssets={selectedCurrencies}
-							/>
-						</Card>
-					</div>
-					<HistoricalPortfolioValues
-						currencyQuote={currencyQuote}
-						fetchedCurrencies={fetchedCurrencies}
-						selectedAssets={selectedCurrencies}
-					/>
+					)}
+					{selectedCurrencies.length > 0 && (
+						<div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-1 lg:grid-cols-2">
+							<Card>
+								<Charts
+									assetMap={assetMap}
+									fetchedCurrencies={fetchedCurrencies}
+									id="amount"
+									selectedAssets={selectedCurrencies}
+								/>
+							</Card>
+							<Card>
+								<Charts
+									assetMap={assetMap}
+									fetchedCurrencies={fetchedCurrencies}
+									id="invested"
+									selectedAssets={selectedCurrencies}
+								/>
+							</Card>
+						</div>
+					)}
+					{selectedCurrencies.length > 0 && (
+						<HistoricalPortfolioValues
+							currencyQuote={currencyQuote}
+							fetchedCurrencies={fetchedCurrencies}
+							selectedAssets={selectedCurrencies}
+						/>
+					)}
 				</div>
 			</Page>
 		</LoadingErrorWrapper>
