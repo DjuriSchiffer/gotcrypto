@@ -61,6 +61,8 @@ function TableRow({
 		const percentageDifference = percentageDifferenceFn(price, currentValue);
 		const description = transactionItem.description ?? '';
 
+		if (transactionItem.excludeForTax) console.log(transactionItem.excludeForTax);
+
 		const formatNegativeValue =
 			transactionType === 'sell' || (transactionType === 'transfer' && transferType === 'out');
 
@@ -69,7 +71,11 @@ function TableRow({
 				<TableCell className={classNames('py-2 pl-3 text-gray-900 dark:text-white')}>
 					{yearCell}
 				</TableCell>
-				<TableCell className={classNames('py-2 text-gray-900 dark:text-white')}>
+				<TableCell
+					className={classNames('py-2 text-gray-900 dark:text-white', {
+						'line-through': transactionItem.excludeForTax,
+					})}
+				>
 					<div className="min-w-0 flex-1">
 						<p className="truncate text-sm font-medium text-gray-900 dark:text-white">
 							{transactionType === 'buy'
@@ -85,7 +91,11 @@ function TableRow({
 				<TableCell className={classNames('py-2 text-gray-900 dark:text-white')}>
 					{currencyFormat(price, currencyQuote, undefined, formatNegativeValue)}
 				</TableCell>
-				<TableCell className={classNames('py-2 text-gray-900 dark:text-white')}>
+				<TableCell
+					className={classNames('py-2 text-gray-900 dark:text-white', {
+						'line-through': transactionItem.excludeForTax,
+					})}
+				>
 					<p className="truncate text-sm font-medium text-gray-900 dark:text-white">
 						{formatNegativeValue && '-'}
 						{amount}
