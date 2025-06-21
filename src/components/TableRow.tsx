@@ -61,8 +61,6 @@ function TableRow({
 		const percentageDifference = percentageDifferenceFn(price, currentValue);
 		const description = transactionItem.description ?? '';
 
-		if (transactionItem.excludeForTax) console.log(transactionItem.excludeForTax);
-
 		const formatNegativeValue =
 			transactionType === 'sell' || (transactionType === 'transfer' && transferType === 'out');
 
