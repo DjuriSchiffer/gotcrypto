@@ -12,13 +12,13 @@
 	},
 	"dependencies": {
 		"@sentry/react": "^8.42.0",
-		"@tanstack/react-query": "^5.59.15",
+		"@tanstack/react-query": "^5.101.0",
 		"apexcharts": "^3.46.0",
 		"axios": "^1.17.0",
 		"chart.js": "^4.4.7",
-		"classnames": "^2.3.1",
-		"firebase": "^10.14.0",
-		"firebase-admin": "^12.6.0",
+		"classnames": "^2.5.1",
+		"firebase": "^12.14.0",
+		"firebase-admin": "^13.10.0",
 		"firebaseui": "^6.1.0",
 		"flowbite": "^3.1.2",
 		"flowbite-react": "^0.11.7",
@@ -26,7 +26,7 @@
 		"lodash.isempty": "^4.4.0",
 		"lodash.isequal": "^4.5.0",
 		"lodash.uniqueid": "^4.0.1",
-		"react": "^18.3.0",
+		"react": "^18.3.1",
 		"react-chartjs-2": "^5.2.0",
 		"react-currency-input-field": "^3.6.10",
 		"react-dom": "^18.0.0",
@@ -59,8 +59,8 @@
 		"prettier": "^3.5.3",
 		"prettier-plugin-tailwindcss": "^0.6.11",
 		"tailwindcss": "^3.1.0",
-		"typescript": "^5.6.2",
-		"typescript-eslint": "^8.26.1",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.60.1",
 		"vite": "^5.4.18"
 	}
 }
