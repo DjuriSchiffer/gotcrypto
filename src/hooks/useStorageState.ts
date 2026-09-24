@@ -51,6 +51,7 @@ export const useStorageState = () => {
 		let cancelled = false;
 
 		const initialize = async () => {
+			console.count('storage initialize');
 			setLoading(true);
 
 			let currencies: Array<SelectedAsset> = [];
