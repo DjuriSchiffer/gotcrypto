@@ -5,6 +5,7 @@ import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-d
 import AuthChoice from './components/AuthChoice';
 import ErrorComponent from './components/Error';
 import LoadingIndicator from './components/LoadingIndicator';
+import useCoinMarketCap from './hooks/useCoinMarketCap';
 import { useAuth } from './hooks/useAuth';
 import { useStorage } from './hooks/useStorage';
 import Dashboard from './pages/Dashboard';
@@ -16,7 +17,14 @@ import { customTheme } from './theme';
 
 function App() {
 	const { loading: authLoading, user } = useAuth();
-	const { loading: storageLoading, onboardingCompleted } = useStorage();
+	const { currencyQuote, loading: storageLoading, onboardingCompleted } = useStorage();
+
+	// Wait for storage first: it holds the user's currency (EUR/USD).
+	// Fetching before that would load EUR and then fetch USD again, causing a second spinner.
+	const { isPending: currenciesPending } = useCoinMarketCap(currencyQuote, {
+		enabled: user !== null && !storageLoading,
+	});
+
 	const { setMode } = useThemeMode();
 
 	useEffect(() => {
@@ -35,7 +43,7 @@ function App() {
 		}
 	}, [setMode]);
 
-	const isLoading = authLoading || (user !== null && storageLoading);
+	const isLoading = authLoading || (user !== null && (storageLoading || currenciesPending));
 
 	const protectedPage = (page: React.ReactNode) => {
 		if (!user) return <AuthChoice />;
@@ -47,7 +55,7 @@ function App() {
 		<ThemeProvider theme={customTheme}>
 			{isLoading ? (
 				<main className="min-h-screen bg-gray-50 dark:bg-gray-dark">
-					<LoadingIndicator message="Loading..." />
+					<LoadingIndicator message="Loading your portfolio..." />
 				</main>
 			) : (
 				<Router>

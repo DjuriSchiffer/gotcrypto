@@ -215,18 +215,23 @@ function Detail() {
 
 	if (!currentFetchedCurrency) {
 		return (
-			<Page>
-				<div className="flex h-screen flex-col items-center justify-center text-white">
-					<p className="mb-4">Could not fetch data from Coinmarketcap....</p>
-					<Link
-						className="inline-flex items-center justify-center rounded-lg bg-gray-50 p-3 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-						to="/"
-					>
-						<FaArrowLeft className="mr-2" color="white" />
-						Return to dashboard
-					</Link>
-				</div>
-			</Page>
+			<LoadingErrorWrapper
+				fetchedIsLoading={fetchedCurrenciesIsLoading}
+				isError={fetchedCurrenciesIsError}
+			>
+				<Page>
+					<div className="flex h-screen flex-col items-center justify-center text-dark dark:text-white">
+						<p className="mb-4">We couldn't find this asset.</p>
+						<Link
+							className="inline-flex items-center justify-center rounded-lg bg-gray-50 p-3 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+							to="/"
+						>
+							<FaArrowLeft className="mr-2" />
+							Return to dashboard
+						</Link>
+					</div>
+				</Page>
+			</LoadingErrorWrapper>
 		);
 	}
 
@@ -234,7 +239,6 @@ function Detail() {
 		<LoadingErrorWrapper
 			fetchedIsLoading={fetchedCurrenciesIsLoading}
 			isError={fetchedCurrenciesIsError}
-			storageIsLoading={storageIsLoading}
 		>
 			<Page>
 				<div className="mb-4 grid w-full gap-4 lg:mt-auto">
