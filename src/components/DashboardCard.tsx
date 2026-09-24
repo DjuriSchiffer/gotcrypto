@@ -71,7 +71,7 @@ function DashboardCard({ asset, currencyQuote, fetchedCurrency }: DashboardCardP
 				</div>
 			</div>
 
-			<div className={classNames('flex-root', { 'h-full': !hasTransactions })}>
+			<div className={classNames('mb-auto', { 'h-full': !hasTransactions })}>
 				<ul className="divide-y divide-gray-200 dark:divide-gray-700">
 					<StatRow label="Current market price">{money(fetchedCurrency.price)}</StatRow>
 
@@ -84,7 +84,7 @@ function DashboardCard({ asset, currencyQuote, fetchedCurrency }: DashboardCardP
 					)}
 
 					{hasTransactions && summary.isClosed && (
-						<StatRow description="Everything has been sold or transferred out" label="Holdings">
+						<StatRow description="Position closed" label="Holdings">
 							{amountFormat(0, currencyQuote)}
 						</StatRow>
 					)}
