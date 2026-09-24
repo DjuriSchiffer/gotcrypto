@@ -60,8 +60,12 @@ const transformCurrencies = (
  * Custom hook to fetch and manage currencies using React Query.
  * @returns The result of the useQuery hook.
  */
-const useCoinMarketCap = (currencyQuote: keyof CurrencyQuote = 'EUR') => {
-	const { data, error, isError, isLoading } = useQuery({
+const useCoinMarketCap = (
+	currencyQuote: keyof CurrencyQuote = 'EUR',
+	{ enabled = true }: { enabled?: boolean } = {}
+) => {
+	const { data, error, isError, isLoading, isPending } = useQuery({
+		enabled,
 		queryFn: async () => {
 			const data: GetCurrenciesResponse = await getCurrencies();
 
@@ -85,6 +89,7 @@ const useCoinMarketCap = (currencyQuote: keyof CurrencyQuote = 'EUR') => {
 		error,
 		isError,
 		isLoading,
+		isPending,
 	};
 };
 
