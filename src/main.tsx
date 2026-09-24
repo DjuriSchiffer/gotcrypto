@@ -9,6 +9,7 @@ import * as ReactDOM from 'react-dom/client';
 import App from './App';
 import { AuthProvider } from './providers/AuthProvider';
 import ReducerProvider from './providers/ReducerProvider';
+import { StorageProvider } from './providers/StorageProvider';
 
 // Initialize Sentry
 Sentry.init({
@@ -48,9 +49,11 @@ ReactDOM.createRoot(rootElement).render(
 		<SentryErrorBoundary fallback={<div>An error has occurred</div>}>
 			<ReducerProvider>
 				<AuthProvider>
-					<QueryClientProvider client={queryClient}>
-						<App />
-					</QueryClientProvider>
+					<StorageProvider>
+						<QueryClientProvider client={queryClient}>
+							<App />
+						</QueryClientProvider>
+					</StorageProvider>
 				</AuthProvider>
 			</ReducerProvider>
 		</SentryErrorBoundary>
