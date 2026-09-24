@@ -37,7 +37,7 @@ function DetailTransactionTable({
 
 	const groupTransactionsByYear = (transactions: Array<Transaction>) => {
 		return transactions.reduce<Record<number, Array<Transaction>>>((acc, transaction) => {
-			const year = new Date(transaction.date).getFullYear();
+			const year = new Date(transaction.date).getUTCFullYear();
 			(acc[year] ??= []).push(transaction);
 			return acc;
 		}, {});

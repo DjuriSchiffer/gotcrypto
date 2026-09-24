@@ -56,7 +56,7 @@ export const useHistoricalPortfolioValues = (
 	currencyQuote: keyof CurrencyQuote = 'EUR'
 ) => {
 	const allTransactionYears = selectedCurrencies.flatMap((currency) =>
-		currency.transactions.map((transaction) => new Date(transaction.date).getFullYear())
+		currency.transactions.map((transaction) => new Date(transaction.date).getUTCFullYear())
 	);
 
 	const uniqueYears = [...new Set(allTransactionYears)].sort();
@@ -80,8 +80,6 @@ export const useHistoricalPortfolioValues = (
 	}
 
 	const yearEndHoldings = uniqueYears.map((year) => {
-		const endOfYear = new Date(year, 11, 31, 23, 59, 59);
-
 		const nextYear = year + 1;
 		const januaryFirstNextYear = new Date(nextYear, 0, 1, 0, 0, 0);
 		const priceTimestamp = Math.floor(januaryFirstNextYear.getTime() / 1000);
@@ -93,7 +91,7 @@ export const useHistoricalPortfolioValues = (
 				}
 
 				const transactionsUpToYearEnd = currency.transactions.filter(
-					(transaction) => new Date(transaction.date) <= endOfYear
+					(transaction) => new Date(transaction.date).getUTCFullYear() <= year
 				);
 
 				let amount = 0;
