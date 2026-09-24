@@ -142,7 +142,7 @@ function TransactionForm({
 			reset({
 				...defaultValues,
 				amount: displayAmount,
-				date: dateToStorage(new Date(defaultValues.date)),
+				date: dateToStorage(defaultValues.date),
 				description: defaultValues.description || '',
 				excludeForTax: defaultValues.excludeForTax ?? false,
 				purchasePrice: displayPurchasePrise,
