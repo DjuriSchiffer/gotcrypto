@@ -22,10 +22,9 @@ export type Action =
 	| { payload: SortMethod; type: 'SET_SORT_METHOD' };
 
 export type GlobalTotals = {
-	totalAmount: number;
-	totalAveragePurchasePrice: number;
-	totalInvested: number;
+	totalCostBasis: number;
 	totalPercentageDifference: number;
-	totalPurchasePrice: number;
+	totalRealizedProfit: number;
+	totalUnrealizedProfit: number;
 	totalValue: number;
 };

@@ -152,7 +152,7 @@ function Dashboard() {
 									{currencyFormat(globalTotals.totalValue, currencyQuote)}
 								</div>
 							</Tooltip>
-							<Tooltip content="((Total Value - Total Invested) / Total Invested) × 100">
+							<Tooltip content="(Value − Cost basis) / Cost basis × 100">
 								<div
 									className={classNames('text-xl', {
 										'text-green-500': globalTotals.totalPercentageDifference > 0,
@@ -182,43 +182,27 @@ function Dashboard() {
 
 					{dashboardLayout === 'Grid' && sortedFetchedCurrencies.length > 0 && (
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-							{sortedFetchedCurrencies.map((fetchedCurrency) => {
-								const asset = assetMap.get(fetchedCurrency.cmc_id);
-								const hasTransactions =
-									assetMap.has(fetchedCurrency.cmc_id) &&
-									asset !== undefined &&
-									asset.transactions.length > 0;
-								return (
-									<DashboardCard
-										assetMap={assetMap}
-										currencyQuote={currencyQuote}
-										fetchedCurrency={fetchedCurrency}
-										hasTransactions={hasTransactions}
-										key={fetchedCurrency.cmc_id}
-									/>
-								);
-							})}
+							{sortedFetchedCurrencies.map((fetchedCurrency) => (
+								<DashboardCard
+									asset={assetMap.get(fetchedCurrency.cmc_id)}
+									currencyQuote={currencyQuote}
+									fetchedCurrency={fetchedCurrency}
+									key={fetchedCurrency.cmc_id}
+								/>
+							))}
 						</div>
 					)}
 					{dashboardLayout === 'Table' && sortedFetchedCurrencies.length > 0 && (
 						<Card theme={cardTable.card}>
 							<Table type="dashboard">
-								{sortedFetchedCurrencies.map((fetchedCurrency) => {
-									const asset = assetMap.get(fetchedCurrency.cmc_id);
-									const hasTransactions =
-										assetMap.has(fetchedCurrency.cmc_id) &&
-										asset !== undefined &&
-										asset.transactions.length > 0;
-									return (
-										<DashboardTableRow
-											assetMap={assetMap}
-											currencyQuote={currencyQuote}
-											fetchedCurrency={fetchedCurrency}
-											hasTransactions={hasTransactions}
-											key={fetchedCurrency.cmc_id}
-										/>
-									);
-								})}
+								{sortedFetchedCurrencies.map((fetchedCurrency) => (
+									<DashboardTableRow
+										asset={assetMap.get(fetchedCurrency.cmc_id)}
+										currencyQuote={currencyQuote}
+										fetchedCurrency={fetchedCurrency}
+										key={fetchedCurrency.cmc_id}
+									/>
+								))}
 							</Table>
 						</Card>
 					)}

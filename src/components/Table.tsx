@@ -20,7 +20,7 @@ function TableHead({ type }: TableHeadProps) {
 				<TableHeadCell className="py-2 text-left">Name</TableHeadCell>
 				<TableHeadCell className="py-2 text-left">Current Market Price</TableHeadCell>
 				<TableHeadCell className="py-2 text-left">Holdings</TableHeadCell>
-				<TableHeadCell className="py-2 text-left">Total invested</TableHeadCell>
+				<TableHeadCell className="py-2 text-left">Cost basis</TableHeadCell>
 				<TableHeadCell className="py-2 text-left">Profit/loss</TableHeadCell>
 				<TableHeadCell className="py-2 pr-3 text-right">Edit</TableHeadCell>
 			</FBTableHead>
