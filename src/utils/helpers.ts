@@ -2,6 +2,8 @@ import type { CurrencyQuote } from 'api';
 import classNames from 'classnames';
 import type { SelectedAsset } from 'currency';
 
+const STORED_DATE = /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/;
+
 /**
  * Calculates the percentage difference between purchase price and current value.
  * @param purchasePrice - The total purchase price.
@@ -95,14 +97,18 @@ export function currencyFormat(
 type SupportedLocale = 'de' | 'en' | 'nl';
 
 /**
- * Converts any date input to UTC midnight ISO string
+ * Converts a date to the stored format (UTC midnight of a calendar day).
+ * - A Date object is read in the user's timezone: "the day they picked".
+ * - A string that is already in the stored format is kept as-is, so
+ *   re-saving never shifts the day for users west of UTC.
  */
 export function dateToStorage(date: Date | string): string {
+	if (typeof date === 'string' && STORED_DATE.test(date)) {
+		return date;
+	}
+
 	const d = new Date(date);
-	const year = d.getFullYear();
-	const month = d.getMonth();
-	const day = d.getDate();
-	return new Date(Date.UTC(year, month, day)).toISOString();
+	return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())).toISOString();
 }
 
 /**
@@ -118,6 +124,8 @@ export function dateForDisplay(isoString: string, locale: SupportedLocale = 'nl'
 		return new Intl.DateTimeFormat(locale, {
 			day: '2-digit',
 			month: '2-digit',
+			// Stored dates are UTC midnight; format in UTC so the day never shifts
+			timeZone: 'UTC',
 			year: 'numeric',
 		}).format(date);
 	} catch {
@@ -129,9 +137,8 @@ export function dateForDisplay(isoString: string, locale: SupportedLocale = 'nl'
  * Converts a displayed date back to storage format
  */
 export function displayToStorage(displayDate: string): string {
-	const date = new Date(displayDate);
-	if (!isNaN(date.getTime())) {
-		return dateToStorage(date);
+	if (!isNaN(new Date(displayDate).getTime())) {
+		return dateToStorage(displayDate);
 	}
 	return dateToStorage(new Date());
 }
