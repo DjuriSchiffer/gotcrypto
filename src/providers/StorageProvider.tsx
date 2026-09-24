@@ -1,12 +1,15 @@
-import { createContext, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
+import { StorageContext } from '../contexts/StorageContext';
 import { useStorageState } from '../hooks/useStorageState';
 
-export const StorageContext = createContext<ReturnType<typeof useStorageState> | undefined>(
-	undefined
-);
+type StorageProviderProps = {
+	children: ReactNode;
+};
 
-export function StorageProvider({ children }: { children: ReactNode }) {
+function StorageProvider({ children }: StorageProviderProps) {
 	const value = useStorageState();
 	return <StorageContext.Provider value={value}>{children}</StorageContext.Provider>;
 }
+
+export default StorageProvider;
