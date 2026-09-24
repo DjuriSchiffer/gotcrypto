@@ -1,14 +1,20 @@
 import type { User } from 'firebase/auth';
 
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
 import { AuthContext } from '../contexts/AuthContext';
-import { auth, db } from '../firebase/firebaseConfig';
+import { auth } from '../firebase/firebaseConfig';
 
-type AdminConfig = {
-	adminEmails: Array<string>;
+/** Reads the `admin` custom claim from the user's ID token (set with scripts/set-admin.cjs). */
+const hasAdminClaim = async (currentUser: User): Promise<boolean> => {
+	try {
+		const { claims } = await currentUser.getIdTokenResult();
+		return claims.admin === true;
+	} catch (error) {
+		console.error('Error checking admin status:', error);
+		return false;
+	}
 };
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -22,7 +28,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 			setLoading(false);
 
 			if (currentUser) {
-				void checkAdminStatus(currentUser);
+				void hasAdminClaim(currentUser).then(setIsAdmin);
 			} else {
 				setIsAdmin(false);
 			}
@@ -32,22 +38,6 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 			unsubscribe();
 		};
 	}, []);
-
-	const checkAdminStatus = async (currentUser: User): Promise<void> => {
-		try {
-			const adminDocRef = doc(db, 'admin', 'config');
-			const adminDoc = await getDoc(adminDocRef);
-
-			if (adminDoc.exists()) {
-				const adminData = adminDoc.data() as AdminConfig;
-				const adminEmails = adminData.adminEmails;
-				setIsAdmin(adminEmails.includes(currentUser.email || ''));
-			}
-		} catch (error) {
-			console.error('Error checking admin status:', error);
-			setIsAdmin(false);
-		}
-	};
 
 	const value = {
 		isAdmin,

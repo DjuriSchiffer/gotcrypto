@@ -1,4 +1,6 @@
-import { getAnalytics } from 'firebase/analytics';
+import type { Analytics } from 'firebase/analytics';
+
+import { getAnalytics, isSupported } from 'firebase/analytics';
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -13,10 +15,15 @@ const firebaseConfig = {
 	storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-export const analytics = getAnalytics(app);
+/**
+ * Resolves to Analytics where it's supported, or null (tests, some browsers, blocked cookies).
+ */
+export const analyticsPromise: Promise<Analytics | null> = isSupported()
+	.then((supported) => (supported ? getAnalytics(app) : null))
+	.catch(() => null);
+
 export const db = getFirestore(app);
 
 export const auth = getAuth(app);
