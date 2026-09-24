@@ -15,6 +15,7 @@ import { useAppDispatch } from './useAppDispatch';
 import { useAppState } from './useAppState';
 import { useAuth } from './useAuth';
 import { useLocalForage } from './useLocalForage';
+import totals from '../utils/totals';
 
 const STORAGE_KEY = 'selectedCurrencies';
 const SORT_METHOD_KEY = 'sortMethod';
@@ -22,6 +23,9 @@ const CURRENCY_QUOTE = 'currencyQuote';
 const DATE_LOCALE = 'dateLocale';
 const DASHBOARD_LAYOUT = 'dashboardLayout';
 const ONBOARDING_COMPLETED_KEY = 'onboardingCompleted';
+
+const withFreshTotals = (assets: Array<SelectedAsset>): Array<SelectedAsset> =>
+	assets.map((asset) => ({ ...asset, totals: totals(asset.transactions ?? []) }));
 
 export const useStorage = () => {
 	const { isAnonymous, user } = useAuth();
@@ -43,11 +47,11 @@ export const useStorage = () => {
 			if (user && !isAnonymous) {
 				// User is logged in, fetch from Firestore
 				const savedCurrencies = await fetchSelectedCurrenciesFromFirestore(user.uid);
-				setSelectedCurrenciesState(savedCurrencies);
+				setSelectedCurrenciesState(withFreshTotals(savedCurrencies));
 			} else {
 				// User is anonymous, fetch from localForage
 				const savedCurrencies = await getSelectedCurrencies(STORAGE_KEY);
-				setSelectedCurrenciesState(savedCurrencies);
+				setSelectedCurrenciesState(withFreshTotals(savedCurrencies));
 			}
 
 			let savedSortMethod: SortMethod = 'has_selected';
@@ -109,11 +113,12 @@ export const useStorage = () => {
 
 	const setSelectedCurrencies = useCallback(
 		async (assets: Array<SelectedAsset>) => {
-			setSelectedCurrenciesState(assets);
+			const normalized = withFreshTotals(assets);
+			setSelectedCurrenciesState(normalized);
 			if (user && !isAnonymous) {
-				await setSelectedCurrenciesInFirestore(user.uid, assets);
+				await setSelectedCurrenciesInFirestore(user.uid, normalized);
 			} else {
-				setLocalForage(STORAGE_KEY, assets);
+				setLocalForage(STORAGE_KEY, normalized);
 			}
 		},
 		[user, isAnonymous, setLocalForage]

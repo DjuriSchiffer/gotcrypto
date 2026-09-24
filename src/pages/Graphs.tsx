@@ -78,16 +78,16 @@ function Graphs() {
 							</Tooltip>
 						</div>
 						<div className="text-dark dark:text-white">
-							Total invested
-							<Tooltip content="Total Invested">
+							Total cost basis
+							<Tooltip content="Total cost basis">
 								<div className="text-4xl">
-									{currencyFormat(globalTotals.totalInvested, currencyQuote)}
+									{currencyFormat(globalTotals.totalCostBasis, currencyQuote)}
 								</div>
 							</Tooltip>
 						</div>
 						<div className="text-dark dark:text-white">
 							Total Profit/loss
-							<Tooltip content="((Total Value - Total Invested) / Total Invested) × 100">
+							<Tooltip content="(Value − Cost basis) / Cost basis × 100">
 								<div
 									className={classNames('text-xl', {
 										'text-green-500': globalTotals.totalPercentageDifference > 0,

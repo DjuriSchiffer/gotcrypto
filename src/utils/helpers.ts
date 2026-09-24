@@ -1,4 +1,5 @@
 import type { CurrencyQuote } from 'api';
+import classNames from 'classnames';
 import type { SelectedAsset } from 'currency';
 
 /**
@@ -8,7 +9,7 @@ import type { SelectedAsset } from 'currency';
  * @returns The percentage difference as a number.
  */
 export function percentageDifference(purchasePrice: number, currentValue: number): number {
-	if (purchasePrice === 0 || currentValue === 0) return 0;
+	if (purchasePrice === 0) return 0;
 	const difference = (currentValue * 100) / purchasePrice - 100;
 	return parseFloat(difference.toFixed(2));
 }
@@ -144,3 +145,14 @@ export const createCryptoMap = (
 			.map((currency) => [currency.cmc_id, currency])
 	);
 };
+
+/** Formats a coin amount with up to 8 decimals, using the same locale as prices. */
+export function amountFormat(amount: number, currencyQuote: keyof CurrencyQuote = 'EUR'): string {
+	return new Intl.NumberFormat(currencyQuote === 'EUR' ? 'nl-NL' : 'en-US', {
+		maximumFractionDigits: 8,
+	}).format(amount);
+}
+
+/** Green for gains, red for losses, nothing for zero. */
+export const profitClass = (value: number): string =>
+	classNames({ 'text-green-500': value > 0, 'text-red-500': value < 0 });

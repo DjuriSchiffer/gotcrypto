@@ -7,6 +7,7 @@ import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import { currencyFormat, dateForDisplay } from '../utils/helpers';
 import { useThemeMode } from 'flowbite-react';
+import { positionHistory } from '../utils/totals';
 
 type DetailChartsProps = {
 	currencyQuote: keyof CurrencyQuote;
@@ -29,76 +30,35 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 
 	const chartData = useMemo(() => {
 		if (!selectedAsset) {
-			return {
-				amountData: [],
-				investedData: [],
-				labels: [],
-				priceData: [],
-				valueData: [],
-			};
+			return { amountData: [], investedData: [], labels: [], priceData: [], valueData: [] };
 		}
 
-		const transactions: Array<Transaction> = [...selectedAsset.transactions].reverse();
-		const today = new Date();
+		const history = positionHistory(selectedAsset.transactions);
+		const lastStep = history.at(-1);
+		const currentPrice =
+			fetchedCurrencies?.find((currency) => currency.cmc_id === selectedAsset.cmc_id)?.price ?? 0;
 
-		const isNegativeTransaction = (transaction: Transaction): boolean =>
-			transaction.type === 'sell' ||
-			(transaction.type === 'transfer' && transaction.transferType === 'out');
-
-		const labels: Array<string> = [
-			...transactions.map((transaction) => {
-				const date = new Date(transaction.date);
-				return dateForDisplay(date.toISOString(), dateLocale);
-			}),
-			dateForDisplay(today.toISOString(), dateLocale),
+		// One entry per transaction, plus a final "today" point. Every array has the same length.
+		const labels = [
+			...history.map((step) => dateForDisplay(step.transaction.date, dateLocale)),
+			dateForDisplay(new Date().toISOString(), dateLocale),
 		];
 
-		const amountData: Array<number> = [];
-		const investedData: Array<number> = [];
-		const priceData: Array<number> = [];
+		const amountData = [...history.map((step) => step.amount), lastStep?.amount ?? 0];
 
-		let cumulativeAmount = 0;
-		let totalSpent = 0;
+		const investedData = [...history.map((step) => step.costBasis), lastStep?.costBasis ?? 0];
 
-		transactions.forEach((transaction) => {
-			const amount = parseFloat(transaction.amount);
-			const purchasePrice = parseFloat(transaction.purchasePrice);
+		const priceData = [
+			...history.map((step) => {
+				const amount = parseFloat(step.transaction.amount);
+				return amount ? parseFloat(step.transaction.purchasePrice) / amount : 0;
+			}),
+			currentPrice,
+		];
 
-			if (isNegativeTransaction(transaction)) {
-				cumulativeAmount -= amount;
-			} else {
-				cumulativeAmount += amount;
-			}
-			amountData.push(cumulativeAmount);
+		const valueData = amountData.map((amount, i) => amount * priceData[i]);
 
-			if (transaction.type === 'sell') {
-				totalSpent -= purchasePrice;
-			} else if (transaction.type === 'buy') {
-				totalSpent += purchasePrice;
-			}
-			investedData.push(totalSpent);
-
-			priceData.push(purchasePrice / amount);
-		});
-
-		const currentCurrency = fetchedCurrencies?.find(
-			(currency) => currency.cmc_id === selectedAsset.cmc_id
-		);
-		const currentPrice = currentCurrency?.price ?? 0;
-
-		amountData.push(cumulativeAmount);
-		investedData.push(totalSpent);
-		priceData.push(currentPrice);
-
-		const valueData: Array<number> = amountData.map((amount, i) => amount * priceData[i]);
-
-		return {
-			amountData,
-			investedData,
-			labels,
-			priceData,
-			valueData,
-		};
+		return { amountData, investedData, labels, priceData, valueData };
 	}, [selectedAsset, fetchedCurrencies, dateLocale]);
 
 	useEffect(() => {
@@ -323,7 +283,7 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 				height: 300,
 			},
 			title: {
-				text: 'Total Invested',
+				text: 'Cost basis',
 				align: 'left',
 			},
 			series: [

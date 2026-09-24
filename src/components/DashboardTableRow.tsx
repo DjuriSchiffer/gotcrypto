@@ -6,35 +6,27 @@ import { Button, TableCell, TableRow } from 'flowbite-react';
 import { FaPen } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-import { currencyFormat, percentageFormat } from '../utils/helpers';
+import { amountFormat, currencyFormat, percentageFormat, profitClass } from '../utils/helpers';
 import { getImage } from '../utils/images';
-import { getTotalAmount, getTotalInvested, getTotalPercentageDifference } from '../utils/totals';
+import { getAssetSummary } from '../utils/totals';
 
-type DashboardTableRow = {
-	assetMap: Map<number, SelectedAsset>;
+type DashboardTableRowProps = {
+	asset?: SelectedAsset;
 	currencyQuote: keyof CurrencyQuote;
 	fetchedCurrency: FetchedCurrency;
-	hasTransactions: boolean;
 };
 
-function DashboardTableRow({
-	assetMap,
-	currencyQuote,
-	fetchedCurrency,
-	hasTransactions,
-}: DashboardTableRow) {
-	const percentageDifference = getTotalPercentageDifference(
-		assetMap,
-		fetchedCurrency.cmc_id,
-		fetchedCurrency.price
-	);
-	const totalAmount = getTotalAmount(assetMap, fetchedCurrency.cmc_id);
+const cellClass = 'py-2 text-gray-700 dark:text-white';
+
+function DashboardTableRow({ asset, currencyQuote, fetchedCurrency }: DashboardTableRowProps) {
+	const hasTransactions = (asset?.transactions.length ?? 0) > 0;
+	const summary = getAssetSummary(asset, fetchedCurrency.price);
+	const money = (value: number) => currencyFormat(value, currencyQuote);
 
 	return (
 		<TableRow
 			className={classNames('transition ease-in-out dark:!border-gray-400', {
-				'hover:opacity-100': !hasTransactions,
-				'opacity-50': !hasTransactions,
+				'opacity-50 hover:opacity-100': !hasTransactions,
 			})}
 		>
 			<TableCell className="whitespace-nowrap text-gray-700 dark:text-white">
@@ -48,49 +40,62 @@ function DashboardTableRow({
 					<div className="pl-2">{fetchedCurrency.name}</div>
 				</div>
 			</TableCell>
-			<TableCell className="py-2 text-gray-700 dark:text-white">
-				<div>{currencyFormat(fetchedCurrency.price, currencyQuote)}</div>
-			</TableCell>
+
+			<TableCell className={cellClass}>{money(fetchedCurrency.price)}</TableCell>
+
 			{!hasTransactions && (
 				<>
-					<TableCell className="text-gray-700 dark:text-white">
-						No transactions added yet.
-					</TableCell>
+					<TableCell className={cellClass}>No transactions added yet.</TableCell>
 					<TableCell />
 					<TableCell />
 				</>
 			)}
+
 			{hasTransactions && (
 				<>
-					<TableCell className="py-2 text-gray-700 dark:text-white">
-						<div className="flex flex-col">
-							<div>{currencyFormat(totalAmount * fetchedCurrency.price, currencyQuote)}</div>
-							<div className="text-sm">{totalAmount}</div>
-						</div>
-					</TableCell>
-					<TableCell className="py-2 text-gray-700 dark:text-white">
-						<div className="flex flex-col">
-							<div>
-								{currencyFormat(getTotalInvested(assetMap, fetchedCurrency.cmc_id), currencyQuote)}
+					<TableCell className={cellClass}>
+						{summary.isClosed ? (
+							<span className="text-sm text-gray-500 dark:text-gray-400">Position closed</span>
+						) : (
+							<div className="flex flex-col">
+								<span>{money(summary.value)}</span>
+								<span className="text-sm">{amountFormat(summary.amount, currencyQuote)}</span>
 							</div>
-						</div>
+						)}
 					</TableCell>
-					<TableCell className="py-2">
-						<div
-							className={classNames('inline-flex items-center', {
-								'dark:text-white': percentageDifference === 0,
-								'text-green-500': percentageDifference > 0,
-								'text-red-500': percentageDifference < 0,
-							})}
-						>
-							{percentageFormat(percentageDifference)}
+
+					<TableCell className={cellClass}>
+						{summary.isClosed ? '-' : money(summary.costBasis)}
+					</TableCell>
+
+					<TableCell className="py-2 text-gray-700 dark:text-white">
+						<div className="flex flex-col">
+							{!summary.isClosed && (
+								<span className={profitClass(summary.unrealizedProfit)}>
+									{money(summary.unrealizedProfit)}{' '}
+									<span className="text-sm">
+										({percentageFormat(summary.unrealizedPercentage)})
+									</span>
+								</span>
+							)}
+							{(summary.isClosed || summary.realizedProfit !== 0) && (
+								<span className={classNames('text-sm', profitClass(summary.realizedProfit))}>
+									Realized {money(summary.realizedProfit)}
+								</span>
+							)}
 						</div>
 					</TableCell>
 				</>
 			)}
 
-			<TableCell className="flex items-center justify-end pr-2 text-right">
-				<Button className="my-auto" color="primary" size="sm" as={Link} to={fetchedCurrency.slug}>
+			<TableCell className="py-2 pr-2 text-right">
+				<Button
+					className="ml-auto inline-flex"
+					color="primary"
+					size="sm"
+					as={Link}
+					to={fetchedCurrency.slug}
+				>
 					<FaPen color="white" />
 				</Button>
 			</TableCell>

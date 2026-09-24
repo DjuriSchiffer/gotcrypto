@@ -116,7 +116,7 @@ function Charts({ fetchedCurrencies, id, selectedAssets }: ChartsProps) {
 		} else {
 			const dataPoints = selectedAssets.map((selectedAsset) => ({
 				label: selectedAsset.name,
-				value: selectedAsset.totals?.totalInvested ?? 0,
+				value: selectedAsset.totals?.totalCostBasis ?? 0,
 			}));
 
 			const sortedData = dataPoints.sort((a, b) => b.value - a.value);
@@ -143,7 +143,7 @@ function Charts({ fetchedCurrencies, id, selectedAssets }: ChartsProps) {
 		if (id === 'amount') {
 			return 'Total value per asset';
 		} else {
-			return 'Total amount invested per asset';
+			return 'Cost basis per asset';
 		}
 	};
 

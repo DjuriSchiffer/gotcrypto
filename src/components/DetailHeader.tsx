@@ -1,4 +1,5 @@
 import type { CurrencyQuote } from 'api';
+import type { ReactNode } from 'react';
 
 import classNames from 'classnames';
 import { Button, Card, Dropdown, DropdownItem, useThemeMode } from 'flowbite-react';
@@ -21,6 +22,20 @@ type DetailHeaderProps = {
 	selectedAsset?: SelectedAsset;
 };
 
+const profitClass = (value: number) =>
+	classNames({ 'text-green-500': value > 0, 'text-red-500': value < 0 });
+
+function StatCard({ children, title }: { children: ReactNode; title: string }) {
+	return (
+		<Card>
+			<div className="flex-root h-full">
+				<h5 className="mb-1 text-xs font-bold text-gray-900 dark:text-gray-500">{title}</h5>
+				<div className="text-md font-bold text-gray-900 dark:text-white">{children}</div>
+			</div>
+		</Card>
+	);
+}
+
 function DetailHeader({
 	currencyQuote,
 	currentFetchedCurrency,
@@ -30,18 +45,15 @@ function DetailHeader({
 }: DetailHeaderProps) {
 	const { computedMode } = useThemeMode();
 	const isDarkMode = computedMode === 'dark';
-	const totalsItem = selectedAsset?.totals;
+	const totals = selectedAsset?.totals;
 
-	const totalAmount = totalsItem?.totalAmount ?? 0;
+	const totalAmount = totals?.totalAmount ?? 0;
 	const totalValue = totalAmount * currentFetchedCurrency.price;
-	const totalInvested = totalsItem?.totalInvested
-		? parseFloat(totalsItem.totalInvested.toString())
-		: 0;
-
-	const totalAveragePurchasePrice = totalsItem
-		? parseFloat(totalsItem.totalAveragePurchasePrice.toString())
-		: 0;
-	const totalPercentageDifference = percentageDifference(totalInvested, totalValue);
+	const costBasis = totals?.totalCostBasis ?? 0;
+	const averageCost = totals?.totalAverageCost ?? 0;
+	const realizedProfit = totals?.totalRealizedProfit ?? 0;
+	const unrealizedProfit = totalValue - costBasis;
+	const unrealizedPercentage = percentageDifference(costBasis, totalValue);
 
 	return (
 		<>
@@ -83,76 +95,36 @@ function DetailHeader({
 					)}
 				</div>
 			</div>
-			{selectedAsset?.totals && (
-				<div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-					<Card>
-						<div className="flex-root h-full">
-							<div className="mb-1 flex items-center">
-								<h5 className="text-xs font-bold text-gray-900 dark:text-gray-500">
-									Total Holdings
-								</h5>
-							</div>
-							<div>
-								<h5 className="text-md font-bold text-gray-900 dark:text-white">
-									{selectedAsset.totals.totalAmount} {selectedAsset.name}
-								</h5>
-							</div>
-							<div>
-								<h5 className="text-md font-bold text-gray-900 dark:text-white">
-									{currencyFormat(totalValue, currencyQuote)}
-								</h5>
-							</div>
+			{selectedAsset && totals && (
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+					<StatCard title="Total holdings">
+						<div>
+							{totalAmount} {selectedAsset.name}
 						</div>
-					</Card>
-					<Card>
-						<div className="flex-root h-full">
-							<div className="mb-1 flex items-center">
-								<h5 className="text-xs font-bold text-gray-900 dark:text-gray-500">
-									Total invested
-								</h5>
-							</div>
-							<div>
-								<h5 className="text-md font-bold text-gray-900 dark:text-white">
-									{currencyFormat(selectedAsset.totals.totalInvested, currencyQuote)}
-								</h5>
-							</div>
+						<div>{currencyFormat(totalValue, currencyQuote)}</div>
+					</StatCard>
+
+					<StatCard title="Cost basis">
+						<div>{currencyFormat(costBasis, currencyQuote)}</div>
+						<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
+							Avg. cost {currencyFormat(averageCost, currencyQuote)}
 						</div>
-					</Card>
-					<Card>
-						<div className="flex-root h-full">
-							<div className="mb-1 flex items-center">
-								<h5 className="text-xs font-bold text-gray-900 dark:text-gray-500">
-									Total profit / loss
-								</h5>
-							</div>
-							<div>
-								<h5 className="text-md font-bold text-gray-900 dark:text-white">
-									<div
-										className={classNames('flex', {
-											'text-green-500': totalPercentageDifference > 0,
-											'text-red-500': totalPercentageDifference < 0,
-										})}
-									>
-										{percentageFormat(totalPercentageDifference)}
-									</div>
-								</h5>
-							</div>
+					</StatCard>
+
+					<StatCard title="Unrealized profit / loss">
+						<div className={profitClass(unrealizedProfit)}>
+							{currencyFormat(unrealizedProfit, currencyQuote)}
 						</div>
-					</Card>
-					<Card>
-						<div className="flex-root h-full">
-							<div className="mb-1 flex items-center">
-								<h5 className="text-xs font-bold text-gray-900 dark:text-gray-500">
-									Avg. buy price
-								</h5>
-							</div>
-							<div>
-								<h5 className="text-md font-bold text-gray-900 dark:text-white">
-									{currencyFormat(totalAveragePurchasePrice, currencyQuote)}
-								</h5>
-							</div>
+						<div className={profitClass(unrealizedPercentage)}>
+							{percentageFormat(unrealizedPercentage)}
 						</div>
-					</Card>
+					</StatCard>
+
+					<StatCard title="Realized profit / loss">
+						<div className={profitClass(realizedProfit)}>
+							{currencyFormat(realizedProfit, currencyQuote)}
+						</div>
+					</StatCard>
 				</div>
 			)}
 		</>

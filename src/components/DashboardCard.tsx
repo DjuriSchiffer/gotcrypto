@@ -1,40 +1,55 @@
 import type { CurrencyQuote } from 'api';
 import type { FetchedCurrency, SelectedAsset } from 'currency';
+import type { ReactNode } from 'react';
 
 import classNames from 'classnames';
 import { Button, Card } from 'flowbite-react';
 import { FaPen } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-import { currencyFormat, percentageFormat } from '../utils/helpers';
+import { amountFormat, currencyFormat, percentageFormat, profitClass } from '../utils/helpers';
 import { getImage } from '../utils/images';
-import { getTotalAmount, getTotalInvested, getTotalPercentageDifference } from '../utils/totals';
+import { getAssetSummary } from '../utils/totals';
 
-type DashboardCard = {
-	assetMap: Map<number, SelectedAsset>;
+type DashboardCardProps = {
+	asset?: SelectedAsset;
 	currencyQuote: keyof CurrencyQuote;
 	fetchedCurrency: FetchedCurrency;
-	hasTransactions: boolean;
 };
 
-function DashboardCard({
-	assetMap,
-	currencyQuote,
-	fetchedCurrency,
-	hasTransactions,
-}: DashboardCard) {
-	const percentageDifference = getTotalPercentageDifference(
-		assetMap,
-		fetchedCurrency.cmc_id,
-		fetchedCurrency.price
+type StatRowProps = {
+	children: ReactNode;
+	description?: string;
+	label: string;
+};
+
+function StatRow({ children, description, label }: StatRowProps) {
+	return (
+		<li className="py-3 sm:py-4">
+			<div className="flex items-center space-x-4">
+				<div className="min-w-0 flex-1">
+					<p className="truncate text-sm font-medium text-gray-700 dark:text-white">{label}</p>
+					{description && (
+						<p className="truncate text-sm text-gray-500 dark:text-gray-400">{description}</p>
+					)}
+				</div>
+				<div className="flex flex-col items-end text-base font-semibold text-gray-700 dark:text-white">
+					{children}
+				</div>
+			</div>
+		</li>
 	);
-	const totalAmount = getTotalAmount(assetMap, fetchedCurrency.cmc_id);
+}
+
+function DashboardCard({ asset, currencyQuote, fetchedCurrency }: DashboardCardProps) {
+	const hasTransactions = (asset?.transactions.length ?? 0) > 0;
+	const summary = getAssetSummary(asset, fetchedCurrency.price);
+	const money = (value: number) => currencyFormat(value, currencyQuote);
 
 	return (
 		<Card
 			className={classNames('transition ease-in-out', {
-				'hover:opacity-100': !hasTransactions,
-				'opacity-50': !hasTransactions,
+				'opacity-50 hover:opacity-100': !hasTransactions,
 			})}
 		>
 			<div className="flex items-center space-x-2">
@@ -55,110 +70,56 @@ function DashboardCard({
 					</Button>
 				</div>
 			</div>
-			<div
-				className={classNames('flex-root', {
-					'h-full': !hasTransactions,
-				})}
-			>
+
+			<div className={classNames('flex-root', { 'h-full': !hasTransactions })}>
 				<ul className="divide-y divide-gray-200 dark:divide-gray-700">
-					<li className="py-3 sm:py-4">
-						<div className="flex items-center space-x-4">
-							<div className="min-w-0 flex-1">
-								<p className="truncate text-sm font-medium text-gray-700 dark:text-white">
-									Current market price
-								</p>
-								<p className="truncate text-sm text-gray-500 dark:text-gray-400">
-									{currencyFormat(fetchedCurrency.price, currencyQuote)}
-								</p>
-							</div>
-						</div>
-					</li>
+					<StatRow label="Current market price">{money(fetchedCurrency.price)}</StatRow>
+
 					{!hasTransactions && (
-						<li className="pt-6 pb-1">
-							<div className="flex items-center space-x-4">
-								<div className="min-w-0 flex-1">
-									<p className="truncate text-center text-sm font-medium text-gray-700 dark:text-white">
-										No transactions added yet.
-									</p>
-								</div>
-							</div>
+						<li className="pb-1 pt-6">
+							<p className="text-center text-sm font-medium text-gray-700 dark:text-white">
+								No transactions added yet.
+							</p>
 						</li>
 					)}
-					{hasTransactions && (
+
+					{hasTransactions && summary.isClosed && (
+						<StatRow description="Everything has been sold or transferred out" label="Holdings">
+							{amountFormat(0, currencyQuote)}
+						</StatRow>
+					)}
+
+					{hasTransactions && !summary.isClosed && (
 						<>
-							<li className="py-3 sm:py-4">
-								<div className="flex items-center space-x-4">
-									<div className="min-w-0 flex-1">
-										<p className="truncate text-sm font-medium text-gray-700 dark:text-white">
-											Total holdings
-										</p>
-										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
-											Total amount bougth minus total sold
-										</p>
-									</div>
-									<div className="inline-flex items-center text-base font-semibold text-gray-700 dark:text-white">
-										{totalAmount}
-									</div>
-								</div>
-							</li>
-							<li className="py-3 sm:py-4">
-								<div className="flex items-center space-x-4">
-									<div className="min-w-0 flex-1">
-										<p className="truncate text-sm font-medium text-gray-700 dark:text-white">
-											Total value
-										</p>
-										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
-											Total amount bougth times current market price
-										</p>
-									</div>
-									<div className="inline-flex items-center text-base font-semibold text-gray-700 dark:text-white">
-										{currencyFormat(totalAmount * fetchedCurrency.price, currencyQuote)}
-									</div>
-								</div>
-							</li>
-							<li className="py-3 sm:py-4">
-								<div className="flex items-center space-x-4">
-									<div className="min-w-0 flex-1">
-										<p className="truncate text-sm font-medium text-gray-700 dark:text-white">
-											Total invested
-										</p>
-										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
-											Total spend minus total sold
-										</p>
-									</div>
-									<div className="inline-flex items-center text-base font-semibold text-gray-700 dark:text-white">
-										{currencyFormat(
-											getTotalInvested(assetMap, fetchedCurrency.cmc_id),
-											currencyQuote
-										)}
-									</div>
-								</div>
-							</li>
-							<li className="pb-0 pt-3 sm:pt-4">
-								<div className="flex items-center space-x-4">
-									<div className="min-w-0 flex-1">
-										<p className="truncate text-sm font-medium text-gray-700 dark:text-white">
-											Total profit
-										</p>
-										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
-											In percentages
-										</p>
-									</div>
-									<div
-										className={classNames(
-											'inline-flex items-center text-base font-semibold text-gray-700',
-											{
-												'dark:text-white': percentageDifference === 0,
-												'text-green-500': percentageDifference > 0,
-												'text-red-500': percentageDifference < 0,
-											}
-										)}
-									>
-										{percentageFormat(percentageDifference)}
-									</div>
-								</div>
-							</li>
+							<StatRow description="Worth at current price" label="Holdings">
+								<span>{amountFormat(summary.amount, currencyQuote)}</span>
+								<span className="text-sm font-normal">{money(summary.value)}</span>
+							</StatRow>
+							<StatRow description={`Avg. cost ${money(summary.averageCost)}`} label="Cost basis">
+								{money(summary.costBasis)}
+							</StatRow>
+							<StatRow description="On current holdings" label="Unrealized profit">
+								<span className={profitClass(summary.unrealizedProfit)}>
+									{money(summary.unrealizedProfit)}
+								</span>
+								<span
+									className={classNames(
+										'text-sm font-normal',
+										profitClass(summary.unrealizedPercentage)
+									)}
+								>
+									{percentageFormat(summary.unrealizedPercentage)}
+								</span>
+							</StatRow>
 						</>
+					)}
+
+					{hasTransactions && (summary.isClosed || summary.realizedProfit !== 0) && (
+						<StatRow description="Locked in by selling" label="Realized profit">
+							<span className={profitClass(summary.realizedProfit)}>
+								{money(summary.realizedProfit)}
+							</span>
+						</StatRow>
 					)}
 				</ul>
 			</div>
