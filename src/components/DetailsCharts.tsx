@@ -22,15 +22,15 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 
 	const amountChartRef = useRef<HTMLDivElement>(null);
 	const valueChartRef = useRef<HTMLDivElement>(null);
-	const investedChartRef = useRef<HTMLDivElement>(null);
+	const costBasisChartRef = useRef<HTMLDivElement>(null);
 
 	const amountChartInstance = useRef<ApexCharts | null>(null);
 	const valueChartInstance = useRef<ApexCharts | null>(null);
-	const investedChartInstance = useRef<ApexCharts | null>(null);
+	const costBasisChartInstance = useRef<ApexCharts | null>(null);
 
 	const chartData = useMemo(() => {
 		if (!selectedAsset) {
-			return { amountData: [], investedData: [], labels: [], priceData: [], valueData: [] };
+			return { amountData: [], costBasisData: [], labels: [], priceData: [], valueData: [] };
 		}
 
 		const history = positionHistory(selectedAsset.transactions);
@@ -46,7 +46,7 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 
 		const amountData = [...history.map((step) => step.amount), lastStep?.amount ?? 0];
 
-		const investedData = [...history.map((step) => step.costBasis), lastStep?.costBasis ?? 0];
+		const costBasisData = [...history.map((step) => step.costBasis), lastStep?.costBasis ?? 0];
 
 		const priceData = [
 			...history.map((step) => {
@@ -58,7 +58,7 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 
 		const valueData = amountData.map((amount, i) => amount * priceData[i]);
 
-		return { amountData, investedData, labels, priceData, valueData };
+		return { amountData, costBasisData, labels, priceData, valueData };
 	}, [selectedAsset, fetchedCurrencies, dateLocale]);
 
 	useEffect(() => {
@@ -66,7 +66,7 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			!selectedAsset ||
 			!amountChartRef.current ||
 			!valueChartRef.current ||
-			!investedChartRef.current
+			!costBasisChartRef.current
 		) {
 			return;
 		}
@@ -182,9 +182,6 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 				lineCap: 'round',
 			},
 			yaxis: {
-				title: {
-					text: 'Amount',
-				},
 				labels: {
 					formatter: function (value: number) {
 						return value.toFixed(4);
@@ -241,9 +238,6 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 				lineCap: 'round',
 			},
 			yaxis: {
-				title: {
-					text: 'Value',
-				},
 				labels: {
 					formatter: function (value: number) {
 						return currencyFormat(value, currencyQuote);
@@ -274,11 +268,11 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			},
 		};
 
-		const investedOptions = {
+		const costBasisOptions = {
 			...commonOptions,
 			chart: {
 				...commonOptions.chart,
-				id: 'invested',
+				id: 'costBasis',
 				type: 'line',
 				height: 300,
 			},
@@ -288,8 +282,8 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			},
 			series: [
 				{
-					name: 'Invested',
-					data: chartData.investedData,
+					name: 'Cost basis',
+					data: chartData.costBasisData,
 					color: '#EF4444',
 					type: 'line',
 				},
@@ -299,9 +293,6 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 				curve: 'smooth',
 			},
 			yaxis: {
-				title: {
-					text: 'Invested',
-				},
 				labels: {
 					formatter: function (value: number) {
 						return currencyFormat(value, currencyQuote);
@@ -337,17 +328,17 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 		if (valueChartInstance.current) {
 			valueChartInstance.current.destroy();
 		}
-		if (investedChartInstance.current) {
-			investedChartInstance.current.destroy();
+		if (costBasisChartInstance.current) {
+			costBasisChartInstance.current.destroy();
 		}
 
 		amountChartInstance.current = new ApexCharts(amountChartRef.current, amountOptions);
 		valueChartInstance.current = new ApexCharts(valueChartRef.current, valueOptions);
-		investedChartInstance.current = new ApexCharts(investedChartRef.current, investedOptions);
+		costBasisChartInstance.current = new ApexCharts(costBasisChartRef.current, costBasisOptions);
 
 		amountChartInstance.current.render();
 		valueChartInstance.current.render();
-		investedChartInstance.current.render();
+		costBasisChartInstance.current.render();
 
 		return () => {
 			if (amountChartInstance.current) {
@@ -356,8 +347,8 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 			if (valueChartInstance.current) {
 				valueChartInstance.current.destroy();
 			}
-			if (investedChartInstance.current) {
-				investedChartInstance.current.destroy();
+			if (costBasisChartInstance.current) {
+				costBasisChartInstance.current.destroy();
 			}
 		};
 	}, [chartData, currencyQuote, selectedAsset]);
@@ -370,7 +361,7 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 		<div className="flex h-auto w-full flex-col space-y-6">
 			<div ref={valueChartRef} className="h-[300px] w-full"></div>
 			<div ref={amountChartRef} className="h-[300px] w-full"></div>
-			<div ref={investedChartRef} className="h-[300px] w-full"></div>
+			<div ref={costBasisChartRef} className="h-[300px] w-full"></div>
 		</div>
 	);
 }
