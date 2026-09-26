@@ -10,7 +10,7 @@ import { useAuth } from './hooks/useAuth';
 import { useStorage } from './hooks/useStorage';
 import Dashboard from './pages/Dashboard';
 import Detail from './pages/Detail';
-import Graphs from './pages/Graphs';
+import Insights from './pages/Insights';
 import OnboardingPage from './pages/Onboarding';
 import UserSettings from './pages/UserSettings';
 import { customTheme } from './theme';
@@ -67,7 +67,7 @@ function App() {
 							}
 							path="/onboarding"
 						/>
-						<Route element={protectedPage(<Graphs />)} path="/graphs" />
+						<Route element={protectedPage(<Insights />)} path="/insights" />
 						<Route element={protectedPage(<UserSettings />)} path="/user-settings" />
 						<Route element={protectedPage(<Detail />)} path="/:slug" />
 					</Routes>

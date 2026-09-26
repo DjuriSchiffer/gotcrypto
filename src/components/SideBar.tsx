@@ -122,7 +122,7 @@ function SideBar() {
 					) : (
 						<AppSideBarItem icon={FaArrowLeft} text="Return to Dashboard" to="/" />
 					)}
-					<AppSideBarItem icon={FaChartBar} text="Graphs and stats" to="/graphs" />
+					<AppSideBarItem icon={FaChartBar} text="Insights" to="/insights" />
 				</SidebarItemGroup>
 				<SidebarItemGroup className="mt-auto">
 					<div className="text-md mb-3 ml-2 text-gray-900 dark:text-white">
