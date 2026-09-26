@@ -1,8 +1,10 @@
-import { defineConfig } from 'vite';
+/// <reference types="vitest/config" />
 import react from '@vitejs/plugin-react';
-import flowbiteReact from "flowbite-react/plugin/vite";
+import { defineConfig } from 'vite';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [react(), flowbiteReact()],
+	plugins: [react()],
+	test: {
+		environment: 'jsdom',
+	},
 });

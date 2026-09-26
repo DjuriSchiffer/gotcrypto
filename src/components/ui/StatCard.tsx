@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 
 import classNames from 'classnames';
-import { Card, Tooltip } from 'flowbite-react';
-import { FaInfoCircle } from 'react-icons/fa';
+import { Card } from 'flowbite-react';
+
+import HintIcon from './HintIcon';
 
 type StatCardProps = {
 	/** Optional line under the value, e.g. a badge or a short note */
@@ -20,11 +21,7 @@ function StatCard({ children, hint, label, value, valueClassName }: StatCardProp
 			<div className="flex flex-col gap-2">
 				<div className="flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-400">
 					{label}
-					{hint && (
-						<Tooltip content={hint}>
-							<FaInfoCircle aria-label={hint} className="h-3.5 w-3.5 cursor-help" />
-						</Tooltip>
-					)}
+					{hint && <HintIcon hint={hint} />}
 				</div>
 				<div
 					className={classNames(
