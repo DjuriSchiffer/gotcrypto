@@ -213,6 +213,7 @@ describe('getAssetSummary', () => {
 			averageCost: 0,
 			costBasis: 0,
 			isClosed: false,
+			hasSold: false,
 			realizedProfit: 0,
 			unrealizedPercentage: 0,
 			unrealizedProfit: 0,
@@ -242,6 +243,18 @@ describe('getAssetSummary', () => {
 
 	it('does not mark an asset without transactions as closed', () => {
 		expect(getAssetSummary(asset(1), 60000).isClosed).toBe(false);
+	});
+
+	it('reports a break-even sell as sold with zero realized profit', () => {
+		const summary = getAssetSummary(asset(1, [buy(1, 10000), sell(0.5, 5000)]), 60000);
+
+		expect(summary).toMatchObject({ hasSold: true, realizedProfit: 0 });
+	});
+
+	it('does not count a transfer out as a sale', () => {
+		const summary = getAssetSummary(asset(1, [buy(1, 10000), transferOut(0.5, 5000)]), 60000);
+
+		expect(summary.hasSold).toBe(false);
 	});
 });
 

@@ -114,7 +114,7 @@ function DashboardCard({ asset, currencyQuote, fetchedCurrency }: DashboardCardP
 						</>
 					)}
 
-					{hasTransactions && (summary.isClosed || summary.realizedProfit !== 0) && (
+					{hasTransactions && summary.hasSold && (
 						<StatRow description="Locked in by selling" label="Realized profit">
 							<span className={profitClass(summary.realizedProfit)}>
 								{money(summary.realizedProfit)}

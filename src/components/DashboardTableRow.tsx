@@ -78,7 +78,7 @@ function DashboardTableRow({ asset, currencyQuote, fetchedCurrency }: DashboardT
 									</span>
 								</span>
 							)}
-							{(summary.isClosed || summary.realizedProfit !== 0) && (
+							{summary.hasSold && (
 								<span className={classNames('text-sm', profitClass(summary.realizedProfit))}>
 									Realized {money(summary.realizedProfit)}
 								</span>
