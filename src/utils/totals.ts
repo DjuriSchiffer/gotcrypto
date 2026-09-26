@@ -206,6 +206,7 @@ export type AssetSummary = {
 	amount: number;
 	averageCost: number;
 	costBasis: number;
+	hasSold: boolean;
 	isClosed: boolean;
 	realizedProfit: number;
 	unrealizedPercentage: number;
@@ -225,6 +226,7 @@ export const getAssetSummary = (
 	return {
 		amount,
 		averageCost: asset?.totals.totalAverageCost ?? 0,
+		hasSold: (asset?.totals.totalAmountSold ?? 0) > 0,
 		costBasis,
 		isClosed: amount === 0 && (asset?.transactions.length ?? 0) > 0,
 		realizedProfit: asset?.totals.totalRealizedProfit ?? 0,
