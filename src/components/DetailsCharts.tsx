@@ -205,7 +205,7 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 				...commonOptions.tooltip,
 				y: {
 					formatter: function (value: number) {
-						return `Amount: ${value.toFixed(4)}`;
+						return `${value.toFixed(4)}`;
 					},
 				},
 			},
@@ -264,7 +264,7 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 				...commonOptions.tooltip,
 				y: {
 					formatter: function (value: number) {
-						return `Value: ${currencyFormat(value, currencyQuote)}`;
+						return `${currencyFormat(value, currencyQuote)}`;
 					},
 				},
 			},
@@ -321,7 +321,7 @@ function DetailCharts({ currencyQuote, selectedAsset }: DetailChartsProps) {
 				...commonOptions.tooltip,
 				y: {
 					formatter: function (value: number) {
-						return `Invested: ${currencyFormat(value, currencyQuote)}`;
+						return `${currencyFormat(value, currencyQuote)}`;
 					},
 				},
 			},

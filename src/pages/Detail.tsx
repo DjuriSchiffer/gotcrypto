@@ -1,7 +1,8 @@
-import { Card } from 'flowbite-react';
+import { Card, TabItem, Tabs } from 'flowbite-react';
+
 import uniqueId from 'lodash.uniqueid';
-import { useMemo, useState } from 'react';
-import { FaArrowLeft } from 'react-icons/fa';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { FaArrowLeft, FaChartLine, FaList } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
 
 import type { SelectedAsset, Transaction, TransactionType, TransferType } from '../types/currency';
@@ -21,6 +22,11 @@ import type { FormInputs } from '../components/TransactionForm';
 import { transactionFromForm } from '../utils/transactions';
 import { upsertTransaction } from '../utils/transactions';
 
+import type { TabsRef } from 'flowbite-react';
+
+const TRANSACTIONS_TAB = 0;
+const CHARTS_TAB = 1;
+
 function Detail() {
 	const { currencyQuote } = useAppState();
 	const {
@@ -37,14 +43,25 @@ function Detail() {
 	const [openRemoveAllTransactionsModal, setOpenRemoveAllTransactionsModal] =
 		useState<boolean>(false);
 	const [currentTransaction, setCurrentTransaction] = useState<null | Transaction>(null);
+	const tabsRef = useRef<TabsRef>(null);
+	const [activeTab, setActiveTab] = useState(TRANSACTIONS_TAB);
 
 	const selectedAsset = useMemo(() => {
 		return selectedCurrencies.find((currency) => currency.slug === currentAssetSlug);
 	}, [selectedCurrencies, currentAssetSlug]);
 
+	const hasTransactions = (selectedAsset?.transactions.length ?? 0) > 0;
+
 	const currentFetchedCurrency = useMemo(() => {
 		return fetchedCurrencies?.find((element) => element.slug === currentAssetSlug);
 	}, [fetchedCurrencies, currentAssetSlug]);
+
+	useEffect(() => {
+		if (!hasTransactions) {
+			tabsRef.current?.setActiveTab(TRANSACTIONS_TAB);
+			setActiveTab(TRANSACTIONS_TAB);
+		}
+	}, [hasTransactions]);
 
 	const handleOpenAddTransactionModal = () => {
 		setCurrentTransaction(null);
@@ -190,22 +207,33 @@ function Detail() {
 							onRemoveAllTransactions={handleRemoveAllTransactionsClick}
 							selectedAsset={selectedAsset}
 						/>
+						<Tabs
+							aria-label="Transactions and charts"
+							onActiveTabChange={setActiveTab}
+							ref={tabsRef}
+							variant="underline"
+						>
+							<TabItem active icon={FaList} title="Transactions">
+								<Card theme={cardTable.card}>
+									<DetailTransactionTable
+										currencyQuote={currencyQuote}
+										currentFetchedCurrency={currentFetchedCurrency}
+										fetchedCurrencies={fetchedCurrencies ?? []}
+										onEditTransaction={handleOpenEditTransactionModal}
+										onRemoveTransaction={handleOpenRemoveTransactionModal}
+										selectedAsset={selectedAsset}
+									/>
+								</Card>
+							</TabItem>
 
-						<Card theme={cardTable.card}>
-							<DetailTransactionTable
-								currencyQuote={currencyQuote}
-								currentFetchedCurrency={currentFetchedCurrency}
-								fetchedCurrencies={fetchedCurrencies ?? []}
-								onEditTransaction={handleOpenEditTransactionModal}
-								onRemoveTransaction={handleOpenRemoveTransactionModal}
-								selectedAsset={selectedAsset}
-							/>
-						</Card>
-						{selectedAsset && selectedAsset.transactions.length > 0 && (
-							<Card>
-								<DetailCharts currencyQuote={currencyQuote} selectedAsset={selectedAsset} />
-							</Card>
-						)}
+							<TabItem disabled={!hasTransactions} icon={FaChartLine} title="Charts">
+								{activeTab === CHARTS_TAB && selectedAsset && (
+									<Card>
+										<DetailCharts currencyQuote={currencyQuote} selectedAsset={selectedAsset} />
+									</Card>
+								)}
+							</TabItem>
+						</Tabs>
 					</div>
 
 					<DetailModals
