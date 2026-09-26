@@ -3,7 +3,6 @@ import type { CurrencyQuote } from 'api';
 import classNames from 'classnames';
 import {
 	Badge,
-	Card,
 	Table,
 	TableBody,
 	TableCell,
@@ -19,7 +18,8 @@ import type { AssetBreakdown } from '../../utils/portfolio';
 
 import { currencyFormat, profitClass } from '../../utils/helpers';
 import { getImage } from '../../utils/images';
-import ProfitBadge from './ProfitBadge';
+import ProfitBadge from '../ui/ProfitBadge';
+import SectionCard from '../ui/SectionCard';
 
 type SortKey = 'costBasis' | 'realizedProfit' | 'totalProfit' | 'unrealizedProfit' | 'value';
 
@@ -59,13 +59,7 @@ function PerformanceTable({ currencyQuote, rows }: PerformanceTableProps) {
 	const money = (value: number) => currencyFormat(value, currencyQuote);
 
 	return (
-		<Card className="[&>div]:p-0">
-			<div className="flex flex-col gap-1 p-6 pb-2">
-				<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-					Performance per asset
-				</h2>
-				<p className="text-sm text-gray-500 dark:text-gray-400">Click a column to sort</p>
-			</div>
+		<SectionCard description="Click a column to sort" flush title="Performance per asset">
 			<div className="overflow-x-auto">
 				<Table hoverable>
 					<TableHead>
@@ -146,7 +140,7 @@ function PerformanceTable({ currencyQuote, rows }: PerformanceTableProps) {
 					</TableBody>
 				</Table>
 			</div>
-		</Card>
+		</SectionCard>
 	);
 }
 

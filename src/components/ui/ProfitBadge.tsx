@@ -6,7 +6,6 @@ type ProfitBadgeProps = {
 	percentage: number;
 };
 
-/** A percentage in a green, red or gray pill, with a sign for gains. */
 function ProfitBadge({ percentage }: ProfitBadgeProps) {
 	const color = percentage > 0 ? 'success' : percentage < 0 ? 'failure' : 'gray';
 	const sign = percentage > 0 ? '+' : '';

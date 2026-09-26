@@ -1,6 +1,6 @@
 import type { CurrencyQuote } from 'api';
 
-import { Card, useThemeMode } from 'flowbite-react';
+import { useThemeMode } from 'flowbite-react';
 import { useMemo } from 'react';
 
 import type { AssetBreakdown } from '../../utils/portfolio';
@@ -8,6 +8,7 @@ import type { AssetBreakdown } from '../../utils/portfolio';
 import { currencyFormat } from '../../utils/helpers';
 import { getAllocationSlices, OTHER_LABEL } from '../../utils/portfolio';
 import ApexChart from '../ApexChart';
+import SectionCard from '../ui/SectionCard';
 
 const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EF4444', '#06B6D4'];
 const OTHER_COLOR = '#9CA3AF';
@@ -18,7 +19,6 @@ type AllocationCardProps = {
 	totalValue: number;
 };
 
-/** Donut chart of where the portfolio value sits, with a list that doubles as the legend. */
 function AllocationCard({ currencyQuote, rows, totalValue }: AllocationCardProps) {
 	const { computedMode } = useThemeMode();
 	const isDarkMode = computedMode === 'dark';
@@ -79,52 +79,45 @@ function AllocationCard({ currencyQuote, rows, totalValue }: AllocationCardProps
 	}, [slices, isDarkMode, currencyQuote, totalValue]);
 
 	return (
-		<Card className="h-full">
-			<div className="flex flex-col gap-4">
-				<div>
-					<h2 className="text-lg font-semibold text-gray-900 dark:text-white">Allocation</h2>
-					<p className="text-sm text-gray-500 dark:text-gray-400">Where your current value sits</p>
-				</div>
+		<SectionCard description="Where your current value sits" title="Allocation">
+			{openPositions.length === 0 ? (
+				<p className="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+					No open positions.
+				</p>
+			) : (
+				<div className="grid items-center gap-6 md:grid-cols-2">
+					<ApexChart className="min-w-0" options={options} />
 
-				{openPositions.length === 0 ? (
-					<p className="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
-						No open positions.
-					</p>
-				) : (
-					<div className="grid items-center gap-6 md:grid-cols-2">
-						<ApexChart className="min-w-0" options={options} />
-
-						<ul className="flex flex-col gap-3">
-							{openPositions.map((row, index) => (
-								<li className="flex flex-col gap-1" key={row.cmcId}>
-									<div className="flex items-center justify-between gap-2 text-sm">
-										<span className="flex min-w-0 items-center gap-2">
-											<span
-												aria-hidden
-												className="h-2.5 w-2.5 shrink-0 rounded-full"
-												style={{ backgroundColor: colorFor(index) }}
-											/>
-											<span className="truncate font-medium text-gray-900 dark:text-white">
-												{row.name}
-											</span>
-										</span>
-										<span className="shrink-0 text-gray-500 dark:text-gray-400">
-											{currencyFormat(row.value, currencyQuote)} · {row.allocation.toFixed(1)}%
-										</span>
-									</div>
-									<div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
-										<div
-											className="h-1.5 rounded-full"
-											style={{ backgroundColor: colorFor(index), width: `${row.allocation}%` }}
+					<ul className="flex flex-col gap-3">
+						{openPositions.map((row, index) => (
+							<li className="flex flex-col gap-1" key={row.cmcId}>
+								<div className="flex items-center justify-between gap-2 text-sm">
+									<span className="flex min-w-0 items-center gap-2">
+										<span
+											aria-hidden
+											className="h-2.5 w-2.5 shrink-0 rounded-full"
+											style={{ backgroundColor: colorFor(index) }}
 										/>
-									</div>
-								</li>
-							))}
-						</ul>
-					</div>
-				)}
-			</div>
-		</Card>
+										<span className="truncate font-medium text-gray-900 dark:text-white">
+											{row.name}
+										</span>
+									</span>
+									<span className="shrink-0 text-gray-500 dark:text-gray-400">
+										{currencyFormat(row.value, currencyQuote)} · {row.allocation.toFixed(1)}%
+									</span>
+								</div>
+								<div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+									<div
+										className="h-1.5 rounded-full"
+										style={{ backgroundColor: colorFor(index), width: `${row.allocation}%` }}
+									/>
+								</div>
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+		</SectionCard>
 	);
 }
 

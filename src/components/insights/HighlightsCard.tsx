@@ -1,13 +1,13 @@
 import type { CurrencyQuote } from 'api';
 
-import { Card } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 
 import type { AssetBreakdown, Highlights } from '../../utils/portfolio';
 
 import { currencyFormat, profitClass } from '../../utils/helpers';
 import { getImage } from '../../utils/images';
-import ProfitBadge from './ProfitBadge';
+import ProfitBadge from '../ui/ProfitBadge';
+import SectionCard from '../ui/SectionCard';
 
 type HighlightProps = {
 	currencyQuote: keyof CurrencyQuote;
@@ -68,42 +68,34 @@ function HighlightsCard({ currencyQuote, highlights }: HighlightsCardProps) {
 	const { best, largest, worst } = highlights;
 
 	return (
-		<Card className="h-full">
-			<div className="flex flex-col gap-4">
-				<div>
-					<h2 className="text-lg font-semibold text-gray-900 dark:text-white">Highlights</h2>
-					<p className="text-sm text-gray-500 dark:text-gray-400">
-						Ranked by total profit, realized and unrealized
-					</p>
-				</div>
-				<ul className="divide-y divide-gray-200 dark:divide-gray-700">
-					{best && (
-						<Highlight
-							currencyQuote={currencyQuote}
-							label="Best performer"
-							row={best}
-							variant="profit"
-						/>
-					)}
-					{worst && (
-						<Highlight
-							currencyQuote={currencyQuote}
-							label="Worst performer"
-							row={worst}
-							variant="profit"
-						/>
-					)}
-					{largest && (
-						<Highlight
-							currencyQuote={currencyQuote}
-							label="Largest position"
-							row={largest}
-							variant="allocation"
-						/>
-					)}
-				</ul>
-			</div>
-		</Card>
+		<SectionCard description="Ranked by total profit, realized and unrealized" title="Highlights">
+			<ul className="divide-y divide-gray-200 dark:divide-gray-700">
+				{best && (
+					<Highlight
+						currencyQuote={currencyQuote}
+						label="Best performer"
+						row={best}
+						variant="profit"
+					/>
+				)}
+				{worst && (
+					<Highlight
+						currencyQuote={currencyQuote}
+						label="Worst performer"
+						row={worst}
+						variant="profit"
+					/>
+				)}
+				{largest && (
+					<Highlight
+						currencyQuote={currencyQuote}
+						label="Largest position"
+						row={largest}
+						variant="allocation"
+					/>
+				)}
+			</ul>
+		</SectionCard>
 	);
 }
 

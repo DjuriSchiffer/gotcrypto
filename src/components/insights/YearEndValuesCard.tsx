@@ -3,7 +3,6 @@ import type { FetchedCurrency, SelectedAsset } from 'currency';
 
 import {
 	Alert,
-	Card,
 	Spinner,
 	Table,
 	TableBody,
@@ -11,15 +10,14 @@ import {
 	TableHead,
 	TableHeadCell,
 	TableRow,
-	Tooltip,
 } from 'flowbite-react';
 import { useMemo } from 'react';
-import { FaInfoCircle } from 'react-icons/fa';
 
 import { useHistoricalPortfolioValues } from '../../hooks/useHistoricalPortfolioValues';
 import { currencyFormat } from '../../utils/helpers';
 import { withYearOverYear } from '../../utils/portfolio';
-import ProfitBadge from './ProfitBadge';
+import ProfitBadge from '../ui/ProfitBadge';
+import SectionCard from '../ui/SectionCard';
 
 type YearEndValuesCardProps = {
 	currencyQuote: keyof CurrencyQuote;
@@ -43,22 +41,12 @@ function YearEndValuesCard({
 	const rows = useMemo(() => withYearOverYear(yearlyTotals).reverse(), [yearlyTotals]);
 
 	return (
-		<Card className="[&>div]:p-0">
-			<div className="flex flex-col gap-1 p-6 pb-2">
-				<h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
-					Year-end values
-					<Tooltip content="Holdings at the end of each year, valued at 1 January prices of the next year. This is the reference date for the Dutch Box 3 tax return.">
-						<FaInfoCircle
-							aria-label="About year-end values"
-							className="h-3.5 w-3.5 cursor-help text-gray-400"
-						/>
-					</Tooltip>
-				</h2>
-				<p className="text-sm text-gray-500 dark:text-gray-400">
-					Transactions marked as excluded for tax are left out
-				</p>
-			</div>
-
+		<SectionCard
+			description="Transactions marked as excluded for tax are left out"
+			flush
+			hint="Holdings at the end of each year, valued at 1 January prices of the next year. This is the reference date for the Dutch Box 3 tax return."
+			title="Year-end values"
+		>
 			{isLoading && (
 				<div className="flex items-center justify-center gap-2 p-8 text-gray-500 dark:text-gray-400">
 					<Spinner color="success" size="sm" />
@@ -67,13 +55,13 @@ function YearEndValuesCard({
 			)}
 
 			{isError && (
-				<div className="p-6 pt-2">
+				<div className="px-6 pb-6">
 					<Alert color="failure">Could not load historical prices. Try again later.</Alert>
 				</div>
 			)}
 
 			{!isLoading && !isError && rows.length === 0 && (
-				<p className="p-6 pt-2 text-sm text-gray-500 dark:text-gray-400">
+				<p className="px-6 pb-6 text-sm text-gray-500 dark:text-gray-400">
 					No completed years yet. Values appear here after your first year-end.
 				</p>
 			)}
@@ -106,7 +94,7 @@ function YearEndValuesCard({
 					</Table>
 				</div>
 			)}
-		</Card>
+		</SectionCard>
 	);
 }
 

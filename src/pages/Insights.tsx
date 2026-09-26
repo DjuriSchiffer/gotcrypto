@@ -6,8 +6,8 @@ import { Link } from 'react-router-dom';
 import AllocationCard from '../components/insights/AllocationCard';
 import HighlightsCard from '../components/insights/HighlightsCard';
 import PerformanceTable from '../components/insights/PerformanceTable';
-import ProfitBadge from '../components/insights/ProfitBadge';
-import StatCard from '../components/insights/StatCard';
+import ProfitBadge from '../components/ui/ProfitBadge';
+import StatCard from '../components/ui/StatCard';
 import YearEndValuesCard from '../components/insights/YearEndValuesCard';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import Page from '../components/Page';
@@ -41,7 +41,7 @@ function Insights() {
 			<Page>
 				<div className="mb-8 flex w-full flex-col gap-6">
 					<header>
-						<h1 className="text-3xl font-bold text-gray-900 dark:text-white">Portfolio overview</h1>
+						<h1 className="text-3xl font-bold text-gray-900 dark:text-white">Insights</h1>
 						<p className="mt-1 text-gray-500 dark:text-gray-400">
 							How your portfolio is doing, and where the value sits.
 						</p>
@@ -61,6 +61,7 @@ function Insights() {
 						</Card>
 					) : (
 						<>
+							{/* Key figures */}
 							<section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 								<StatCard label="Total value" value={money(totals.totalValue)}>
 									{openPositions} open {openPositions === 1 ? 'position' : 'positions'}
@@ -87,6 +88,7 @@ function Insights() {
 								/>
 							</section>
 
+							{/* Where the value sits, and what stands out */}
 							<section className="grid grid-cols-1 gap-4 xl:grid-cols-3">
 								<div className="xl:col-span-2">
 									<AllocationCard
