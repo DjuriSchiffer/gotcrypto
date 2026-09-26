@@ -64,7 +64,6 @@ function Graphs() {
 		<LoadingErrorWrapper
 			fetchedIsLoading={fetchedCurrenciesIsLoading}
 			isError={fetchedCurrenciesIsError}
-			storageIsLoading={storageIsLoading}
 		>
 			<Page>
 				<div className="mb-4 grid w-full gap-4 lg:mt-auto">
