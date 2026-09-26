@@ -17,16 +17,9 @@ import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import totals from '../utils/totals';
 import { cardTable } from '../theme';
-
-type FormInputs = {
-	amount: string;
-	date: string;
-	description?: string;
-	excludeForTax?: boolean;
-	purchasePrice: string;
-	transactionType: TransactionType;
-	transferType?: TransferType;
-};
+import type { FormInputs } from '../components/TransactionForm';
+import { transactionFromForm } from '../utils/transactions';
+import { upsertTransaction } from '../utils/transactions';
 
 function Detail() {
 	const { currencyQuote } = useAppState();
@@ -81,71 +74,18 @@ function Detail() {
 	};
 
 	const handleFormSubmit = async (formData: FormInputs) => {
-		if (!selectedAsset && !currentFetchedCurrency) {
-			console.error('No currency selected or fetched');
-			return;
-		}
+		if (!currentFetchedCurrency) return;
 
 		try {
-			const {
-				amount,
-				date,
-				description,
-				excludeForTax,
-				purchasePrice,
-				transactionType,
-				transferType,
-			} = formData;
+			const transaction = transactionFromForm(formData, currentTransaction?.id);
+			const updated = upsertTransaction(
+				selectedAsset,
+				currentFetchedCurrency,
+				transaction,
+				selectedCurrencies.length
+			);
 
-			const normalizedPrice = purchasePrice.toString().replace(',', '.');
-			const parsedPrice = parseFloat(normalizedPrice);
-			const formattedPrice = Math.abs(parsedPrice).toFixed(2);
-
-			const normalizedAmount = amount.toString().replace(',', '.');
-			const parsedAmount = parseFloat(normalizedAmount);
-			const formattedAmount = Math.abs(parsedAmount).toString();
-
-			const newTransaction: Transaction = {
-				amount: formattedAmount,
-				date,
-				description: description ?? '',
-				excludeForTax: excludeForTax ?? false,
-				id: currentTransaction?.id ?? uniqueId(`trans_${Date.now()}_`),
-				purchasePrice: formattedPrice,
-				type: transactionType,
-				...(transactionType === 'transfer' ? { transferType: transferType ?? 'in' } : {}),
-			};
-
-			let updatedSelectedCurrency: SelectedAsset;
-
-			if (selectedAsset) {
-				const updatedTransactions = currentTransaction
-					? selectedAsset.transactions.map((transaction) =>
-							transaction.id === currentTransaction.id ? newTransaction : transaction
-						)
-					: [...selectedAsset.transactions, newTransaction];
-
-				updatedSelectedCurrency = {
-					...selectedAsset,
-					totals: totals(updatedTransactions),
-					transactions: updatedTransactions.sort(
-						(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-					),
-				};
-			} else if (currentFetchedCurrency) {
-				updatedSelectedCurrency = {
-					cmc_id: currentFetchedCurrency.cmc_id,
-					index: selectedCurrencies.length,
-					name: currentFetchedCurrency.name,
-					slug: currentFetchedCurrency.slug,
-					totals: totals([newTransaction]),
-					transactions: [newTransaction],
-				};
-			} else {
-				throw new Error('No currency context available');
-			}
-
-			await updateCurrency(updatedSelectedCurrency);
+			await updateCurrency(updated);
 			handleCloseModals();
 		} catch (error) {
 			console.error('Failed to update transaction:', error);

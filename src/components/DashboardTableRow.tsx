@@ -3,7 +3,7 @@ import type { FetchedCurrency, SelectedAsset } from 'currency';
 
 import classNames from 'classnames';
 import { Button, TableCell, TableRow } from 'flowbite-react';
-import { FaPen } from 'react-icons/fa';
+import { FaPen, FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 import { amountFormat, currencyFormat, percentageFormat, profitClass } from '../utils/helpers';
@@ -14,21 +14,23 @@ type DashboardTableRowProps = {
 	asset?: SelectedAsset;
 	currencyQuote: keyof CurrencyQuote;
 	fetchedCurrency: FetchedCurrency;
+	onAddTransaction: () => void;
 };
 
 const cellClass = 'py-2 text-gray-700 dark:text-white';
 
-function DashboardTableRow({ asset, currencyQuote, fetchedCurrency }: DashboardTableRowProps) {
+function DashboardTableRow({
+	asset,
+	currencyQuote,
+	fetchedCurrency,
+	onAddTransaction,
+}: DashboardTableRowProps) {
 	const hasTransactions = (asset?.transactions.length ?? 0) > 0;
 	const summary = getAssetSummary(asset, fetchedCurrency.price);
 	const money = (value: number) => currencyFormat(value, currencyQuote);
 
 	return (
-		<TableRow
-			className={classNames('transition ease-in-out dark:!border-gray-400', {
-				'opacity-50 hover:opacity-100': !hasTransactions,
-			})}
-		>
+		<TableRow className={classNames('transition ease-in-out dark:!border-gray-400')}>
 			<TableCell className="whitespace-nowrap text-gray-700 dark:text-white">
 				<div className="flex items-center">
 					<img
@@ -45,9 +47,20 @@ function DashboardTableRow({ asset, currencyQuote, fetchedCurrency }: DashboardT
 
 			{!hasTransactions && (
 				<>
-					<TableCell className={cellClass}>No transactions added yet.</TableCell>
 					<TableCell />
 					<TableCell />
+					<TableCell />
+					<TableCell className="py-2 pr-2 text-right">
+						<Button
+							color="primary"
+							onClick={onAddTransaction}
+							size="xs"
+							className="ml-auto inline-flex"
+						>
+							<FaPlus />
+							Add first transaction
+						</Button>
+					</TableCell>
 				</>
 			)}
 
@@ -85,20 +98,19 @@ function DashboardTableRow({ asset, currencyQuote, fetchedCurrency }: DashboardT
 							)}
 						</div>
 					</TableCell>
+					<TableCell className="py-2 pr-2 text-right">
+						<Button
+							className="ml-auto inline-flex"
+							color="primary"
+							size="sm"
+							as={Link}
+							to={fetchedCurrency.slug}
+						>
+							<FaPen color="white" />
+						</Button>
+					</TableCell>
 				</>
 			)}
-
-			<TableCell className="py-2 pr-2 text-right">
-				<Button
-					className="ml-auto inline-flex"
-					color="primary"
-					size="sm"
-					as={Link}
-					to={fetchedCurrency.slug}
-				>
-					<FaPen color="white" />
-				</Button>
-			</TableCell>
 		</TableRow>
 	);
 }

@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 
 import classNames from 'classnames';
 import { Button, Card } from 'flowbite-react';
-import { FaPen } from 'react-icons/fa';
+import { FaPen, FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 import { amountFormat, currencyFormat, percentageFormat, profitClass } from '../utils/helpers';
@@ -15,6 +15,7 @@ type DashboardCardProps = {
 	asset?: SelectedAsset;
 	currencyQuote: keyof CurrencyQuote;
 	fetchedCurrency: FetchedCurrency;
+	onAddTransaction: () => void;
 };
 
 type StatRowProps = {
@@ -41,17 +42,18 @@ function StatRow({ children, description, label }: StatRowProps) {
 	);
 }
 
-function DashboardCard({ asset, currencyQuote, fetchedCurrency }: DashboardCardProps) {
+function DashboardCard({
+	asset,
+	currencyQuote,
+	fetchedCurrency,
+	onAddTransaction,
+}: DashboardCardProps) {
 	const hasTransactions = (asset?.transactions.length ?? 0) > 0;
 	const summary = getAssetSummary(asset, fetchedCurrency.price);
 	const money = (value: number) => currencyFormat(value, currencyQuote);
 
 	return (
-		<Card
-			className={classNames('transition ease-in-out', {
-				'opacity-50 hover:opacity-100': !hasTransactions,
-			})}
-		>
+		<Card className={classNames('transition ease-in-out')}>
 			<div className="flex items-center space-x-2">
 				<div className="shrink-0">
 					<img
@@ -61,13 +63,22 @@ function DashboardCard({ asset, currencyQuote, fetchedCurrency }: DashboardCardP
 						width={32}
 					/>
 				</div>
+
 				<div className="flex min-w-0 flex-1 items-center">
 					<h5 className="text-xl font-bold leading-none text-gray-700 dark:text-white">
 						{fetchedCurrency.name}
 					</h5>
-					<Button className="ml-auto" color="primary" size="sm" as={Link} to={fetchedCurrency.slug}>
-						<FaPen color="white" />
-					</Button>
+					{hasTransactions && (
+						<Button
+							className="ml-auto"
+							color="primary"
+							size="sm"
+							as={Link}
+							to={fetchedCurrency.slug}
+						>
+							<FaPen color="white" />
+						</Button>
+					)}
 				</div>
 			</div>
 
@@ -76,10 +87,14 @@ function DashboardCard({ asset, currencyQuote, fetchedCurrency }: DashboardCardP
 					<StatRow label="Current market price">{money(fetchedCurrency.price)}</StatRow>
 
 					{!hasTransactions && (
-						<li className="pb-1 pt-6">
-							<p className="text-center text-sm font-medium text-gray-700 dark:text-white">
+						<li className="pb-1 pt-6 text-center">
+							<p className="mb-3 text-sm font-medium text-gray-700 dark:text-white">
 								No transactions added yet.
 							</p>
+							<Button className="mx-auto" color="primary" onClick={onAddTransaction} size="sm">
+								<FaPlus className="mr-1" />
+								Add first transaction
+							</Button>
 						</li>
 					)}
 

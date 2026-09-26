@@ -1,4 +1,4 @@
-import { SelectedAsset } from 'currency';
+import { SelectedAsset, type FetchedCurrency } from 'currency';
 
 import classNames from 'classnames';
 import { Button, Card, Tooltip } from 'flowbite-react';
@@ -18,12 +18,23 @@ import { getGlobalTotals } from '../utils/totals';
 import { cardTable } from '../theme';
 import AssetManagerModal from '../components/AssetManagerModal';
 import { FaPlus } from 'react-icons/fa';
+import type { FormInputs } from '../components/TransactionForm';
+import { transactionFromForm, upsertTransaction } from '../utils/transactions';
+import Modal from '../components/Modal';
+import TransactionForm from '../components/TransactionForm';
 
 function Dashboard() {
 	const [openAddAssetModal, setOpenAddAssetModal] = useState<boolean>(false);
 
 	const { currencyQuote, dashboardLayout, sortMethod } = useAppState();
-	const { loading: storageIsLoading, selectedCurrencies, setSelectedCurrencies } = useStorage();
+	const {
+		loading: storageIsLoading,
+		selectedCurrencies,
+		setSelectedCurrencies,
+		updateCurrency,
+	} = useStorage();
+	const [addTransactionFor, setAddTransactionFor] = useState<FetchedCurrency | null>(null);
+
 	const {
 		data: fetchedCurrencies,
 		isError: fetchedCurrenciesIsError,
@@ -37,6 +48,26 @@ function Dashboard() {
 		const savedIds = new Set(selectedCurrencies.map((currency) => currency.cmc_id));
 		return fetchedCurrencies.filter((currency) => savedIds.has(currency.cmc_id));
 	}, [fetchedCurrencies, selectedCurrencies]);
+
+	const handleAddFirstTransaction = async (formData: FormInputs) => {
+		if (!addTransactionFor) return;
+
+		try {
+			const asset = selectedCurrencies.find((item) => item.cmc_id === addTransactionFor.cmc_id);
+			const updated = upsertTransaction(
+				asset,
+				addTransactionFor,
+				transactionFromForm(formData),
+				selectedCurrencies.length
+			);
+
+			await updateCurrency(updated);
+			setAddTransactionFor(null);
+		} catch (error) {
+			console.error('Failed to add transaction:', error);
+			alert('Failed to add transaction. Please try again.');
+		}
+	};
 
 	const sortedFetchedCurrencies = useMemo(() => {
 		if (!filteredFetchedCurrencies) {
@@ -140,7 +171,6 @@ function Dashboard() {
 		<LoadingErrorWrapper
 			fetchedIsLoading={fetchedCurrenciesIsLoading}
 			isError={fetchedCurrenciesIsError}
-			storageIsLoading={storageIsLoading}
 		>
 			<Page>
 				<div className="mb-4 grid w-full gap-4">
@@ -184,6 +214,7 @@ function Dashboard() {
 						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 							{sortedFetchedCurrencies.map((fetchedCurrency) => (
 								<DashboardCard
+									onAddTransaction={() => setAddTransactionFor(fetchedCurrency)}
 									asset={assetMap.get(fetchedCurrency.cmc_id)}
 									currencyQuote={currencyQuote}
 									fetchedCurrency={fetchedCurrency}
@@ -197,6 +228,7 @@ function Dashboard() {
 							<Table type="dashboard">
 								{sortedFetchedCurrencies.map((fetchedCurrency) => (
 									<DashboardTableRow
+										onAddTransaction={() => setAddTransactionFor(fetchedCurrency)}
 										asset={assetMap.get(fetchedCurrency.cmc_id)}
 										currencyQuote={currencyQuote}
 										fetchedCurrency={fetchedCurrency}
@@ -214,6 +246,18 @@ function Dashboard() {
 						options={fetchedCurrencies}
 						preselectedOptions={selectedCurrencies}
 					/>
+					<Modal
+						onClose={() => setAddTransactionFor(null)}
+						open={addTransactionFor !== null}
+						title={`Add transaction`}
+					>
+						<TransactionForm
+							currencyQuote={currencyQuote}
+							key={addTransactionFor?.cmc_id ?? 'closed'}
+							onSubmit={(data) => void handleAddFirstTransaction(data)}
+							submitLabel="Add transaction"
+						/>
+					</Modal>
 				</div>
 			</Page>
 		</LoadingErrorWrapper>
