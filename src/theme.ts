@@ -21,6 +21,19 @@ export const customTheme = createTheme({
 	buttonGroup: {
 		base: 'shadow-none',
 	},
+	tabs: {
+		tablist: {
+			tabitem: {
+				variant: {
+					underline: {
+						active: {
+							on: 'rounded-t-lg border-b-2 border-green-500 text-green-500 dark:border-green-500 dark:text-green-500',
+						},
+					},
+				},
+			},
+		},
+	},
 });
 
 export const cardTable = createTheme({
