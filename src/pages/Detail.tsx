@@ -1,11 +1,10 @@
 import { Card, TabItem, Tabs } from 'flowbite-react';
 
-import uniqueId from 'lodash.uniqueid';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FaArrowLeft, FaChartLine, FaList } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
 
-import type { SelectedAsset, Transaction, TransactionType, TransferType } from '../types/currency';
+import type { SelectedAsset, Transaction } from '../types/currency';
 
 import DetailHeader from '../components/DetailHeader';
 import DetailModals from '../components/DetailModals';
