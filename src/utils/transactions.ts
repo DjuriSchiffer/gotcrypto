@@ -3,7 +3,8 @@ import uniqueId from 'lodash.uniqueid';
 import type { FormInputs } from '../components/TransactionForm';
 import type { FetchedCurrency, SelectedAsset, Transaction } from '../types/currency';
 
-import totals from './totals';
+import { percentageDifference } from './helpers';
+import totals, { positionHistory } from './totals';
 
 /** Parses user input like "1.234,56" or "0,5" into a positive number. */
 const parseInput = (value: string): number => Math.abs(parseFloat(value.replace(',', '.')));
@@ -55,4 +56,86 @@ export const upsertTransaction = (
 		totals: totals(transactions),
 		transactions,
 	};
+};
+
+/** Removes one transaction and recalculates the totals. */
+export const removeTransaction = (asset: SelectedAsset, transactionId: string): SelectedAsset => {
+	const transactions = asset.transactions.filter((item) => item.id !== transactionId);
+	return { ...asset, totals: totals(transactions), transactions };
+};
+
+/** Removes every transaction; the asset itself stays on the dashboard. */
+export const clearTransactions = (asset: SelectedAsset): SelectedAsset => ({
+	...asset,
+	totals: totals([]),
+	transactions: [],
+});
+
+export type TransactionRow = {
+	/** Signed: negative for sells and transfers out */
+	amount: number;
+	pricePerCoin: number;
+	/** Profit locked in by this sell; null for other types */
+	realizedProfit: null | number;
+	transaction: Transaction;
+	/** Current value of these coins vs. what they cost; buys only */
+	unrealizedPercentage: null | number;
+};
+
+export type TransactionYear = {
+	rows: Array<TransactionRow>;
+	year: number;
+};
+
+/**
+ * Prepares transactions for the detail table: newest first, grouped by year,
+ * with the result of each buy (against today's price) and each sell (realized).
+ */
+export const getTransactionYears = (
+	transactions: Array<Transaction>,
+	currentPrice: number
+): Array<TransactionYear> => {
+	const history = positionHistory(transactions);
+
+	// Realized profit is cumulative in the history; a sell's own result is the step it adds
+	const realizedById = new Map<string, number>();
+	let previousRealized = 0;
+	for (const step of history) {
+		if (step.transaction.type === 'sell') {
+			realizedById.set(
+				step.transaction.id,
+				Number((step.realizedProfit - previousRealized).toFixed(2))
+			);
+		}
+		previousRealized = step.realizedProfit;
+	}
+
+	const years: Array<TransactionYear> = [];
+
+	for (const { transaction } of [...history].reverse()) {
+		const quantity = parseFloat(transaction.amount) || 0;
+		const price = parseFloat(transaction.purchasePrice) || 0;
+		const isOutflow =
+			transaction.type === 'sell' ||
+			(transaction.type === 'transfer' && transaction.transferType === 'out');
+
+		const row: TransactionRow = {
+			amount: isOutflow ? -quantity : quantity,
+			pricePerCoin: quantity > 0 ? price / quantity : 0,
+			realizedProfit: realizedById.get(transaction.id) ?? null,
+			transaction,
+			unrealizedPercentage:
+				transaction.type === 'buy' ? percentageDifference(price, quantity * currentPrice) : null,
+		};
+
+		const year = new Date(transaction.date).getUTCFullYear();
+		const group = years.at(-1);
+		if (group?.year === year) {
+			group.rows.push(row);
+		} else {
+			years.push({ rows: [row], year });
+		}
+	}
+
+	return years;
 };

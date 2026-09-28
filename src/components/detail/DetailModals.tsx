@@ -3,11 +3,11 @@ import type { CurrencyQuote } from 'api';
 import { Button, useThemeMode } from 'flowbite-react';
 import { FaExclamationTriangle, FaTrashAlt } from 'react-icons/fa';
 
-import type { Transaction } from '../types/currency';
-import type { FormInputs } from './TransactionForm';
+import type { Transaction } from '../../types/currency';
+import type { FormInputs } from '../TransactionForm';
 
-import Modal from '../components/Modal';
-import TransactionForm from './TransactionForm';
+import Modal from '../Modal';
+import TransactionForm from '../TransactionForm';
 
 type DetailModalsProps = {
 	currencyQuote: keyof CurrencyQuote;

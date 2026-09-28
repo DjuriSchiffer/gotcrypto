@@ -1,60 +1,72 @@
-import { Card, TabItem, Tabs } from 'flowbite-react';
+import type { TabsRef } from 'flowbite-react';
 
+import type { Transaction } from '../types/currency';
+import type { FormInputs } from '../components/TransactionForm';
+
+import { Button, Card, Dropdown, DropdownItem, TabItem, Tabs } from 'flowbite-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FaArrowLeft, FaChartLine, FaList } from 'react-icons/fa';
+import { FaArrowLeft, FaChartLine, FaEllipsisH, FaList, FaPlus, FaTrashAlt } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
 
-import type { SelectedAsset, Transaction } from '../types/currency';
-
-import DetailHeader from '../components/DetailHeader';
-import DetailModals from '../components/DetailModals';
-import DetailCharts from '../components/DetailsCharts';
-import DetailTransactionTable from '../components/DetailTransactionTable';
+import DetailCharts from '../components/detail/DetailCharts';
+import PositionStats from '../components/detail/PositionStats';
+import TransactionTable from '../components/detail/TransactionTable';
+import DetailModals from '../components/detail/DetailModals';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import Page from '../components/Page';
+import EmptyState from '../components/ui/EmptyState';
+import PageHeader from '../components/ui/PageHeader';
+import SectionCard from '../components/ui/SectionCard';
 import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
-import totals from '../utils/totals';
-import { cardTable } from '../theme';
-import type { FormInputs } from '../components/TransactionForm';
-import { transactionFromForm } from '../utils/transactions';
-import { upsertTransaction } from '../utils/transactions';
+import { currencyFormat } from '../utils/helpers';
+import { getImage } from '../utils/images';
+import { getAssetSummary } from '../utils/totals';
+import {
+	clearTransactions,
+	removeTransaction,
+	transactionFromForm,
+	upsertTransaction,
+} from '../utils/transactions';
 
-import type { TabsRef } from 'flowbite-react';
+/** Which dialog is open. Only one can be open at a time. */
+type Dialog =
+	| { transaction: Transaction; type: 'edit' }
+	| { transaction: Transaction; type: 'remove' }
+	| { type: 'add' }
+	| { type: 'removeAll' }
+	| null;
 
 const TRANSACTIONS_TAB = 0;
 const CHARTS_TAB = 1;
 
 function Detail() {
+	const { slug } = useParams<{ slug: string }>();
 	const { currencyQuote } = useAppState();
-	const {
-		data: fetchedCurrencies,
-		isError: fetchedCurrenciesIsError,
-		isLoading: fetchedCurrenciesIsLoading,
-	} = useCoinMarketCap(currencyQuote);
-	const { loading: storageIsLoading, selectedCurrencies, updateCurrency } = useStorage();
-	const { slug: currentAssetSlug } = useParams<{ slug: string }>();
+	const { selectedCurrencies, updateCurrency } = useStorage();
+	const { data: fetchedCurrencies, isError, isLoading } = useCoinMarketCap(currencyQuote);
 
-	const [openAddTransactionModal, setOpenAddTransactionModal] = useState<boolean>(false);
-	const [openEditTransactionModal, setOpenEditTransactionModal] = useState<boolean>(false);
-	const [openRemoveTransactionModal, setOpenRemoveTransactionModal] = useState<boolean>(false);
-	const [openRemoveAllTransactionsModal, setOpenRemoveAllTransactionsModal] =
-		useState<boolean>(false);
-	const [currentTransaction, setCurrentTransaction] = useState<null | Transaction>(null);
-	const tabsRef = useRef<TabsRef>(null);
+	const [dialog, setDialog] = useState<Dialog>(null);
 	const [activeTab, setActiveTab] = useState(TRANSACTIONS_TAB);
+	const tabsRef = useRef<TabsRef>(null);
 
-	const selectedAsset = useMemo(() => {
-		return selectedCurrencies.find((currency) => currency.slug === currentAssetSlug);
-	}, [selectedCurrencies, currentAssetSlug]);
+	const currency = useMemo(
+		() => fetchedCurrencies?.find((item) => item.slug === slug),
+		[fetchedCurrencies, slug]
+	);
 
-	const hasTransactions = (selectedAsset?.transactions.length ?? 0) > 0;
+	// By id, not slug: assets created by the old asset picker have no slug
+	const asset = useMemo(
+		() => selectedCurrencies.find((item) => item.cmc_id === currency?.cmc_id),
+		[selectedCurrencies, currency]
+	);
 
-	const currentFetchedCurrency = useMemo(() => {
-		return fetchedCurrencies?.find((element) => element.slug === currentAssetSlug);
-	}, [fetchedCurrencies, currentAssetSlug]);
+	const transactions = asset?.transactions ?? [];
+	const hasTransactions = transactions.length > 0;
+	const summary = getAssetSummary(asset, currency?.price ?? 0);
 
+	// If the last transaction is removed while the charts tab is open, go back to the table
 	useEffect(() => {
 		if (!hasTransactions) {
 			tabsRef.current?.setActiveTab(TRANSACTIONS_TAB);
@@ -62,193 +74,170 @@ function Detail() {
 		}
 	}, [hasTransactions]);
 
-	const handleOpenAddTransactionModal = () => {
-		setCurrentTransaction(null);
-		setOpenAddTransactionModal(true);
-	};
+	const closeDialog = () => setDialog(null);
 
-	const handleOpenEditTransactionModal = (transaction: Transaction) => {
-		setCurrentTransaction(transaction);
-		setOpenEditTransactionModal(true);
-	};
-
-	const handleOpenRemoveTransactionModal = (transaction: Transaction) => {
-		setCurrentTransaction(transaction);
-		setOpenRemoveTransactionModal(true);
-	};
-
-	const handleOpenRemoveAllTransactionsModal = () => {
-		setOpenRemoveAllTransactionsModal(true);
-	};
-
-	const handleCloseModals = () => {
-		setOpenAddTransactionModal(false);
-		setOpenEditTransactionModal(false);
-		setOpenRemoveTransactionModal(false);
-		setOpenRemoveAllTransactionsModal(false);
-		setCurrentTransaction(null);
-	};
-
-	const handleFormSubmit = async (formData: FormInputs) => {
-		if (!currentFetchedCurrency) return;
-
+	/** Saves the asset; shows an alert and keeps the dialog open if that fails. */
+	const save = async (update: () => Parameters<typeof updateCurrency>[0]) => {
 		try {
-			const transaction = transactionFromForm(formData, currentTransaction?.id);
-			const updated = upsertTransaction(
-				selectedAsset,
-				currentFetchedCurrency,
-				transaction,
-				selectedCurrencies.length
-			);
-
-			await updateCurrency(updated);
-			handleCloseModals();
+			await updateCurrency(update());
+			closeDialog();
 		} catch (error) {
-			console.error('Failed to update transaction:', error);
-			alert('Failed to update transaction. Please try again.');
+			console.error('Failed to save transactions:', error);
+			alert('Failed to save your changes. Please try again.');
 		}
 	};
 
-	const handleRemoveTransaction = async () => {
-		if (!selectedAsset || !currentTransaction) return;
-
-		try {
-			const updatedTransactions = selectedAsset.transactions.filter(
-				(transaction) => transaction.id !== currentTransaction.id
-			);
-
-			const updatedSelectedCurrency: SelectedAsset = {
-				...selectedAsset,
-				totals: totals(updatedTransactions),
-				transactions: updatedTransactions,
-			};
-
-			await updateCurrency(updatedSelectedCurrency);
-			handleCloseModals();
-		} catch (error) {
-			console.error('Failed to remove transaction:', error);
-			alert('Failed to remove transaction. Please try again.');
-		}
-	};
-
-	const handleRemoveAllTransactions = async () => {
-		if (!selectedAsset) return;
-
-		try {
-			const updatedSelectedCurrency: SelectedAsset = {
-				...selectedAsset,
-				totals: totals([]),
-				transactions: [],
-			};
-
-			await updateCurrency(updatedSelectedCurrency);
-			handleCloseModals();
-		} catch (error) {
-			console.error('Failed to remove all transactions:', error);
-			alert('Failed to remove all transactions. Please try again.');
-		}
-	};
-
-	const handleAddTransactionClick = () => {
-		handleOpenAddTransactionModal();
-	};
-
-	const handleRemoveAllTransactionsClick = () => {
-		handleOpenRemoveAllTransactionsModal();
-	};
-
-	const handleRemoveAllTransactionsCallback = () => {
-		void handleRemoveAllTransactions();
-	};
-
-	const handleFormSubmitCallback = (formData: FormInputs) => {
-		void handleFormSubmit(formData);
-	};
-
-	const handleRemoveTransactionCallback = () => {
-		void handleRemoveTransaction();
-	};
-
-	if (!currentFetchedCurrency) {
+	if (!currency) {
 		return (
-			<LoadingErrorWrapper
-				fetchedIsLoading={fetchedCurrenciesIsLoading}
-				isError={fetchedCurrenciesIsError}
-			>
+			<LoadingErrorWrapper fetchedIsLoading={isLoading} isError={isError}>
 				<Page>
-					<div className="flex h-screen flex-col items-center justify-center text-dark dark:text-white">
-						<p className="mb-4">We couldn't find this asset.</p>
-						<Link
-							className="inline-flex items-center justify-center rounded-lg bg-gray-50 p-3 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-							to="/"
-						>
-							<FaArrowLeft className="mr-2" />
-							Return to dashboard
-						</Link>
-					</div>
+					<Card>
+						<EmptyState
+							action={
+								<Button as={Link} color="primary" to="/">
+									<FaArrowLeft className="mr-2" />
+									Back to dashboard
+								</Button>
+							}
+							message="We couldn't find this asset."
+						/>
+					</Card>
 				</Page>
 			</LoadingErrorWrapper>
 		);
 	}
 
+	const editingTransaction =
+		dialog?.type === 'edit' || dialog?.type === 'remove' ? dialog.transaction : null;
+
+	const handleSubmit = (formData: FormInputs) =>
+		void save(() =>
+			upsertTransaction(
+				asset,
+				currency,
+				transactionFromForm(formData, dialog?.type === 'edit' ? dialog.transaction.id : undefined),
+				selectedCurrencies.length
+			)
+		);
+
+	const handleRemove = () => {
+		if (asset && dialog?.type === 'remove') {
+			void save(() => removeTransaction(asset, dialog.transaction.id));
+		}
+	};
+
+	const handleRemoveAll = () => {
+		if (asset) {
+			void save(() => clearTransactions(asset));
+		}
+	};
+
+	const addButton = (
+		<Button color="primary" onClick={() => setDialog({ type: 'add' })}>
+			<FaPlus className="mr-2" />
+			Add transaction
+		</Button>
+	);
+
 	return (
-		<LoadingErrorWrapper
-			fetchedIsLoading={fetchedCurrenciesIsLoading}
-			isError={fetchedCurrenciesIsError}
-		>
+		<LoadingErrorWrapper fetchedIsLoading={isLoading} isError={isError}>
 			<Page>
-				<div className="mb-4 grid w-full gap-4 lg:mt-auto">
-					<div className="mb-4 grid grid-cols-1 gap-4">
-						<DetailHeader
-							currencyQuote={currencyQuote}
-							currentFetchedCurrency={currentFetchedCurrency}
-							onAddTransaction={handleAddTransactionClick}
-							onRemoveAllTransactions={handleRemoveAllTransactionsClick}
-							selectedAsset={selectedAsset}
-						/>
-						<Tabs
-							aria-label="Transactions and charts"
-							onActiveTabChange={setActiveTab}
-							ref={tabsRef}
-							variant="underline"
-						>
-							<TabItem active icon={FaList} title="Transactions">
-								<Card theme={cardTable.card}>
-									<DetailTransactionTable
-										currencyQuote={currencyQuote}
-										currentFetchedCurrency={currentFetchedCurrency}
-										fetchedCurrencies={fetchedCurrencies ?? []}
-										onEditTransaction={handleOpenEditTransactionModal}
-										onRemoveTransaction={handleOpenRemoveTransactionModal}
-										selectedAsset={selectedAsset}
-									/>
-								</Card>
-							</TabItem>
-
-							<TabItem disabled={!hasTransactions} icon={FaChartLine} title="Charts">
-								{activeTab === CHARTS_TAB && selectedAsset && (
-									<Card>
-										<DetailCharts currencyQuote={currencyQuote} selectedAsset={selectedAsset} />
-									</Card>
+				<div className="mb-8 flex w-full flex-col gap-6">
+					<PageHeader
+						actions={
+							<>
+								{addButton}
+								{hasTransactions && (
+									<Dropdown
+										arrowIcon={false}
+										color="gray"
+										label={<FaEllipsisH aria-label="More actions" />}
+										placement="bottom-end"
+									>
+										<DropdownItem
+											icon={FaTrashAlt}
+											onClick={() => setDialog({ type: 'removeAll' })}
+										>
+											Remove all transactions
+										</DropdownItem>
+									</Dropdown>
 								)}
-							</TabItem>
-						</Tabs>
-					</div>
-
-					<DetailModals
-						currencyQuote={currencyQuote}
-						currentTransaction={currentTransaction}
-						onCloseModals={handleCloseModals}
-						onFormSubmit={handleFormSubmitCallback}
-						onRemoveAllTransactions={handleRemoveAllTransactionsCallback}
-						onRemoveTransaction={handleRemoveTransactionCallback}
-						openAddTransactionModal={openAddTransactionModal}
-						openEditTransactionModal={openEditTransactionModal}
-						openRemoveAllTransactionsModal={openRemoveAllTransactionsModal}
-						openRemoveTransactionModal={openRemoveTransactionModal}
-						selectedAssetName={selectedAsset?.name}
+							</>
+						}
+						description={`${currencyFormat(currency.price, currencyQuote)} current price`}
+						icon={
+							<img
+								alt=""
+								className="h-12 w-12 rounded-full"
+								height={48}
+								src={getImage(currency.cmc_id, 64)}
+								width={48}
+							/>
+						}
+						title={currency.name}
 					/>
+
+					{hasTransactions && <PositionStats currencyQuote={currencyQuote} summary={summary} />}
+
+					<Tabs
+						aria-label="Transactions and charts"
+						onActiveTabChange={setActiveTab}
+						ref={tabsRef}
+						variant="underline"
+					>
+						<TabItem active icon={FaList} title="Transactions">
+							<SectionCard
+								description={
+									hasTransactions
+										? `${transactions.length} ${transactions.length === 1 ? 'transaction' : 'transactions'}`
+										: undefined
+								}
+								flush={hasTransactions}
+								title="Transactions"
+							>
+								{hasTransactions ? (
+									<TransactionTable
+										currencyQuote={currencyQuote}
+										currentPrice={currency.price}
+										onEdit={(transaction) => setDialog({ transaction, type: 'edit' })}
+										onRemove={(transaction) => setDialog({ transaction, type: 'remove' })}
+										transactions={transactions}
+									/>
+								) : (
+									<EmptyState
+										action={addButton}
+										message={`Add your first ${currency.name} transaction to start tracking this asset.`}
+									/>
+								)}
+							</SectionCard>
+						</TabItem>
+
+						<TabItem disabled={!hasTransactions} icon={FaChartLine} title="Charts">
+							{/* Render only when visible: ApexCharts can't size itself inside a hidden tab */}
+							{activeTab === CHARTS_TAB && hasTransactions && (
+								<DetailCharts
+									currencyQuote={currencyQuote}
+									currentPrice={currency.price}
+									transactions={transactions}
+								/>
+							)}
+						</TabItem>
+					</Tabs>
 				</div>
+
+				<DetailModals
+					currencyQuote={currencyQuote}
+					currentTransaction={editingTransaction}
+					onCloseModals={closeDialog}
+					onFormSubmit={handleSubmit}
+					onRemoveAllTransactions={handleRemoveAll}
+					onRemoveTransaction={handleRemove}
+					openAddTransactionModal={dialog?.type === 'add'}
+					openEditTransactionModal={dialog?.type === 'edit'}
+					openRemoveAllTransactionsModal={dialog?.type === 'removeAll'}
+					openRemoveTransactionModal={dialog?.type === 'remove'}
+					selectedAssetName={currency.name}
+				/>
 			</Page>
 		</LoadingErrorWrapper>
 	);
