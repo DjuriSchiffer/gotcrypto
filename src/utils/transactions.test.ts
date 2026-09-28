@@ -3,8 +3,14 @@ import { describe, expect, it } from 'vitest';
 import type { FormInputs } from '../components/TransactionForm';
 import type { SelectedAsset } from '../types/currency';
 
-import { asset, buy } from '../test/factories';
-import { transactionFromForm, upsertTransaction } from './transactions';
+import { asset, buy, sell, transferOut } from '../test/factories';
+import {
+	clearTransactions,
+	getTransactionYears,
+	removeTransaction,
+	transactionFromForm,
+	upsertTransaction,
+} from './transactions';
 
 const form = (overrides: Partial<FormInputs> = {}): FormInputs => ({
 	amount: '1',
@@ -107,5 +113,82 @@ describe('upsertTransaction', () => {
 		upsertTransaction(existing, bitcoin, buy(1, 20000));
 
 		expect(existing).toEqual(before);
+	});
+});
+
+describe('removeTransaction', () => {
+	it('removes one transaction and recalculates the totals', () => {
+		const first = buy(1, 10000, '2024-01-01');
+		const second = buy(1, 20000, '2024-02-01');
+		const result = removeTransaction(asset(1, [first, second]), first.id);
+
+		expect(result.transactions).toEqual([second]);
+		expect(result.totals.totalCostBasis).toBe(20000);
+	});
+});
+
+describe('clearTransactions', () => {
+	it('keeps the asset but removes every transaction', () => {
+		const result = clearTransactions(asset(1, [buy(1, 100)], 'Bitcoin'));
+
+		expect(result).toMatchObject({ cmc_id: 1, name: 'Bitcoin', transactions: [] });
+		expect(result.totals.totalAmount).toBe(0);
+	});
+});
+
+describe('getTransactionYears', () => {
+	const transactions = [
+		buy(1, 10000, '2023-05-01'),
+		buy(1, 30000, '2024-02-01'),
+		sell(1, 40000, '2024-06-01'),
+		transferOut(0.5, 0, '2024-08-01'),
+	];
+
+	it('groups by year, newest year and transaction first', () => {
+		const years = getTransactionYears(transactions, 50000);
+
+		expect(years.map((group) => group.year)).toEqual([2024, 2023]);
+		expect(years[0].rows.map((row) => row.transaction.type)).toEqual(['transfer', 'sell', 'buy']);
+	});
+
+	it('shows outflows as negative amounts', () => {
+		const [latest] = getTransactionYears(transactions, 50000);
+
+		expect(latest.rows.map((row) => row.amount)).toEqual([-0.5, -1, 1]);
+	});
+
+	it('gives each sell its own realized profit, not the running total', () => {
+		const twoSells = [
+			buy(2, 20000, '2024-01-01'),
+			sell(1, 15000, '2024-02-01'),
+			sell(1, 12000, '2024-03-01'),
+		];
+		const [year] = getTransactionYears(twoSells, 10000);
+
+		// average cost 10.000 per coin
+		expect(year.rows.map((row) => row.realizedProfit)).toEqual([2000, 5000, null]);
+	});
+
+	it('compares each buy with the current price', () => {
+		const [, older] = getTransactionYears(transactions, 50000);
+
+		// bought 1 for 10.000, now worth 50.000
+		expect(older.rows[0].unrealizedPercentage).toBe(400);
+	});
+
+	it('only gives buys an unrealized result', () => {
+		const [latest] = getTransactionYears(transactions, 50000);
+
+		expect(latest.rows.map((row) => row.unrealizedPercentage === null)).toEqual([
+			true,
+			true,
+			false,
+		]);
+	});
+
+	it('calculates the price per coin', () => {
+		const [year] = getTransactionYears([buy(0.5, 15000)], 1);
+
+		expect(year.rows[0].pricePerCoin).toBe(30000);
 	});
 });
