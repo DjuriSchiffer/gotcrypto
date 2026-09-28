@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { FetchedCurrency } from '../types/currency';
 
 import { getCurrencies } from '../api';
+import { compareRank } from '../utils/assets';
 
 export function formatPrice(price: number) {
 	if (typeof price !== 'number') return price;
@@ -43,17 +44,7 @@ const transformCurrencies = (
 			price: formatPrice(asset.quote[currencyQuote].price),
 			slug: asset.slug,
 		}))
-		.sort((a, b) => {
-			if (a.cmc_rank !== null && b.cmc_rank !== null) {
-				return a.cmc_rank - b.cmc_rank;
-			} else if (a.cmc_rank !== null && b.cmc_rank === null) {
-				return -1;
-			} else if (a.cmc_rank === null && b.cmc_rank !== null) {
-				return 1;
-			} else {
-				return 0;
-			}
-		});
+		.sort(compareRank);
 };
 
 /**

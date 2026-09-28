@@ -1,14 +1,13 @@
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
-import { Modal, ModalBody, ModalHeader, type ModalSizes } from 'flowbite-react';
-import type { DynamicStringEnumKeysOf } from 'flowbite-react/dist/types';
+import { Modal, ModalBody, ModalHeader } from 'flowbite-react';
 
 type ModalComponentProps = {
 	children: ReactNode;
 	onClose: () => void;
 	open?: boolean;
 	title?: string;
-	size?: DynamicStringEnumKeysOf<ModalSizes>;
+	size?: ComponentProps<typeof Modal>['size'];
 };
 
 function ModalComponent({
