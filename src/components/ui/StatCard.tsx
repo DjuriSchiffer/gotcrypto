@@ -17,7 +17,7 @@ type StatCardProps = {
 
 function StatCard({ children, hint, label, value, valueClassName }: StatCardProps) {
 	return (
-		<Card>
+		<Card className="justify-start">
 			<div className="flex flex-col gap-2">
 				<div className="flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-400">
 					{label}

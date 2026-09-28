@@ -1,197 +1,136 @@
-import { Button, Card } from 'flowbite-react';
-import Modal from './Modal';
 import type { FetchedCurrency, SelectedAsset } from 'currency';
+
+import classNames from 'classnames';
+import { Button, Card } from 'flowbite-react';
+import { useEffect, useMemo, useState } from 'react';
+import { FaCheck, FaLock, FaSave } from 'react-icons/fa';
+
 import { getImage } from '../utils/images';
-import { useState, useEffect, useMemo } from 'react';
-import { FaSave, FaCheck, FaLock } from 'react-icons/fa';
+import Modal from './Modal';
+
+export type AssetChanges = {
+	addIds: Array<number>;
+	removeIds: Array<number>;
+};
 
 type AssetManagerModalProps = {
-	onCloseModals: () => void;
-	onFormSubmit: (formData: any) => void;
-	onRemoveAssets: (assetIds: number[]) => void;
-	openAddAssetModal: boolean;
+	onClose: () => void;
+	/** Called once with every addition and removal, so one save can't overwrite the other */
+	onSave: (changes: AssetChanges) => void;
+	open: boolean;
 	options: Array<FetchedCurrency> | undefined;
-	preselectedOptions: SelectedAsset[];
+	selectedAssets: Array<SelectedAsset>;
 };
 
 function AssetManagerModal({
-	onCloseModals,
-	onFormSubmit,
-	onRemoveAssets,
-	openAddAssetModal,
+	onClose,
+	onSave,
+	open,
 	options,
-	preselectedOptions,
+	selectedAssets,
 }: AssetManagerModalProps) {
-	const [selectedAssets, setSelectedAssets] = useState<number[]>([]);
+	const [selectedIds, setSelectedIds] = useState<Array<number>>([]);
 
-	const assetsWithTransactions = useMemo(() => {
-		return new Set(
-			preselectedOptions
-				.filter((asset) => asset.transactions.length > 0)
-				.map((asset) => asset.cmc_id)
-		);
-	}, [preselectedOptions]);
+	const currentIds = useMemo(
+		() => new Set(selectedAssets.map((asset) => asset.cmc_id)),
+		[selectedAssets]
+	);
 
+	const lockedIds = useMemo(
+		() =>
+			new Set(
+				selectedAssets.filter((asset) => asset.transactions.length > 0).map((asset) => asset.cmc_id)
+			),
+		[selectedAssets]
+	);
+
+	// Start from the current selection every time the modal opens
 	useEffect(() => {
-		if (openAddAssetModal) {
-			const currentlySelectedIds = preselectedOptions.map((asset) => asset.cmc_id);
-			setSelectedAssets(currentlySelectedIds);
+		if (open) {
+			setSelectedIds(selectedAssets.map((asset) => asset.cmc_id));
 		}
-	}, [openAddAssetModal, preselectedOptions]);
+	}, [open, selectedAssets]);
 
-	const toggleAssetSelection = (cmcId: number) => {
-		if (assetsWithTransactions.has(cmcId)) {
-			return;
-		}
+	const toggle = (cmcId: number) => {
+		if (lockedIds.has(cmcId)) return;
 
-		setSelectedAssets((prevSelected) => {
-			if (prevSelected.includes(cmcId)) {
-				return prevSelected.filter((id) => id !== cmcId);
-			} else {
-				return [...prevSelected, cmcId];
-			}
-		});
-	};
-
-	const handleSubmit = () => {
-		const currentIds = new Set(preselectedOptions.map((asset) => asset.cmc_id));
-
-		const idsToAdd = selectedAssets.filter((id) => !currentIds.has(id));
-
-		const assetsToAdd = idsToAdd.map((cmcId) => {
-			const option = options?.find((opt) => opt.cmc_id === cmcId);
-			return {
-				cmc_id: cmcId,
-				name: option?.name || '',
-				transactions: [],
-			};
-		});
-
-		const idsToRemove = Array.from(currentIds).filter(
-			(id) => !assetsWithTransactions.has(id) && !selectedAssets.includes(id)
+		setSelectedIds((previous) =>
+			previous.includes(cmcId) ? previous.filter((id) => id !== cmcId) : [...previous, cmcId]
 		);
-
-		if (assetsToAdd.length > 0) {
-			onFormSubmit({
-				selectedAssets: assetsToAdd,
-			});
-		}
-
-		if (idsToRemove.length > 0) {
-			onRemoveAssets(idsToRemove);
-		}
-
-		if (assetsToAdd.length === 0 && idsToRemove.length === 0) {
-			onCloseModals();
-		}
 	};
 
-	const calculateStats = () => {
-		const currentIds = new Set(preselectedOptions.map((asset) => asset.cmc_id));
-
-		const newAssets = selectedAssets.filter((id) => !currentIds.has(id)).length;
-
-		const removedAssets = Array.from(currentIds).filter(
-			(id) => !assetsWithTransactions.has(id) && !selectedAssets.includes(id)
-		).length;
-
-		return {
-			newAssets,
-			removedAssets,
-			totalSelected: selectedAssets.length,
-		};
-	};
-
-	const stats = calculateStats();
-	const hasChanges = stats.newAssets > 0 || stats.removedAssets > 0;
+	const addIds = selectedIds.filter((id) => !currentIds.has(id));
+	const removeIds = [...currentIds].filter((id) => !lockedIds.has(id) && !selectedIds.includes(id));
+	const hasChanges = addIds.length > 0 || removeIds.length > 0;
 
 	return (
-		<Modal onClose={onCloseModals} open={openAddAssetModal} title="Manage Assets" size="3xl">
-			<div>
-				<p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-					Select or deselect assets to customize your dashboard. Assets with transactions cannot be
-					removed.
+		<Modal onClose={onClose} open={open} size="3xl" title="Manage assets">
+			<p className="text-sm text-gray-500 dark:text-gray-400">
+				Choose the coins to show on your dashboard. Coins with transactions can't be removed.
+			</p>
+
+			{options && (
+				<div className="grid max-h-96 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
+					{options.map((option) => {
+						const isSelected = selectedIds.includes(option.cmc_id);
+						const isLocked = lockedIds.has(option.cmc_id);
+
+						return (
+							<Card
+								aria-disabled={isLocked}
+								aria-pressed={isSelected}
+								className={classNames('transition-colors', {
+									'border-green-500 bg-green-50 dark:bg-green-900/20': isSelected && !isLocked,
+									'cursor-not-allowed bg-gray-100 dark:bg-gray-700': isLocked,
+									'cursor-pointer': !isLocked,
+								})}
+								key={option.cmc_id}
+								onClick={() => toggle(option.cmc_id)}
+								onKeyDown={(event) => {
+									if (event.key === 'Enter' || event.key === ' ') {
+										event.preventDefault();
+										toggle(option.cmc_id);
+									}
+								}}
+								role="button"
+								tabIndex={isLocked ? -1 : 0}
+							>
+								<div className="flex items-center gap-2">
+									<img alt="" height={24} src={getImage(option.cmc_id)} width={24} />
+									<span className="min-w-0 flex-1 truncate text-sm font-semibold text-gray-900 dark:text-white">
+										{option.name}
+									</span>
+									{isLocked && (
+										<FaLock aria-label="Has transactions" className="text-gray-400" size={12} />
+									)}
+									{isSelected && !isLocked && <FaCheck aria-hidden className="text-green-500" />}
+								</div>
+							</Card>
+						);
+					})}
+				</div>
+			)}
+
+			<div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-200 pt-4 dark:border-gray-700">
+				<p className="text-sm text-gray-500 dark:text-gray-400">
+					{selectedIds.length} selected
+					{addIds.length > 0 && <span className="ml-2 text-green-500">+{addIds.length} new</span>}
+					{removeIds.length > 0 && (
+						<span className="ml-2 text-red-500">−{removeIds.length} removed</span>
+					)}
 				</p>
-
-				{options && (
-					<div className="mb-4 grid max-h-96 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
-						{options.map((asset) => {
-							const isSelected = selectedAssets.includes(asset.cmc_id);
-							const hasTransactions = assetsWithTransactions.has(asset.cmc_id);
-							const isCurrentlyInDashboard = preselectedOptions.some(
-								(item) => item.cmc_id === asset.cmc_id
-							);
-
-							return (
-								<Card
-									key={asset.cmc_id}
-									onClick={() => toggleAssetSelection(asset.cmc_id)}
-									className={`transition-colors ${
-										hasTransactions
-											? 'cursor-not-allowed bg-slate-100 dark:bg-slate-700'
-											: 'cursor-pointer'
-									} ${
-										isSelected
-											? hasTransactions
-												? 'border-slate-400'
-												: 'border-green-500 bg-green-50 dark:bg-green-900 dark:bg-opacity-20'
-											: ''
-									}`}
-								>
-									<div className="flex items-center space-x-2">
-										<div className="shrink-0">
-											<img
-												alt={`${asset.name} icon`}
-												height={24}
-												src={getImage(asset.cmc_id)}
-												width={24}
-											/>
-										</div>
-										<div className="min-w-0 flex-1">
-											<h5 className="text-sm font-bold leading-none text-gray-700 dark:text-white">
-												{asset.name}
-											</h5>
-											{isCurrentlyInDashboard && (
-												<span className="text-xs text-gray-500 dark:text-gray-400">
-													In dashboard
-												</span>
-											)}
-										</div>
-										{hasTransactions && (
-											<div className="flex-shrink-0 text-gray-500">
-												<FaLock size={12} title="Has transactions" />
-											</div>
-										)}
-										{isSelected && (
-											<div className="flex-shrink-0">
-												<FaCheck className="text-green-500" />
-											</div>
-										)}
-									</div>
-								</Card>
-							);
-						})}
-					</div>
-				)}
-
-				<div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-200 pt-4 dark:border-gray-700">
-					<div className="text-sm text-gray-500 dark:text-gray-400">
-						{stats.totalSelected} asset(s) selected
-						{stats.newAssets > 0 && (
-							<span className="ml-2 text-green-500">+{stats.newAssets} new</span>
-						)}
-						{stats.removedAssets > 0 && (
-							<span className="ml-2 text-red-500">-{stats.removedAssets} removed</span>
-						)}
-					</div>
-					<div className="flex flex-wrap gap-2">
-						<Button color="primary" onClick={handleSubmit} disabled={!hasChanges}>
-							<FaSave className="mr-2" /> Save Changes
-						</Button>
-						<Button color="gray" onClick={onCloseModals}>
-							Cancel
-						</Button>
-					</div>
+				<div className="flex gap-2">
+					<Button color="gray" onClick={onClose}>
+						Cancel
+					</Button>
+					<Button
+						color="primary"
+						disabled={!hasChanges}
+						onClick={() => onSave({ addIds, removeIds })}
+					>
+						<FaSave className="mr-2" />
+						Save changes
+					</Button>
 				</div>
 			</div>
 		</Modal>
