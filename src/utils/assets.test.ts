@@ -3,7 +3,13 @@ import { describe, expect, it } from 'vitest';
 import type { FetchedCurrency } from '../types/currency';
 
 import { asset, buy } from '../test/factories';
-import { applyAssetChanges, compareRank, createAsset, getDashboardAssets } from './assets';
+import {
+	applyAssetChanges,
+	compareRank,
+	createAsset,
+	filterCoins,
+	getDashboardAssets,
+} from './assets';
 
 const coin = (cmcId: number, rank: null | number = cmcId): FetchedCurrency => ({
 	cmc_id: cmcId,
@@ -85,5 +91,28 @@ describe('applyAssetChanges', () => {
 
 		expect(added.slug).toBe('coin-5');
 		expect(added.totals.totalAmount).toBe(0);
+	});
+});
+
+describe('filterCoins', () => {
+	const coins = [
+		{ name: 'Bitcoin', slug: 'bitcoin' },
+		{ name: 'Bitcoin Cash', slug: 'bitcoin-cash' },
+		{ name: 'Ethereum', slug: 'ethereum' },
+	];
+
+	it('matches names regardless of case', () => {
+		expect(filterCoins(coins, 'BITCOIN').map((coin) => coin.name)).toEqual([
+			'Bitcoin',
+			'Bitcoin Cash',
+		]);
+	});
+
+	it('matches slugs', () => {
+		expect(filterCoins(coins, 'bitcoin-c').map((coin) => coin.name)).toEqual(['Bitcoin Cash']);
+	});
+
+	it('returns everything for an empty or blank query', () => {
+		expect(filterCoins(coins, '   ')).toHaveLength(3);
 	});
 });
