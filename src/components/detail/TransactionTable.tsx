@@ -58,15 +58,23 @@ function TransactionTable({
 
 	const money = (value: number) => currencyFormat(value, currencyQuote);
 
-	const renderResult = ({ realizedProfit, unrealizedPercentage }: TransactionRow) => {
-		if (unrealizedPercentage !== null) {
-			return <ProfitBadge percentage={unrealizedPercentage} />;
+	const renderResult = (row: TransactionRow) => {
+		if (row.unrealizedPercentage !== null) {
+			return <ProfitBadge percentage={row.unrealizedPercentage} />;
 		}
-		if (realizedProfit !== null) {
+		if (row.realizedProfit !== null) {
 			return (
-				<span className={classNames('text-sm font-medium', profitClass(realizedProfit))}>
-					{money(realizedProfit)}
-				</span>
+				<div className="flex flex-col items-end">
+					<span className={classNames('text-sm font-medium', profitClass(row.realizedProfit))}>
+						{row.realizedProfit > 0 ? '+' : ''}
+						{money(row.realizedProfit)}
+					</span>
+					{row.costOfSold !== null && (
+						<span className="text-xs text-gray-500 dark:text-gray-400">
+							cost {money(row.costOfSold)}
+						</span>
+					)}
+				</div>
 			);
 		}
 		return <span className="text-gray-400">–</span>;
