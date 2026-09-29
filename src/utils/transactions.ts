@@ -74,6 +74,8 @@ export const clearTransactions = (asset: SelectedAsset): SelectedAsset => ({
 export type TransactionRow = {
 	/** Signed: negative for sells and transfers out */
 	amount: number;
+	/** What the coins removed by this sell cost; null for other types */
+	costOfSold: null | number;
 	pricePerCoin: number;
 	/** Profit locked in by this sell; null for other types */
 	realizedProfit: null | number;
@@ -121,6 +123,9 @@ export const getTransactionYears = (
 
 		const row: TransactionRow = {
 			amount: isOutflow ? -quantity : quantity,
+			costOfSold: realizedById.has(transaction.id)
+				? Number((price - (realizedById.get(transaction.id) ?? 0)).toFixed(2))
+				: null,
 			pricePerCoin: quantity > 0 ? price / quantity : 0,
 			realizedProfit: realizedById.get(transaction.id) ?? null,
 			transaction,

@@ -191,4 +191,14 @@ describe('getTransactionYears', () => {
 
 		expect(year.rows[0].pricePerCoin).toBe(30000);
 	});
+
+	it('shows what the sold coins cost', () => {
+		const [year] = getTransactionYears(
+			[buy(2, 20000, '2024-01-01'), sell(1, 15000, '2024-02-01')],
+			1
+		);
+
+		// proceeds 15.000 − profit 5.000 = cost 10.000
+		expect(year.rows[0]).toMatchObject({ costOfSold: 10000, realizedProfit: 5000 });
+	});
 });
