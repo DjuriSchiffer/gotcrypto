@@ -76,3 +76,16 @@ export const applyAssetChanges = (
 
 	return [...kept, ...added];
 };
+
+/** Coins whose name or slug contains the query, ignoring case. An empty query matches all. */
+export const filterCoins = <T extends Pick<FetchedCurrency, 'name' | 'slug'>>(
+	coins: Array<T>,
+	query: string
+): Array<T> => {
+	const search = query.trim().toLowerCase();
+	if (!search) return coins;
+
+	return coins.filter(
+		(coin) => coin.name.toLowerCase().includes(search) || coin.slug.includes(search)
+	);
+};

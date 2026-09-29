@@ -1,186 +1,221 @@
+import type { ReactNode } from 'react';
+
+import { Button, Card, Progress, Spinner } from 'flowbite-react';
 import { useState } from 'react';
-import { Button, Progress, Card, Spinner } from 'flowbite-react';
-import { useStorage } from '../hooks/useStorage';
-import { useAssetSelection } from '../hooks/useAssetSelection';
+import { FaArrowLeft, FaArrowRight, FaCheck } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+
 import AssetSelector from '../components/AssetSelector';
-import SettingsPriceFormat from '../components/SettingsPriceFormat';
 import SettingsDateFormat from '../components/SettingsDateFormat';
 import SettingsLightDarkMode from '../components/SettingsLightDarkMode';
-import type { SelectedAsset } from 'currency';
+import SettingsPriceFormat from '../components/SettingsPriceFormat';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig';
+import { useStorage } from '../hooks/useStorage';
+import logo from '../public/images/logo.svg';
+import { signOutUser } from '../services/authService';
+import { applyAssetChanges } from '../utils/assets';
+import { getImage } from '../utils/images';
 
-interface OnboardingStep {
-	title: string;
+type Step = {
 	description: string;
-	component: React.ReactNode;
+	title: string;
+};
+
+const STEPS: Array<Step> = [
+	{
+		description: 'Pick the coins you want to track. You can change this later.',
+		title: 'Choose your coins',
+	},
+	{ description: 'Choose how prices and dates are shown.', title: 'Set your preferences' },
+	{
+		description: 'Your dashboard is ready. Add your first transactions from there.',
+		title: "You're all set",
+	},
+];
+
+function PreferenceGroup({
+	children,
+	description,
+	title,
+}: {
+	children: ReactNode;
+	description: string;
+	title: string;
+}) {
+	return (
+		<section className="flex flex-col gap-3">
+			<div>
+				<h2 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h2>
+				<p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
+			</div>
+			{children}
+		</section>
+	);
 }
 
 function OnboardingPage() {
-	const [currentStep, setCurrentStep] = useState(0);
-	const [isProcessing, setIsProcessing] = useState(false);
-	const [pendingAssets, setPendingAssets] = useState<
-		Array<{ cmc_id: number; name: string; transactions: any[] }>
-	>([]);
-
-	const { currencyQuote, selectedCurrencies, setSelectedCurrencies, setOnboardingCompleted } =
+	const navigate = useNavigate();
+	const { currencyQuote, selectedCurrencies, setOnboardingCompleted, setSelectedCurrencies } =
 		useStorage();
+	const { data: fetchedCurrencies, isLoading } = useCoinMarketCap(currencyQuote);
 
-	const { selectedAssets, toggleAssetSelection } = useAssetSelection();
+	const [step, setStep] = useState(0);
+	const [selectedIds, setSelectedIds] = useState<Array<number>>([]);
+	const [isSaving, setIsSaving] = useState(false);
 
-	const { data: fetchedCurrencies, isLoading: fetchedCurrenciesIsLoading } =
-		useCoinMarketCap(currencyQuote);
+	const isFirstStep = step === 0;
+	const isLastStep = step === STEPS.length - 1;
+	const chosenCoins = (fetchedCurrencies ?? []).filter((coin) => selectedIds.includes(coin.cmc_id));
+	const { description, title } = STEPS[step];
 
-	const steps: OnboardingStep[] = [
-		{
-			title: 'Select Your Assets',
-			description: 'Choose the assets you want to monitor in your portfolio',
-			component: (
-				<>
-					{fetchedCurrenciesIsLoading ? (
-						<div className="py-8 text-center">
-							<Spinner aria-label="Loading" color="green" />
-							<span className="ml-2 dark:text-white">Fetching data from CoinMarketCap...</span>
-						</div>
-					) : (
-						<>
-							<AssetSelector
-								options={fetchedCurrencies}
-								preselectedOptions={selectedCurrencies}
-								selectedAssets={selectedAssets}
-								onToggleAsset={toggleAssetSelection}
-							/>
-							<div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-								{selectedAssets.length} asset(s) selected
-							</div>
-						</>
-					)}
-				</>
-			),
-		},
-		{
-			title: 'Currency Preference',
-			description: 'Select the currency to display values in your portfolio',
-			component: <SettingsPriceFormat />,
-		},
-		{
-			title: 'Date & Time Format',
-			description: 'Select how dates should be displayed',
-			component: <SettingsDateFormat />,
-		},
-		{
-			title: 'Theme Preference',
-			description: 'Choose either a light or a dark themed app',
-			component: <SettingsLightDarkMode />,
-		},
-		{
-			title: "You're all set!",
-			description: 'Click Save to start tracking your portfolio',
-			component: null,
-		},
-	];
+	const toggleCoin = (cmcId: number) =>
+		setSelectedIds((previous) =>
+			previous.includes(cmcId) ? previous.filter((id) => id !== cmcId) : [...previous, cmcId]
+		);
 
-	const handleNext = async () => {
-		if (currentStep === 0 && selectedAssets.length > 0) {
-			const assetsToAdd = selectedAssets.map((cmcId) => {
-				const option = fetchedCurrencies?.find((opt) => opt.cmc_id === cmcId);
-				return {
-					cmc_id: cmcId,
-					name: option?.name || '',
-					transactions: [],
-				};
-			});
-			setPendingAssets(assetsToAdd);
-		}
-
-		if (currentStep < steps.length - 1) {
-			setCurrentStep(currentStep + 1);
-		} else {
-			await handleComplete();
-		}
-	};
-
-	const handleBack = () => {
-		if (currentStep === 0) {
-			handleSignOut();
-		}
-		if (currentStep > 0) {
-			setCurrentStep(currentStep - 1);
-		}
-	};
-
-	const handleSkip = async () => {
-		await setOnboardingCompleted(true);
-		window.location.href = '/';
-	};
-
-	const handleComplete = async () => {
-		setIsProcessing(true);
+	/** Saves the chosen coins (if any) and marks onboarding as done. */
+	const finish = async (saveCoins: boolean) => {
+		setIsSaving(true);
 		try {
-			if (pendingAssets.length > 0) {
-				const existingIds = new Set(selectedCurrencies.map((currency) => currency.cmc_id));
-				const newAssets = pendingAssets.filter((asset) => !existingIds.has(asset.cmc_id));
-
-				if (newAssets.length > 0) {
-					const updatedCurrencies = [
-						...selectedCurrencies,
-						...(newAssets as unknown as SelectedAsset[]),
-					];
-					await setSelectedCurrencies(updatedCurrencies);
-				}
+			if (saveCoins && chosenCoins.length > 0) {
+				await setSelectedCurrencies(applyAssetChanges(selectedCurrencies, chosenCoins, []));
 			}
-
 			await setOnboardingCompleted(true);
-			window.location.href = '/';
+			navigate('/', { replace: true });
 		} catch (error) {
 			console.error('Error completing onboarding:', error);
-			setIsProcessing(false);
+			alert('Something went wrong while saving. Please try again.');
+			setIsSaving(false);
 		}
 	};
-
-	const handleSignOut = async () => {
-		try {
-			await signOut(auth);
-			console.log('User signed out');
-		} catch (error) {
-			console.error('Error signing out:', error);
-		}
-	};
-
-	const progressSteps = steps.length - 1;
-	const progress = (currentStep / progressSteps) * 100;
-	const currentStepData = steps[currentStep];
 
 	return (
-		<main className="min-h-screen bg-gray-50 dark:bg-gray-dark">
-			<div className="mb-10">
-				<Progress size="md" progress={progress} color="green" />
-			</div>
-			<div className="flex h-[calc(100vh-72px)] flex-col items-center px-4">
-				<div className="flex h-full w-full max-w-2xl flex-col">
-					<div className="p-4 text-center">
-						<h1 className="mb-4 text-3xl font-bold text-gray-900 dark:text-white">
-							{currentStepData.title}
-							<p className="text-lg text-gray-600 dark:text-white">{currentStepData.description}</p>
-						</h1>
-					</div>
-					{currentStepData.component && <Card className="mb-4">{currentStepData.component}</Card>}
-
-					<div className="mt-auto flex gap-4">
-						<Button color="gray" onClick={handleBack} className="flex-1">
-							Back
-						</Button>
-						<Button
-							color="primary"
-							onClick={handleNext}
-							disabled={isProcessing || (currentStep === 0 && selectedAssets.length === 0)}
-							className="flex-1"
-						>
-							{isProcessing ? 'Processing...' : currentStep === steps.length - 1 ? 'Save' : 'Next'}
-						</Button>
-					</div>
+		<main className="min-h-screen bg-gray-50 px-4 py-8 dark:bg-gray-900">
+			<div className="mx-auto flex max-w-2xl flex-col gap-6">
+				<div className="flex items-center justify-between">
+					<span className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+						<img alt="" className="h-8 w-8" src={logo} />
+						Got Crypto
+					</span>
+					<Button color="gray" disabled={isSaving} onClick={() => void finish(false)} size="xs">
+						Skip setup
+					</Button>
 				</div>
+
+				<div className="flex flex-col gap-2">
+					<p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+						Step {step + 1} of {STEPS.length}
+					</p>
+					<Progress
+						aria-label={`Step ${step + 1} of ${STEPS.length}`}
+						color="green"
+						progress={((step + 1) / STEPS.length) * 100}
+						size="sm"
+					/>
+				</div>
+
+				<Card>
+					<div className="flex flex-col gap-6">
+						<header>
+							<h1 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
+							<p className="mt-1 text-gray-500 dark:text-gray-400">{description}</p>
+						</header>
+
+						{step === 0 &&
+							(isLoading ? (
+								<div className="flex items-center justify-center gap-2 py-12 text-gray-500 dark:text-gray-400">
+									<Spinner color="success" size="sm" />
+									Loading coins from CoinMarketCap...
+								</div>
+							) : (
+								<AssetSelector
+									excludeIds={selectedCurrencies.map((asset) => asset.cmc_id)}
+									onToggle={toggleCoin}
+									options={fetchedCurrencies ?? []}
+									selectedIds={selectedIds}
+								/>
+							))}
+
+						{step === 1 && (
+							<div className="flex flex-col gap-6">
+								<PreferenceGroup description="Used for all prices" title="Currency">
+									<SettingsPriceFormat />
+								</PreferenceGroup>
+								<PreferenceGroup description="How dates are shown" title="Date format">
+									<SettingsDateFormat />
+								</PreferenceGroup>
+								<PreferenceGroup description="Light or dark theme" title="Appearance">
+									<SettingsLightDarkMode />
+								</PreferenceGroup>
+							</div>
+						)}
+
+						{step === 2 && (
+							<div className="flex flex-col gap-3">
+								<p className="text-sm font-medium text-gray-900 dark:text-white">
+									{chosenCoins.length} {chosenCoins.length === 1 ? 'coin' : 'coins'} on your
+									dashboard
+								</p>
+								<ul className="flex flex-wrap gap-2">
+									{chosenCoins.map((coin) => (
+										<li
+											className="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 py-1 pl-1 pr-3 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+											key={coin.cmc_id}
+										>
+											<img alt="" className="h-6 w-6 rounded-full" src={getImage(coin.cmc_id)} />
+											{coin.name}
+										</li>
+									))}
+								</ul>
+								<p className="text-sm text-gray-500 dark:text-gray-400">
+									You can change your coins and preferences any time in Settings.
+								</p>
+							</div>
+						)}
+
+						<footer className="flex items-center justify-between gap-2 border-t border-gray-200 pt-4 dark:border-gray-700">
+							{isFirstStep ? (
+								<Button color="gray" onClick={() => void signOutUser()}>
+									Sign out
+								</Button>
+							) : (
+								<Button color="gray" disabled={isSaving} onClick={() => setStep(step - 1)}>
+									<FaArrowLeft className="mr-2" />
+									Back
+								</Button>
+							)}
+
+							<div className="flex items-center gap-3">
+								{isFirstStep && (
+									<span className="text-sm text-gray-500 dark:text-gray-400">
+										{selectedIds.length === 0
+											? 'Select at least one coin'
+											: `${selectedIds.length} selected`}
+									</span>
+								)}
+								{isLastStep ? (
+									<Button color="primary" disabled={isSaving} onClick={() => void finish(true)}>
+										{isSaving ? (
+											<Spinner className="mr-2" size="sm" />
+										) : (
+											<FaCheck className="mr-2" />
+										)}
+										Go to dashboard
+									</Button>
+								) : (
+									<Button
+										color="primary"
+										disabled={isFirstStep && selectedIds.length === 0}
+										onClick={() => setStep(step + 1)}
+									>
+										Next
+										<FaArrowRight className="ml-2" />
+									</Button>
+								)}
+							</div>
+						</footer>
+					</div>
+				</Card>
 			</div>
 		</main>
 	);
