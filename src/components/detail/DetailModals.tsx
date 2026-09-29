@@ -1,13 +1,11 @@
 import type { CurrencyQuote } from 'api';
 
-import { Button, useThemeMode } from 'flowbite-react';
-import { FaExclamationTriangle, FaTrashAlt } from 'react-icons/fa';
-
 import type { Transaction } from '../../types/currency';
 import type { FormInputs } from '../TransactionForm';
 
 import Modal from '../Modal';
 import TransactionForm from '../TransactionForm';
+import ConfirmModal from '../ui/ConfirmModal';
 
 type DetailModalsProps = {
 	currencyQuote: keyof CurrencyQuote;
@@ -20,6 +18,8 @@ type DetailModalsProps = {
 	openEditTransactionModal: boolean;
 	openRemoveAllTransactionsModal: boolean;
 	openRemoveTransactionModal: boolean;
+	/** Number of transactions, shown when removing all of them */
+	transactionCount?: number;
 	selectedAssetName?: string;
 };
 
@@ -35,13 +35,11 @@ function DetailModals({
 	openRemoveAllTransactionsModal,
 	openRemoveTransactionModal,
 	selectedAssetName,
+	transactionCount = 0,
 }: DetailModalsProps) {
-	const { computedMode } = useThemeMode();
-	const isDarkMode = computedMode === 'dark';
-
 	return (
 		<>
-			<Modal onClose={onCloseModals} open={openAddTransactionModal} title="Add Transaction">
+			<Modal onClose={onCloseModals} open={openAddTransactionModal} title="Add transaction">
 				<TransactionForm
 					currencyQuote={currencyQuote}
 					isEdit={false}
@@ -51,7 +49,7 @@ function DetailModals({
 				/>
 			</Modal>
 
-			<Modal onClose={onCloseModals} open={openEditTransactionModal} title="Edit Transaction">
+			<Modal onClose={onCloseModals} open={openEditTransactionModal} title="Edit transaction">
 				<TransactionForm
 					currencyQuote={currencyQuote}
 					defaultValues={
@@ -74,51 +72,32 @@ function DetailModals({
 				/>
 			</Modal>
 
-			<Modal onClose={onCloseModals} open={openRemoveTransactionModal} title="Confirm Removal">
-				<div className="flex flex-col items-center">
-					<FaExclamationTriangle
-						className="mx-auto mb-4 flex text-6xl"
-						color={isDarkMode ? 'white' : 'dark'}
-					/>
-					<p className="mb-4 text-dark dark:text-white">
-						Are you sure you want to remove this transaction?
-					</p>
-					<div className="flex space-x-2">
-						<Button color="failure" onClick={onRemoveTransaction}>
-							<FaTrashAlt className="mr-1" color="white" />
-							Remove Transaction
-						</Button>
-						<Button color="dark" onClick={onCloseModals}>
-							Cancel
-						</Button>
-					</div>
-				</div>
-			</Modal>
-
-			<Modal
+			<ConfirmModal
+				confirmLabel="Remove transaction"
+				message="This removes the transaction and recalculates your holdings and profit."
 				onClose={onCloseModals}
+				onConfirm={onRemoveTransaction}
+				open={openRemoveTransactionModal}
+				title="Remove this transaction?"
+			/>
+
+			<ConfirmModal
+				confirmLabel="Remove all transactions"
+				message={
+					<>
+						This permanently removes{' '}
+						<strong>
+							all {transactionCount} {selectedAssetName} transactions
+						</strong>
+						. The asset stays on your dashboard. This can't be undone.
+					</>
+				}
+				onClose={onCloseModals}
+				onConfirm={onRemoveAllTransactions}
 				open={openRemoveAllTransactionsModal}
-				title="Confirm Removal of All Transactions"
-			>
-				<div className="flex flex-col items-center">
-					<FaExclamationTriangle
-						className="mx-auto mb-4 flex text-6xl"
-						color={isDarkMode ? 'white' : 'dark'}
-					/>
-					<p className="mb-4 text-dark dark:text-white">
-						Are you sure you want to remove all transactions for {selectedAssetName}?
-					</p>
-					<div className="flex space-x-2">
-						<Button color="failure" onClick={onRemoveAllTransactions}>
-							<FaTrashAlt className="mr-1" color="white" />
-							Remove All Transactions
-						</Button>
-						<Button color="dark" onClick={onCloseModals}>
-							Cancel
-						</Button>
-					</div>
-				</div>
-			</Modal>
+				requireText="DELETE"
+				title={`Remove all ${selectedAssetName ?? ''} transactions?`}
+			/>
 		</>
 	);
 }
