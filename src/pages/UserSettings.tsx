@@ -1,103 +1,131 @@
-import { Button, useThemeMode } from 'flowbite-react';
+import { Avatar, Badge, Button } from 'flowbite-react';
 import { useState } from 'react';
-import { FaExclamationTriangle, FaTrashAlt } from 'react-icons/fa';
+import { FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
 
-import Modal from '../components/Modal';
 import Page from '../components/Page';
 import SettingsDateFormat from '../components/SettingsDateFormat';
-import SettingsPriceFormat from '../components/SettingsPriceFormat';
-import { useStorage } from '../hooks/useStorage';
 import SettingsLightDarkMode from '../components/SettingsLightDarkMode';
+import SettingsPriceFormat from '../components/SettingsPriceFormat';
+import ConfirmModal from '../components/ui/ConfirmModal';
+import PageHeader from '../components/ui/PageHeader';
+import SectionCard from '../components/ui/SectionCard';
+import { useAuth } from '../hooks/useAuth';
+import { useStorage } from '../hooks/useStorage';
+import { signOutUser } from '../services/authService';
+
+const CONFIRM_WORD = 'DELETE';
 
 function UserSettings() {
-	const { setSelectedCurrencies } = useStorage();
-	const [openRemoveAllDataModal, setOpenRemoveAllDataModal] = useState<boolean>(false);
+	const { isAnonymous, user } = useAuth();
+	const { selectedCurrencies, setSelectedCurrencies } = useStorage();
+	const [confirmOpen, setConfirmOpen] = useState(false);
 
-	const { computedMode } = useThemeMode();
-	const isDarkMode = computedMode === 'dark';
+	const assetCount = selectedCurrencies.length;
+	const transactionCount = selectedCurrencies.reduce(
+		(sum, asset) => sum + asset.transactions.length,
+		0
+	);
 
-	const handleOpenClearAllStoredDataModal = () => {
-		setOpenRemoveAllDataModal(true);
-	};
-	const handleCloseClearAllStoredDataModal = () => {
-		setOpenRemoveAllDataModal(false);
-	};
-	const handleRemoveAllData = async () => {
-		await setSelectedCurrencies([]);
-		handleCloseClearAllStoredDataModal();
-	};
-
-	const onRemoveAllData = () => {
-		void handleRemoveAllData();
+	const handleDelete = async () => {
+		try {
+			await setSelectedCurrencies([]);
+			setConfirmOpen(false);
+		} catch (error) {
+			console.error('Failed to delete portfolio data:', error);
+			alert('Failed to delete your data. Please try again.');
+		}
 	};
 
 	return (
 		<Page>
-			<div className="mb-4 mt-6 grid w-full gap-4 md:w-10/12 lg:w-6/12">
-				<div className="grid grid-cols-1">
-					<h2 className="text-4xl font-extrabold dark:text-white">Currency Settings</h2>
-					<p className="my-4 text-lg text-gray-500 dark:text-gray-400">
-						Choose your preferred currency display format.
-					</p>
-					<p className="mb-4 text-lg font-normal text-gray-500 dark:text-gray-400">
-						Select between EUR or USD to update all price displays and Coinmarketcap data
-						accordingly.
-					</p>
+			<div className="mb-8 flex w-full max-w-3xl flex-col gap-6">
+				<PageHeader description="Your account, preferences and data" title="Settings" />
+
+				<SectionCard title="Account">
+					<div className="flex flex-wrap items-center justify-between gap-4">
+						<div className="flex min-w-0 items-center gap-3">
+							<Avatar img={user?.photoURL ?? undefined} rounded size="md" />
+							<div className="min-w-0">
+								<p className="truncate font-medium text-gray-900 dark:text-white">
+									{isAnonymous
+										? 'Anonymous session'
+										: (user?.displayName ?? user?.email ?? 'Signed in')}
+								</p>
+								{isAnonymous ? (
+									<p className="text-sm text-gray-500 dark:text-gray-400">
+										Your data is stored in this browser only. It isn't backed up and can't be opened
+										on other devices.
+									</p>
+								) : (
+									<p className="truncate text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
+								)}
+							</div>
+						</div>
+						<div className="flex items-center gap-2">
+							<Badge color={isAnonymous ? 'warning' : 'success'}>
+								{isAnonymous ? 'Browser only' : 'Synced with Google'}
+							</Badge>
+							<Button color="gray" onClick={() => void signOutUser()} size="sm">
+								<FaSignOutAlt className="mr-2" />
+								Sign out
+							</Button>
+						</div>
+					</div>
+				</SectionCard>
+
+				<SectionCard
+					description="Used for all prices and for fetching data from CoinMarketCap"
+					title="Currency"
+				>
 					<SettingsPriceFormat />
-					<hr className="mt-10 mb-4 h-px border-0 bg-gray-200 dark:bg-gray-700"></hr>
-				</div>
-				<div className="grid grid-cols-1">
-					<h2 className="text-4xl font-extrabold dark:text-white">Date Format</h2>
-					<p className="my-4 text-lg text-gray-500 dark:text-gray-400">
-						Choose how dates should be displayed throughout the application.
-					</p>
+				</SectionCard>
+
+				<SectionCard description="How dates are shown throughout the app" title="Date format">
 					<SettingsDateFormat />
-					<hr className="mt-10 mb-4 h-px border-0 bg-gray-200 dark:bg-gray-700"></hr>
-				</div>
-				<div className="grid grid-cols-1">
-					<h2 className="text-4xl font-extrabold dark:text-white">Light/Dark mode</h2>
-					<p className="my-4 text-lg text-gray-500 dark:text-gray-400">
-						Choose either a light or a dark themed app.
-					</p>
+				</SectionCard>
+
+				<SectionCard description="Light or dark theme" title="Appearance">
 					<SettingsLightDarkMode />
-					<hr className="mt-10 mb-4 h-px border-0 bg-gray-200 dark:bg-gray-700"></hr>
-				</div>
-				<div className="grid grid-cols-1">
-					<h2 className="text-4xl font-extrabold dark:text-white">Data Management</h2>
-					<p className="my-4 text-lg text-gray-500 dark:text-gray-400">
-						⚠️ Clear all your personal data stored locally and in the cloud.
-					</p>
-					<p className="mb-4 text-lg font-normal text-gray-500 dark:text-gray-400">
-						This action will permanently delete all your stored information and cannot be reversed.
-					</p>
-					<Button className="w-fit" color="failure" onClick={handleOpenClearAllStoredDataModal}>
-						Delete All Data
-					</Button>
-					<hr className="my-8 h-px border-0 bg-gray-200 dark:bg-gray-700" />
-				</div>
-			</div>
-			<Modal
-				onClose={handleCloseClearAllStoredDataModal}
-				open={openRemoveAllDataModal}
-				title="Confirm Removal of All Data"
-			>
-				<div className="flex flex-col items-center">
-					<FaExclamationTriangle
-						className="mx-auto mb-4 flex text-6xl"
-						color={isDarkMode ? 'white' : 'dark'}
-					/>
-					<p className="mb-4 dark:text-white">Are you sure you want to remove all your data?</p>
-					<div className="flex space-x-2">
-						<Button color="failure" onClick={onRemoveAllData}>
-							<FaTrashAlt className="mr-1" color="white" />
-							Remove All Data
-						</Button>
-						<Button color="dark" onClick={handleCloseClearAllStoredDataModal}>
-							Cancel
+				</SectionCard>
+
+				<SectionCard description="These actions can't be undone" title="Danger zone" tone="danger">
+					<div className="flex flex-wrap items-center justify-between gap-4">
+						<div>
+							<p className="font-medium text-gray-900 dark:text-white">Delete portfolio data</p>
+							<p className="text-sm text-gray-500 dark:text-gray-400">
+								Removes all your assets and transactions. Your preferences stay.
+							</p>
+						</div>
+						<Button
+							color="failure"
+							disabled={assetCount === 0}
+							onClick={() => setConfirmOpen(true)}
+						>
+							<FaTrashAlt className="mr-2" />
+							Delete portfolio data
 						</Button>
 					</div>
-				</div>
-			</Modal>
+				</SectionCard>
+			</div>
+
+			<ConfirmModal
+				confirmLabel="Delete portfolio data"
+				message={
+					<>
+						This permanently deletes{' '}
+						<strong>
+							{assetCount} {assetCount === 1 ? 'asset' : 'assets'} and {transactionCount}{' '}
+							{transactionCount === 1 ? 'transaction' : 'transactions'}
+						</strong>
+						{isAnonymous ? ' from this browser' : ' from your account'}. This can't be undone.
+					</>
+				}
+				onClose={() => setConfirmOpen(false)}
+				onConfirm={() => void handleDelete()}
+				open={confirmOpen}
+				requireText={CONFIRM_WORD}
+				title="Delete portfolio data?"
+			/>
 		</Page>
 	);
 }

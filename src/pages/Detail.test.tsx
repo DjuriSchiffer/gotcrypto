@@ -137,10 +137,28 @@ describe('Detail page', () => {
 
 		fireEvent.click(screen.getByRole('button', { name: /Remove transaction of 01-06-2024/ }));
 		fireEvent.click(
-			within(screen.getByRole('dialog')).getByRole('button', { name: /Remove Transaction/ })
+			within(screen.getByRole('dialog')).getByRole('button', { name: 'Remove transaction' })
 		);
 
 		expect(lastSaved().transactions.map((item) => item.type)).toEqual(['buy']);
+	});
+
+	it('only removes all transactions after typing DELETE', () => {
+		renderDetail();
+
+		fireEvent.click(screen.getByRole('button', { name: /More actions/ }));
+		// flowbite puts role="menuitem" on the <li>; the click handler is on the button inside it
+		const menuItem = screen.getByRole('menuitem', { name: /Remove all transactions/ });
+		fireEvent.click(within(menuItem).getByRole('button'));
+
+		const dialog = within(screen.getByRole('dialog'));
+		const confirm = dialog.getByRole('button', { name: 'Remove all transactions' });
+		expect(confirm.hasAttribute('disabled')).toBe(true);
+
+		fireEvent.change(dialog.getByLabelText(/to confirm/), { target: { value: 'DELETE' } });
+		fireEvent.click(confirm);
+
+		expect(lastSaved().transactions).toEqual([]);
 	});
 
 	it('shows charts only when their tab is opened', () => {
