@@ -19,10 +19,7 @@ Sentry.init({
 	replaysOnErrorSampleRate: 1.0,
 	// Session Replay
 	replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-	tracePropagationTargets: [
-		/^https:\/\/gotcrypto\.vercel\.app/,
-		/^https:\/\/firestore\.googleapis\.com/,
-	],
+	tracePropagationTargets: [/^https:\/\/gotcrypto\.vercel\.app/],
 	// Performance Monitoring
 	tracesSampleRate: 1.0,
 });

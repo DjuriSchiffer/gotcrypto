@@ -10,7 +10,7 @@ import { asset, buy } from '../test/factories';
 const mocks = vi.hoisted(() => ({
 	auth: {
 		isAnonymous: false,
-		user: { displayName: 'Djuri', email: 'djuri@example.com', photoURL: null },
+		user: { displayName: 'Henk', email: 'henk@example.com', photoURL: null },
 	},
 	selectedCurrencies: [] as Array<SelectedAsset>,
 	setSelectedCurrencies: vi.fn(),
@@ -26,6 +26,9 @@ vi.mock('../components/SettingsPriceFormat', () => ({
 }));
 vi.mock('../components/SettingsDateFormat', () => ({ default: () => <div>date options</div> }));
 vi.mock('../components/SettingsLightDarkMode', () => ({ default: () => <div>theme options</div> }));
+vi.mock('../components/account/SaveToGoogle', () => ({
+	default: () => <button type="button">Save to a Google account</button>,
+}));
 vi.mock('../hooks/useAuth', () => ({ useAuth: () => mocks.auth }));
 vi.mock('../hooks/useStorage', () => ({
 	useStorage: () => ({
@@ -55,7 +58,7 @@ describe('Settings page', () => {
 			expect(screen.getByRole('heading', { name: title })).toBeTruthy();
 		}
 		expect(screen.getByText('Synced with Google')).toBeTruthy();
-		expect(screen.getByText('djuri@example.com')).toBeTruthy();
+		expect(screen.getByText('henk@example.com')).toBeTruthy();
 	});
 
 	it('warns anonymous users that their data is only in this browser', () => {
@@ -64,6 +67,13 @@ describe('Settings page', () => {
 
 		expect(screen.getByText('Anonymous session')).toBeTruthy();
 		expect(screen.getByText(/stored in this browser only/)).toBeTruthy();
+		expect(screen.getByRole('button', { name: 'Save to a Google account' })).toBeTruthy();
+	});
+
+	it('does not offer saving to Google when already signed in', () => {
+		render(<UserSettings />);
+
+		expect(screen.queryByRole('button', { name: 'Save to a Google account' })).toBeNull();
 	});
 
 	it('signs out', () => {

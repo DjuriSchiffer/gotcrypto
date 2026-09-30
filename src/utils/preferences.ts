@@ -9,6 +9,18 @@ export type Preferences = {
 	sortMethod: SortMethod;
 };
 
+/** localforage key of an anonymous user's portfolio */
+export const LOCAL_PORTFOLIO_KEY = 'selectedCurrencies';
+
+/** Preference names double as their localforage keys */
+export const PREFERENCE_KEYS: ReadonlyArray<keyof Preferences> = [
+	'currencyQuote',
+	'dashboardLayout',
+	'dateLocale',
+	'onboardingCompleted',
+	'sortMethod',
+];
+
 export const DEFAULT_PREFERENCES: Preferences = {
 	currencyQuote: 'EUR',
 	dashboardLayout: 'Grid',

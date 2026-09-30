@@ -6,6 +6,7 @@ export type AuthContextType = {
 	isAdmin: boolean;
 	isAnonymous: boolean;
 	loading: boolean;
+	refreshAuth: () => void;
 	user: null | User;
 };
 

@@ -1,10 +1,15 @@
 import type { User } from 'firebase/auth';
 
 import { onAuthStateChanged } from 'firebase/auth';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { AuthContext } from '../contexts/AuthContext';
 import { auth } from '../firebase/firebaseConfig';
+
+type AuthState = {
+	isAnonymous: boolean;
+	user: null | User;
+};
 
 /** Reads the `admin` custom claim from the user's ID token (set with scripts/set-admin.cjs). */
 const hasAdminClaim = async (currentUser: User): Promise<boolean> => {
@@ -17,14 +22,21 @@ const hasAdminClaim = async (currentUser: User): Promise<boolean> => {
 	}
 };
 
+const stateFor = (user: null | User): AuthState => ({
+	// Stored separately: linking changes isAnonymous on the *same* User object,
+	// which React wouldn't see as a change
+	isAnonymous: user?.isAnonymous ?? false,
+	user,
+});
+
 function AuthProvider({ children }: { children: React.ReactNode }) {
-	const [user, setUser] = useState<null | User>(null);
+	const [state, setState] = useState<AuthState>(stateFor(null));
 	const [loading, setLoading] = useState(true);
 	const [isAdmin, setIsAdmin] = useState(false);
 
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-			setUser(currentUser);
+			setState(stateFor(currentUser));
 			setLoading(false);
 
 			if (currentUser) {
@@ -39,12 +51,14 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 		};
 	}, []);
 
-	const value = {
-		isAdmin,
-		isAnonymous: user ? user.isAnonymous : false,
-		loading,
-		user,
-	};
+	const refreshAuth = useCallback(() => {
+		setState(stateFor(auth.currentUser));
+	}, []);
+
+	const value = useMemo(
+		() => ({ ...state, isAdmin, loading, refreshAuth }),
+		[state, isAdmin, loading, refreshAuth]
+	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
