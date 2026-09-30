@@ -51,7 +51,7 @@ function SettingsPriceFormat({ className = '' }: { className?: string }) {
 						onClick={() => handleQuoteChange(option.quote)}
 						className={`cursor-pointer transition-colors ${
 							currencyQuote === option.quote
-								? 'border-green-500 bg-green-50 dark:bg-green-900 dark:bg-opacity-20'
+								? 'border-primary-500 bg-primary-50 dark:bg-primary-900 dark:bg-opacity-90'
 								: ''
 						}`}
 					>
@@ -67,7 +67,7 @@ function SettingsPriceFormat({ className = '' }: { className?: string }) {
 							</div>
 							{currencyQuote === option.quote && (
 								<div className="flex-shrink-0">
-									<FaCheck className="text-green-500" />
+									<FaCheck className="text-primary-500" />
 								</div>
 							)}
 						</div>

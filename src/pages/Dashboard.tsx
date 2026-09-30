@@ -13,7 +13,7 @@ import AssetCard from '../components/dashboard/AssetCard';
 import AssetTable from '../components/dashboard/AssetTable';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import Modal from '../components/Modal';
-import Page from '../components/Page';
+import Page from '../components/layout/Page';
 import PortfolioStats from '../components/PortfolioStats';
 import TransactionForm from '../components/TransactionForm';
 import EmptyState from '../components/ui/EmptyState';

@@ -3,23 +3,20 @@ import { createTheme } from 'flowbite-react';
 export const customTheme = createTheme({
 	button: {
 		color: {
-			primary: 'bg-green-500 hover:bg-green-600 text-white',
-			failure: 'bg-red-600 hover:bg-red-700 text-white',
-		},
-	},
-	sidebar: {
-		root: {
-			inner:
-				'h-full overflow-y-auto overflow-x-hidden rounded px-3 py-4 dark:bg-gray-800 border-gray-200 bg-white shadow-md dark:border-gray-700',
-		},
-	},
-	card: {
-		root: {
-			base: 'flex rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800',
+			failure:
+				'bg-red-600 text-white focus:ring-4 focus:ring-red-300 enabled:hover:bg-red-700 dark:focus:ring-red-900',
+			primary:
+				'bg-primary-600 text-white focus:ring-4 focus:ring-primary-300 enabled:hover:bg-primary-700 dark:focus:ring-primary-800',
 		},
 	},
 	buttonGroup: {
 		base: 'shadow-none',
+	},
+	card: {
+		root: {
+			base: 'flex rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800',
+			children: 'flex h-full flex-col justify-start gap-4 p-6',
+		},
 	},
 	tabs: {
 		tablist: {

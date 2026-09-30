@@ -49,7 +49,7 @@ function YearEndValuesCard({
 		>
 			{isLoading && (
 				<div className="flex items-center justify-center gap-2 p-8 text-gray-500 dark:text-gray-400">
-					<Spinner color="success" size="sm" />
+					<Spinner size="sm" />
 					Loading historical prices...
 				</div>
 			)}

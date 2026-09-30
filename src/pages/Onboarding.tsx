@@ -90,7 +90,7 @@ function OnboardingPage() {
 	};
 
 	return (
-		<main className="min-h-screen bg-gray-50 px-4 py-8 dark:bg-gray-900">
+		<main className="min-h-screen bg-gray-50 px-4 py-8 dark:bg-gray-dark">
 			<div className="mx-auto flex max-w-2xl flex-col gap-6">
 				<div className="flex items-center justify-between">
 					<span className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
@@ -108,7 +108,6 @@ function OnboardingPage() {
 					</p>
 					<Progress
 						aria-label={`Step ${step + 1} of ${STEPS.length}`}
-						color="green"
 						progress={((step + 1) / STEPS.length) * 100}
 						size="sm"
 					/>
@@ -124,7 +123,7 @@ function OnboardingPage() {
 						{step === 0 &&
 							(isLoading ? (
 								<div className="flex items-center justify-center gap-2 py-12 text-gray-500 dark:text-gray-400">
-									<Spinner color="success" size="sm" />
+									<Spinner size="sm" />
 									Loading coins from CoinMarketCap...
 								</div>
 							) : (

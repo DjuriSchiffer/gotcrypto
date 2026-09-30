@@ -58,3 +58,20 @@ export const classifyLinkError = (
 
 	return { message: GENERIC_LINK_ERROR, status: 'error' };
 };
+
+/**
+ * A user-facing message for a failed sign-in, or null when there's nothing to report
+ * (the user closed the popup themselves).
+ */
+export const signInErrorMessage = (error: unknown): null | string => {
+	if (error instanceof FirebaseError) {
+		if (CANCELLED_CODES.has(error.code)) return null;
+		if (error.code === 'auth/popup-blocked') {
+			return 'Your browser blocked the sign-in window. Allow pop-ups for this site and try again.';
+		}
+		if (error.code === 'auth/network-request-failed') {
+			return "Couldn't reach the sign-in service. Check your connection and try again.";
+		}
+	}
+	return "Signing in didn't work. Please try again.";
+};

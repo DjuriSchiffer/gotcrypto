@@ -16,7 +16,7 @@ const storage = vi.hoisted(() => ({
 	updateCurrency: vi.fn(),
 }));
 
-vi.mock('../components/Page', () => ({
+vi.mock('../components/layout/Page', () => ({
 	default: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 vi.mock('../hooks/useStorage', () => ({

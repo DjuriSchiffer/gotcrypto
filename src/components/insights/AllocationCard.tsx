@@ -10,8 +10,8 @@ import { getAllocationSlices, OTHER_LABEL } from '../../utils/portfolio';
 import ApexChart from '../ApexChart';
 import SectionCard from '../ui/SectionCard';
 
-const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#8B5CF6', '#EF4444', '#06B6D4'];
-const OTHER_COLOR = '#9CA3AF';
+const COLORS = ['#4F46E5', '#0EA5E9', '#F59E0B', '#A855F7', '#EC4899', '#64748B'];
+const OTHER_COLOR = '#D1D5DB';
 
 type AllocationCardProps = {
 	currencyQuote: keyof CurrencyQuote;

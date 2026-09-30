@@ -3,9 +3,26 @@ import type { TabsRef } from 'flowbite-react';
 import type { Transaction } from '../types/currency';
 import type { FormInputs } from '../components/TransactionForm';
 
-import { Button, Card, Dropdown, DropdownItem, TabItem, Tabs } from 'flowbite-react';
+import {
+	Breadcrumb,
+	BreadcrumbItem,
+	Button,
+	Card,
+	Dropdown,
+	DropdownItem,
+	TabItem,
+	Tabs,
+} from 'flowbite-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FaArrowLeft, FaChartLine, FaEllipsisH, FaList, FaPlus, FaTrashAlt } from 'react-icons/fa';
+import {
+	FaArrowLeft,
+	FaChartLine,
+	FaChartPie,
+	FaEllipsisH,
+	FaList,
+	FaPlus,
+	FaTrashAlt,
+} from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
 
 import DetailCharts from '../components/detail/DetailCharts';
@@ -13,7 +30,7 @@ import PositionStats from '../components/detail/PositionStats';
 import TransactionTable from '../components/detail/TransactionTable';
 import DetailModals from '../components/detail/DetailModals';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
-import Page from '../components/Page';
+import Page from '../components/layout/Page';
 import EmptyState from '../components/ui/EmptyState';
 import PageHeader from '../components/ui/PageHeader';
 import SectionCard from '../components/ui/SectionCard';
@@ -143,39 +160,51 @@ function Detail() {
 		<LoadingErrorWrapper fetchedIsLoading={isLoading} isError={isError}>
 			<Page>
 				<div className="mb-8 flex w-full flex-col gap-6">
-					<PageHeader
-						actions={
-							<>
-								{addButton}
-								{hasTransactions && (
-									<Dropdown
-										arrowIcon={false}
-										color="gray"
-										label={<FaEllipsisH aria-label="More actions" />}
-										placement="bottom-end"
-									>
-										<DropdownItem
-											icon={FaTrashAlt}
-											onClick={() => setDialog({ type: 'removeAll' })}
+					<div className="flex flex-col gap-3">
+						{/* flowbite's BreadcrumbItem href would be a plain <a> and reload the app,
+						    so the router Link goes inside the item instead */}
+						<Breadcrumb aria-label="Breadcrumb">
+							<BreadcrumbItem icon={FaChartPie}>
+								<Link className="hover:text-gray-900 dark:hover:text-white" to="/">
+									Dashboard
+								</Link>
+							</BreadcrumbItem>
+							<BreadcrumbItem>{currency.name}</BreadcrumbItem>
+						</Breadcrumb>
+						<PageHeader
+							actions={
+								<>
+									{addButton}
+									{hasTransactions && (
+										<Dropdown
+											arrowIcon={false}
+											color="gray"
+											label={<FaEllipsisH aria-label="More actions" />}
+											placement="bottom-end"
 										>
-											Remove all transactions
-										</DropdownItem>
-									</Dropdown>
-								)}
-							</>
-						}
-						description={`${currencyFormat(currency.price, currencyQuote)} current price`}
-						icon={
-							<img
-								alt=""
-								className="h-12 w-12 rounded-full"
-								height={48}
-								src={getImage(currency.cmc_id, 64)}
-								width={48}
-							/>
-						}
-						title={currency.name}
-					/>
+											<DropdownItem
+												icon={FaTrashAlt}
+												onClick={() => setDialog({ type: 'removeAll' })}
+											>
+												Remove all transactions
+											</DropdownItem>
+										</Dropdown>
+									)}
+								</>
+							}
+							description={`${currencyFormat(currency.price, currencyQuote)} current price`}
+							icon={
+								<img
+									alt=""
+									className="h-12 w-12 rounded-full"
+									height={48}
+									src={getImage(currency.cmc_id, 64)}
+									width={48}
+								/>
+							}
+							title={currency.name}
+						/>
+					</div>
 
 					{hasTransactions && <PositionStats currencyQuote={currencyQuote} summary={summary} />}
 
@@ -237,6 +266,7 @@ function Detail() {
 					openRemoveAllTransactionsModal={dialog?.type === 'removeAll'}
 					openRemoveTransactionModal={dialog?.type === 'remove'}
 					selectedAssetName={currency.name}
+					transactionCount={transactions.length}
 				/>
 			</Page>
 		</LoadingErrorWrapper>

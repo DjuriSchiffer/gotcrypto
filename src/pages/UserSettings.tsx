@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
 
 import SaveToGoogle from '../components/account/SaveToGoolge';
-import Page from '../components/Page';
+import Page from '../components/layout/Page';
 import SettingsDateFormat from '../components/SettingsDateFormat';
 import SettingsLightDarkMode from '../components/SettingsLightDarkMode';
 import SettingsPriceFormat from '../components/SettingsPriceFormat';

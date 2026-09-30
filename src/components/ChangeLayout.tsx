@@ -52,7 +52,7 @@ export function ChangeLayout() {
 					title={option.label}
 					color="gray"
 					className={classNames('!border-0', getButtonStyles(option.label), {
-						'z-10 !border-[1px] !border-green-400 dark:!border-green-500':
+						'z-10 !border-[1px] !border-primary-400 dark:!border-primary-500':
 							dashboardLayout === option.label,
 						'!rounded-l-lg': index === 0,
 						'!rounded-r-lg': index === layoutOptions.length - 1,

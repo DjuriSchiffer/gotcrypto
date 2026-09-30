@@ -6,7 +6,7 @@ import ReducerProvider from '../providers/ReducerProvider';
 import { asset, buy, sell } from '../test/factories';
 
 vi.mock('../components/ApexChart', () => ({ default: () => <div data-testid="chart" /> }));
-vi.mock('../components/Page', () => ({
+vi.mock('../components/layout/Page', () => ({
 	default: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 vi.mock('../hooks/useStorage', () => ({

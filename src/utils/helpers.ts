@@ -162,4 +162,7 @@ export function amountFormat(amount: number, currencyQuote: keyof CurrencyQuote 
 
 /** Green for gains, red for losses, nothing for zero. */
 export const profitClass = (value: number): string =>
-	classNames({ 'text-green-500': value > 0, 'text-red-500': value < 0 });
+	classNames({
+		'text-green-600 dark:text-green-400': value > 0,
+		'text-red-600 dark:text-red-400': value < 0,
+	});

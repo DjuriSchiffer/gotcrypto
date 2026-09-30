@@ -91,8 +91,8 @@ describe('amountFormat', () => {
 
 describe('profitClass', () => {
 	it('colors gains green, losses red, and zero neither', () => {
-		expect(profitClass(10)).toBe('text-green-500');
-		expect(profitClass(-10)).toBe('text-red-500');
+		expect(profitClass(10)).toBe('text-green-600 dark:text-green-400');
+		expect(profitClass(-10)).toBe('text-red-600 dark:text-red-400');
 		expect(profitClass(0)).toBe('');
 	});
 });

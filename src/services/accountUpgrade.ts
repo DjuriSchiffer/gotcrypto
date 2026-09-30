@@ -1,7 +1,7 @@
 import type { OAuthCredential } from 'firebase/auth';
 import type { SelectedAsset } from 'currency';
 
-import { GoogleAuthProvider, linkWithPopup, signInWithCredential } from 'firebase/auth';
+import { linkWithPopup, signInWithCredential } from 'firebase/auth';
 import { runTransaction } from 'firebase/firestore';
 import localforage from 'localforage';
 
@@ -9,6 +9,7 @@ import type { LocalData, MigrationPlan } from '../utils/migration';
 
 import { auth, db } from '../firebase/firebaseConfig';
 import { getUserDocRef } from '../firebase/firebaseHelpers';
+import { googleProvider } from './authService';
 import { classifyLinkError } from '../utils/authErrors';
 import { planMigration } from '../utils/migration';
 import { LOCAL_PORTFOLIO_KEY, PREFERENCE_KEYS } from '../utils/preferences';
@@ -20,13 +21,6 @@ export type UpgradeResult =
 	| { status: 'cancelled' }
 	/** Linked, but the copy failed: the data is still in the browser and can be retried */
 	| { status: 'copy-failed' };
-
-/** Always show Google's account chooser, so nobody connects an account by accident. */
-export const googleProvider = () => {
-	const provider = new GoogleAuthProvider();
-	provider.setCustomParameters({ prompt: 'select_account' });
-	return provider;
-};
 
 const readLocalData = async (): Promise<LocalData> => {
 	const entries = await Promise.all(
