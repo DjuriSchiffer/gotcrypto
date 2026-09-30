@@ -3,7 +3,7 @@ import type { OAuthCredential } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 import { describe, expect, it } from 'vitest';
 
-import { classifyLinkError, GENERIC_LINK_ERROR } from './authErrors';
+import { classifyLinkError, GENERIC_LINK_ERROR, signInErrorMessage } from './authErrors';
 
 const credential = { providerId: 'google.com' } as OAuthCredential;
 const withCredential = () => credential;
@@ -55,5 +55,22 @@ describe('classifyLinkError', () => {
 			message: GENERIC_LINK_ERROR,
 			status: 'error',
 		});
+	});
+});
+
+describe('signInErrorMessage', () => {
+	it('stays silent when the user closed the popup', () => {
+		expect(signInErrorMessage(firebaseError('auth/popup-closed-by-user'))).toBeNull();
+	});
+
+	it('explains blocked popups and network problems', () => {
+		expect(signInErrorMessage(firebaseError('auth/popup-blocked'))).toMatch(
+			/blocked the sign-in window/
+		);
+		expect(signInErrorMessage(firebaseError('auth/network-request-failed'))).toMatch(/connection/);
+	});
+
+	it('has a generic message for anything else', () => {
+		expect(signInErrorMessage(new Error('boom'))).toMatch(/didn't work/);
 	});
 });

@@ -37,7 +37,7 @@ function SettingsLightDarkMode({ className = '' }: { className?: string }) {
 						onClick={() => handleModeChange(option.mode)}
 						className={`cursor-pointer transition-colors ${
 							computedMode === option.mode
-								? 'border-green-500 bg-green-50 dark:bg-green-900 dark:bg-opacity-20'
+								? 'border-primary-500 bg-primary-50 dark:bg-primary-900 dark:bg-opacity-90'
 								: ''
 						}`}
 					>
@@ -50,7 +50,7 @@ function SettingsLightDarkMode({ className = '' }: { className?: string }) {
 							</div>
 							{computedMode === option.mode && (
 								<div className="flex-shrink-0">
-									<FaCheck className="text-green-500" />
+									<FaCheck className="text-primary-500" />
 								</div>
 							)}
 						</div>

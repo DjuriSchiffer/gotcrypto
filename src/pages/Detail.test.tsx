@@ -14,7 +14,7 @@ const storage = vi.hoisted(() => ({
 	updateCurrency: vi.fn(),
 }));
 
-vi.mock('../components/Page', () => ({
+vi.mock('../components/layout/Page', () => ({
 	default: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 vi.mock('../components/ApexChart', () => ({ default: () => <div data-testid="chart" /> }));
@@ -29,7 +29,6 @@ vi.mock('../hooks/useCoinMarketCap', () => ({
 		isLoading: false,
 	}),
 }));
-// The real form needs auth and a date picker; this stand-in submits a fixed buy
 vi.mock('../components/TransactionForm', () => ({
 	default: ({
 		onSubmit,
@@ -107,6 +106,14 @@ describe('Detail page', () => {
 		expect(rows[3]).toContain('+500.00%'); // bought at 10.000, now 60.000
 	});
 
+	it('links back to the dashboard', () => {
+		renderDetail();
+
+		const breadcrumb = within(screen.getByRole('navigation', { name: 'Breadcrumb' }));
+		expect(breadcrumb.getByRole('link', { name: 'Dashboard' }).getAttribute('href')).toBe('/');
+		expect(breadcrumb.getByText('Bitcoin')).toBeTruthy();
+	});
+
 	it('adds a transaction', () => {
 		renderDetail();
 
@@ -152,6 +159,7 @@ describe('Detail page', () => {
 		fireEvent.click(within(menuItem).getByRole('button'));
 
 		const dialog = within(screen.getByRole('dialog'));
+		expect(dialog.getByText('all 2 Bitcoin transactions')).toBeTruthy();
 		const confirm = dialog.getByRole('button', { name: 'Remove all transactions' });
 		expect(confirm.hasAttribute('disabled')).toBe(true);
 
@@ -159,6 +167,18 @@ describe('Detail page', () => {
 		fireEvent.click(confirm);
 
 		expect(lastSaved().transactions).toEqual([]);
+	});
+
+	it('uses the singular for a single transaction', () => {
+		storage.selectedCurrencies = [asset(1, [buy(1, 10000)], 'Bitcoin')];
+		renderDetail();
+
+		fireEvent.click(screen.getByRole('button', { name: /More actions/ }));
+		fireEvent.click(
+			within(screen.getByRole('menuitem', { name: /Remove all/ })).getByRole('button')
+		);
+
+		expect(within(screen.getByRole('dialog')).getByText('your Bitcoin transaction')).toBeTruthy();
 	});
 
 	it('shows charts only when their tab is opened', () => {

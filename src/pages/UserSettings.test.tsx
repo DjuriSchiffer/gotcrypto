@@ -17,7 +17,7 @@ const mocks = vi.hoisted(() => ({
 	signOutUser: vi.fn(),
 }));
 
-vi.mock('../components/Page', () => ({
+vi.mock('../components/layout/Page', () => ({
 	default: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 // The selectors are tested through the app itself; here they only need to render

@@ -27,7 +27,6 @@ function AssetCard({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: 
 	return (
 		<Card className="h-full">
 			<div className="flex h-full flex-col gap-4">
-				{/* Coin and current price */}
 				<div className="flex items-center gap-3">
 					<img
 						alt=""
@@ -61,7 +60,7 @@ function AssetCard({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: 
 				{!hasTransactions && (
 					<EmptyState
 						action={
-							<Button color="primary" onClick={onAddTransaction} size="sm">
+							<Button color="indigo" onClick={onAddTransaction} size="sm">
 								<FaPlus className="mr-2" />
 								Add first transaction
 							</Button>
@@ -87,16 +86,15 @@ function AssetCard({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: 
 
 				{hasTransactions && !summary.isClosed && (
 					<>
-						{/* Value and unrealized result */}
 						<div>
 							<p className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
 								{money(summary.value)}
 							</p>
-							<div className="mt-1 flex items-center justify-between gap-2">
+							<div className="mt-1 flex items-start justify-between gap-2">
 								<span className="text-sm text-gray-500 dark:text-gray-400">
 									{amountFormat(summary.amount, currencyQuote)} coins
 								</span>
-								<span className="flex items-center gap-2 text-sm">
+								<span className="flex flex-col items-end gap-2 text-sm">
 									<span className={profitClass(summary.unrealizedProfit)}>
 										{money(summary.unrealizedProfit)}
 									</span>
@@ -105,15 +103,14 @@ function AssetCard({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: 
 							</div>
 						</div>
 
-						{/* Secondary figures */}
-						<dl className="mt-auto grid grid-cols-2 gap-4 border-t border-gray-200 pt-4 text-sm dark:border-gray-700">
+						<dl className="mt-auto flex justify-between gap-4 border-t border-gray-200 pt-4 text-sm dark:border-gray-700">
 							<div>
 								<dt className="text-gray-500 dark:text-gray-400">Cost basis</dt>
 								<dd className="font-medium text-gray-900 dark:text-white">
 									{money(summary.costBasis)}
 								</dd>
 							</div>
-							<div>
+							<div className="flex flex-col items-end">
 								<dt className="text-gray-500 dark:text-gray-400">Realized</dt>
 								<dd
 									className={

@@ -40,7 +40,8 @@ const config = {
 					DEFAULT: '#34d399', //500
 					on: '#ecfdf5', //50
 				},
-				grayLight: '#6B7280', // Same as gray-500
+				grayLight: '#6B7280', // Same as gray-500,
+				primary: colors.indigo,
 			},
 		},
 	},

@@ -80,7 +80,8 @@ function AssetManagerModal({
 								aria-disabled={isLocked}
 								aria-pressed={isSelected}
 								className={classNames('transition-colors', {
-									'border-green-500 bg-green-50 dark:bg-green-900/20': isSelected && !isLocked,
+									'border-primary-500 bg-primary-50 dark:bg-primary-900 dark:bg-opacity-90':
+										isSelected && !isLocked,
 									'cursor-not-allowed bg-gray-100 dark:bg-gray-700': isLocked,
 									'cursor-pointer': !isLocked,
 								})}
@@ -103,7 +104,9 @@ function AssetManagerModal({
 									{isLocked && (
 										<FaLock aria-label="Has transactions" className="text-gray-400" size={12} />
 									)}
-									{isSelected && !isLocked && <FaCheck aria-hidden className="text-green-500" />}
+									{isSelected && !isLocked && (
+										<FaCheck aria-hidden className="text-primary-700 dark:text-primary-400" />
+									)}
 								</div>
 							</Card>
 						);
@@ -114,7 +117,7 @@ function AssetManagerModal({
 			<div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-200 pt-4 dark:border-gray-700">
 				<p className="text-sm text-gray-500 dark:text-gray-400">
 					{selectedIds.length} selected
-					{addIds.length > 0 && <span className="ml-2 text-green-500">+{addIds.length} new</span>}
+					{addIds.length > 0 && <span className="ml-2 text-primary-400">+{addIds.length} new</span>}
 					{removeIds.length > 0 && (
 						<span className="ml-2 text-red-500">−{removeIds.length} removed</span>
 					)}

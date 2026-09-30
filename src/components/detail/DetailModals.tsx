@@ -18,9 +18,8 @@ type DetailModalsProps = {
 	openEditTransactionModal: boolean;
 	openRemoveAllTransactionsModal: boolean;
 	openRemoveTransactionModal: boolean;
-	/** Number of transactions, shown when removing all of them */
-	transactionCount?: number;
 	selectedAssetName?: string;
+	transactionCount: number;
 };
 
 function DetailModals({
@@ -35,7 +34,7 @@ function DetailModals({
 	openRemoveAllTransactionsModal,
 	openRemoveTransactionModal,
 	selectedAssetName,
-	transactionCount = 0,
+	transactionCount,
 }: DetailModalsProps) {
 	return (
 		<>
@@ -87,7 +86,9 @@ function DetailModals({
 					<>
 						This permanently removes{' '}
 						<strong>
-							all {transactionCount} {selectedAssetName} transactions
+							{transactionCount === 1
+								? `your ${selectedAssetName ?? ''} transaction`
+								: `all ${transactionCount} ${selectedAssetName ?? ''} transactions`}
 						</strong>
 						. The asset stays on your dashboard. This can't be undone.
 					</>

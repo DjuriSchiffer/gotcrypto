@@ -1,5 +1,5 @@
 import LoadingIndicator from './LoadingIndicator';
-import Page from './Page';
+import Page from './layout/Page';
 
 type LoadingErrorWrapperProps = {
 	children: React.ReactNode;

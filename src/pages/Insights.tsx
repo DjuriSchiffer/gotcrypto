@@ -10,7 +10,7 @@ import ProfitBadge from '../components/ui/ProfitBadge';
 import StatCard from '../components/ui/StatCard';
 import YearEndValuesCard from '../components/insights/YearEndValuesCard';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
-import Page from '../components/Page';
+import Page from '../components/layout/Page';
 import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';

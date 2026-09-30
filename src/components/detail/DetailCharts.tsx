@@ -111,7 +111,7 @@ function DetailCharts({ currencyQuote, currentPrice, transactions }: DetailChart
 
 		return {
 			amount: chartOptions(labels, {
-				color: '#1C64F2',
+				color: '#0EA5E9', // sky
 				curve: 'stepline',
 				data: amountData,
 				format: (number) => number.toFixed(4),
@@ -119,7 +119,7 @@ function DetailCharts({ currencyQuote, currentPrice, transactions }: DetailChart
 				name: 'Amount',
 			}),
 			costBasis: chartOptions(labels, {
-				color: '#EF4444',
+				color: '#F59E0B', // amber: a neutral amount, not a loss
 				curve: 'stepline',
 				data: costBasisData,
 				format: money,
@@ -127,7 +127,7 @@ function DetailCharts({ currencyQuote, currentPrice, transactions }: DetailChart
 				name: 'Cost basis',
 			}),
 			value: chartOptions(labels, {
-				color: '#10B981',
+				color: '#4F46E5', // indigo: a neutral amount, not a gain
 				curve: 'smooth',
 				data: valueData,
 				format: money,

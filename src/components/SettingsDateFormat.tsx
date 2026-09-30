@@ -44,7 +44,7 @@ function SettingsDateFormat({ className = '' }: { className?: string }) {
 						onClick={() => handleLocaleChange(option.locale)}
 						className={`cursor-pointer transition-colors ${
 							dateLocale === option.locale
-								? 'border-green-500 bg-green-50 dark:bg-green-900 dark:bg-opacity-20'
+								? 'border-primary-500 bg-primary-50 dark:bg-primary-900 dark:bg-opacity-90'
 								: ''
 						}`}
 					>
@@ -59,7 +59,7 @@ function SettingsDateFormat({ className = '' }: { className?: string }) {
 							</div>
 							{dateLocale === option.locale && (
 								<div className="flex-shrink-0">
-									<FaCheck className="text-green-500" />
+									<FaCheck className="text-primary-500" />
 								</div>
 							)}
 						</div>

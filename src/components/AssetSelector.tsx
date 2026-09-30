@@ -54,9 +54,9 @@ function AssetSelector({ excludeIds = [], onToggle, options, selectedIds }: Asse
 							<button
 								aria-pressed={isSelected}
 								className={classNames(
-									'flex items-center gap-2 rounded-lg border p-3 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-green-500',
+									'flex items-center gap-2 rounded-lg border p-3 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500',
 									isSelected
-										? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+										? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30'
 										: 'border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'
 								)}
 								key={option.cmc_id}
@@ -73,7 +73,12 @@ function AssetSelector({ excludeIds = [], onToggle, options, selectedIds }: Asse
 								<span className="min-w-0 flex-1 truncate text-sm font-semibold text-gray-900 dark:text-white">
 									{option.name}
 								</span>
-								{isSelected && <FaCheck aria-hidden className="shrink-0 text-green-500" />}
+								{isSelected && (
+									<FaCheck
+										aria-hidden
+										className="shrink-0 text-primary-600 dark:text-primary-400"
+									/>
+								)}
 							</button>
 						);
 					})}
