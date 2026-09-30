@@ -2,6 +2,7 @@ import { Avatar, Badge, Button } from 'flowbite-react';
 import { useState } from 'react';
 import { FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
 
+import SaveToGoogle from '../components/account/SaveToGoolge';
 import Page from '../components/Page';
 import SettingsDateFormat from '../components/SettingsDateFormat';
 import SettingsLightDarkMode from '../components/SettingsLightDarkMode';
@@ -71,6 +72,7 @@ function UserSettings() {
 							</Button>
 						</div>
 					</div>
+					{isAnonymous && <SaveToGoogle />}
 				</SectionCard>
 
 				<SectionCard

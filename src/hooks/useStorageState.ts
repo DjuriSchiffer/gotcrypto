@@ -6,32 +6,27 @@ import { getDoc } from 'firebase/firestore';
 import localforage from 'localforage';
 import { useCallback, useEffect, useState } from 'react';
 
+import type { Preferences } from '../utils/preferences';
+
 import {
 	getUserDocRef,
 	saveUserFields,
 	setSelectedCurrenciesInFirestore,
 } from '../firebase/firebaseHelpers';
+import { LOCAL_PORTFOLIO_KEY, PREFERENCE_KEYS, readPreferences } from '../utils/preferences';
 import totals from '../utils/totals';
 import { useAppDispatch } from './useAppDispatch';
 import { useAppState } from './useAppState';
 import { useAuth } from './useAuth';
 import { useLocalForage } from './useLocalForage';
-import { readPreferences, type Preferences } from '../utils/preferences';
-
-const STORAGE_KEY = 'selectedCurrencies';
-
-/** Preference names double as their localforage keys, matching what existing users already have. */
-const PREFERENCE_KEYS: ReadonlyArray<keyof Preferences> = [
-	'currencyQuote',
-	'dashboardLayout',
-	'dateLocale',
-	'onboardingCompleted',
-	'sortMethod',
-];
 
 const withFreshTotals = (assets: Array<SelectedAsset>): Array<SelectedAsset> =>
 	assets.map((asset) => ({ ...asset, totals: totals(asset.transactions ?? []) }));
 
+/**
+ * Owns all stored data and preferences. Only StorageProvider may call this;
+ * components use `useStorage()` to read the shared instance.
+ */
 export const useStorageState = () => {
 	const { isAnonymous, loading: authLoading, user } = useAuth();
 	const dispatch = useAppDispatch();
@@ -41,10 +36,14 @@ export const useStorageState = () => {
 	const [selectedCurrencies, setSelectedCurrenciesState] = useState<Array<SelectedAsset>>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [onboardingCompleted, setOnboardingCompletedState] = useState<boolean>(false);
+	const [reloadCount, setReloadCount] = useState(0);
 
 	const isSignedIn = Boolean(user && !isAnonymous);
 
-	// Load everything once auth is known, and again whenever the user changes
+	/** Loads everything again, e.g. after data was written outside this hook. */
+	const reload = useCallback(() => setReloadCount((count) => count + 1), []);
+
+	// Load everything once auth is known, again whenever the user changes, and on reload()
 	useEffect(() => {
 		if (authLoading) return;
 
@@ -64,7 +63,7 @@ export const useStorageState = () => {
 					currencies = (data.selectedCurrencies ?? []) as Array<SelectedAsset>;
 					rawPreferences = data;
 				} else {
-					currencies = await getSelectedCurrencies(STORAGE_KEY);
+					currencies = await getSelectedCurrencies(LOCAL_PORTFOLIO_KEY);
 					const entries = await Promise.all(
 						PREFERENCE_KEYS.map(async (key) => [key, await localforage.getItem(key)] as const)
 					);
@@ -75,6 +74,7 @@ export const useStorageState = () => {
 				dispatch({ payload: true, type: 'SET_ERROR' });
 			}
 
+			// The user changed (or the component unmounted) while we were loading
 			if (cancelled) return;
 
 			const preferences = readPreferences(rawPreferences);
@@ -93,7 +93,9 @@ export const useStorageState = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [authLoading, user, isAnonymous, getSelectedCurrencies, dispatch]);
+		// reloadCount isn't read inside: changing it is what triggers a reload
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [authLoading, user, isAnonymous, getSelectedCurrencies, dispatch, reloadCount]);
 
 	/** Saves one preference to Firestore (signed in) or localforage (anonymous). */
 	const savePreference = useCallback(
@@ -117,7 +119,7 @@ export const useStorageState = () => {
 			if (user && !isAnonymous) {
 				await setSelectedCurrenciesInFirestore(user.uid, assets);
 			} else {
-				setLocalForage(STORAGE_KEY, assets);
+				setLocalForage(LOCAL_PORTFOLIO_KEY, assets);
 			}
 		},
 		[user, isAnonymous, setLocalForage]
@@ -194,6 +196,7 @@ export const useStorageState = () => {
 		isSignedIn,
 		loading,
 		onboardingCompleted,
+		reload,
 		selectedCurrencies,
 		setCurrencyQuote,
 		setDashboardLayout,
