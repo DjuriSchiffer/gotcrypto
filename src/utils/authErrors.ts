@@ -22,15 +22,17 @@ const ACCOUNT_EXISTS_CODES = new Set([
 export const GENERIC_LINK_ERROR =
 	'Something went wrong while connecting your Google account. Your data is unchanged.';
 
+const POPUP_BLOCKED_MESSAGE =
+	'Your browser blocked the sign-in window. Allow pop-ups for this site and try again.';
+
 /**
  * Turns a failed linkWithPopup into something the UI can act on.
  * `getCredential` is injectable so this can be tested without a real Firebase error.
  */
 export const classifyLinkError = (
 	error: unknown,
-	getCredential: (
-		error: FirebaseError
-	) => null | OAuthCredential = GoogleAuthProvider.credentialFromError
+	getCredential: (error: FirebaseError) => null | OAuthCredential = (firebaseError) =>
+		GoogleAuthProvider.credentialFromError(firebaseError)
 ): LinkFailure => {
 	if (!(error instanceof FirebaseError)) {
 		return { message: GENERIC_LINK_ERROR, status: 'error' };
@@ -50,8 +52,7 @@ export const classifyLinkError = (
 
 	if (error.code === 'auth/popup-blocked') {
 		return {
-			message:
-				'Your browser blocked the sign-in window. Allow pop-ups for this site and try again.',
+			message: POPUP_BLOCKED_MESSAGE,
 			status: 'error',
 		};
 	}
@@ -67,7 +68,7 @@ export const signInErrorMessage = (error: unknown): null | string => {
 	if (error instanceof FirebaseError) {
 		if (CANCELLED_CODES.has(error.code)) return null;
 		if (error.code === 'auth/popup-blocked') {
-			return 'Your browser blocked the sign-in window. Allow pop-ups for this site and try again.';
+			return POPUP_BLOCKED_MESSAGE;
 		}
 		if (error.code === 'auth/network-request-failed') {
 			return "Couldn't reach the sign-in service. Check your connection and try again.";

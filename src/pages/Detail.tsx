@@ -1,8 +1,5 @@
 import type { TabsRef } from 'flowbite-react';
 
-import type { Transaction } from '../types/currency';
-import type { FormInputs } from '../components/TransactionForm';
-
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -25,12 +22,15 @@ import {
 } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
 
+import type { FormInputs } from '../components/TransactionForm';
+import type { Transaction } from '../types/currency';
+
 import DetailCharts from '../components/detail/DetailCharts';
+import DetailModals from '../components/detail/DetailModals';
 import PositionStats from '../components/detail/PositionStats';
 import TransactionTable from '../components/detail/TransactionTable';
-import DetailModals from '../components/detail/DetailModals';
-import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import Page from '../components/layout/Page';
+import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import EmptyState from '../components/ui/EmptyState';
 import PageHeader from '../components/ui/PageHeader';
 import SectionCard from '../components/ui/SectionCard';
@@ -49,11 +49,11 @@ import {
 
 /** Which dialog is open. Only one can be open at a time. */
 type Dialog =
+	| null
 	| { transaction: Transaction; type: 'edit' }
 	| { transaction: Transaction; type: 'remove' }
 	| { type: 'add' }
-	| { type: 'removeAll' }
-	| null;
+	| { type: 'removeAll' };
 
 const TRANSACTIONS_TAB = 0;
 const CHARTS_TAB = 1;
@@ -91,7 +91,7 @@ function Detail() {
 		}
 	}, [hasTransactions]);
 
-	const closeDialog = () => setDialog(null);
+	const closeDialog = () => { setDialog(null); };
 
 	/** Saves the asset; shows an alert and keeps the dialog open if that fails. */
 	const save = async (update: () => Parameters<typeof updateCurrency>[0]) => {
@@ -150,7 +150,7 @@ function Detail() {
 	};
 
 	const addButton = (
-		<Button color="primary" onClick={() => setDialog({ type: 'add' })}>
+		<Button color="primary" onClick={() => { setDialog({ type: 'add' }); }}>
 			<FaPlus className="mr-2" />
 			Add transaction
 		</Button>
@@ -184,7 +184,7 @@ function Detail() {
 										>
 											<DropdownItem
 												icon={FaTrashAlt}
-												onClick={() => setDialog({ type: 'removeAll' })}
+												onClick={() => { setDialog({ type: 'removeAll' }); }}
 											>
 												Remove all transactions
 											</DropdownItem>
@@ -228,8 +228,8 @@ function Detail() {
 									<TransactionTable
 										currencyQuote={currencyQuote}
 										currentPrice={currency.price}
-										onEdit={(transaction) => setDialog({ transaction, type: 'edit' })}
-										onRemove={(transaction) => setDialog({ transaction, type: 'remove' })}
+										onEdit={(transaction) => { setDialog({ transaction, type: 'edit' }); }}
+										onRemove={(transaction) => { setDialog({ transaction, type: 'remove' }); }}
 										transactions={transactions}
 									/>
 								) : (

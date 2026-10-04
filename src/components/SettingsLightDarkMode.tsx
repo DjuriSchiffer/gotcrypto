@@ -1,10 +1,10 @@
 import { Card, useThemeMode } from 'flowbite-react';
-import { FaMoon, FaSun, FaCheck } from 'react-icons/fa';
+import { FaCheck, FaMoon, FaSun } from 'react-icons/fa';
 
-type ThemeMode = 'light' | 'dark' | 'auto';
+type ThemeMode = 'auto' | 'dark' | 'light';
 type ThemeOption = {
-	name: string;
 	mode: ThemeMode;
+	name: string;
 	symbol: React.ReactNode;
 };
 
@@ -12,34 +12,34 @@ function SettingsLightDarkMode({ className = '' }: { className?: string }) {
 	const { computedMode, setMode } = useThemeMode();
 
 	const handleModeChange = (mode: ThemeMode) => {
-		void setMode(mode);
+		setMode(mode);
 	};
 
 	const themeOptions: Array<ThemeOption> = [
 		{
-			name: 'Light mode',
 			mode: 'light',
+			name: 'Light mode',
 			symbol: <FaSun />,
 		},
 		{
-			name: 'Dark mode',
 			mode: 'dark',
+			name: 'Dark mode',
 			symbol: <FaMoon />,
 		},
 	];
 
 	return (
-		<div className={`${className}`}>
+		<div className={className}>
 			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
 				{themeOptions.map((option) => (
 					<Card
-						key={option.mode}
-						onClick={() => handleModeChange(option.mode)}
 						className={`cursor-pointer transition-colors ${
 							computedMode === option.mode
 								? 'border-primary-500 bg-primary-50 dark:bg-primary-900 dark:bg-opacity-90'
 								: ''
 						}`}
+						key={option.mode}
+						onClick={() => { handleModeChange(option.mode); }}
 					>
 						<div className="flex items-center space-x-2">
 							<div className="shrink-0 text-gray-700 dark:text-white">{option.symbol}</div>

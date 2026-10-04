@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 
-import type { SelectedAsset } from '../types/currency';
-
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import type { SelectedAsset } from '../types/currency';
 
 import { asset, buy } from '../test/factories';
 

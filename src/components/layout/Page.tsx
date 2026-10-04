@@ -12,7 +12,7 @@ type PageProps = {
 
 function Page({ children }: PageProps) {
 	const [menuOpen, setMenuOpen] = useState(false);
-	const closeMenu = () => setMenuOpen(false);
+	const closeMenu = () => { setMenuOpen(false); };
 
 	return (
 		<div className="min-h-screen bg-gray-50 dark:bg-gray-dark">
@@ -23,7 +23,7 @@ function Page({ children }: PageProps) {
 					aria-expanded={menuOpen}
 					aria-label="Open menu"
 					color="gray"
-					onClick={() => setMenuOpen(true)}
+					onClick={() => { setMenuOpen(true); }}
 					size="sm"
 				>
 					<FaBars />

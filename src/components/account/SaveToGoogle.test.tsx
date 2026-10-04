@@ -20,7 +20,7 @@ vi.mock('../../hooks/useAuth', () => ({ useAuth: () => ({ refreshAuth: mocks.ref
 vi.mock('../../hooks/useStorage', () => ({ useStorage: () => ({ reload: mocks.reload }) }));
 vi.mock('../../firebase/firebaseConfig', () => ({ auth: { currentUser: { uid: 'anon-uid' } } }));
 
-import SaveToGoogle from './SaveToGoolge';
+import SaveToGoogle from './SaveToGoogle';
 
 const credential = { providerId: 'google.com' } as OAuthCredential;
 const clickSave = () =>

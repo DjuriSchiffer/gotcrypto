@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 
-import type { SelectedAsset } from '../types/currency';
-
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { asset, buy, sell } from '../test/factories';
+import type { SelectedAsset } from '../types/currency';
+
 import ReducerProvider from '../providers/ReducerProvider';
+import { asset, buy, sell } from '../test/factories';
 
 // Shared, per-test storage state that the mocked useStorage reads from
 const storage = vi.hoisted(() => ({

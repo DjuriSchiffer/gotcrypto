@@ -151,7 +151,7 @@ function AssetTable({
 								currencyQuote={currencyQuote}
 								fetchedCurrency={currency}
 								key={currency.cmc_id}
-								onAddTransaction={() => onAddTransaction(currency)}
+								onAddTransaction={() => { onAddTransaction(currency); }}
 							/>
 						))}
 					</TableBody>

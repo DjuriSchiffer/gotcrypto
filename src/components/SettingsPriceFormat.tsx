@@ -1,8 +1,10 @@
 import type { CurrencyQuote } from 'api';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { Card } from 'flowbite-react';
 import { useMemo } from 'react';
-import { FaDollarSign, FaEuroSign, FaCheck } from 'react-icons/fa';
+import { FaCheck, FaDollarSign, FaEuroSign } from 'react-icons/fa';
+
 import { useStorage } from '../hooks/useStorage';
 import { currencyFormat } from '../utils/helpers';
 
@@ -43,17 +45,17 @@ function SettingsPriceFormat({ className = '' }: { className?: string }) {
 	);
 
 	return (
-		<div className={`${className}`}>
+		<div className={className}>
 			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
 				{priceOptions.map((option) => (
 					<Card
-						key={option.quote}
-						onClick={() => handleQuoteChange(option.quote)}
 						className={`cursor-pointer transition-colors ${
 							currencyQuote === option.quote
 								? 'border-primary-500 bg-primary-50 dark:bg-primary-900 dark:bg-opacity-90'
 								: ''
 						}`}
+						key={option.quote}
+						onClick={() => { handleQuoteChange(option.quote); }}
 					>
 						<div className="flex items-center space-x-2">
 							<div className="shrink-0 text-gray-700 dark:text-white">{option.symbol}</div>

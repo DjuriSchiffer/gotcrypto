@@ -31,7 +31,7 @@ function AssetSelector({ excludeIds = [], onToggle, options, selectedIds }: Asse
 				aria-label="Search coins"
 				autoComplete="off"
 				icon={FaSearch}
-				onChange={(event) => setQuery(event.target.value)}
+				onChange={(event) => { setQuery(event.target.value); }}
 				placeholder="Search coins, e.g. Bitcoin"
 				type="search"
 				value={query}
@@ -60,7 +60,7 @@ function AssetSelector({ excludeIds = [], onToggle, options, selectedIds }: Asse
 										: 'border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'
 								)}
 								key={option.cmc_id}
-								onClick={() => onToggle(option.cmc_id)}
+								onClick={() => { onToggle(option.cmc_id); }}
 								type="button"
 							>
 								<img

@@ -4,6 +4,7 @@ import { Alert, Button, Spinner } from 'flowbite-react';
 import { useState } from 'react';
 import { FaGoogle } from 'react-icons/fa';
 
+import { auth } from '../../firebase/firebaseConfig';
 import { useAuth } from '../../hooks/useAuth';
 import { useStorage } from '../../hooks/useStorage';
 import {
@@ -11,7 +12,6 @@ import {
 	signInToExistingAccount,
 	upgradeAnonymousAccount,
 } from '../../services/accountUpgrade';
-import { auth } from '../../firebase/firebaseConfig';
 import Modal from '../Modal';
 
 type State =
@@ -35,15 +35,19 @@ function SaveToGoogle() {
 		const result = await upgradeAnonymousAccount();
 
 		switch (result.status) {
-			case 'linked':
-				// Only now switch the app to the Google account: its portfolio is in place
-				refreshAuth();
+			case 'account-exists':
+			case 'copy-failed':
+			case 'error':
+				// Shown in the UI: the dialog, the retry warning, or the error message
+				setState(result);
 				break;
 			case 'cancelled':
 				setState({ status: 'idle' });
 				break;
-			default:
-				setState(result);
+			case 'linked':
+				// Only now switch the app to the Google account: its portfolio is in place
+				refreshAuth();
+				break;
 		}
 	};
 
@@ -113,7 +117,9 @@ function SaveToGoogle() {
 			)}
 
 			<Modal
-				onClose={() => setState({ status: 'idle' })}
+				onClose={() => {
+					setState({ status: 'idle' });
+				}}
 				open={state.status === 'account-exists'}
 				size="lg"
 				title="This Google account is already in use"
@@ -139,7 +145,12 @@ function SaveToGoogle() {
 					</ul>
 				</div>
 				<div className="flex justify-end gap-2">
-					<Button color="gray" onClick={() => setState({ status: 'idle' })}>
+					<Button
+						color="gray"
+						onClick={() => {
+							setState({ status: 'idle' });
+						}}
+					>
 						Stay anonymous
 					</Button>
 					<Button color="primary" onClick={() => void handleUseExisting()}>
