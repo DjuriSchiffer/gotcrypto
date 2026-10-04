@@ -32,12 +32,3 @@ export const customTheme = createTheme({
 		},
 	},
 });
-
-export const cardTable = createTheme({
-	card: {
-		root: {
-			base: 'overflow-hidden',
-			children: 'p-0',
-		},
-	},
-});

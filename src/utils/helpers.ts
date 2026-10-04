@@ -26,26 +26,6 @@ export function percentageFormat(data: number | string): string {
 }
 
 /**
- * Calculates the current value based on amount and current price.
- * @param amount - The amount of currency.
- * @param currentPrice - The current price of the currency.
- * @returns The current value as a number.
- */
-export function currentValue(amount: number, currentPrice: number): number {
-	return parseFloat((amount * currentPrice).toFixed(2));
-}
-
-/**
- * Calculates the profit based on current value and purchase price.
- * @param currentValue - The current total value.
- * @param purchasePrice - The total purchase price.
- * @returns The profit as a number.
- */
-export function profit(currentValue: number, purchasePrice: number): number {
-	return parseFloat((currentValue - purchasePrice).toFixed(2));
-}
-
-/**
  * Calculates the average purchase price.
  * @param purchasePrice - The total purchase price.
  * @param amount - The total amount.

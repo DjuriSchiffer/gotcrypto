@@ -176,17 +176,6 @@ export const getGlobalTotals = (
 	};
 };
 
-export const getTotalAmount = (assetMap: Map<number, SelectedAsset>, cmcId: number): number =>
-	assetMap.get(cmcId)?.totals.totalAmount ?? 0;
-
-export const getTotalCostBasis = (assetMap: Map<number, SelectedAsset>, cmcId: number): number =>
-	assetMap.get(cmcId)?.totals.totalCostBasis ?? 0;
-
-export const getTotalRealizedProfit = (
-	assetMap: Map<number, SelectedAsset>,
-	cmcId: number
-): number => assetMap.get(cmcId)?.totals.totalRealizedProfit ?? 0;
-
 /** Unrealized return of one asset, based on cost basis (not on everything ever bought). */
 export const getTotalPercentageDifference = (
 	assetMap: Map<number, SelectedAsset>,

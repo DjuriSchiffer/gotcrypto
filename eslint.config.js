@@ -1,12 +1,10 @@
 import base from './eslint-config/base.js';
 import react from './eslint-config/react.js';
-import tailwindcss from 'eslint-plugin-tailwindcss';
 
-/** @type {import("eslint").Linter.FlatConfig[]} */
+/** @type {import("eslint").Linter.Config[]} */
 export default [
 	...base,
 	...react,
-	...tailwindcss.configs['flat/recommended'],
 	{
 		files: ['**/*.{ts,tsx}'],
 		languageOptions: {
@@ -20,24 +18,16 @@ export default [
 			'coverage',
 			'src/env.d.ts',
 			'eslint-config',
-			'vite.config.ts',
+			'vite.config.*',
 			'postcss.config.ts',
 			'node_modules',
 			'dist',
 		],
 	},
 	{
-		files: ['**/*.spec.{ts,tsx}'],
+		files: ['**/*.{spec,test}.{ts,tsx}'],
 		rules: {
 			'@typescript-eslint/no-confusing-void-expression': 'off',
-		},
-	},
-	{
-		settings: {
-			tailwindcss: {
-				callees: ['twMerge', 'createTheme'],
-				classRegex: '^(class(Name)|theme)?$',
-			},
 		},
 	},
 ];

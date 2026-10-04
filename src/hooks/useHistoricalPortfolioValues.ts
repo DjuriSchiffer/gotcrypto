@@ -6,7 +6,7 @@ import { useQueries } from '@tanstack/react-query';
 import { getQuoteByTimestamp } from '../api';
 import { formatPrice } from './useCoinMarketCap';
 
-export type YearlyTotal = {
+type YearlyTotal = {
 	totalValue: number;
 	year: number;
 };
