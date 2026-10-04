@@ -47,3 +47,8 @@ export type SelectedAsset = {
 	totals: Totals;
 	transactions: Array<Transaction>;
 };
+
+export type StoredAsset = Omit<SelectedAsset, 'totals' | 'transactions'> & {
+	totals?: SelectedAsset['totals'];
+	transactions?: SelectedAsset['transactions'];
+};

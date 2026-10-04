@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
-import ReducerProvider from '../providers/ReducerProvider';
 
+import ReducerProvider from '../providers/ReducerProvider';
 import { asset, buy, sell } from '../test/factories';
 
 vi.mock('../components/ApexChart', () => ({ default: () => <div data-testid="chart" /> }));
@@ -40,8 +40,9 @@ vi.mock('../hooks/useHistoricalPortfolioValues', () => ({
 	}),
 }));
 
-import Insights from './Insights';
 import type { ReactNode } from 'react';
+
+import Insights from './Insights';
 
 describe('Insights page', () => {
 	it('renders every section with real numbers', () => {
@@ -62,7 +63,7 @@ describe('Insights page', () => {
 		expect(screen.getByTestId('chart')).toBeTruthy();
 
 		const table = screen.getAllByRole('table')[0];
-		const firstRowName = () => within(table).getAllByRole('row')[0].textContent ?? '';
+		const firstRowName = () => within(table).getAllByRole('row')[0].textContent;
 		// flowbite 0.11's TableHead has no <tr>, so row 0 is the first asset
 		// sort by total P/L ascending: Dogecoin (loss) comes first
 		fireEvent.click(within(table).getByRole('button', { name: /Total P\/L/ }));

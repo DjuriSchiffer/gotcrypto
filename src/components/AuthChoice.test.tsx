@@ -1,5 +1,5 @@
-import { FirebaseError } from 'firebase/app';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { FirebaseError } from 'firebase/app';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
@@ -40,7 +40,11 @@ describe('AuthChoice', () => {
 	});
 
 	it('disables both options while signing in', () => {
-		mocks.signInWithGoogle.mockReturnValue(new Promise(() => {}));
+		mocks.signInWithGoogle.mockReturnValue(
+			new Promise(() => {
+				// Never settles: keeps the sign-in pending for the duration of this test
+			})
+		);
 		render(<AuthChoice />);
 
 		fireEvent.click(googleButton());

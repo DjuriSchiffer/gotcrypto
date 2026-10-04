@@ -1,5 +1,5 @@
-const colors = require('tailwindcss/colors');
 const flowbiteReact = require('flowbite-react/plugin/tailwindcss');
+const colors = require('tailwindcss/colors');
 
 const config = {
 	content: [
@@ -13,15 +13,14 @@ const config = {
 	theme: {
 		extend: {
 			colors: {
-				white: '#ffffff',
 				dark: '#1e293b',
-				'gray-dark': '#1e2126',
 				emerald: colors.emerald,
-				light: colors.light,
 				gray: {
 					...colors.gray,
 					DEFAULT: '#8492a6',
 				},
+				'gray-dark': '#1e2126',
+				grayLight: '#6B7280', // Same as gray-500,
 				green: {
 					50: '#ecfdf5',
 					100: '#d1fae5',
@@ -40,8 +39,9 @@ const config = {
 					DEFAULT: '#34d399', //500
 					on: '#ecfdf5', //50
 				},
-				grayLight: '#6B7280', // Same as gray-500,
+				light: colors.light,
 				primary: colors.indigo,
+				white: '#ffffff',
 			},
 		},
 	},

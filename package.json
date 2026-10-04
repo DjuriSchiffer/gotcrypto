@@ -8,6 +8,7 @@
 		"preview": "vite preview",
 		"prettier": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
 		"lint": "eslint --cache .",
+		"lint:fix": "eslint --fix .",
 		"postinstall": "flowbite-react patch",
 		"test": "vitest",
 		"test:run": "vitest run"

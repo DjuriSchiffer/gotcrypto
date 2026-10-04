@@ -1,6 +1,6 @@
-import type { SelectedAsset } from 'currency';
-import type { DashboardLayout, DateLocale, SortMethod } from 'store';
 import type { CurrencyQuote } from 'api';
+import type { SelectedAsset, StoredAsset } from 'currency';
+import type { DashboardLayout, DateLocale, SortMethod } from 'store';
 
 import { getDoc } from 'firebase/firestore';
 import localforage from 'localforage';
@@ -20,9 +20,11 @@ import { useAppState } from './useAppState';
 import { useAuth } from './useAuth';
 import { useLocalForage } from './useLocalForage';
 
-const withFreshTotals = (assets: Array<SelectedAsset>): Array<SelectedAsset> =>
-	assets.map((asset) => ({ ...asset, totals: totals(asset.transactions ?? []) }));
-
+const withFreshTotals = (assets: Array<StoredAsset>): Array<SelectedAsset> =>
+	assets.map((asset) => {
+		const transactions = asset.transactions ?? [];
+		return { ...asset, totals: totals(transactions), transactions };
+	});
 /**
  * Owns all stored data and preferences. Only StorageProvider may call this;
  * components use `useStorage()` to read the shared instance.
@@ -41,7 +43,9 @@ export const useStorageState = () => {
 	const isSignedIn = Boolean(user && !isAnonymous);
 
 	/** Loads everything again, e.g. after data was written outside this hook. */
-	const reload = useCallback(() => setReloadCount((count) => count + 1), []);
+	const reload = useCallback(() => {
+		setReloadCount((count) => count + 1);
+	}, []);
 
 	// Load everything once auth is known, again whenever the user changes, and on reload()
 	useEffect(() => {
@@ -94,7 +98,6 @@ export const useStorageState = () => {
 			cancelled = true;
 		};
 		// reloadCount isn't read inside: changing it is what triggers a reload
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [authLoading, user, isAnonymous, getSelectedCurrencies, dispatch, reloadCount]);
 
 	/** Saves one preference to Firestore (signed in) or localforage (anonymous). */

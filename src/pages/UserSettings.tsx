@@ -2,7 +2,7 @@ import { Avatar, Badge, Button } from 'flowbite-react';
 import { useState } from 'react';
 import { FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
 
-import SaveToGoogle from '../components/account/SaveToGoolge';
+import SaveToGoogle from '../components/account/SaveToGoogle';
 import Page from '../components/layout/Page';
 import SettingsDateFormat from '../components/SettingsDateFormat';
 import SettingsLightDarkMode from '../components/SettingsLightDarkMode';
@@ -101,7 +101,9 @@ function UserSettings() {
 						<Button
 							color="failure"
 							disabled={assetCount === 0}
-							onClick={() => setConfirmOpen(true)}
+							onClick={() => {
+								setConfirmOpen(true);
+							}}
 						>
 							<FaTrashAlt className="mr-2" />
 							Delete portfolio data
@@ -122,7 +124,9 @@ function UserSettings() {
 						{isAnonymous ? ' from this browser' : ' from your account'}. This can't be undone.
 					</>
 				}
-				onClose={() => setConfirmOpen(false)}
+				onClose={() => {
+					setConfirmOpen(false);
+				}}
 				onConfirm={() => void handleDelete()}
 				open={confirmOpen}
 				requireText={CONFIRM_WORD}

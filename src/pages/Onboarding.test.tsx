@@ -1,8 +1,8 @@
-import type { SelectedAsset } from '../types/currency';
-
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import type { SelectedAsset } from '../types/currency';
 
 const mocks = vi.hoisted(() => ({
 	selectedCurrencies: [] as Array<SelectedAsset>,

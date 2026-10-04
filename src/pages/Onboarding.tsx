@@ -69,9 +69,9 @@ function OnboardingPage() {
 	const { description, title } = STEPS[step];
 
 	const toggleCoin = (cmcId: number) =>
-		setSelectedIds((previous) =>
+		{ setSelectedIds((previous) =>
 			previous.includes(cmcId) ? previous.filter((id) => id !== cmcId) : [...previous, cmcId]
-		);
+		); };
 
 	/** Saves the chosen coins (if any) and marks onboarding as done. */
 	const finish = async (saveCoins: boolean) => {
@@ -178,7 +178,7 @@ function OnboardingPage() {
 									Sign out
 								</Button>
 							) : (
-								<Button color="gray" disabled={isSaving} onClick={() => setStep(step - 1)}>
+								<Button color="gray" disabled={isSaving} onClick={() => { setStep(step - 1); }}>
 									<FaArrowLeft className="mr-2" />
 									Back
 								</Button>
@@ -205,7 +205,7 @@ function OnboardingPage() {
 									<Button
 										color="primary"
 										disabled={isFirstStep && selectedIds.length === 0}
-										onClick={() => setStep(step + 1)}
+										onClick={() => { setStep(step + 1); }}
 									>
 										Next
 										<FaArrowRight className="ml-2" />

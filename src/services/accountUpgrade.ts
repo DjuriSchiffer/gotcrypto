@@ -1,5 +1,5 @@
-import type { OAuthCredential } from 'firebase/auth';
 import type { SelectedAsset } from 'currency';
+import type { OAuthCredential } from 'firebase/auth';
 
 import { linkWithPopup, signInWithCredential } from 'firebase/auth';
 import { runTransaction } from 'firebase/firestore';
@@ -9,10 +9,10 @@ import type { LocalData, MigrationPlan } from '../utils/migration';
 
 import { auth, db } from '../firebase/firebaseConfig';
 import { getUserDocRef } from '../firebase/firebaseHelpers';
-import { googleProvider } from './authService';
 import { classifyLinkError } from '../utils/authErrors';
 import { planMigration } from '../utils/migration';
 import { LOCAL_PORTFOLIO_KEY, PREFERENCE_KEYS } from '../utils/preferences';
+import { googleProvider } from './authService';
 
 export type UpgradeResult =
 	| { credential: OAuthCredential; email: null | string; status: 'account-exists' }

@@ -6,16 +6,16 @@ type ModalComponentProps = {
 	children: ReactNode;
 	onClose: () => void;
 	open?: boolean;
-	title?: string;
 	size?: ComponentProps<typeof Modal>['size'];
+	title?: string;
 };
 
 function ModalComponent({
 	children,
 	onClose,
 	open = false,
-	title = 'Modal',
 	size = 'xl',
+	title = 'Modal',
 }: ModalComponentProps) {
 	return (
 		<Modal onClose={onClose} show={open} size={size}>

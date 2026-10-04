@@ -1,14 +1,16 @@
 import type { DateLocale } from 'store';
+
 import { Card } from 'flowbite-react';
 import { useMemo } from 'react';
 import { FaCheck } from 'react-icons/fa';
+
 import { useStorage } from '../hooks/useStorage';
 import { dateForDisplay } from '../utils/helpers';
 
 type DateOption = {
 	example: string;
-	name: string;
 	locale: DateLocale;
+	name: string;
 };
 
 function SettingsDateFormat({ className = '' }: { className?: string }) {
@@ -24,29 +26,29 @@ function SettingsDateFormat({ className = '' }: { className?: string }) {
 		return [
 			{
 				example: dateForDisplay(sampleDate.toISOString(), 'nl'),
-				name: 'European (DD-MM-YYYY)',
 				locale: 'nl',
+				name: 'European (DD-MM-YYYY)',
 			},
 			{
 				example: dateForDisplay(sampleDate.toISOString(), 'en'),
-				name: 'American (MM-DD-YYYY)',
 				locale: 'en',
+				name: 'American (MM-DD-YYYY)',
 			},
 		];
 	}, []);
 
 	return (
-		<div className={`${className}`}>
+		<div className={className}>
 			<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
 				{dateOptions.map((option) => (
 					<Card
-						key={option.locale}
-						onClick={() => handleLocaleChange(option.locale)}
 						className={`cursor-pointer transition-colors ${
 							dateLocale === option.locale
 								? 'border-primary-500 bg-primary-50 dark:bg-primary-900 dark:bg-opacity-90'
 								: ''
 						}`}
+						key={option.locale}
+						onClick={() => { handleLocaleChange(option.locale); }}
 					>
 						<div className="flex items-center space-x-2">
 							<div className="flex min-w-0 flex-1 flex-col items-start text-gray-700">

@@ -54,7 +54,7 @@ function ConfirmModal({
 					<TextInput
 						autoComplete="off"
 						id={inputId}
-						onChange={(event) => setTyped(event.target.value)}
+						onChange={(event) => { setTyped(event.target.value); }}
 						value={typed}
 					/>
 				</div>

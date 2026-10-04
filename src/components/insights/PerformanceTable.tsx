@@ -79,7 +79,7 @@ function PerformanceTable({ currencyQuote, rows }: PerformanceTableProps) {
 											'inline-flex items-center gap-1 uppercase',
 											isActive && 'text-gray-900 dark:text-white'
 										)}
-										onClick={() => handleSort(column.key)}
+										onClick={() => { handleSort(column.key); }}
 										type="button"
 									>
 										{column.label}

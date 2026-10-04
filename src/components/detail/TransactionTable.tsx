@@ -168,7 +168,7 @@ function TransactionTable({
 											<Button
 												aria-label={`Edit transaction of ${date}`}
 												color="gray"
-												onClick={() => onEdit(transaction)}
+												onClick={() => { onEdit(transaction); }}
 												size="xs"
 											>
 												<FaPen />
@@ -176,7 +176,7 @@ function TransactionTable({
 											<Button
 												aria-label={`Remove transaction of ${date}`}
 												color="gray"
-												onClick={() => onRemove(transaction)}
+												onClick={() => { onRemove(transaction); }}
 												size="xs"
 											>
 												<FaTrashAlt />

@@ -58,8 +58,8 @@ const CurrencyFormInput = forwardRef<HTMLInputElement, CurrencyFormInputProps>(
 					}
 				}}
 				placeholder={placeholder || defaultPlaceholder}
-				value={value}
 				ref={ref}
+				value={value}
 			/>
 		);
 	}
@@ -136,7 +136,7 @@ function TransactionForm({
 			const displayPurchasePrise =
 				defaultValues.transactionType === 'sell' ||
 				(isTransfer && defaultValues.transferType === 'out')
-					? Math.abs(parseFloat(defaultValues.purchasePrice)).toFixed(2).toString()
+					? Math.abs(parseFloat(defaultValues.purchasePrice)).toFixed(2)
 					: parseFloat(defaultValues.purchasePrice).toFixed(2);
 
 			reset({
@@ -159,7 +159,7 @@ function TransactionForm({
 				transferType: 'in',
 			});
 		}
-	}, [isEdit, defaultValues, reset]);
+	}, [isEdit, defaultValues, reset, isTransfer]);
 
 	const handleFormSubmit = (data: FormInputs) => {
 		onSubmit(data);
@@ -187,10 +187,10 @@ function TransactionForm({
 						<ButtonGroup className="w-full">
 							<Button
 								className={classNames('w-4/12 !border-0', getButtonStyles('buy', value), {
+									'!first:border-l-0': true,
+									'!rounded-l-lg': true,
 									'z-10 !border-[1px] !border-primary-400 dark:!border-primary-500':
 										value === 'buy',
-									'!rounded-l-lg': true,
-									'!first:border-l-0': true,
 								})}
 								color="gray"
 								onClick={() => {
@@ -202,9 +202,9 @@ function TransactionForm({
 							</Button>
 							<Button
 								className={classNames('w-4/12 !border-0', getButtonStyles('sell', value), {
+									'!rounded-none': true,
 									'z-10 !border-[1px] !border-primary-400 dark:!border-primary-500':
 										value === 'sell',
-									'!rounded-none': true,
 								})}
 								color="gray"
 								onClick={() => {
@@ -216,9 +216,9 @@ function TransactionForm({
 							</Button>
 							<Button
 								className={classNames('w-4/12 !border-0', getButtonStyles('transfer', value), {
+									'!rounded-r-lg': true,
 									'z-10 !border-[1px] !border-primary-400 dark:!border-primary-500':
 										value === 'transfer',
-									'!rounded-r-lg': true,
 								})}
 								color="gray"
 								onClick={() => {
@@ -376,8 +376,8 @@ function TransactionForm({
 								currencyQuote={currencyQuote}
 								onChange={onChange}
 								placeholder={currencyFormat(5000.25, currencyQuote)}
-								value={value}
 								ref={field.ref}
+								value={value}
 							/>
 						)}
 						rules={{

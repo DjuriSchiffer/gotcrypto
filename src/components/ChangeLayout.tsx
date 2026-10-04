@@ -45,20 +45,20 @@ export function ChangeLayout() {
 		<ButtonGroup>
 			{layoutOptions.map((option, index) => (
 				<Button
+					className={classNames('!border-0', getButtonStyles(option.label), {
+						'!first:border-l-0': index === 0,
+						'!rounded-l-lg': index === 0,
+						'!rounded-none': index > 0 && index < layoutOptions.length - 1,
+						'!rounded-r-lg': index === layoutOptions.length - 1,
+						'z-10 !border-[1px] !border-primary-400 dark:!border-primary-500':
+							dashboardLayout === option.label,
+					})}
+					color="gray"
 					key={option.label}
 					onClick={() => {
 						handleLayoutChange(option.label);
 					}}
 					title={option.label}
-					color="gray"
-					className={classNames('!border-0', getButtonStyles(option.label), {
-						'z-10 !border-[1px] !border-primary-400 dark:!border-primary-500':
-							dashboardLayout === option.label,
-						'!rounded-l-lg': index === 0,
-						'!rounded-r-lg': index === layoutOptions.length - 1,
-						'!rounded-none': index > 0 && index < layoutOptions.length - 1,
-						'!first:border-l-0': index === 0,
-					})}
 				>
 					{option.symbol}
 					{option.label}

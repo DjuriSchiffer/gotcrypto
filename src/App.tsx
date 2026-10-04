@@ -5,8 +5,8 @@ import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-d
 import AuthChoice from './components/AuthChoice';
 import ErrorComponent from './components/Error';
 import LoadingIndicator from './components/LoadingIndicator';
-import useCoinMarketCap from './hooks/useCoinMarketCap';
 import { useAuth } from './hooks/useAuth';
+import useCoinMarketCap from './hooks/useCoinMarketCap';
 import { useStorage } from './hooks/useStorage';
 import Dashboard from './pages/Dashboard';
 import Detail from './pages/Detail';
@@ -32,13 +32,13 @@ function App() {
 		const htmlElement = document.documentElement;
 
 		if (!storedMode) {
-			void setMode('dark');
+			setMode('dark');
 			htmlElement.classList.add('dark');
 		} else if (storedMode === 'light') {
-			void setMode('light');
+			setMode('light');
 			htmlElement.classList.remove('dark');
 		} else if (storedMode === 'dark' || storedMode === 'auto') {
-			void setMode('dark');
+			setMode('dark');
 			htmlElement.classList.add('dark');
 		}
 	}, [setMode]);

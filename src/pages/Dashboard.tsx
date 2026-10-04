@@ -11,9 +11,9 @@ import AssetManagerModal from '../components/AssetManagerModal';
 import { ChangeLayout } from '../components/ChangeLayout';
 import AssetCard from '../components/dashboard/AssetCard';
 import AssetTable from '../components/dashboard/AssetTable';
+import Page from '../components/layout/Page';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
 import Modal from '../components/Modal';
-import Page from '../components/layout/Page';
 import PortfolioStats from '../components/PortfolioStats';
 import TransactionForm from '../components/TransactionForm';
 import EmptyState from '../components/ui/EmptyState';
@@ -83,7 +83,7 @@ function Dashboard() {
 	};
 
 	const manageAssetsButton = (
-		<Button color="primary" onClick={() => setAssetManagerOpen(true)}>
+		<Button color="primary" onClick={() => { setAssetManagerOpen(true); }}>
 			<FaPlus className="mr-2" />
 			Manage assets
 		</Button>
@@ -132,7 +132,7 @@ function Dashboard() {
 									currencyQuote={currencyQuote}
 									fetchedCurrency={currency}
 									key={currency.cmc_id}
-									onAddTransaction={() => setAddTransactionFor(currency)}
+									onAddTransaction={() => { setAddTransactionFor(currency); }}
 								/>
 							))}
 						</section>
@@ -149,7 +149,7 @@ function Dashboard() {
 				</div>
 
 				<AssetManagerModal
-					onClose={() => setAssetManagerOpen(false)}
+					onClose={() => { setAssetManagerOpen(false); }}
 					onSave={(changes) => void handleSaveAssets(changes)}
 					open={assetManagerOpen}
 					options={fetchedCurrencies}
@@ -157,7 +157,7 @@ function Dashboard() {
 				/>
 
 				<Modal
-					onClose={() => setAddTransactionFor(null)}
+					onClose={() => { setAddTransactionFor(null); }}
 					open={addTransactionFor !== null}
 					title={`Add your first ${addTransactionFor?.name ?? ''} transaction`}
 				>

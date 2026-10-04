@@ -1,6 +1,7 @@
 import type { CurrencyQuote } from 'api';
-import classNames from 'classnames';
 import type { SelectedAsset } from 'currency';
+
+import classNames from 'classnames';
 
 const STORED_DATE = /^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/;
 

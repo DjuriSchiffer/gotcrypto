@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 
-import type { SelectedAsset } from '../types/currency';
-
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { asset, buy, sell } from '../test/factories';
+import type { SelectedAsset } from '../types/currency';
+
 import ReducerProvider from '../providers/ReducerProvider';
+import { asset, buy, sell } from '../test/factories';
 
 const storage = vi.hoisted(() => ({
 	selectedCurrencies: [] as Array<SelectedAsset>,
@@ -97,7 +97,7 @@ describe('Detail page', () => {
 		expect(screen.getByRole('heading', { name: 'Bitcoin' })).toBeTruthy();
 		expect(screen.getByText('Holdings')).toBeTruthy();
 
-		const rows = screen.getAllByRole('row').map((row) => row.textContent?.replace(/\s/g, ' '));
+		const rows = screen.getAllByRole('row').map((row) => row.textContent.replace(/\s/g, ' '));
 		// year header, sell, year header, buy — newest first
 		expect(rows[0]).toBe('2024');
 		expect(rows[1]).toContain('Sell');

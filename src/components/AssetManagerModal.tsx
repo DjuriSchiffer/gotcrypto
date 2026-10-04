@@ -86,7 +86,7 @@ function AssetManagerModal({
 									'cursor-pointer': !isLocked,
 								})}
 								key={option.cmc_id}
-								onClick={() => toggle(option.cmc_id)}
+								onClick={() => { toggle(option.cmc_id); }}
 								onKeyDown={(event) => {
 									if (event.key === 'Enter' || event.key === ' ') {
 										event.preventDefault();
@@ -129,7 +129,7 @@ function AssetManagerModal({
 					<Button
 						color="primary"
 						disabled={!hasChanges}
-						onClick={() => onSave({ addIds, removeIds })}
+						onClick={() => { onSave({ addIds, removeIds }); }}
 					>
 						<FaSave className="mr-2" />
 						Save changes
