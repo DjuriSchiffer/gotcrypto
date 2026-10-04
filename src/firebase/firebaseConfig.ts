@@ -17,13 +17,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-/**
- * Resolves to Analytics where it's supported, or null (tests, some browsers, blocked cookies).
- */
-export const analyticsPromise: Promise<Analytics | null> = isSupported()
-	.then((supported) => (supported ? getAnalytics(app) : null))
-	.catch(() => null);
-
 export const db = getFirestore(app);
 
 export const auth = getAuth(app);

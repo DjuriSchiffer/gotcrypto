@@ -1,0 +1,4 @@
+{
+	"entry": ["api/*.js"],
+	"project": ["src/**/*.{ts,tsx,css}", "api/**/*.js", "eslint-config/**/*.js"]
+}
