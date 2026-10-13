@@ -1,8 +1,8 @@
-import type { SelectedAsset } from '../../types/currency';
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import type { SelectedAsset } from '../../types/currency';
 
 import { asset, buy } from '../../test/factories';
 import { yearEndTimestamp } from '../../utils/yearEnd';
@@ -31,7 +31,7 @@ const renderCard = () =>
 	);
 
 const rowFor = (year: number) =>
-	screen.getAllByRole('row').find((row) => row.textContent?.startsWith(String(year)));
+	screen.getAllByRole('row').find((row) => row.textContent.startsWith(String(year)));
 
 describe('YearEndValuesCard', () => {
 	beforeEach(() => {
@@ -43,8 +43,8 @@ describe('YearEndValuesCard', () => {
 		const prices: Record<string, number> = {
 			[`1-${yearEndTimestamp(2023)}`]: 40000,
 			[`1-${yearEndTimestamp(2024)}`]: 90000,
-			[`1027-${yearEndTimestamp(2024)}`]: 3000,
 			[`1-${yearEndTimestamp(2025)}`]: 80000,
+			[`1027-${yearEndTimestamp(2024)}`]: 3000,
 			[`1027-${yearEndTimestamp(2025)}`]: 2500,
 		};
 		mocks.getQuoteByTimestamp.mockImplementation(
@@ -55,7 +55,7 @@ describe('YearEndValuesCard', () => {
 
 		await waitFor(() => expect(rowFor(2025)).toBeTruthy());
 
-		const text = (year: number) => rowFor(year)?.textContent?.replace(/\s/g, ' ');
+		const text = (year: number) => rowFor(year)?.textContent.replace(/\s/g, ' ');
 		expect(text(2023)).toContain('€ 40.000,00');
 		expect(text(2024)).toContain('€ 120.000,00'); // 90.000 + 10 × 3.000
 		expect(text(2024)).toContain('+200.00%');
@@ -76,7 +76,10 @@ describe('YearEndValuesCard', () => {
 
 		await waitFor(() => expect(rowFor(2024)).toBeTruthy());
 
-		const row2024 = within(rowFor(2024)!);
+		const row = rowFor(2024);
+		if (!row) throw new Error('Expected a row for 2024');
+
+		const row2024 = within(row);
 		expect(row2024.getByText('Price unavailable')).toBeTruthy();
 		expect(row2024.getByLabelText('No year-end price for Ethereum')).toBeTruthy();
 		expect(screen.getByRole('alert').textContent).toMatch(/don't use them for your tax return/);

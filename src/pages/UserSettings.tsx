@@ -2,6 +2,7 @@ import { Avatar, Badge, Button } from 'flowbite-react';
 import { useState } from 'react';
 import { FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
 
+import ExportDataCard from '../components/account/ExportDataCard';
 import SaveToGoogle from '../components/account/SaveToGoogle';
 import Page from '../components/layout/Page';
 import SettingsDateFormat from '../components/SettingsDateFormat';
@@ -10,6 +11,7 @@ import SettingsPriceFormat from '../components/SettingsPriceFormat';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import PageHeader from '../components/ui/PageHeader';
 import SectionCard from '../components/ui/SectionCard';
+import { useAppState } from '../hooks/useAppState';
 import { useAuth } from '../hooks/useAuth';
 import { useStorage } from '../hooks/useStorage';
 import { signOutUser } from '../services/authService';
@@ -17,7 +19,8 @@ import { signOutUser } from '../services/authService';
 const CONFIRM_WORD = 'DELETE';
 
 function UserSettings() {
-	const { isAnonymous, user } = useAuth();
+	const { isAdmin, isAnonymous, user } = useAuth();
+	const { currencyQuote } = useAppState();
 	const { selectedCurrencies, setSelectedCurrencies } = useStorage();
 	const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -90,6 +93,13 @@ function UserSettings() {
 					<SettingsLightDarkMode />
 				</SectionCard>
 
+				<ExportDataCard
+					assets={selectedCurrencies}
+					currencyQuote={currencyQuote}
+					includeTaxColumn={isAdmin}
+					isAnonymous={isAnonymous}
+				/>
+
 				<SectionCard description="These actions can't be undone" title="Danger zone" tone="danger">
 					<div className="flex flex-wrap items-center justify-between gap-4">
 						<div>
@@ -101,9 +111,7 @@ function UserSettings() {
 						<Button
 							color="failure"
 							disabled={assetCount === 0}
-							onClick={() => {
-								setConfirmOpen(true);
-							}}
+							onClick={() => { setConfirmOpen(true); }}
 						>
 							<FaTrashAlt className="mr-2" />
 							Delete portfolio data
@@ -124,9 +132,7 @@ function UserSettings() {
 						{isAnonymous ? ' from this browser' : ' from your account'}. This can't be undone.
 					</>
 				}
-				onClose={() => {
-					setConfirmOpen(false);
-				}}
+				onClose={() => { setConfirmOpen(false); }}
 				onConfirm={() => void handleDelete()}
 				open={confirmOpen}
 				requireText={CONFIRM_WORD}

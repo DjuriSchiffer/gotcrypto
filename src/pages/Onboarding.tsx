@@ -68,10 +68,11 @@ function OnboardingPage() {
 	const chosenCoins = (fetchedCurrencies ?? []).filter((coin) => selectedIds.includes(coin.cmc_id));
 	const { description, title } = STEPS[step];
 
-	const toggleCoin = (cmcId: number) =>
-		{ setSelectedIds((previous) =>
+	const toggleCoin = (cmcId: number) => {
+		setSelectedIds((previous) =>
 			previous.includes(cmcId) ? previous.filter((id) => id !== cmcId) : [...previous, cmcId]
-		); };
+		);
+	};
 
 	/** Saves the chosen coins (if any) and marks onboarding as done. */
 	const finish = async (saveCoins: boolean) => {
@@ -81,7 +82,7 @@ function OnboardingPage() {
 				await setSelectedCurrencies(applyAssetChanges(selectedCurrencies, chosenCoins, []));
 			}
 			await setOnboardingCompleted(true);
-			navigate('/', { replace: true });
+			void navigate('/', { replace: true });
 		} catch (error) {
 			console.error('Error completing onboarding:', error);
 			alert('Something went wrong while saving. Please try again.');
@@ -178,7 +179,13 @@ function OnboardingPage() {
 									Sign out
 								</Button>
 							) : (
-								<Button color="gray" disabled={isSaving} onClick={() => { setStep(step - 1); }}>
+								<Button
+									color="gray"
+									disabled={isSaving}
+									onClick={() => {
+										setStep(step - 1);
+									}}
+								>
 									<FaArrowLeft className="mr-2" />
 									Back
 								</Button>
@@ -205,7 +212,9 @@ function OnboardingPage() {
 									<Button
 										color="primary"
 										disabled={isFirstStep && selectedIds.length === 0}
-										onClick={() => { setStep(step + 1); }}
+										onClick={() => {
+											setStep(step + 1);
+										}}
 									>
 										Next
 										<FaArrowRight className="ml-2" />

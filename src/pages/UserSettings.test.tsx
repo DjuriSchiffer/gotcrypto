@@ -9,15 +9,16 @@ import { asset, buy } from '../test/factories';
 
 const mocks = vi.hoisted(() => ({
 	auth: {
+		isAdmin: false,
 		isAnonymous: false,
-		user: { displayName: 'Henk', email: 'henk@example.com', photoURL: null },
+		user: { displayName: 'Djuri', email: 'djuri@example.com', photoURL: null },
 	},
 	selectedCurrencies: [] as Array<SelectedAsset>,
 	setSelectedCurrencies: vi.fn(),
 	signOutUser: vi.fn(),
 }));
 
-vi.mock('../components/layout/Page', () => ({
+vi.mock('../components/Page', () => ({
 	default: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 // The selectors are tested through the app itself; here they only need to render
@@ -29,6 +30,7 @@ vi.mock('../components/SettingsLightDarkMode', () => ({ default: () => <div>them
 vi.mock('../components/account/SaveToGoogle', () => ({
 	default: () => <button type="button">Save to a Google account</button>,
 }));
+vi.mock('../hooks/useAppState', () => ({ useAppState: () => ({ currencyQuote: 'EUR' }) }));
 vi.mock('../hooks/useAuth', () => ({ useAuth: () => mocks.auth }));
 vi.mock('../hooks/useStorage', () => ({
 	useStorage: () => ({
@@ -54,11 +56,18 @@ describe('Settings page', () => {
 	it('shows every section', () => {
 		render(<UserSettings />);
 
-		for (const title of ['Account', 'Currency', 'Date format', 'Appearance', 'Danger zone']) {
+		for (const title of [
+			'Account',
+			'Currency',
+			'Date format',
+			'Appearance',
+			'Your data',
+			'Danger zone',
+		]) {
 			expect(screen.getByRole('heading', { name: title })).toBeTruthy();
 		}
 		expect(screen.getByText('Synced with Google')).toBeTruthy();
-		expect(screen.getByText('henk@example.com')).toBeTruthy();
+		expect(screen.getByText('djuri@example.com')).toBeTruthy();
 	});
 
 	it('warns anonymous users that their data is only in this browser', () => {
