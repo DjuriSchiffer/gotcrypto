@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { fakeFirestore, fakeResponse, requireApi } from './helpers';
+import { fakeFirestore, fakeResponse, requireApi } from '../../../api/_lib/helpers';
 
 type Handler = (req: unknown, res: ReturnType<typeof fakeResponse>) => Promise<void>;
 type CreateHandler = (deps: Record<string, unknown>) => Handler;
