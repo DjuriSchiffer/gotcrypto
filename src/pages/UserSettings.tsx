@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
 
 import ExportDataCard from '../components/account/ExportDataCard';
+import ImportDataCard from '../components/account/ImportDataCard';
 import SaveToGoogle from '../components/account/SaveToGoogle';
 import Page from '../components/layout/Page';
 import SettingsDateFormat from '../components/SettingsDateFormat';
@@ -13,6 +14,7 @@ import PageHeader from '../components/ui/PageHeader';
 import SectionCard from '../components/ui/SectionCard';
 import { useAppState } from '../hooks/useAppState';
 import { useAuth } from '../hooks/useAuth';
+import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import { signOutUser } from '../services/authService';
 
@@ -21,6 +23,7 @@ const CONFIRM_WORD = 'DELETE';
 function UserSettings() {
 	const { isAdmin, isAnonymous, user } = useAuth();
 	const { currencyQuote } = useAppState();
+	const { data: fetchedCurrencies } = useCoinMarketCap(currencyQuote);
 	const { selectedCurrencies, setSelectedCurrencies } = useStorage();
 	const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -98,6 +101,14 @@ function UserSettings() {
 					currencyQuote={currencyQuote}
 					includeTaxColumn={isAdmin}
 					isAnonymous={isAnonymous}
+				/>
+
+				<ImportDataCard
+					assets={selectedCurrencies}
+					currencyQuote={currencyQuote}
+					fetchedCurrencies={fetchedCurrencies}
+					includeTaxColumn={isAdmin}
+					onImport={setSelectedCurrencies}
 				/>
 
 				<SectionCard description="These actions can't be undone" title="Danger zone" tone="danger">

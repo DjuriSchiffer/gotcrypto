@@ -34,10 +34,7 @@ function ExportDataCard({
 	};
 
 	return (
-		<SectionCard
-			description="Download your transactions, as a backup or for your tax return"
-			title="Your data"
-		>
+		<SectionCard description="Download your transactions" title="Export data">
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div className="text-sm">
 					<p className="font-medium text-gray-900 dark:text-white">Export transactions (CSV)</p>

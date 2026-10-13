@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SelectedAsset } from '../types/currency';
@@ -12,7 +11,7 @@ const mocks = vi.hoisted(() => ({
 	auth: {
 		isAdmin: false,
 		isAnonymous: false,
-		user: { displayName: 'Djuri', email: 'djuri@example.com', photoURL: null },
+		user: { displayName: 'Test', email: 'test@example.com', photoURL: null },
 	},
 	selectedCurrencies: [] as Array<SelectedAsset>,
 	setSelectedCurrencies: vi.fn(),
@@ -31,6 +30,11 @@ vi.mock('../components/SettingsLightDarkMode', () => ({ default: () => <div>them
 vi.mock('../components/account/SaveToGoogle', () => ({
 	default: () => <button type="button">Save to a Google account</button>,
 }));
+vi.mock('../hooks/useCoinMarketCap', () => ({
+	default: () => ({
+		data: [{ cmc_id: 1, cmc_rank: 1, name: 'Bitcoin', price: 60000, slug: 'bitcoin' }],
+	}),
+}));
 vi.mock('../hooks/useAppState', () => ({ useAppState: () => ({ currencyQuote: 'EUR' }) }));
 vi.mock('../hooks/useAuth', () => ({ useAuth: () => mocks.auth }));
 vi.mock('../hooks/useStorage', () => ({
@@ -42,13 +46,6 @@ vi.mock('../hooks/useStorage', () => ({
 vi.mock('../services/authService', () => ({ signOutUser: mocks.signOutUser }));
 
 import UserSettings from './UserSettings';
-
-const renderSettings = () =>
-	render(
-		<MemoryRouter>
-			<UserSettings />
-		</MemoryRouter>
-	);
 
 describe('Settings page', () => {
 	beforeEach(() => {
@@ -62,25 +59,26 @@ describe('Settings page', () => {
 	});
 
 	it('shows every section', () => {
-		renderSettings();
+		render(<UserSettings />);
 
 		for (const title of [
 			'Account',
 			'Currency',
 			'Date format',
 			'Appearance',
-			'Your data',
+			'Export data',
+			'Import data',
 			'Danger zone',
 		]) {
 			expect(screen.getByRole('heading', { name: title })).toBeTruthy();
 		}
 		expect(screen.getByText('Synced with Google')).toBeTruthy();
-		expect(screen.getByText('djuri@example.com')).toBeTruthy();
+		expect(screen.getByText('test@example.com')).toBeTruthy();
 	});
 
 	it('warns anonymous users that their data is only in this browser', () => {
 		mocks.auth.isAnonymous = true;
-		renderSettings();
+		render(<UserSettings />);
 
 		expect(screen.getByText('Anonymous session')).toBeTruthy();
 		expect(screen.getByText(/stored in this browser only/)).toBeTruthy();
@@ -88,20 +86,20 @@ describe('Settings page', () => {
 	});
 
 	it('does not offer saving to Google when already signed in', () => {
-		renderSettings();
+		render(<UserSettings />);
 
 		expect(screen.queryByRole('button', { name: 'Save to a Google account' })).toBeNull();
 	});
 
 	it('signs out', () => {
-		renderSettings();
+		render(<UserSettings />);
 		fireEvent.click(screen.getByRole('button', { name: /Sign out/ }));
 
 		expect(mocks.signOutUser).toHaveBeenCalledOnce();
 	});
 
 	it('only deletes the portfolio after typing DELETE', () => {
-		renderSettings();
+		render(<UserSettings />);
 		fireEvent.click(screen.getByRole('button', { name: /Delete portfolio data/ }));
 
 		const dialog = within(screen.getByRole('dialog'));
@@ -119,7 +117,7 @@ describe('Settings page', () => {
 
 	it('disables deleting when there is nothing to delete', () => {
 		mocks.selectedCurrencies = [];
-		renderSettings();
+		render(<UserSettings />);
 
 		expect(
 			screen.getByRole('button', { name: /Delete portfolio data/ }).hasAttribute('disabled')
