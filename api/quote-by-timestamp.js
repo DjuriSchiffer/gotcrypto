@@ -1,9 +1,10 @@
 const axios = require('axios');
-const admin = require('firebase-admin');
+const { cert, getApps, initializeApp } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
 
-if (!admin.apps.length) {
-	admin.initializeApp({
-		credential: admin.credential.cert({
+if (getApps().length === 0) {
+	initializeApp({
+		credential: cert({
 			clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
 			privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
 			projectId: process.env.FIREBASE_PROJECT_ID,
@@ -11,8 +12,7 @@ if (!admin.apps.length) {
 	});
 }
 
-const db = admin.firestore();
-
+const db = getFirestore();
 const whitelist = ['https://gotcrypto.vercel.app'];
 
 const isAllowedOrigin = (origin) => {
