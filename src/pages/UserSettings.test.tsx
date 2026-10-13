@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SelectedAsset } from '../types/currency';
@@ -18,7 +19,7 @@ const mocks = vi.hoisted(() => ({
 	signOutUser: vi.fn(),
 }));
 
-vi.mock('../components/Page', () => ({
+vi.mock('../components/layout/Page', () => ({
 	default: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 // The selectors are tested through the app itself; here they only need to render
@@ -42,6 +43,13 @@ vi.mock('../services/authService', () => ({ signOutUser: mocks.signOutUser }));
 
 import UserSettings from './UserSettings';
 
+const renderSettings = () =>
+	render(
+		<MemoryRouter>
+			<UserSettings />
+		</MemoryRouter>
+	);
+
 describe('Settings page', () => {
 	beforeEach(() => {
 		mocks.setSelectedCurrencies.mockReset();
@@ -54,7 +62,7 @@ describe('Settings page', () => {
 	});
 
 	it('shows every section', () => {
-		render(<UserSettings />);
+		renderSettings();
 
 		for (const title of [
 			'Account',
@@ -72,7 +80,7 @@ describe('Settings page', () => {
 
 	it('warns anonymous users that their data is only in this browser', () => {
 		mocks.auth.isAnonymous = true;
-		render(<UserSettings />);
+		renderSettings();
 
 		expect(screen.getByText('Anonymous session')).toBeTruthy();
 		expect(screen.getByText(/stored in this browser only/)).toBeTruthy();
@@ -80,20 +88,20 @@ describe('Settings page', () => {
 	});
 
 	it('does not offer saving to Google when already signed in', () => {
-		render(<UserSettings />);
+		renderSettings();
 
 		expect(screen.queryByRole('button', { name: 'Save to a Google account' })).toBeNull();
 	});
 
 	it('signs out', () => {
-		render(<UserSettings />);
+		renderSettings();
 		fireEvent.click(screen.getByRole('button', { name: /Sign out/ }));
 
 		expect(mocks.signOutUser).toHaveBeenCalledOnce();
 	});
 
 	it('only deletes the portfolio after typing DELETE', () => {
-		render(<UserSettings />);
+		renderSettings();
 		fireEvent.click(screen.getByRole('button', { name: /Delete portfolio data/ }));
 
 		const dialog = within(screen.getByRole('dialog'));
@@ -111,7 +119,7 @@ describe('Settings page', () => {
 
 	it('disables deleting when there is nothing to delete', () => {
 		mocks.selectedCurrencies = [];
-		render(<UserSettings />);
+		renderSettings();
 
 		expect(
 			screen.getByRole('button', { name: /Delete portfolio data/ }).hasAttribute('disabled')
