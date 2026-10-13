@@ -107,13 +107,13 @@ export const combineYearEndValues = (
  * for example because the API returned an error body.
  */
 export const extractYearEndPrice = (response: unknown): null | number => {
-	const data = (response as { data?: unknown } | null)?.data as
+	const data = (response as null | { data?: unknown })?.data as
+		| null
+		| undefined
 		| {
 				convertQuotes?: Array<{ price?: unknown }>;
 				quotes?: Array<{ quote?: { price?: unknown } }>;
-		  }
-		| null
-		| undefined;
+		  };
 
 	const price = data?.convertQuotes?.[0]?.price ?? data?.quotes?.[0]?.quote?.price;
 	return typeof price === 'number' && Number.isFinite(price) && price > 0 ? price : null;

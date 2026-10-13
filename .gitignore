@@ -25,5 +25,7 @@ dist-ssr
 
 .idea/
 .env
-
+.eslintcache
+emulator-data/
 service-account.json
+coverage/
