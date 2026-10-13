@@ -1,5 +1,5 @@
 import type { CurrencyQuote } from 'api';
-import type { FetchedCurrency, SelectedAsset } from 'currency';
+import type { SelectedAsset } from 'currency';
 
 import {
 	Alert,
@@ -16,24 +16,19 @@ import { useMemo } from 'react';
 import { useHistoricalPortfolioValues } from '../../hooks/useHistoricalPortfolioValues';
 import { currencyFormat } from '../../utils/helpers';
 import { withYearOverYear } from '../../utils/portfolio';
+import HintIcon from '../ui/HintIcon';
 import ProfitBadge from '../ui/ProfitBadge';
 import SectionCard from '../ui/SectionCard';
 
 type YearEndValuesCardProps = {
 	currencyQuote: keyof CurrencyQuote;
-	fetchedCurrencies: Array<FetchedCurrency> | undefined;
 	selectedAssets: Array<SelectedAsset>;
 };
 
 /** Portfolio value at the start of each year, e.g. for the Dutch Box 3 tax return. */
-function YearEndValuesCard({
-	currencyQuote,
-	fetchedCurrencies,
-	selectedAssets,
-}: YearEndValuesCardProps) {
-	const { isError, isLoading, yearlyTotals } = useHistoricalPortfolioValues(
+function YearEndValuesCard({ currencyQuote, selectedAssets }: YearEndValuesCardProps) {
+	const { hasMissingPrices, isLoading, yearlyTotals } = useHistoricalPortfolioValues(
 		selectedAssets,
-		fetchedCurrencies,
 		currencyQuote
 	);
 
@@ -54,19 +49,22 @@ function YearEndValuesCard({
 				</div>
 			)}
 
-			{isError && (
-				<div className="px-6 pb-6">
-					<Alert color="failure">Could not load historical prices. Try again later.</Alert>
+			{hasMissingPrices && (
+				<div className="px-6 pb-4">
+					<Alert color="warning">
+						Some historical prices couldn't be loaded. Years marked “Price unavailable” are
+						incomplete: don't use them for your tax return. Try again later.
+					</Alert>
 				</div>
 			)}
 
-			{!isLoading && !isError && rows.length === 0 && (
+			{!isLoading && rows.length === 0 && (
 				<p className="px-6 pb-6 text-sm text-gray-500 dark:text-gray-400">
 					No completed years yet. Values appear here after your first year-end.
 				</p>
 			)}
 
-			{!isLoading && !isError && rows.length > 0 && (
+			{!isLoading && rows.length > 0 && (
 				<div className="overflow-x-auto">
 					<Table>
 						<TableHead>
@@ -81,7 +79,14 @@ function YearEndValuesCard({
 										{row.year}
 									</TableCell>
 									<TableCell className="text-right text-gray-900 dark:text-white">
-										{currencyFormat(row.totalValue, currencyQuote)}
+										{row.missingAssets.length > 0 ? (
+											<div className="flex items-center justify-end gap-1.5 text-amber-700 dark:text-amber-400">
+												Price unavailable
+												<HintIcon hint={`No year-end price for ${row.missingAssets.join(', ')}`} />
+											</div>
+										) : (
+											currencyFormat(row.totalValue, currencyQuote)
+										)}
 									</TableCell>
 									<TableCell>
 										<div className="flex justify-end">

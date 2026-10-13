@@ -148,9 +148,9 @@ describe('withYearOverYear', () => {
 				{ totalValue: 12000, year: 2024 },
 			])
 		).toEqual([
-			{ change: null, totalValue: 10000, year: 2022 },
-			{ change: 50, totalValue: 15000, year: 2023 },
-			{ change: -20, totalValue: 12000, year: 2024 },
+			{ change: null, missingAssets: [], totalValue: 10000, year: 2022 },
+			{ change: 50, missingAssets: [], totalValue: 15000, year: 2023 },
+			{ change: -20, missingAssets: [], totalValue: 12000, year: 2024 },
 		]);
 	});
 
@@ -161,5 +161,15 @@ describe('withYearOverYear', () => {
 		]);
 
 		expect(second.change).toBeNull();
+	});
+
+	it('shows no change next to or after a year with a missing price', () => {
+		const rows = withYearOverYear([
+			{ missingAssets: [], totalValue: 10000, year: 2022 },
+			{ missingAssets: ['Ethereum'], totalValue: 8000, year: 2023 },
+			{ missingAssets: [], totalValue: 12000, year: 2024 },
+		]);
+
+		expect(rows.map((row) => row.change)).toEqual([null, null, null]);
 	});
 });
