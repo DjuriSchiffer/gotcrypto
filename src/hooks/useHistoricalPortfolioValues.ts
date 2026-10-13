@@ -1,233 +1,82 @@
 import type { CurrencyQuote } from 'api';
-import type { FetchedCurrency, SelectedAsset } from 'currency';
+import type { SelectedAsset } from 'currency';
 
 import { useQueries } from '@tanstack/react-query';
+import { useMemo } from 'react';
+
+import type { YearEndValue } from '../utils/yearEnd';
 
 import { getQuoteByTimestamp } from '../api';
-import { formatPrice } from './useCoinMarketCap';
+import {
+	combineYearEndValues,
+	extractYearEndPrice,
+	getYearEndHoldings,
+	priceKey,
+	yearEndTimestamp,
+} from '../utils/yearEnd';
 
-type YearlyTotal = {
-	totalValue: number;
-	year: number;
-};
-
-type ApiResponse = {
-	data: {
-		convertQuotes: Array<{
-			name: string;
-			price: number;
-		}>;
-		id: number;
-		timestamp: string;
-	};
-	status: {
-		credit_count: number;
-		elapsed: string;
-		error_code: string;
-		error_message: string;
-		timestamp: string;
-	};
-};
-
-function extractPriceFromResponse(response: ApiResponse): null | number {
-	try {
-		if (
-			Array.isArray(response.data.convertQuotes) &&
-			response.data.convertQuotes.length > 0 &&
-			typeof response.data.convertQuotes[0].price === 'number'
-		) {
-			return response.data.convertQuotes[0].price;
-		}
-		return null;
-	} catch (_error) {
-		return null;
-	}
-}
+const CONVERT_IDS: Record<keyof CurrencyQuote, number> = { EUR: 2790, USD: 2781 };
+const ONE_WEEK = 1000 * 60 * 60 * 24 * 7;
 
 /**
- * Hook to fetch historical portfolio values
- * @param selectedCurrencies - Array of selected currencies with transactions
- * @param fetchedCurrencies - Array of fetched currencies with current prices
- * @param currencyQuote - The currency to use for quotes (EUR or USD)
+ * The portfolio's value at the end of every completed year, at 1 January prices.
+ *
+ * A price that can't be loaded is never replaced by another one (like today's price):
+ * the year is returned with the affected assets in `missingAssets`, so the page can say so.
  */
 export const useHistoricalPortfolioValues = (
 	selectedCurrencies: Array<SelectedAsset> = [],
-	fetchedCurrencies: Array<FetchedCurrency> | null = [],
 	currencyQuote: keyof CurrencyQuote = 'EUR'
 ) => {
-	const allTransactionYears = selectedCurrencies.flatMap((currency) =>
-		currency.transactions.map((transaction) => new Date(transaction.date).getUTCFullYear())
+	const convertId = CONVERT_IDS[currencyQuote];
+
+	const years = useMemo(
+		() => getYearEndHoldings(selectedCurrencies, new Date().getFullYear()),
+		[selectedCurrencies]
 	);
 
-	const uniqueYears = [...new Set(allTransactionYears)].sort();
-	const currentYear = new Date().getFullYear();
-
-	if (uniqueYears.length > 0) {
-		const earliestYear = Math.min(...uniqueYears);
-		const lastCompletedYear = currentYear - 1;
-
-		for (let year = earliestYear; year <= lastCompletedYear; year++) {
-			if (!uniqueYears.includes(year)) {
-				uniqueYears.push(year);
-			}
-		}
-		uniqueYears.sort();
-
-		const currentYearIndex = uniqueYears.indexOf(currentYear);
-		if (currentYearIndex !== -1) {
-			uniqueYears.splice(currentYearIndex, 1);
-		}
-	}
-
-	const yearEndHoldings = uniqueYears.map((year) => {
-		const nextYear = year + 1;
-		const januaryFirstNextYear = new Date(nextYear, 0, 1, 0, 0, 0);
-		const priceTimestamp = Math.floor(januaryFirstNextYear.getTime() / 1000);
-
-		const holdings = selectedCurrencies
-			.map((currency) => {
-				if (!currency.cmc_id) {
-					return null;
-				}
-
-				const transactionsUpToYearEnd = currency.transactions.filter(
-					(transaction) => new Date(transaction.date).getUTCFullYear() <= year
-				);
-
-				let amount = 0;
-
-				for (const transaction of transactionsUpToYearEnd) {
-					if (transaction.excludeForTax) {
-						continue;
-					}
-
-					const transactionAmount = parseFloat(transaction.amount) || 0;
-					const transactionType = transaction.type;
-
-					if (transactionType === 'buy') {
-						amount += transactionAmount;
-					} else if (transactionType === 'sell') {
-						amount -= transactionAmount;
-					} else {
-						if (transaction.transferType === 'in') {
-							amount += transactionAmount;
-						} else if (transaction.transferType === 'out') {
-							amount -= transactionAmount;
-						}
-					}
-				}
-
-				if (amount <= 0) {
-					return null;
-				}
-
-				return {
-					amount,
-					cmc_id: currency.cmc_id,
-					name: currency.name,
-					timestamp: priceTimestamp,
-				};
-			})
-			.filter(Boolean);
-
-		return {
-			holdings,
-			timestamp: priceTimestamp,
-			year,
-		};
-	});
-
-	const convertId = currencyQuote === 'EUR' ? 2790 : 2781;
-
-	const queryOptions = yearEndHoldings.flatMap((yearData) =>
-		yearData.holdings
-			.filter((holding) => holding !== null)
-			.map((holding) => ({
-				queryFn: async () => {
-					try {
-						const response = (await getQuoteByTimestamp(
-							holding.cmc_id,
-							convertId,
-							yearData.timestamp
-						)) as unknown as ApiResponse;
-
-						const price = extractPriceFromResponse(response);
-
-						if (price !== null) {
-							const formattedPrice = formatPrice(price);
-							return {
-								amount: holding.amount,
-								cmc_id: holding.cmc_id,
-								name: holding.name,
-								price: formattedPrice,
-								year: yearData.year,
-							};
-						}
-
-						throw new Error('Could not extract price from response');
-					} catch (_error) {
-						const foundCurrency = fetchedCurrencies?.find((c) => c.cmc_id === holding.cmc_id);
-						const currentPrice = foundCurrency?.price ?? 0;
-						return {
-							amount: holding.amount,
-							cmc_id: holding.cmc_id,
-							name: holding.name,
-							price: currentPrice,
-							year: yearData.year,
-						};
-					}
-				},
-				queryKey: [
-					'quoteByTimeStamp',
-					holding.cmc_id,
-					convertId,
-					yearData.timestamp,
-					currencyQuote,
-				],
-			}))
+	// One request per coin and year
+	const requests = useMemo(
+		() =>
+			years.flatMap(({ holdings, year }) =>
+				holdings.map((holding) => ({ cmcId: holding.cmcId, year }))
+			),
+		[years]
 	);
 
 	const results = useQueries({
-		combine: (results) => {
-			return results.map((result) => ({
-				...result,
-				cacheTime: 1000 * 60 * 60 * 24 * 7, // 7 days
-				refetchOnMount: false,
-				refetchOnReconnect: false,
-				refetchOnWindowFocus: false,
-				staleTime: 1000 * 60 * 60 * 24, // 24 hours
-			}));
-		},
-		queries: queryOptions,
+		queries: requests.map(({ cmcId, year }) => ({
+			gcTime: ONE_WEEK,
+			queryFn: async () => {
+				const price = extractYearEndPrice(
+					await getQuoteByTimestamp(cmcId, convertId, yearEndTimestamp(year))
+				);
+				if (price === null) {
+					throw new Error(`No year-end price for coin ${String(cmcId)} in ${String(year)}`);
+				}
+				return price;
+			},
+			queryKey: ['yearEndPrice', cmcId, convertId, year],
+			retry: 1,
+			// A past year's price never changes
+			staleTime: Infinity,
+		})),
 	});
 
-	const isLoading = results.some((result) => result.isLoading);
-	const isError = results.some((result) => result.isError);
+	const isLoading = results.some((result) => result.isPending);
 
-	let yearlyTotals: Array<YearlyTotal> = [];
+	const prices = new Map<string, number>();
+	results.forEach((result, index) => {
+		if (result.data !== undefined) {
+			const { cmcId, year } = requests[index];
+			prices.set(priceKey(cmcId, year), result.data);
+		}
+	});
 
-	if (!isLoading && !isError) {
-		const yearlyData = results.reduce<Record<number, number>>((acc, result) => {
-			if (!result.data) return acc;
-
-			const { amount, price, year } = result.data;
-			if (!acc[year]) acc[year] = 0;
-
-			const assetValue = price * amount;
-			acc[year] += assetValue;
-			return acc;
-		}, {});
-
-		yearlyTotals = Object.entries(yearlyData)
-			.map(([year, totalValue]) => ({
-				totalValue,
-				year: parseInt(year),
-			}))
-			.sort((a, b) => a.year - b.year);
-	}
+	const yearlyTotals: Array<YearEndValue> = isLoading ? [] : combineYearEndValues(years, prices);
 
 	return {
-		isError,
+		hasMissingPrices: yearlyTotals.some((year) => year.missingAssets.length > 0),
 		isLoading,
 		yearlyTotals,
 	};

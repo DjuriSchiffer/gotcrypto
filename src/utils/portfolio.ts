@@ -103,24 +103,33 @@ export const getAllocationSlices = (
 };
 
 export type YearEndRow = {
-	/** Percentage change compared to the previous year, or null for the first year */
+	/** Percentage change compared to the previous year, or null when it can't be compared */
 	change: null | number;
+	/** Assets whose price couldn't be loaded; such a year is incomplete */
+	missingAssets: Array<string>;
 	totalValue: number;
 	year: number;
 };
 
-/** Adds the change compared to the previous year, oldest year first. */
+const isComplete = (item: { missingAssets?: Array<string> }) =>
+	(item.missingAssets?.length ?? 0) === 0;
+
+/**
+ * Adds the change compared to the previous year, oldest year first.
+ * No change is shown next to or after an incomplete year: it would compare against a wrong total.
+ */
 export const withYearOverYear = (
-	totals: Array<{ totalValue: number; year: number }>
+	totals: Array<{ missingAssets?: Array<string>; totalValue: number; year: number }>
 ): Array<YearEndRow> =>
 	[...totals]
 		.sort((a, b) => a.year - b.year)
 		.map((item, index, sorted) => {
 			const previous = index > 0 ? sorted[index - 1] : undefined;
-			const change =
-				previous && previous.totalValue > 0
-					? round(((item.totalValue - previous.totalValue) / previous.totalValue) * 100)
-					: null;
+			const comparable =
+				previous && isComplete(previous) && isComplete(item) && previous.totalValue > 0;
+			const change = comparable
+				? round(((item.totalValue - previous.totalValue) / previous.totalValue) * 100)
+				: null;
 
-			return { ...item, change };
+			return { ...item, change, missingAssets: item.missingAssets ?? [] };
 		});
