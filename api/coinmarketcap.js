@@ -1,201 +1,122 @@
 const axios = require('axios');
-const { cert, getApps, initializeApp } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
 
-if (getApps().length === 0) {
-	initializeApp({
-		credential: cert({
-			clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-			privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-			projectId: process.env.FIREBASE_PROJECT_ID,
-		}),
+const { applyCors } = require('./_lib/cors');
+const { getDb } = require('./_lib/firebase');
+const { handledMethod, sendError } = require('./_lib/http');
+const { combineListings, missingAdditionalIds, TOP_COUNT, toResponse } = require('./_lib/listings');
+
+/** Prices are refreshed at most this often (CoinMarketCap credits are limited). */
+const FRESH_FOR_MS = 10 * 60 * 1000;
+
+/**
+ * Vercel's CDN serves one answer to everyone until it's due for a refresh, and keeps serving it
+ * for a while longer while it fetches a new one in the background.
+ */
+const cacheHeader = (secondsLeft) =>
+	`public, max-age=60, s-maxage=${Math.max(60, secondsLeft)}, stale-while-revalidate=300`;
+/** Old prices served because CoinMarketCap failed: retry soon. */
+const STALE_CACHE = 'public, max-age=30, s-maxage=60';
+
+const coinMarketCapGet = async (path, params) => {
+	const apiKey = process.env.CMC_API_KEY;
+	if (!apiKey) throw new Error('Missing CMC_API_KEY environment variable');
+
+	const response = await axios.get(`https://pro-api.coinmarketcap.com/v1/${path}`, {
+		headers: { 'X-CMC_PRO_API_KEY': apiKey },
+		params,
+		timeout: 8000,
 	});
-}
-
-const db = getFirestore();
-const CMC_API_KEY = process.env.CMC_API_KEY;
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
-
-// Define specific cryptocurrencies to always fetch
-const ADDITIONAL_COIN_IDS = [
-	1, // Bitcoin
-	2, // Litecoin
-	3575, // Gold Ounce
-	3574, // Silver Ounce
-	1839, // Binance
-	1027, // ETH
-	5015, // Hex
-	825, // Tether
-	52, // XRP
-	2010, // Cardano
-	6636,
-	5426, // Solana
-	3077, // VChain
-	74, // Dogecoin
-];
-
-const whitelist = ['https://gotcrypto.vercel.app'];
-
-const isAllowedOrigin = (origin) => {
-	if (!origin) return false;
-
-	if (whitelist.includes(origin)) {
-		return true;
-	}
-
-	if (origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:')) {
-		return true;
-	}
-
-	const vercelPreviewPattern =
-		/^https:\/\/gotcrypto-[a-z0-9]+-djurischiffers-projects\.vercel\.app$/;
-	if (vercelPreviewPattern.test(origin)) {
-		return true;
-	}
-
-	return false;
+	return response.data;
 };
 
-const corsMiddleware = (req, res) => {
-	const origin = req.headers.origin;
+/** The top coins plus the ones the app always includes, with USD and EUR prices. */
+const fetchListings = async (get) => {
+	const listing = (convert) =>
+		get('cryptocurrency/listings/latest', { convert, limit: TOP_COUNT, start: 1 });
+	const [usd, eur] = await Promise.all([listing('USD'), listing('EUR')]);
+	const coins = combineListings(usd.data, eur.data);
 
-	if (isAllowedOrigin(origin)) {
-		res.setHeader('Access-Control-Allow-Origin', origin);
-		res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-		res.setHeader(
-			'Access-Control-Allow-Headers',
-			'Content-Type, Authorization, sentry-trace, baggage'
-		);
-		res.setHeader('Access-Control-Allow-Credentials', 'true');
-		res.setHeader('Access-Control-Max-Age', '86400');
+	const missing = missingAdditionalIds(coins);
+	if (missing.length > 0) {
+		const quotes = (convert) =>
+			get('cryptocurrency/quotes/latest', { convert, id: missing.join(',') });
+		const [extraUsd, extraEur] = await Promise.all([quotes('USD'), quotes('EUR')]);
+		coins.push(...combineListings(Object.values(extraUsd.data), Object.values(extraEur.data)));
 	}
+
+	return coins;
 };
 
-const fetchData = async (currency, params = {}) => {
-	try {
-		const response = await axios.get(
-			'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest',
-			{
-				headers: {
-					'X-CMC_PRO_API_KEY': CMC_API_KEY,
-				},
-				params: {
-					...params,
-					convert: currency,
-				},
+/**
+ * GET /api/coinmarketcap
+ *
+ * The latest prices of the top coins in USD and EUR. Refreshed from CoinMarketCap at most every
+ * 10 minutes; the last good result is kept in Firestore and served if CoinMarketCap fails.
+ */
+const createHandler =
+	({ coinMarketCap = coinMarketCapGet, getFirestore = getDb, now = () => Date.now() } = {}) =>
+	async (req, res) => {
+		applyCors(req, res);
+		if (handledMethod(req, res)) return;
+
+		let cacheRef = null;
+		let cached = null;
+		try {
+			cacheRef = getFirestore().collection('cachedData').doc('latest');
+			const snapshot = await cacheRef.get();
+			if (snapshot.exists) cached = snapshot.data();
+		} catch (error) {
+			console.error('Reading the price cache failed:', error.message);
+			cacheRef = null;
+		}
+
+		// The current format has `coins`; older cache documents only have the full CoinMarketCap response
+		const cachedCoins = Array.isArray(cached?.coins) ? cached.coins : null;
+		const age = cachedCoins ? now() - cached.timestamp : Infinity;
+
+		if (cachedCoins && age < FRESH_FOR_MS) {
+			res.setHeader('Cache-Control', cacheHeader(Math.floor((FRESH_FOR_MS - age) / 1000)));
+			res
+				.status(200)
+				.json(toResponse(cachedCoins, { updatedAt: new Date(cached.timestamp).toISOString() }));
+			return;
+		}
+
+		let coins;
+		try {
+			coins = await fetchListings(coinMarketCap);
+			if (coins.length === 0) throw new Error('CoinMarketCap returned no coins');
+		} catch (error) {
+			console.error('Fetching prices from CoinMarketCap failed:', error.message);
+
+			if (cachedCoins) {
+				// Older prices beat an empty dashboard
+				res.setHeader('Cache-Control', STALE_CACHE);
+				res.status(200).json(
+					toResponse(cachedCoins, {
+						stale: true,
+						updatedAt: new Date(cached.timestamp).toISOString(),
+					})
+				);
+				return;
 			}
-		);
-		return response.data;
-	} catch (error) {
-		console.error(`Error fetching data for ${currency}:`, error.message);
-		throw error;
-	}
-};
 
-const fetchSpecificCurrencies = async (ids, currency) => {
-	try {
-		const response = await axios.get(
-			'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
-			{
-				headers: {
-					'X-CMC_PRO_API_KEY': CMC_API_KEY,
-				},
-				params: {
-					convert: currency,
-					id: ids.join(','),
-				},
-			}
-		);
-		return response.data;
-	} catch (error) {
-		console.error(`Error fetching specific currencies for ${currency}:`, error.message);
-		throw error;
-	}
-};
+			sendError(res, 502, 'Could not fetch prices from CoinMarketCap');
+			return;
+		}
 
-module.exports = async (req, res) => {
-	corsMiddleware(req, res);
-
-	if (req.method === 'OPTIONS') {
-		res.status(200).end();
-		return;
-	}
-
-	try {
-		const docRef = db.collection('cachedData').doc('latest');
-		const doc = await docRef.get();
-		const now = Date.now();
-
-		if (doc.exists) {
-			const data = doc.data();
-			const age = now - data.timestamp;
-			if (age < CACHE_DURATION) {
-				return res.status(200).json(data.apiResponse);
+		const timestamp = now();
+		if (cacheRef) {
+			try {
+				await cacheRef.set({ coins, timestamp });
+			} catch (error) {
+				console.error('Writing the price cache failed:', error.message);
 			}
 		}
 
-		// Fetch top 100 currencies
-		const [usdData, eurData] = await Promise.all([
-			fetchData('USD', { limit: 100, start: 1 }),
-			fetchData('EUR', { limit: 100, start: 1 }),
-		]);
+		res.setHeader('Cache-Control', cacheHeader(FRESH_FOR_MS / 1000));
+		res.status(200).json(toResponse(coins, { updatedAt: new Date(timestamp).toISOString() }));
+	};
 
-		// Combine USD and EUR data
-		const combinedData = usdData.data.map((coin) => {
-			const eurCoin = eurData.data.find((c) => c.id === coin.id);
-			return {
-				...coin,
-				quote: {
-					EUR: eurCoin ? eurCoin.quote.EUR : null,
-					USD: coin.quote.USD,
-				},
-			};
-		});
-
-		// Check which additional coins aren't in the top 100
-		const existingIds = combinedData.map((coin) => coin.id);
-		const missingIds = ADDITIONAL_COIN_IDS.filter((id) => !existingIds.includes(id));
-
-		if (missingIds.length > 0) {
-			const [additionalUsdData, additionalEurData] = await Promise.all([
-				fetchSpecificCurrencies(missingIds, 'USD'),
-				fetchSpecificCurrencies(missingIds, 'EUR'),
-			]);
-
-			const additionalCoins = Object.values(additionalUsdData.data).map((coin) => {
-				const eurCoin = additionalEurData.data[coin.id];
-				return {
-					...coin,
-					quote: {
-						EUR: eurCoin ? eurCoin.quote.EUR : null,
-						USD: coin.quote.USD,
-					},
-				};
-			});
-
-			combinedData.push(...additionalCoins);
-		}
-
-		const apiResponse = {
-			data: combinedData,
-			status: {
-				...usdData.status,
-				credit_count:
-					usdData.status.credit_count +
-					eurData.status.credit_count +
-					(missingIds.length > 0 ? 2 : 0),
-			},
-		};
-
-		// Update cache in Firestore
-		await docRef.set({
-			apiResponse: apiResponse,
-			timestamp: now,
-		});
-
-		res.status(200).json(apiResponse);
-	} catch (error) {
-		console.error('Error fetching CoinMarketCap data:', error.message);
-		res.status(500).json({ error: 'Failed to fetch CoinMarketCap data' });
-	}
-};
+module.exports = createHandler();
+module.exports.createHandler = createHandler;

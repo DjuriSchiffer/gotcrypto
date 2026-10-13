@@ -16,11 +16,12 @@ export type CurrencyData = {
 };
 
 export type GetCurrenciesResponse = {
-	data?: Record<string, CurrencyData>;
+	data?: Array<CurrencyData>;
 	error?: string;
 	status: {
 		error_code: number;
-		error_message: string;
+		error_message: null | string;
+		stale?: boolean;
 	};
 };
 
