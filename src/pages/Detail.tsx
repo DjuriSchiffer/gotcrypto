@@ -41,9 +41,9 @@ import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import { useToast } from '../hooks/useToast';
+import { findDetailCoin } from '../utils/assets';
 import { currencyFormat } from '../utils/helpers';
 import { getImage } from '../utils/images';
-import { findDetailCoin } from '../utils/assets';
 import { getAssetSummary } from '../utils/totals';
 import {
 	clearTransactions,

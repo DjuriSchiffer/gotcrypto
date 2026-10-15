@@ -78,7 +78,7 @@ describe('getPortfolioBreakdown', () => {
 	it('handles missing prices without dividing by zero', () => {
 		const [row] = getPortfolioBreakdown([asset(1, [buy(1, 100)])], undefined);
 
-		expect(row).toMatchObject({ allocation: 0, price: 0, value: 0 });
+		expect(row).toMatchObject({ allocation: 0, price: null, value: 0 });
 	});
 });
 
