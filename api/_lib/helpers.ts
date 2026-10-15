@@ -8,12 +8,13 @@ export const requireApi = createRequire(path.resolve(import.meta.dirname, '../..
 export const fakeResponse = () => {
 	const res = {
 		body: undefined as unknown,
+		ended: false,
+		headers: {} as Record<string, string>,
+		statusCode: 200,
 		end() {
 			res.ended = true;
 			return res;
 		},
-		ended: false,
-		headers: {} as Record<string, string>,
 		json(body: unknown) {
 			res.body = body;
 			res.ended = true;
@@ -27,7 +28,6 @@ export const fakeResponse = () => {
 			res.statusCode = code;
 			return res;
 		},
-		statusCode: 200,
 	};
 	return res;
 };
@@ -42,10 +42,12 @@ export const fakeFirestore = (initial: Record<string, unknown> = {}) => {
 			doc: (id: string) => {
 				const key = `${collection}/${id}`;
 				return {
-					get: () =>
-						Promise.resolve({ data: () => store.get(key), exists: store.has(key) }),
-					set: (value: unknown) => {
-						store.set(key, value);
+					get: () => Promise.resolve({ data: () => store.get(key), exists: store.has(key) }),
+					set: (value: unknown, options?: { merge?: boolean }) => {
+						const current = store.get(key);
+						const merge =
+							options?.merge === true && typeof current === 'object' && current !== null;
+						store.set(key, merge ? { ...current, ...(value as object) } : value);
 						writes.push(key);
 						return Promise.resolve();
 					},
