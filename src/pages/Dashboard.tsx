@@ -17,6 +17,7 @@ import PortfolioStats from '../components/PortfolioStats';
 import TransactionForm from '../components/TransactionForm';
 import EmptyState from '../components/ui/EmptyState';
 import PageHeader from '../components/ui/PageHeader';
+import StalePricesNote from '../components/ui/StalePricesNote';
 import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
@@ -31,7 +32,13 @@ function Dashboard() {
 
 	const { currencyQuote, dashboardLayout, sortMethod } = useAppState();
 	const { selectedCurrencies, setSelectedCurrencies, updateCurrency } = useStorage();
-	const { data: fetchedCurrencies, isError, isLoading } = useCoinMarketCap(currencyQuote);
+	const {
+		data: fetchedCurrencies,
+		isError,
+		isLoading,
+		stale,
+		updatedAt,
+	} = useCoinMarketCap(currencyQuote);
 
 	/** Assets with transactions, by id */
 	const assetMap = useMemo(() => createCryptoMap(selectedCurrencies), [selectedCurrencies]);
@@ -87,12 +94,7 @@ function Dashboard() {
 	};
 
 	const manageAssetsButton = (
-		<Button
-			color="primary"
-			onClick={() => {
-				setAssetManagerOpen(true);
-			}}
-		>
+		<Button color="primary" onClick={() => { setAssetManagerOpen(true); }}>
 			<FaPlus className="mr-2" />
 			Manage assets
 		</Button>
@@ -112,6 +114,8 @@ function Dashboard() {
 						description="Your assets at a glance"
 						title="Dashboard"
 					/>
+
+					<StalePricesNote stale={stale} updatedAt={updatedAt} />
 
 					{assetMap.size > 0 && (
 						<PortfolioStats
@@ -142,9 +146,7 @@ function Dashboard() {
 									currencyQuote={currencyQuote}
 									fetchedCurrency={currency}
 									key={currency.cmc_id}
-									onAddTransaction={() => {
-										setAddTransactionFor(currency);
-									}}
+									onAddTransaction={() => { setAddTransactionFor(currency); }}
 								/>
 							))}
 						</section>
@@ -161,9 +163,7 @@ function Dashboard() {
 				</div>
 
 				<AssetManagerModal
-					onClose={() => {
-						setAssetManagerOpen(false);
-					}}
+					onClose={() => { setAssetManagerOpen(false); }}
 					onSave={(changes) => void handleSaveAssets(changes)}
 					open={assetManagerOpen}
 					options={fetchedCurrencies}
@@ -171,9 +171,7 @@ function Dashboard() {
 				/>
 
 				<Modal
-					onClose={() => {
-						setAddTransactionFor(null);
-					}}
+					onClose={() => { setAddTransactionFor(null); }}
 					open={addTransactionFor !== null}
 					title={`Add your first ${addTransactionFor?.name ?? ''} transaction`}
 				>

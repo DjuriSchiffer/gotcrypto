@@ -111,6 +111,13 @@ function SideBar({ onNavigate, showBrand = true }: SideBarProps) {
 					<FaSignOutAlt className="mr-2" />
 					Sign out
 				</Button>
+				<Link
+					className="px-2 text-xs text-gray-500 hover:underline dark:text-gray-400"
+					onClick={onNavigate}
+					to="/privacy"
+				>
+					Privacy
+				</Link>
 			</div>
 		</div>
 	);

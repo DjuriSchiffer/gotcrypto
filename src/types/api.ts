@@ -21,7 +21,10 @@ export type GetCurrenciesResponse = {
 	status: {
 		error_code: number;
 		error_message: null | string;
+		/** True when the server couldn't refresh and sent the last prices it had */
 		stale?: boolean;
+		/** When the prices were fetched from CoinMarketCap (ISO date) */
+		timestamp?: string;
 	};
 };
 

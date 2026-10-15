@@ -27,16 +27,12 @@ export function formatPrice(price: number) {
 	return parseFloat(price.toFixed(significant + 1));
 }
 
-/**
- * Transforms the API response into an array of FetchedCurrency objects.
- * @param data - The data object from the API response.
- * @returns An array of FetchedCurrency objects.
- */
-const transformCurrencies = (
-	data: Record<string, CurrencyData>,
+/** Turns the API's coins into FetchedCurrency objects, sorted by rank. */
+export const transformCurrencies = (
+	data: Array<CurrencyData>,
 	currencyQuote: keyof CurrencyQuote
-): Array<FetchedCurrency> => {
-	return Object.values(data)
+): Array<FetchedCurrency> =>
+	data
 		.map((asset) => ({
 			cmc_id: asset.id,
 			cmc_rank: asset.cmc_rank ?? null,
@@ -45,11 +41,38 @@ const transformCurrencies = (
 			slug: asset.slug,
 		}))
 		.sort(compareRank);
+
+export type PriceList = {
+	coins: Array<FetchedCurrency>;
+	/** True when the server couldn't refresh and sent the last prices it had */
+	stale: boolean;
+	/** When the prices were fetched from CoinMarketCap, if the server says */
+	updatedAt: Date | null;
+};
+
+/** Checks the API response and turns it into a price list; throws on an error response. */
+export const toPriceList = (
+	response: GetCurrenciesResponse,
+	currencyQuote: keyof CurrencyQuote
+): PriceList => {
+	if (response.status.error_code !== 0 || response.error || !response.data) {
+		throw new Error(
+			response.status.error_message ?? response.error ?? 'Could not load prices from CoinMarketCap'
+		);
+	}
+
+	const updatedAt = response.status.timestamp ? new Date(response.status.timestamp) : null;
+
+	return {
+		coins: transformCurrencies(response.data, currencyQuote),
+		stale: response.status.stale === true,
+		updatedAt: updatedAt && !Number.isNaN(updatedAt.getTime()) ? updatedAt : null,
+	};
 };
 
 /**
- * Custom hook to fetch and manage currencies using React Query.
- * @returns The result of the useQuery hook.
+ * The current prices, via React Query.
+ * `data` is the list of coins; `stale` and `updatedAt` say how fresh those prices are.
  */
 const useCoinMarketCap = (
 	currencyQuote: keyof CurrencyQuote = 'EUR',
@@ -57,30 +80,18 @@ const useCoinMarketCap = (
 ) => {
 	const { data, error, isError, isLoading, isPending } = useQuery({
 		enabled,
-		queryFn: async () => {
-			const data: GetCurrenciesResponse = await getCurrencies();
-
-			if (data.status.error_code === 0) {
-				if (data.error) {
-					throw new Error(data.status.error_message);
-				} else if (data.data) {
-					return transformCurrencies(data.data, currencyQuote);
-				}
-			} else {
-				throw new Error(data.status.error_message);
-			}
-
-			throw new Error('Unknown error occurred while fetching currencies');
-		},
+		queryFn: async () => toPriceList(await getCurrencies(), currencyQuote),
 		queryKey: ['fetchedCurrencies', currencyQuote],
 	});
 
 	return {
-		data,
+		data: data?.coins,
 		error,
 		isError,
 		isLoading,
 		isPending,
+		stale: data?.stale ?? false,
+		updatedAt: data?.updatedAt ?? null,
 	};
 };
 

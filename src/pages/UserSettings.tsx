@@ -2,6 +2,7 @@ import { Avatar, Badge, Button } from 'flowbite-react';
 import { useState } from 'react';
 import { FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
 
+import DeleteAccount from '../components/account/DeleteAccount';
 import ExportDataCard from '../components/account/ExportDataCard';
 import ImportDataCard from '../components/account/ImportDataCard';
 import SaveToGoogle from '../components/account/SaveToGoogle';
@@ -128,7 +129,22 @@ function UserSettings() {
 							Delete portfolio data
 						</Button>
 					</div>
+					<div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+						<DeleteAccount />
+					</div>
 				</SectionCard>
+
+				<p className="text-sm text-gray-500 dark:text-gray-400">
+					Read what is stored and how in the{' '}
+					{/* A plain link, so the page also renders outside a router (tests) */}
+					<a
+						className="font-medium text-primary-700 hover:underline dark:text-primary-400"
+						href="/privacy"
+					>
+						privacy statement
+					</a>
+					.
+				</p>
 			</div>
 
 			<ConfirmModal

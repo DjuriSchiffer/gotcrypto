@@ -11,12 +11,13 @@ type PositionStatsProps = {
 	summary: AssetSummary;
 };
 
+/** The key figures for one asset: the per-asset counterpart of PortfolioStats. */
 function PositionStats({ currencyQuote, summary }: PositionStatsProps) {
 	const money = (value: number) => currencyFormat(value, currencyQuote);
 
 	return (
 		<section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-			<StatCard label="Holdings" value={money(summary.value)}>
+			<StatCard label="Holdings" value={summary.hasPrice ? money(summary.value) : '–'}>
 				{amountFormat(summary.amount, currencyQuote)} coins
 			</StatCard>
 			<StatCard
@@ -29,11 +30,17 @@ function PositionStats({ currencyQuote, summary }: PositionStatsProps) {
 			<StatCard
 				hint="Profit or loss on what you still hold: current value minus cost basis."
 				label="Unrealized profit"
-				value={money(summary.unrealizedProfit)}
+				value={summary.hasPrice ? money(summary.unrealizedProfit) : '–'}
 				valueClassName={profitClass(summary.unrealizedProfit)}
 			>
-				<ProfitBadge percentage={summary.unrealizedPercentage} />
-				on cost basis
+				{summary.hasPrice ? (
+					<>
+						<ProfitBadge percentage={summary.unrealizedPercentage} />
+						on cost basis
+					</>
+				) : (
+					'No current price'
+				)}
 			</StatCard>
 			<StatCard
 				hint="Profit or loss locked in by selling: sale proceeds minus the average cost of the coins sold."

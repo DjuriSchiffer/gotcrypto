@@ -123,6 +123,16 @@ function AuthChoice() {
 								Stored in this browser only. You can save it to a Google account later.
 							</p>
 						</div>
+
+						{/* A plain link: this screen can be shown outside the router */}
+						<p className="text-center text-xs text-gray-500 dark:text-gray-400">
+							<a
+								className="font-medium text-primary-700 hover:underline dark:text-primary-400"
+								href="/privacy"
+							>
+								How your data is handled
+							</a>
+						</p>
 					</div>
 				</Card>
 			</div>
