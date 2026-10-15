@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom';
 
 import type { AssetBreakdown } from '../../utils/portfolio';
 
+import { coinPath } from '../../utils/assets';
 import { currencyFormat, profitClass } from '../../utils/helpers';
 import { getImage } from '../../utils/images';
 import ProfitBadge from '../ui/ProfitBadge';
@@ -57,6 +58,8 @@ function PerformanceTable({ currencyQuote, rows }: PerformanceTableProps) {
 	};
 
 	const money = (value: number) => currencyFormat(value, currencyQuote);
+	/** For figures that need a current price the coin doesn't have */
+	const unknown = <span className="text-gray-400">–</span>;
 
 	return (
 		<SectionCard description="Click a column to sort" flush title="Performance per asset">
@@ -93,7 +96,10 @@ function PerformanceTable({ currencyQuote, rows }: PerformanceTableProps) {
 						{sortedRows.map((row) => (
 							<TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800" key={row.cmcId}>
 								<TableCell className="whitespace-nowrap">
-									<Link className="flex items-center gap-3" to={`/${row.slug}`}>
+									<Link
+										className="flex items-center gap-3"
+										to={coinPath({ cmc_id: row.cmcId, slug: row.slug })}
+									>
 										<img
 											alt=""
 											className="h-7 w-7 rounded-full"
@@ -105,11 +111,17 @@ function PerformanceTable({ currencyQuote, rows }: PerformanceTableProps) {
 											<span className="font-medium text-gray-900 hover:underline dark:text-white">
 												{row.name}
 											</span>
-											{row.isClosed ? (
+											{row.isClosed && (
 												<Badge className="mt-0.5 w-fit" color="gray" size="xs">
 													Closed
 												</Badge>
-											) : (
+											)}
+											{row.priceMissing && (
+												<span className="text-xs text-amber-700 dark:text-amber-400">
+													No current price
+												</span>
+											)}
+											{!row.isClosed && !row.priceMissing && (
 												<span className="text-xs text-gray-500 dark:text-gray-400">
 													{row.allocation.toFixed(1)}% of portfolio
 												</span>
@@ -118,22 +130,26 @@ function PerformanceTable({ currencyQuote, rows }: PerformanceTableProps) {
 									</Link>
 								</TableCell>
 								<TableCell className="text-right text-gray-900 dark:text-white">
-									{money(row.value)}
+									{row.priceMissing ? unknown : money(row.value)}
 								</TableCell>
 								<TableCell className="text-right">{money(row.costBasis)}</TableCell>
 								<TableCell className={classNames('text-right', profitClass(row.unrealizedProfit))}>
-									{money(row.unrealizedProfit)}
+									{row.priceMissing ? unknown : money(row.unrealizedProfit)}
 								</TableCell>
 								<TableCell className={classNames('text-right', profitClass(row.realizedProfit))}>
 									{row.hasSold ? money(row.realizedProfit) : '–'}
 								</TableCell>
 								<TableCell className="text-right">
-									<div className="flex flex-col items-end gap-1">
-										<span className={classNames('font-semibold', profitClass(row.totalProfit))}>
-											{money(row.totalProfit)}
-										</span>
-										<ProfitBadge percentage={row.totalProfitPercentage} />
-									</div>
+									{row.priceMissing ? (
+										unknown
+									) : (
+										<div className="flex flex-col items-end gap-1">
+											<span className={classNames('font-semibold', profitClass(row.totalProfit))}>
+												{money(row.totalProfit)}
+											</span>
+											<ProfitBadge percentage={row.totalProfitPercentage} />
+										</div>
+									)}
 								</TableCell>
 							</TableRow>
 						))}

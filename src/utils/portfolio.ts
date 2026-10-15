@@ -10,7 +10,13 @@ export type AssetBreakdown = AssetSummary & {
 	allocation: number;
 	cmcId: number;
 	name: string;
-	price: number;
+	/** null when there is no current price */
+	price: null | number;
+	/**
+	 * Still held, but without a current price: value, unrealized and total profit are unknown
+	 * (they're 0 in the numbers, so check this before showing them)
+	 */
+	priceMissing: boolean;
 	slug: string;
 	/** Realized + unrealized profit */
 	totalProfit: number;
@@ -21,6 +27,8 @@ export type AssetBreakdown = AssetSummary & {
 /**
  * One row per asset with transactions, sorted by current value (largest first).
  * Closed positions are included: they have no value but can have realized profit.
+ * Held coins without a current price are included with `priceMissing`. They count as zero value,
+ * so they take no share of the allocation.
  */
 export const getPortfolioBreakdown = (
 	assets: Array<SelectedAsset>,
@@ -32,7 +40,7 @@ export const getPortfolioBreakdown = (
 		.filter((asset) => asset.transactions.length > 0)
 		.map((asset) => {
 			const fetched = fetchedById.get(asset.cmc_id);
-			const price = fetched?.price ?? 0;
+			const price = fetched?.price ?? null;
 			const summary = getAssetSummary(asset, price);
 			const totalProfit = round(summary.realizedProfit + summary.unrealizedProfit);
 			const spent = asset.totals.totalPurchasePrice;
@@ -43,6 +51,8 @@ export const getPortfolioBreakdown = (
 				cmcId: asset.cmc_id,
 				name: asset.name || fetched?.name || '',
 				price,
+				// A closed position needs no price: all its profit is realized
+				priceMissing: !summary.hasPrice && !summary.isClosed,
 				slug: asset.slug || fetched?.slug || '',
 				totalProfit,
 				totalProfitPercentage: spent > 0 ? round((totalProfit / spent) * 100) : 0,
@@ -65,11 +75,16 @@ export type Highlights = {
 	worst?: AssetBreakdown;
 };
 
-/** Best and worst by total profit in money (realized + unrealized), and the largest position. */
+/**
+ * Best and worst by total profit in money (realized + unrealized), and the largest position.
+ * Coins without a current price aren't ranked by profit: their profit is unknown.
+ */
 export const getHighlights = (rows: Array<AssetBreakdown>): Highlights => {
 	if (rows.length === 0) return {};
 
-	const byProfit = [...rows].sort((a, b) => b.totalProfit - a.totalProfit);
+	const byProfit = rows
+		.filter((row) => !row.priceMissing)
+		.sort((a, b) => b.totalProfit - a.totalProfit);
 
 	return {
 		best: byProfit[0],

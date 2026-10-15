@@ -29,6 +29,8 @@ function AllocationCard({ currencyQuote, rows, totalValue }: AllocationCardProps
 	const colorFor = (index: number) => (index < namedSliceCount ? COLORS[index] : OTHER_COLOR);
 
 	const openPositions = rows.filter((row) => row.value > 0);
+	// Held, but without a price: no value to show a share of
+	const unpriced = rows.filter((row) => row.priceMissing);
 
 	const options = useMemo<ApexCharts.ApexOptions>(() => {
 		const textColor = isDarkMode ? '#F9FAFB' : '#111827';
@@ -78,43 +80,53 @@ function AllocationCard({ currencyQuote, rows, totalValue }: AllocationCardProps
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [slices, isDarkMode, currencyQuote, totalValue]);
 
+	const unpricedNote = unpriced.length > 0 && (
+		<p className="text-xs text-amber-700 dark:text-amber-400">
+			Not included, no current price: {unpriced.map((row) => row.name).join(', ')}
+		</p>
+	);
+
 	return (
 		<SectionCard description="Where your current value sits" title="Allocation">
 			{openPositions.length === 0 ? (
-				<p className="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
-					No open positions.
-				</p>
+				<div className="flex flex-col items-center gap-2 py-12 text-center">
+					<p className="text-sm text-gray-500 dark:text-gray-400">No open positions with a price.</p>
+					{unpricedNote}
+				</div>
 			) : (
 				<div className="grid items-center gap-6 md:grid-cols-2">
 					<ApexChart className="min-w-0" options={options} />
 
-					<ul className="flex flex-col gap-3">
-						{openPositions.map((row, index) => (
-							<li className="flex flex-col gap-1" key={row.cmcId}>
-								<div className="flex items-center justify-between gap-2 text-sm">
-									<span className="flex min-w-0 items-center gap-2">
-										<span
-											aria-hidden
-											className="h-2.5 w-2.5 shrink-0 rounded-full"
-											style={{ backgroundColor: colorFor(index) }}
-										/>
-										<span className="truncate font-medium text-gray-900 dark:text-white">
-											{row.name}
+					<div className="flex flex-col gap-4">
+						<ul className="flex flex-col gap-3">
+							{openPositions.map((row, index) => (
+								<li className="flex flex-col gap-1" key={row.cmcId}>
+									<div className="flex items-center justify-between gap-2 text-sm">
+										<span className="flex min-w-0 items-center gap-2">
+											<span
+												aria-hidden
+												className="h-2.5 w-2.5 shrink-0 rounded-full"
+												style={{ backgroundColor: colorFor(index) }}
+											/>
+											<span className="truncate font-medium text-gray-900 dark:text-white">
+												{row.name}
+											</span>
 										</span>
-									</span>
-									<span className="shrink-0 text-gray-500 dark:text-gray-400">
-										{currencyFormat(row.value, currencyQuote)} · {row.allocation.toFixed(1)}%
-									</span>
-								</div>
-								<div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
-									<div
-										className="h-1.5 rounded-full"
-										style={{ backgroundColor: colorFor(index), width: `${row.allocation}%` }}
-									/>
-								</div>
-							</li>
-						))}
-					</ul>
+										<span className="shrink-0 text-gray-500 dark:text-gray-400">
+											{currencyFormat(row.value, currencyQuote)} · {row.allocation.toFixed(1)}%
+										</span>
+									</div>
+									<div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+										<div
+											className="h-1.5 rounded-full"
+											style={{ backgroundColor: colorFor(index), width: `${row.allocation}%` }}
+										/>
+									</div>
+								</li>
+							))}
+						</ul>
+						{unpricedNote}
+					</div>
 				</div>
 			)}
 		</SectionCard>

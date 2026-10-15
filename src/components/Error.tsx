@@ -1,27 +1,30 @@
 import { Button } from 'flowbite-react';
-import { FaExclamationTriangle } from 'react-icons/fa';
+import { FaRedo } from 'react-icons/fa';
 
 import { useAppState } from '../hooks/useAppState';
 import Modal from './Modal';
+import ErrorState from './ui/ErrorState';
 
+const reload = (): void => {
+	window.location.reload();
+};
+
+/** Shown when loading or saving stored data fails (the SET_ERROR action). */
 function Error() {
 	const { error } = useAppState();
 
-	/**
-	 * Handles the error by reloading the page.
-	 */
-	const handleError = (): void => {
-		window.location.reload();
-	};
-
 	return (
-		<Modal onClose={handleError} open={error} title="Oops, an error has occurred">
-			<FaExclamationTriangle className="mx-auto mb-4 flex text-6xl" color="white" />
-			<div className="flex justify-center">
-				<Button color="failure" onClick={handleError}>
-					Reload page
-				</Button>
-			</div>
+		<Modal onClose={reload} open={error} size="md" title="Something went wrong">
+			<ErrorState
+				actions={
+					<Button color="primary" onClick={reload}>
+						<FaRedo className="mr-2 h-3 w-3" />
+						Reload page
+					</Button>
+				}
+				message="Your data couldn't be loaded or saved. Reloading the page usually fixes this."
+				title="Your data couldn't be reached"
+			/>
 		</Modal>
 	);
 }
