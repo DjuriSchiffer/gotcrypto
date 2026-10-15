@@ -37,7 +37,7 @@ const typeKey = (transaction: Transaction) =>
 
 type TransactionTableProps = {
 	currencyQuote: keyof CurrencyQuote;
-	currentPrice: number;
+	currentPrice: null | number;
 	onEdit: (transaction: Transaction) => void;
 	onRemove: (transaction: Transaction) => void;
 	transactions: Array<Transaction>;
@@ -168,7 +168,9 @@ function TransactionTable({
 											<Button
 												aria-label={`Edit transaction of ${date}`}
 												color="gray"
-												onClick={() => { onEdit(transaction); }}
+												onClick={() => {
+													onEdit(transaction);
+												}}
 												size="xs"
 											>
 												<FaPen />
@@ -176,7 +178,9 @@ function TransactionTable({
 											<Button
 												aria-label={`Remove transaction of ${date}`}
 												color="gray"
-												onClick={() => { onRemove(transaction); }}
+												onClick={() => {
+													onRemove(transaction);
+												}}
 												size="xs"
 											>
 												<FaTrashAlt />

@@ -1,6 +1,7 @@
 import type { TabsRef } from 'flowbite-react';
 
 import {
+	Alert,
 	Breadcrumb,
 	BreadcrumbItem,
 	Button,
@@ -16,6 +17,7 @@ import {
 	FaChartLine,
 	FaChartPie,
 	FaEllipsisH,
+	FaExclamationTriangle,
 	FaList,
 	FaPlus,
 	FaTrashAlt,
@@ -37,6 +39,7 @@ import SectionCard from '../components/ui/SectionCard';
 import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
+import { findDetailCoin } from '../utils/assets';
 import { currencyFormat } from '../utils/helpers';
 import { getImage } from '../utils/images';
 import { getAssetSummary } from '../utils/totals';
@@ -68,9 +71,10 @@ function Detail() {
 	const [activeTab, setActiveTab] = useState(TRANSACTIONS_TAB);
 	const tabsRef = useRef<TabsRef>(null);
 
+	// Also finds the user's own coins that have no current price, so their transactions stay reachable
 	const currency = useMemo(
-		() => fetchedCurrencies?.find((item) => item.slug === slug),
-		[fetchedCurrencies, slug]
+		() => findDetailCoin(slug, fetchedCurrencies, selectedCurrencies),
+		[fetchedCurrencies, selectedCurrencies, slug]
 	);
 
 	// By id, not slug: assets created by the old asset picker have no slug
@@ -81,17 +85,22 @@ function Detail() {
 
 	const transactions = asset?.transactions ?? [];
 	const hasTransactions = transactions.length > 0;
-	const summary = getAssetSummary(asset, currency?.price ?? 0);
+	const currentPrice = currency?.price ?? null;
+	const summary = getAssetSummary(asset, currentPrice);
+	// The value chart needs today's price
+	const chartsAvailable = hasTransactions && currentPrice !== null;
 
-	// If the last transaction is removed while the charts tab is open, go back to the table
+	// If the charts become unavailable while their tab is open, go back to the table
 	useEffect(() => {
-		if (!hasTransactions) {
+		if (!chartsAvailable) {
 			tabsRef.current?.setActiveTab(TRANSACTIONS_TAB);
 			setActiveTab(TRANSACTIONS_TAB);
 		}
-	}, [hasTransactions]);
+	}, [chartsAvailable]);
 
-	const closeDialog = () => { setDialog(null); };
+	const closeDialog = () => {
+		setDialog(null);
+	};
 
 	/** Saves the asset; shows an alert and keeps the dialog open if that fails. */
 	const save = async (update: () => Parameters<typeof updateCurrency>[0]) => {
@@ -150,7 +159,12 @@ function Detail() {
 	};
 
 	const addButton = (
-		<Button color="primary" onClick={() => { setDialog({ type: 'add' }); }}>
+		<Button
+			color="primary"
+			onClick={() => {
+				setDialog({ type: 'add' });
+			}}
+		>
 			<FaPlus className="mr-2" />
 			Add transaction
 		</Button>
@@ -184,7 +198,9 @@ function Detail() {
 										>
 											<DropdownItem
 												icon={FaTrashAlt}
-												onClick={() => { setDialog({ type: 'removeAll' }); }}
+												onClick={() => {
+													setDialog({ type: 'removeAll' });
+												}}
 											>
 												Remove all transactions
 											</DropdownItem>
@@ -192,7 +208,11 @@ function Detail() {
 									)}
 								</>
 							}
-							description={`${currencyFormat(currency.price, currencyQuote)} current price`}
+							description={
+								currentPrice === null
+									? 'Price unavailable'
+									: `${currencyFormat(currentPrice, currencyQuote)} current price`
+							}
 							icon={
 								<img
 									alt=""
@@ -205,6 +225,13 @@ function Detail() {
 							title={currency.name}
 						/>
 					</div>
+
+					{currentPrice === null && hasTransactions && (
+						<Alert color="warning" icon={FaExclamationTriangle}>
+							There's no current price for {currency.name}, so its value and unrealized profit can't
+							be shown. Your transactions are safe and still count toward realized profit.
+						</Alert>
+					)}
 
 					{hasTransactions && <PositionStats currencyQuote={currencyQuote} summary={summary} />}
 
@@ -227,9 +254,13 @@ function Detail() {
 								{hasTransactions ? (
 									<TransactionTable
 										currencyQuote={currencyQuote}
-										currentPrice={currency.price}
-										onEdit={(transaction) => { setDialog({ transaction, type: 'edit' }); }}
-										onRemove={(transaction) => { setDialog({ transaction, type: 'remove' }); }}
+										currentPrice={currentPrice}
+										onEdit={(transaction) => {
+											setDialog({ transaction, type: 'edit' });
+										}}
+										onRemove={(transaction) => {
+											setDialog({ transaction, type: 'remove' });
+										}}
 										transactions={transactions}
 									/>
 								) : (
@@ -241,12 +272,12 @@ function Detail() {
 							</SectionCard>
 						</TabItem>
 
-						<TabItem disabled={!hasTransactions} icon={FaChartLine} title="Charts">
+						<TabItem disabled={!chartsAvailable} icon={FaChartLine} title="Charts">
 							{/* Render only when visible: ApexCharts can't size itself inside a hidden tab */}
-							{activeTab === CHARTS_TAB && hasTransactions && (
+							{activeTab === CHARTS_TAB && chartsAvailable && (
 								<DetailCharts
 									currencyQuote={currencyQuote}
-									currentPrice={currency.price}
+									currentPrice={currentPrice}
 									transactions={transactions}
 								/>
 							)}

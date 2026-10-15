@@ -8,13 +8,12 @@ export const requireApi = createRequire(path.resolve(import.meta.dirname, '../..
 export const fakeResponse = () => {
 	const res = {
 		body: undefined as unknown,
-		ended: false,
-		headers: {} as Record<string, string>,
-		statusCode: 200,
 		end() {
 			res.ended = true;
 			return res;
 		},
+		ended: false,
+		headers: {} as Record<string, string>,
 		json(body: unknown) {
 			res.body = body;
 			res.ended = true;
@@ -28,6 +27,7 @@ export const fakeResponse = () => {
 			res.statusCode = code;
 			return res;
 		},
+		statusCode: 200,
 	};
 	return res;
 };

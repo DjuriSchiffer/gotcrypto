@@ -1,10 +1,13 @@
 import type { CurrencyQuote } from 'api';
-import type { FetchedCurrency, SelectedAsset } from 'currency';
+import type { SelectedAsset } from 'currency';
 
 import { Badge, Button, Card } from 'flowbite-react';
 import { FaArrowRight, FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
+import type { DisplayCoin } from '../../utils/assets';
+
+import { coinPath } from '../../utils/assets';
 import { amountFormat, currencyFormat, profitClass } from '../../utils/helpers';
 import { getImage } from '../../utils/images';
 import { getAssetSummary } from '../../utils/totals';
@@ -14,7 +17,8 @@ import ProfitBadge from '../ui/ProfitBadge';
 type AssetCardProps = {
 	asset: SelectedAsset | undefined;
 	currencyQuote: keyof CurrencyQuote;
-	fetchedCurrency: FetchedCurrency;
+	/** price is null when there is no current price */
+	fetchedCurrency: DisplayCoin;
 	onAddTransaction: () => void;
 };
 
@@ -22,7 +26,7 @@ function AssetCard({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: 
 	const hasTransactions = (asset?.transactions.length ?? 0) > 0;
 	const summary = getAssetSummary(asset, fetchedCurrency.price);
 	const money = (value: number) => currencyFormat(value, currencyQuote);
-	const detailPath = `/${fetchedCurrency.slug}`;
+	const detailPath = coinPath(fetchedCurrency);
 
 	return (
 		<Card className="h-full">
@@ -42,9 +46,13 @@ function AssetCard({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: 
 						>
 							{fetchedCurrency.name}
 						</Link>
-						<p className="text-sm text-gray-500 dark:text-gray-400">
-							{money(fetchedCurrency.price)}
-						</p>
+						{fetchedCurrency.price === null ? (
+							<p className="text-sm text-amber-700 dark:text-amber-400">Price unavailable</p>
+						) : (
+							<p className="text-sm text-gray-500 dark:text-gray-400">
+								{money(fetchedCurrency.price)}
+							</p>
+						)}
 					</div>
 					<Button
 						aria-label={`Open ${fetchedCurrency.name}`}
@@ -88,18 +96,24 @@ function AssetCard({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: 
 					<>
 						<div>
 							<p className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-								{money(summary.value)}
+								{summary.hasPrice ? money(summary.value) : '–'}
 							</p>
 							<div className="mt-1 flex items-start justify-between gap-2">
 								<span className="text-sm text-gray-500 dark:text-gray-400">
 									{amountFormat(summary.amount, currencyQuote)} coins
 								</span>
-								<span className="flex flex-col items-end gap-2 text-sm">
-									<span className={profitClass(summary.unrealizedProfit)}>
-										{money(summary.unrealizedProfit)}
+								{summary.hasPrice ? (
+									<span className="flex flex-col items-end gap-2 text-sm">
+										<span className={profitClass(summary.unrealizedProfit)}>
+											{money(summary.unrealizedProfit)}
+										</span>
+										<ProfitBadge percentage={summary.unrealizedPercentage} />
 									</span>
-									<ProfitBadge percentage={summary.unrealizedPercentage} />
-								</span>
+								) : (
+									<span className="text-right text-sm text-gray-500 dark:text-gray-400">
+										No current price
+									</span>
+								)}
 							</div>
 						</div>
 

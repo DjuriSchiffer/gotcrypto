@@ -1,11 +1,10 @@
-import type { FetchedCurrency } from 'currency';
-
 import { Button, Card } from 'flowbite-react';
 import { useMemo, useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 
 import type { AssetChanges } from '../components/AssetManagerModal';
 import type { FormInputs } from '../components/TransactionForm';
+import type { DisplayCoin } from '../utils/assets';
 
 import AssetManagerModal from '../components/AssetManagerModal';
 import { ChangeLayout } from '../components/ChangeLayout';
@@ -23,12 +22,12 @@ import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import { applyAssetChanges, getDashboardAssets } from '../utils/assets';
 import { createCryptoMap } from '../utils/helpers';
-import { getGlobalTotals } from '../utils/totals';
+import { getGlobalTotals, getUnpricedHoldings } from '../utils/totals';
 import { transactionFromForm, upsertTransaction } from '../utils/transactions';
 
 function Dashboard() {
 	const [assetManagerOpen, setAssetManagerOpen] = useState(false);
-	const [addTransactionFor, setAddTransactionFor] = useState<FetchedCurrency | null>(null);
+	const [addTransactionFor, setAddTransactionFor] = useState<DisplayCoin | null>(null);
 
 	const { currencyQuote, dashboardLayout, sortMethod } = useAppState();
 	const { selectedCurrencies, setSelectedCurrencies, updateCurrency } = useStorage();
@@ -44,6 +43,11 @@ function Dashboard() {
 
 	const totals = useMemo(
 		() => getGlobalTotals(selectedCurrencies, fetchedCurrencies),
+		[selectedCurrencies, fetchedCurrencies]
+	);
+
+	const unpricedNames = useMemo(
+		() => getUnpricedHoldings(selectedCurrencies, fetchedCurrencies).map((asset) => asset.name),
 		[selectedCurrencies, fetchedCurrencies]
 	);
 
@@ -83,7 +87,12 @@ function Dashboard() {
 	};
 
 	const manageAssetsButton = (
-		<Button color="primary" onClick={() => { setAssetManagerOpen(true); }}>
+		<Button
+			color="primary"
+			onClick={() => {
+				setAssetManagerOpen(true);
+			}}
+		>
 			<FaPlus className="mr-2" />
 			Manage assets
 		</Button>
@@ -109,6 +118,7 @@ function Dashboard() {
 							currencyQuote={currencyQuote}
 							openPositions={openPositions}
 							totals={totals}
+							unpricedNames={unpricedNames}
 						/>
 					)}
 
@@ -132,7 +142,9 @@ function Dashboard() {
 									currencyQuote={currencyQuote}
 									fetchedCurrency={currency}
 									key={currency.cmc_id}
-									onAddTransaction={() => { setAddTransactionFor(currency); }}
+									onAddTransaction={() => {
+										setAddTransactionFor(currency);
+									}}
 								/>
 							))}
 						</section>
@@ -149,7 +161,9 @@ function Dashboard() {
 				</div>
 
 				<AssetManagerModal
-					onClose={() => { setAssetManagerOpen(false); }}
+					onClose={() => {
+						setAssetManagerOpen(false);
+					}}
 					onSave={(changes) => void handleSaveAssets(changes)}
 					open={assetManagerOpen}
 					options={fetchedCurrencies}
@@ -157,7 +171,9 @@ function Dashboard() {
 				/>
 
 				<Modal
-					onClose={() => { setAddTransactionFor(null); }}
+					onClose={() => {
+						setAddTransactionFor(null);
+					}}
 					open={addTransactionFor !== null}
 					title={`Add your first ${addTransactionFor?.name ?? ''} transaction`}
 				>

@@ -1,5 +1,5 @@
 import type { CurrencyQuote } from 'api';
-import type { FetchedCurrency, SelectedAsset } from 'currency';
+import type { SelectedAsset } from 'currency';
 
 import classNames from 'classnames';
 import {
@@ -15,6 +15,9 @@ import {
 import { FaArrowRight, FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
+import type { DisplayCoin } from '../../utils/assets';
+
+import { coinPath } from '../../utils/assets';
 import { amountFormat, currencyFormat, profitClass } from '../../utils/helpers';
 import { getImage } from '../../utils/images';
 import { getAssetSummary } from '../../utils/totals';
@@ -24,7 +27,8 @@ import SectionCard from '../ui/SectionCard';
 type AssetRowProps = {
 	asset: SelectedAsset | undefined;
 	currencyQuote: keyof CurrencyQuote;
-	fetchedCurrency: FetchedCurrency;
+	/** price is null when there is no current price */
+	fetchedCurrency: DisplayCoin;
 	onAddTransaction: () => void;
 };
 
@@ -32,7 +36,7 @@ function AssetRow({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: A
 	const hasTransactions = (asset?.transactions.length ?? 0) > 0;
 	const summary = getAssetSummary(asset, fetchedCurrency.price);
 	const money = (value: number) => currencyFormat(value, currencyQuote);
-	const detailPath = `/${fetchedCurrency.slug}`;
+	const detailPath = coinPath(fetchedCurrency);
 
 	return (
 		<TableRow className="bg-white dark:border-gray-700 dark:bg-gray-800">
@@ -49,9 +53,13 @@ function AssetRow({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: A
 						<span className="font-medium text-gray-900 hover:underline dark:text-white">
 							{fetchedCurrency.name}
 						</span>
-						<span className="text-xs text-gray-500 dark:text-gray-400">
-							{money(fetchedCurrency.price)}
-						</span>
+						{fetchedCurrency.price === null ? (
+							<span className="text-xs text-amber-700 dark:text-amber-400">Price unavailable</span>
+						) : (
+							<span className="text-xs text-gray-500 dark:text-gray-400">
+								{money(fetchedCurrency.price)}
+							</span>
+						)}
 					</span>
 				</Link>
 			</TableCell>
@@ -74,7 +82,9 @@ function AssetRow({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: A
 							</Badge>
 						) : (
 							<div className="flex flex-col items-end">
-								<span className="text-gray-900 dark:text-white">{money(summary.value)}</span>
+								<span className="text-gray-900 dark:text-white">
+									{summary.hasPrice ? money(summary.value) : '–'}
+								</span>
 								<span className="text-xs">{amountFormat(summary.amount, currencyQuote)} coins</span>
 							</div>
 						)}
@@ -84,7 +94,10 @@ function AssetRow({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: A
 					</TableCell>
 					<TableCell className="text-right">
 						<div className="flex flex-col items-end gap-1">
-							{!summary.isClosed && (
+							{!summary.isClosed && !summary.hasPrice && (
+								<span className="text-sm text-gray-500 dark:text-gray-400">No current price</span>
+							)}
+							{!summary.isClosed && summary.hasPrice && (
 								<span className="flex items-center gap-2">
 									<span className={profitClass(summary.unrealizedProfit)}>
 										{money(summary.unrealizedProfit)}
@@ -121,8 +134,8 @@ function AssetRow({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: A
 type AssetTableProps = {
 	assetMap: Map<number, SelectedAsset>;
 	currencyQuote: keyof CurrencyQuote;
-	fetchedCurrencies: Array<FetchedCurrency>;
-	onAddTransaction: (currency: FetchedCurrency) => void;
+	fetchedCurrencies: Array<DisplayCoin>;
+	onAddTransaction: (currency: DisplayCoin) => void;
 };
 
 function AssetTable({

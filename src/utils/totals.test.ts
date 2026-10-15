@@ -198,11 +198,12 @@ describe('getGlobalTotals', () => {
 		expect(result.totalValue).toBe(60000);
 	});
 
-	it('values an asset without a known price at zero', () => {
+	it('leaves an asset without a known price out of value and cost basis', () => {
 		const result = getGlobalTotals([asset(999, [buy(1, 500)])], prices);
 
 		expect(result.totalValue).toBe(0);
-		expect(result.totalPercentageDifference).toBe(-100);
+		expect(result.totalCostBasis).toBe(0);
+		expect(result.totalPercentageDifference).toBe(0);
 	});
 });
 
@@ -212,6 +213,7 @@ describe('getAssetSummary', () => {
 			amount: 0,
 			averageCost: 0,
 			costBasis: 0,
+			hasPrice: true,
 			hasSold: false,
 			isClosed: false,
 			realizedProfit: 0,

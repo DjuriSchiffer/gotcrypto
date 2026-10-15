@@ -95,7 +95,7 @@ export type TransactionYear = {
  */
 export const getTransactionYears = (
 	transactions: Array<Transaction>,
-	currentPrice: number
+	currentPrice: null | number
 ): Array<TransactionYear> => {
 	const history = positionHistory(transactions);
 
@@ -130,7 +130,9 @@ export const getTransactionYears = (
 			realizedProfit: realizedById.get(transaction.id) ?? null,
 			transaction,
 			unrealizedPercentage:
-				transaction.type === 'buy' ? percentageDifference(price, quantity * currentPrice) : null,
+				transaction.type === 'buy' && currentPrice !== null
+					? percentageDifference(price, quantity * currentPrice)
+					: null,
 		};
 
 		const year = new Date(transaction.date).getUTCFullYear();

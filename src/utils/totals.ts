@@ -138,30 +138,48 @@ const EMPTY_GLOBAL_TOTALS: GlobalTotals = {
 	totalValue: 0,
 };
 
+/** Coins the user holds that have no current price, so their value can't be calculated. */
+export const getUnpricedHoldings = (
+	selectedCurrencies: Array<SelectedAsset> = [],
+	fetchedCurrencies: Array<FetchedCurrency> | null | undefined = []
+): Array<SelectedAsset> => {
+	const priced = new Set((fetchedCurrencies ?? []).map((currency) => currency.cmc_id));
+	return selectedCurrencies.filter(
+		(asset) => asset.totals.totalAmount > 0 && !priced.has(asset.cmc_id)
+	);
+};
+
 /**
  * Calculates portfolio-wide totals.
  * totalPercentageDifference is the unrealized return: (value - cost basis) / cost basis.
+ *
+ * Holdings without a current price are left out of value, cost basis and unrealized profit
+ * (counting them as worth zero would show a loss that isn't there; see getUnpricedHoldings).
+ * Their realized profit doesn't depend on today's price, so it always counts.
  */
 export const getGlobalTotals = (
 	selectedCurrencies: Array<SelectedAsset> = [],
-	fetchedCurrencies: Array<FetchedCurrency> | null = []
+	fetchedCurrencies: Array<FetchedCurrency> | null | undefined = []
 ): GlobalTotals => {
-	if (!selectedCurrencies.length || !fetchedCurrencies?.length) {
+	if (!selectedCurrencies.length) {
 		return EMPTY_GLOBAL_TOTALS;
 	}
 
 	const priceMap = new Map(
-		fetchedCurrencies.map((currency) => [currency.cmc_id, currency.price || 0])
+		(fetchedCurrencies ?? []).map((currency) => [currency.cmc_id, currency.price])
 	);
 
 	const sums = selectedCurrencies.reduce(
 		(acc, asset) => {
 			if (asset.transactions.length === 0) return acc;
 
-			const price = priceMap.get(asset.cmc_id) ?? 0;
-			acc.costBasis += asset.totals.totalCostBasis;
 			acc.realizedProfit += asset.totals.totalRealizedProfit;
-			acc.value += asset.totals.totalAmount * price;
+
+			const price = priceMap.get(asset.cmc_id);
+			if (price !== undefined) {
+				acc.costBasis += asset.totals.totalCostBasis;
+				acc.value += asset.totals.totalAmount * price;
+			}
 			return acc;
 		},
 		{ costBasis: 0, realizedProfit: 0, value: 0 }
@@ -195,6 +213,8 @@ export type AssetSummary = {
 	amount: number;
 	averageCost: number;
 	costBasis: number;
+	/** False when there's no current price: value and unrealized figures are then 0 and mean nothing */
+	hasPrice: boolean;
 	hasSold: boolean;
 	isClosed: boolean;
 	realizedProfit: number;
@@ -203,24 +223,29 @@ export type AssetSummary = {
 	value: number;
 };
 
-/** Everything the dashboard needs for one asset at the current market price. */
+/**
+ * Everything the dashboard needs for one asset at the current market price.
+ * Pass null when there is no current price; check `hasPrice` before showing value or unrealized profit.
+ */
 export const getAssetSummary = (
 	asset: SelectedAsset | undefined,
-	currentPrice: number
+	currentPrice: null | number
 ): AssetSummary => {
 	const amount = asset?.totals.totalAmount ?? 0;
 	const costBasis = asset?.totals.totalCostBasis ?? 0;
-	const value = amount * currentPrice;
+	const hasPrice = currentPrice !== null;
+	const value = hasPrice ? amount * currentPrice : 0;
 
 	return {
 		amount,
 		averageCost: asset?.totals.totalAverageCost ?? 0,
 		costBasis,
+		hasPrice,
 		hasSold: (asset?.totals.totalAmountSold ?? 0) > 0,
 		isClosed: amount === 0 && (asset?.transactions.length ?? 0) > 0,
 		realizedProfit: asset?.totals.totalRealizedProfit ?? 0,
-		unrealizedPercentage: percentageDifference(costBasis, value),
-		unrealizedProfit: round(value - costBasis, 2),
+		unrealizedPercentage: hasPrice ? percentageDifference(costBasis, value) : 0,
+		unrealizedProfit: hasPrice ? round(value - costBasis, 2) : 0,
 		value,
 	};
 };
