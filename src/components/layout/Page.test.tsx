@@ -81,6 +81,13 @@ describe('Page layout', () => {
 		expect(mocks.signOutUser).toHaveBeenCalledOnce();
 	});
 
+	it('links to the privacy statement', () => {
+		renderAt('/');
+
+		expect(desktopNav().queryByRole('link', { name: 'Privacy' })).toBeNull();
+		expect(screen.getAllByRole('link', { name: 'Privacy' })[0].getAttribute('href')).toBe('/privacy');
+	});
+
 	it('points anonymous users to saving their data', () => {
 		mocks.auth.isAnonymous = true;
 		renderAt('/');

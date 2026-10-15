@@ -24,10 +24,7 @@ const prices = [coin(1, 60000, 'Bitcoin'), coin(2, 3000, 'Ethereum')];
 
 describe('getDashboardAssets with a coin missing from the price list', () => {
 	it('still shows a held coin that has no price, marked with price null', () => {
-		const selected = [
-			asset(1, [buy(1, 10000)], 'Bitcoin'),
-			asset(999, [buy(10, 500)], 'Gone Coin'),
-		];
+		const selected = [asset(1, [buy(1, 10000)], 'Bitcoin'), asset(999, [buy(10, 500)], 'Gone Coin')];
 
 		const result = getDashboardAssets(prices, selected, 'cmc_rank');
 

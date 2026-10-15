@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 
+import type { SelectedAsset } from '../types/currency';
+
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import type { SelectedAsset } from '../types/currency';
 
 import { asset, buy, sell } from '../test/factories';
 

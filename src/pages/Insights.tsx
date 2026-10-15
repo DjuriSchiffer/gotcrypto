@@ -9,19 +9,24 @@ import PerformanceTable from '../components/insights/PerformanceTable';
 import YearEndValuesCard from '../components/insights/YearEndValuesCard';
 import Page from '../components/layout/Page';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
-import ProfitBadge from '../components/ui/ProfitBadge';
-import StatCard from '../components/ui/StatCard';
+import PortfolioStats from '../components/PortfolioStats';
+import StalePricesNote from '../components/ui/StalePricesNote';
 import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
-import { currencyFormat, profitClass } from '../utils/helpers';
 import { getHighlights, getPortfolioBreakdown } from '../utils/portfolio';
-import { getGlobalTotals } from '../utils/totals';
+import { getGlobalTotals, getUnpricedHoldings } from '../utils/totals';
 
 function Insights() {
 	const { currencyQuote } = useAppState();
 	const { selectedCurrencies } = useStorage();
-	const { data: fetchedCurrencies, isError, isLoading } = useCoinMarketCap(currencyQuote);
+	const {
+		data: fetchedCurrencies,
+		isError,
+		isLoading,
+		stale,
+		updatedAt,
+	} = useCoinMarketCap(currencyQuote);
 
 	const totals = useMemo(
 		() => getGlobalTotals(selectedCurrencies, fetchedCurrencies),
@@ -32,8 +37,10 @@ function Insights() {
 		[selectedCurrencies, fetchedCurrencies]
 	);
 	const highlights = useMemo(() => getHighlights(rows), [rows]);
-
-	const money = (value: number) => currencyFormat(value, currencyQuote);
+	const unpricedNames = useMemo(
+		() => getUnpricedHoldings(selectedCurrencies, fetchedCurrencies).map((asset) => asset.name),
+		[selectedCurrencies, fetchedCurrencies]
+	);
 	const openPositions = rows.filter((row) => !row.isClosed).length;
 
 	return (
@@ -46,6 +53,8 @@ function Insights() {
 							How your portfolio is doing, and where the value sits.
 						</p>
 					</header>
+
+					<StalePricesNote stale={stale} updatedAt={updatedAt} />
 
 					{rows.length === 0 ? (
 						<Card>
@@ -61,32 +70,12 @@ function Insights() {
 						</Card>
 					) : (
 						<>
-							{/* Key figures */}
-							<section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-								<StatCard label="Total value" value={money(totals.totalValue)}>
-									{openPositions} open {openPositions === 1 ? 'position' : 'positions'}
-								</StatCard>
-								<StatCard
-									hint="What the coins you currently hold cost you. Selling lowers it by the average cost of the coins sold."
-									label="Cost basis"
-									value={money(totals.totalCostBasis)}
-								/>
-								<StatCard
-									hint="Profit or loss on what you still hold: current value minus cost basis."
-									label="Unrealized profit"
-									value={money(totals.totalUnrealizedProfit)}
-									valueClassName={profitClass(totals.totalUnrealizedProfit)}
-								>
-									<ProfitBadge percentage={totals.totalPercentageDifference} />
-									on cost basis
-								</StatCard>
-								<StatCard
-									hint="Profit or loss locked in by selling: sale proceeds minus the average cost of the coins sold."
-									label="Realized profit"
-									value={money(totals.totalRealizedProfit)}
-									valueClassName={profitClass(totals.totalRealizedProfit)}
-								/>
-							</section>
+							<PortfolioStats
+								currencyQuote={currencyQuote}
+								openPositions={openPositions}
+								totals={totals}
+								unpricedNames={unpricedNames}
+							/>
 
 							{/* Where the value sits, and what stands out */}
 							<section className="grid grid-cols-1 gap-4 xl:grid-cols-3">

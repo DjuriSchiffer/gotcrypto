@@ -11,14 +11,22 @@ import { AuthProvider } from './providers/AuthProvider';
 import ReducerProvider from './providers/ReducerProvider';
 import StorageProvider from './providers/StorageProvider';
 
-// Initialize Sentry
+// Error reporting. What it collects is described on the privacy page: keep the two in sync.
 Sentry.init({
 	dsn: 'https://b43fcdae2a1880738921aac9caf37b80@o4508432783245312.ingest.de.sentry.io/4508432787570768',
-	environment: process.env.NODE_ENV,
-	integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+	// Only the live site reports errors; local development stays on your machine
+	enabled: import.meta.env.PROD,
+	environment: import.meta.env.MODE,
+	integrations: [
+		Sentry.browserTracingIntegration(),
+		// Hides everything on screen in recordings: amounts, names, inputs and images
+		Sentry.replayIntegration({ blockAllMedia: true, maskAllInputs: true, maskAllText: true }),
+	],
+	// Record only the moments before an error, never ordinary visits
 	replaysOnErrorSampleRate: 1.0,
-	// Session Replay
-	replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+	replaysSessionSampleRate: 0,
+	// Don't send IP addresses, cookies or other personal details
+	sendDefaultPii: false,
 	tracePropagationTargets: [/^https:\/\/gotcrypto\.vercel\.app/],
 	// Performance Monitoring
 	tracesSampleRate: 1.0,

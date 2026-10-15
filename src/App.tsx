@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard';
 import Detail from './pages/Detail';
 import Insights from './pages/Insights';
 import OnboardingPage from './pages/Onboarding';
+import Privacy from './pages/Privacy';
 import UserSettings from './pages/UserSettings';
 import { customTheme } from './theme';
 
@@ -69,6 +70,8 @@ function App() {
 						/>
 						<Route element={protectedPage(<Insights />)} path="/insights" />
 						<Route element={protectedPage(<UserSettings />)} path="/user-settings" />
+						{/* Public: readable before signing in */}
+						<Route element={<Privacy />} path="/privacy" />
 						<Route element={protectedPage(<Detail />)} path="/:slug" />
 					</Routes>
 					<ErrorComponent />
