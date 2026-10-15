@@ -21,6 +21,7 @@ import StalePricesNote from '../components/ui/StalePricesNote';
 import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
+import { useToast } from '../hooks/useToast';
 import { applyAssetChanges, getDashboardAssets } from '../utils/assets';
 import { createCryptoMap } from '../utils/helpers';
 import { getGlobalTotals, getUnpricedHoldings } from '../utils/totals';
@@ -32,6 +33,7 @@ function Dashboard() {
 
 	const { currencyQuote, dashboardLayout, sortMethod } = useAppState();
 	const { selectedCurrencies, setSelectedCurrencies, updateCurrency } = useStorage();
+	const { showError } = useToast();
 	const {
 		data: fetchedCurrencies,
 		isError,
@@ -69,7 +71,7 @@ function Dashboard() {
 			setAssetManagerOpen(false);
 		} catch (error) {
 			console.error('Failed to save assets:', error);
-			alert('Failed to save your assets. Please try again.');
+			showError("Your assets couldn't be saved. Please try again.");
 		}
 	};
 
@@ -89,7 +91,7 @@ function Dashboard() {
 			setAddTransactionFor(null);
 		} catch (error) {
 			console.error('Failed to add transaction:', error);
-			alert('Failed to add transaction. Please try again.');
+			showError("The transaction couldn't be saved. Please try again.");
 		}
 	};
 

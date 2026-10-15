@@ -40,9 +40,10 @@ import StalePricesNote from '../components/ui/StalePricesNote';
 import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
-import { findDetailCoin } from '../utils/assets';
+import { useToast } from '../hooks/useToast';
 import { currencyFormat } from '../utils/helpers';
 import { getImage } from '../utils/images';
+import { findDetailCoin } from '../utils/assets';
 import { getAssetSummary } from '../utils/totals';
 import {
 	clearTransactions,
@@ -66,6 +67,7 @@ function Detail() {
 	const { slug } = useParams<{ slug: string }>();
 	const { currencyQuote } = useAppState();
 	const { selectedCurrencies, updateCurrency } = useStorage();
+	const { showError } = useToast();
 	const {
 		data: fetchedCurrencies,
 		isError,
@@ -107,14 +109,14 @@ function Detail() {
 
 	const closeDialog = () => { setDialog(null); };
 
-	/** Saves the asset; shows an alert and keeps the dialog open if that fails. */
+	/** Saves the asset; shows an error and keeps the dialog open if that fails. */
 	const save = async (update: () => Parameters<typeof updateCurrency>[0]) => {
 		try {
 			await updateCurrency(update());
 			closeDialog();
 		} catch (error) {
 			console.error('Failed to save transactions:', error);
-			alert('Failed to save your changes. Please try again.');
+			showError("Your changes couldn't be saved. Please try again.");
 		}
 	};
 

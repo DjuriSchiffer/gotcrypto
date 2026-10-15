@@ -11,6 +11,7 @@ import SettingsLightDarkMode from '../components/SettingsLightDarkMode';
 import SettingsPriceFormat from '../components/SettingsPriceFormat';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
+import { useToast } from '../hooks/useToast';
 import logo from '../public/images/logo.svg';
 import { signOutUser } from '../services/authService';
 import { applyAssetChanges } from '../utils/assets';
@@ -58,6 +59,7 @@ function OnboardingPage() {
 	const { currencyQuote, selectedCurrencies, setOnboardingCompleted, setSelectedCurrencies } =
 		useStorage();
 	const { data: fetchedCurrencies, isLoading } = useCoinMarketCap(currencyQuote);
+	const { showError } = useToast();
 
 	const [step, setStep] = useState(0);
 	const [selectedIds, setSelectedIds] = useState<Array<number>>([]);
@@ -85,7 +87,7 @@ function OnboardingPage() {
 			void navigate('/', { replace: true });
 		} catch (error) {
 			console.error('Error completing onboarding:', error);
-			alert('Something went wrong while saving. Please try again.');
+			showError("Your choices couldn't be saved. Please try again.");
 			setIsSaving(false);
 		}
 	};

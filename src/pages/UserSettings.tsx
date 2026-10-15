@@ -13,13 +13,17 @@ import SettingsPriceFormat from '../components/SettingsPriceFormat';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import PageHeader from '../components/ui/PageHeader';
 import SectionCard from '../components/ui/SectionCard';
+import { contactMailto } from '../config/contact';
 import { useAppState } from '../hooks/useAppState';
 import { useAuth } from '../hooks/useAuth';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
+import { useToast } from '../hooks/useToast';
 import { signOutUser } from '../services/authService';
 
 const CONFIRM_WORD = 'DELETE';
+const linkClass = 'font-medium text-primary-700 hover:underline dark:text-primary-400';
+const feedbackLink = contactMailto('Got Crypto feedback');
 
 function UserSettings() {
 	const { isAdmin, isAnonymous, user } = useAuth();
@@ -27,6 +31,7 @@ function UserSettings() {
 	const { data: fetchedCurrencies } = useCoinMarketCap(currencyQuote);
 	const { selectedCurrencies, setSelectedCurrencies } = useStorage();
 	const [confirmOpen, setConfirmOpen] = useState(false);
+	const { showError, showSuccess } = useToast();
 
 	const assetCount = selectedCurrencies.length;
 	const transactionCount = selectedCurrencies.reduce(
@@ -38,9 +43,10 @@ function UserSettings() {
 		try {
 			await setSelectedCurrencies([]);
 			setConfirmOpen(false);
+			showSuccess('Your portfolio data has been deleted.');
 		} catch (error) {
 			console.error('Failed to delete portfolio data:', error);
-			alert('Failed to delete your data. Please try again.');
+			showError("Your data couldn't be deleted. Please try again.");
 		}
 	};
 
@@ -134,17 +140,24 @@ function UserSettings() {
 					</div>
 				</SectionCard>
 
-				<p className="text-sm text-gray-500 dark:text-gray-400">
-					Read what is stored and how in the{' '}
-					{/* A plain link, so the page also renders outside a router (tests) */}
-					<a
-						className="font-medium text-primary-700 hover:underline dark:text-primary-400"
-						href="/privacy"
-					>
-						privacy statement
-					</a>
-					.
-				</p>
+				{/* Plain links, so the page also renders outside a router (tests) */}
+				<div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400">
+					{feedbackLink && (
+						<p>
+							Found a bug or have an idea?{' '}
+							<a className={linkClass} href={feedbackLink}>
+								Send feedback
+							</a>
+						</p>
+					)}
+					<p>
+						Read what is stored and how in the{' '}
+						<a className={linkClass} href="/privacy">
+							privacy statement
+						</a>
+						.
+					</p>
+				</div>
 			</div>
 
 			<ConfirmModal

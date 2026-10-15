@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { FaUserTimes } from 'react-icons/fa';
 
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 import { deleteAccount } from '../../services/authService';
 import { deleteAccountErrorMessage } from '../../utils/accountDeletion';
 import ConfirmModal from '../ui/ConfirmModal';
@@ -15,6 +16,7 @@ function DeleteAccount() {
 	const [confirmOpen, setConfirmOpen] = useState(false);
 	const [pending, setPending] = useState(false);
 	const [error, setError] = useState<null | string>(null);
+	const { showSuccess } = useToast();
 
 	const handleDelete = async () => {
 		setConfirmOpen(false);
@@ -22,7 +24,9 @@ function DeleteAccount() {
 		setError(null);
 		try {
 			await deleteAccount();
-			// Nobody is signed in now: the app switches to the sign-in screen by itself
+			// Nobody is signed in now: the app switches to the sign-in screen by itself,
+			// and this message stays visible there
+			showSuccess('Your account and all its data have been deleted.');
 		} catch (deleteError) {
 			console.error('Failed to delete account:', deleteError);
 			setError(deleteAccountErrorMessage(deleteError, user?.email ?? null));

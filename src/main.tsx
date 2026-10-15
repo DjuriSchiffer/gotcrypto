@@ -7,6 +7,7 @@ import './index.css';
 import * as ReactDOM from 'react-dom/client';
 
 import App from './App';
+import ErrorScreen from './components/ErrorScreen';
 import { AuthProvider } from './providers/AuthProvider';
 import ReducerProvider from './providers/ReducerProvider';
 import StorageProvider from './providers/StorageProvider';
@@ -41,9 +42,6 @@ const queryClient = new QueryClient({
 	},
 });
 
-// Create Sentry Error Boundary
-const SentryErrorBoundary = Sentry.ErrorBoundary;
-
 // Get root element
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Failed to find the root element');
@@ -51,7 +49,8 @@ if (!rootElement) throw new Error('Failed to find the root element');
 // Create and render root
 ReactDOM.createRoot(rootElement).render(
 	<React.StrictMode>
-		<SentryErrorBoundary fallback={<div>An error has occurred</div>}>
+		{/* If the app crashes, show a friendly screen instead of a blank page; Sentry gets the report */}
+		<Sentry.ErrorBoundary fallback={({ eventId }) => <ErrorScreen eventId={eventId || undefined} />}>
 			<ReducerProvider>
 				<AuthProvider>
 					<StorageProvider>
@@ -61,6 +60,6 @@ ReactDOM.createRoot(rootElement).render(
 					</StorageProvider>
 				</AuthProvider>
 			</ReducerProvider>
-		</SentryErrorBoundary>
+		</Sentry.ErrorBoundary>
 	</React.StrictMode>
 );

@@ -14,14 +14,17 @@ import Insights from './pages/Insights';
 import OnboardingPage from './pages/Onboarding';
 import Privacy from './pages/Privacy';
 import UserSettings from './pages/UserSettings';
+import ToastProvider from './providers/ToastProvider';
 import { customTheme } from './theme';
+
+function CrashTest(): never {
+	throw new Error('Crash test');
+}
 
 function App() {
 	const { loading: authLoading, user } = useAuth();
 	const { currencyQuote, loading: storageLoading, onboardingCompleted } = useStorage();
 
-	// Wait for storage first: it holds the user's currency (EUR/USD).
-	// Fetching before that would load EUR and then fetch USD again, causing a second spinner.
 	const { isPending: currenciesPending } = useCoinMarketCap(currencyQuote, {
 		enabled: user !== null && !storageLoading,
 	});
@@ -54,29 +57,31 @@ function App() {
 
 	return (
 		<ThemeProvider theme={customTheme}>
-			{isLoading ? (
-				<main className="min-h-screen bg-gray-50 dark:bg-gray-dark">
-					<LoadingIndicator message="Loading your portfolio..." />
-				</main>
-			) : (
-				<Router>
-					<Routes>
-						<Route element={protectedPage(<Dashboard />)} path="/" />
-						<Route
-							element={
-								!user || onboardingCompleted ? <Navigate replace to="/" /> : <OnboardingPage />
-							}
-							path="/onboarding"
-						/>
-						<Route element={protectedPage(<Insights />)} path="/insights" />
-						<Route element={protectedPage(<UserSettings />)} path="/user-settings" />
-						{/* Public: readable before signing in */}
-						<Route element={<Privacy />} path="/privacy" />
-						<Route element={protectedPage(<Detail />)} path="/:slug" />
-					</Routes>
-					<ErrorComponent />
-				</Router>
-			)}
+			<ToastProvider>
+				{isLoading ? (
+					<main className="min-h-screen bg-gray-50 dark:bg-gray-dark">
+						<LoadingIndicator message="Loading your portfolio..." />
+					</main>
+				) : (
+					<Router>
+						<Routes>
+							<Route element={protectedPage(<Dashboard />)} path="/" />
+							<Route
+								element={
+									!user || onboardingCompleted ? <Navigate replace to="/" /> : <OnboardingPage />
+								}
+								path="/onboarding"
+							/>
+							<Route element={protectedPage(<Insights />)} path="/insights" />
+							<Route element={protectedPage(<UserSettings />)} path="/user-settings" />
+							<Route element={<Privacy />} path="/privacy" />
+							<Route element={protectedPage(<Detail />)} path="/:slug" />
+							{import.meta.env.DEV && <Route element={<CrashTest />} path="/crash-test" />}
+						</Routes>
+						<ErrorComponent />
+					</Router>
+				)}
+			</ToastProvider>
 		</ThemeProvider>
 	);
 }

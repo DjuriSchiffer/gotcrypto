@@ -4,6 +4,7 @@ import type { FetchedCurrency } from '../types/currency';
 
 import { asset, buy, sell } from '../test/factories';
 import { coinPath, findDetailCoin, getDashboardAssets } from './assets';
+import { getAllocationSlices, getHighlights, getPortfolioBreakdown } from './portfolio';
 import { getAssetSummary, getGlobalTotals, getUnpricedHoldings } from './totals';
 import { getTransactionYears } from './transactions';
 
@@ -161,5 +162,41 @@ describe('totals with a held coin that has no price', () => {
 
 		expect(rows.find((row) => row.transaction.type === 'buy')?.unrealizedPercentage).toBeNull();
 		expect(rows.find((row) => row.transaction.type === 'sell')?.realizedProfit).toBe(150);
+	});
+});
+
+describe('Insights with a held coin that has no price', () => {
+	const bitcoin = asset(1, [buy(1, 10000)], 'Bitcoin');
+	const gone = asset(999, [buy(10, 500)], 'Gone Coin');
+	const goneAndSold = asset(998, [buy(10, 500), sell(10, 800)], 'Sold Coin');
+	const rows = getPortfolioBreakdown([bitcoin, gone, goneAndSold], prices);
+	const row = (cmcId: number) => rows.find((item) => item.cmcId === cmcId);
+
+	it('marks it, with no price and no share of the portfolio', () => {
+		expect(row(999)).toMatchObject({ allocation: 0, price: null, priceMissing: true, value: 0 });
+		expect(row(1)).toMatchObject({ allocation: 100, price: 60000, priceMissing: false });
+	});
+
+	it("doesn't mark a closed position: its profit is all realized and known", () => {
+		expect(row(998)).toMatchObject({ priceMissing: false, totalProfit: 300 });
+	});
+
+	it('leaves it out of the allocation chart', () => {
+		expect(getAllocationSlices(rows).map((slice) => slice.label)).toEqual(['Bitcoin']);
+	});
+
+	it("doesn't rank it as best or worst: its profit is unknown", () => {
+		const highlights = getHighlights(rows);
+
+		expect(highlights.best?.name).toBe('Bitcoin');
+		expect(highlights.worst?.name).toBe('Sold Coin');
+	});
+
+	it('has no best or worst when no coin has a known profit', () => {
+		expect(getHighlights(getPortfolioBreakdown([gone], prices))).toEqual({
+			best: undefined,
+			largest: undefined,
+			worst: undefined,
+		});
 	});
 });
