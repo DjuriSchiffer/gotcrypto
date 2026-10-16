@@ -1,6 +1,7 @@
 import type { CurrencyQuote } from 'api';
 
 import type { Transaction } from '../../types/currency';
+import type { PriceLookupCoin } from '../PriceSuggestion';
 import type { FormInputs } from '../TransactionForm';
 
 import Modal from '../Modal';
@@ -18,6 +19,8 @@ type DetailModalsProps = {
 	openEditTransactionModal: boolean;
 	openRemoveAllTransactionsModal: boolean;
 	openRemoveTransactionModal: boolean;
+	/** The coin, so the form can suggest its price on the chosen date */
+	priceLookup?: PriceLookupCoin;
 	selectedAssetName?: string;
 	transactionCount: number;
 };
@@ -33,6 +36,7 @@ function DetailModals({
 	openEditTransactionModal,
 	openRemoveAllTransactionsModal,
 	openRemoveTransactionModal,
+	priceLookup,
 	selectedAssetName,
 	transactionCount,
 }: DetailModalsProps) {
@@ -44,6 +48,7 @@ function DetailModals({
 					isEdit={false}
 					key={`add-form-${String(openAddTransactionModal)}`}
 					onSubmit={onFormSubmit}
+					priceLookup={priceLookup}
 					submitLabel="Add Transaction"
 				/>
 			</Modal>
@@ -67,6 +72,7 @@ function DetailModals({
 					isEdit={true}
 					key={`edit-form-${String(openEditTransactionModal)}-${String(currentTransaction?.id)}`}
 					onSubmit={onFormSubmit}
+					priceLookup={priceLookup}
 					submitLabel="Update Transaction"
 				/>
 			</Modal>
@@ -88,7 +94,7 @@ function DetailModals({
 						<strong>
 							{transactionCount === 1
 								? `your ${selectedAssetName ?? ''} transaction`
-								: `all ${transactionCount} ${selectedAssetName ?? ''} transactions`}
+								: `all ${String(transactionCount)} ${selectedAssetName ?? ''} transactions`}
 						</strong>
 						. The asset stays on your dashboard. This can't be undone.
 					</>
