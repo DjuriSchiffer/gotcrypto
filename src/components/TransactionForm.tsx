@@ -3,14 +3,17 @@ import type { TransactionType, TransferType } from 'currency';
 
 import classNames from 'classnames';
 import { Button, ButtonGroup, useThemeMode } from 'flowbite-react';
-import { forwardRef, useEffect } from 'react';
+import { forwardRef } from 'react';
 import CurrencyInput from 'react-currency-input-field';
 import { Controller, useForm } from 'react-hook-form';
 import { FaCalendar, FaCoins, FaDollarSign, FaEuroSign } from 'react-icons/fa';
 
+import type { PriceLookupCoin } from './PriceSuggestion';
+
 import { useAuth } from '../hooks/useAuth';
 import { currencyFormat, dateToStorage, displayToStorage } from '../utils/helpers';
 import DatePicker from './DatePicker';
+import PriceSuggestion from './PriceSuggestion';
 
 type CurrencyFormInputProps = {
 	className?: string;
@@ -90,28 +93,13 @@ type TransactionFormProps = {
 	};
 	isEdit?: boolean;
 	onSubmit: (data: FormInputs) => void;
+	priceLookup?: PriceLookupCoin;
 	submitLabel: string;
 };
 
-function TransactionForm({
-	currencyQuote,
-	defaultValues,
-	isEdit = false,
-	onSubmit,
-	submitLabel,
-}: TransactionFormProps) {
-	const { isAdmin } = useAuth();
-	const { computedMode } = useThemeMode();
-	const isDarkMode = computedMode === 'dark';
-
-	const {
-		control,
-		formState: { errors },
-		handleSubmit,
-		reset,
-		watch,
-	} = useForm<FormInputs>({
-		defaultValues: {
+const initialFormValues = (transaction?: TransactionFormProps['defaultValues']): FormInputs => {
+	if (!transaction) {
+		return {
 			amount: '',
 			date: dateToStorage(new Date()),
 			description: '',
@@ -119,47 +107,47 @@ function TransactionForm({
 			purchasePrice: '',
 			transactionType: 'buy',
 			transferType: 'in',
-		},
-	});
+		};
+	}
+
+	const price = parseFloat(transaction.purchasePrice);
+
+	return {
+		...transaction,
+		amount: String(Math.abs(parseFloat(transaction.amount))),
+		date: dateToStorage(transaction.date),
+		description: transaction.description ?? '',
+		excludeForTax: transaction.excludeForTax ?? false,
+		purchasePrice: Number.isFinite(price) ? Math.abs(price).toFixed(2) : '',
+		transferType: transaction.transferType ?? 'in',
+	};
+};
+
+function TransactionForm({
+	currencyQuote,
+	defaultValues,
+	isEdit = false,
+	onSubmit,
+	priceLookup,
+	submitLabel,
+}: TransactionFormProps) {
+	const { isAdmin } = useAuth();
+	const { computedMode } = useThemeMode();
+	const isDarkMode = computedMode === 'dark';
+
+	// Starting values are read once, when the form opens. The modals open a fresh form each time,
+	// so nothing has to reset it later (an effect that did reset it also undid clicking "Transfer")
+	const {
+		control,
+		formState: { errors },
+		handleSubmit,
+		setValue,
+		watch,
+	} = useForm<FormInputs>({ defaultValues: initialFormValues(isEdit ? defaultValues : undefined) });
 
 	const transactionType = watch('transactionType');
 	const isTransfer = transactionType === 'transfer';
-
-	useEffect(() => {
-		if (isEdit && defaultValues) {
-			const displayAmount =
-				defaultValues.transactionType === 'sell' ||
-				(isTransfer && defaultValues.transferType === 'out')
-					? Math.abs(parseFloat(defaultValues.amount)).toString()
-					: defaultValues.amount;
-
-			const displayPurchasePrise =
-				defaultValues.transactionType === 'sell' ||
-				(isTransfer && defaultValues.transferType === 'out')
-					? Math.abs(parseFloat(defaultValues.purchasePrice)).toFixed(2)
-					: parseFloat(defaultValues.purchasePrice).toFixed(2);
-
-			reset({
-				...defaultValues,
-				amount: displayAmount,
-				date: dateToStorage(defaultValues.date),
-				description: defaultValues.description || '',
-				excludeForTax: defaultValues.excludeForTax ?? false,
-				purchasePrice: displayPurchasePrise,
-				transferType: defaultValues.transferType || 'in',
-			});
-		} else if (!isEdit) {
-			reset({
-				amount: '',
-				date: dateToStorage(new Date()),
-				description: '',
-				excludeForTax: false,
-				purchasePrice: '',
-				transactionType: 'buy',
-				transferType: 'in',
-			});
-		}
-	}, [isEdit, defaultValues, reset, isTransfer]);
+	const [amount, date, purchasePrice] = watch(['amount', 'date', 'purchasePrice']);
 
 	const handleFormSubmit = (data: FormInputs) => {
 		onSubmit(data);
@@ -342,6 +330,51 @@ function TransactionForm({
 			<div>
 				<label
 					className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+					htmlFor="purchaseDate"
+				>
+					<Controller
+						control={control}
+						name="transactionType"
+						render={({ field: { value } }) => (
+							<>
+								{value === 'sell'
+									? 'Sell Date'
+									: value === 'buy'
+										? 'Purchase Date'
+										: 'Transfer Date'}
+							</>
+						)}
+					/>
+				</label>
+				<div className="flex">
+					<span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-400">
+						<FaCalendar color={isDarkMode ? 'white' : 'dark'} />
+					</span>
+					<Controller
+						control={control}
+						name="date"
+						render={({ field: { onChange, value } }) => (
+							<DatePicker
+								autoComplete="off"
+								data-form-type="other"
+								date={value}
+								handleChange={(e) => {
+									const isoDate = displayToStorage(e.target.value);
+									onChange(isoDate);
+								}}
+								name="transaction-date"
+							/>
+						)}
+						rules={{
+							required: 'This field is required',
+						}}
+					/>
+				</div>
+				{errors.date && <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>}
+			</div>
+			<div>
+				<label
+					className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
 					htmlFor="purchasePrice"
 				>
 					<Controller
@@ -395,51 +428,21 @@ function TransactionForm({
 				{errors.purchasePrice && (
 					<p className="mt-1 text-sm text-red-600">{errors.purchasePrice.message}</p>
 				)}
-			</div>
-			<div>
-				<label
-					className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-					htmlFor="purchaseDate"
-				>
-					<Controller
-						control={control}
-						name="transactionType"
-						render={({ field: { value } }) => (
-							<>
-								{value === 'sell'
-									? 'Sell Date'
-									: value === 'buy'
-										? 'Purchase Date'
-										: 'Transfer Date'}
-							</>
-						)}
-					/>
-				</label>
-				<div className="flex">
-					<span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-400">
-						<FaCalendar color={isDarkMode ? 'white' : 'dark'} />
-					</span>
-					<Controller
-						control={control}
-						name="date"
-						render={({ field: { onChange, value } }) => (
-							<DatePicker
-								autoComplete="off"
-								data-form-type="other"
-								date={value}
-								handleChange={(e) => {
-									const isoDate = displayToStorage(e.target.value);
-									onChange(isoDate);
-								}}
-								name="transaction-date"
-							/>
-						)}
-						rules={{
-							required: 'This field is required',
+				{priceLookup && (
+					<PriceSuggestion
+						amount={amount}
+						coin={priceLookup}
+						currencyQuote={currencyQuote}
+						date={date}
+						enteredTotal={purchasePrice}
+						onUse={(total) => {
+							setValue('purchasePrice', total.toFixed(2), {
+								shouldDirty: true,
+								shouldValidate: true,
+							});
 						}}
 					/>
-				</div>
-				{errors.date && <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>}
+				)}
 			</div>
 			<div>
 				<label

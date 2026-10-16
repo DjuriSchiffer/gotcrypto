@@ -181,6 +181,15 @@ function Dashboard() {
 						currencyQuote={currencyQuote}
 						key={addTransactionFor?.cmc_id ?? 'closed'}
 						onSubmit={(data) => void handleAddFirstTransaction(data)}
+						priceLookup={
+							addTransactionFor
+								? {
+										cmcId: addTransactionFor.cmc_id,
+										currentPrice: addTransactionFor.price,
+										name: addTransactionFor.name,
+									}
+								: undefined
+						}
 						submitLabel="Add Transaction"
 					/>
 				</Modal>
