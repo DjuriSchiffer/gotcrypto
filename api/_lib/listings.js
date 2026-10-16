@@ -27,10 +27,12 @@ const MAX_EXTRA_COINS = 100;
 /** A remembered coin without a price for this long is considered delisted and forgotten. */
 const FORGET_AFTER_MS = 30 * 24 * 60 * 60 * 1000;
 
-const priceOf = (coin, currency) => {
-	const price = coin?.quote?.[currency]?.price;
-	return typeof price === 'number' && Number.isFinite(price) ? price : null;
-};
+const numberOrNull = (value) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
+
+const priceOf = (coin, currency) => numberOrNull(coin?.quote?.[currency]?.price);
+
+/** The price change over the last 24 hours, in percent; null when CoinMarketCap doesn't say. */
+const changeOf = (coin, currency) => numberOrNull(coin?.quote?.[currency]?.percent_change_24h);
 
 /**
  * Combines CoinMarketCap's USD and EUR data into the fields the app uses.
@@ -41,15 +43,19 @@ const combineListings = (usdCoins, eurCoins) => {
 	const combined = [];
 
 	for (const coin of usdCoins) {
+		const eurCoin = eurById.get(coin.id);
 		const usd = priceOf(coin, 'USD');
-		const eur = priceOf(eurById.get(coin.id), 'EUR');
+		const eur = priceOf(eurCoin, 'EUR');
 		if (usd === null || eur === null) continue;
 
 		combined.push({
 			cmc_rank: typeof coin.cmc_rank === 'number' ? coin.cmc_rank : null,
 			id: coin.id,
 			name: coin.name,
-			quote: { EUR: { price: eur }, USD: { price: usd } },
+			quote: {
+				EUR: { percent_change_24h: changeOf(eurCoin, 'EUR'), price: eur },
+				USD: { percent_change_24h: changeOf(coin, 'USD'), price: usd },
+			},
 			slug: coin.slug,
 		});
 	}

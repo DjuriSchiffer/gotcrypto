@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 
+import type { SelectedAsset } from '../types/currency';
+
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import type { SelectedAsset } from '../types/currency';
 
 import { asset, buy, sell } from '../test/factories';
 
@@ -27,7 +27,7 @@ vi.mock('../hooks/useStorage', () => ({ useStorage: () => storage }));
 vi.mock('../hooks/useCoinMarketCap', () => ({
 	// Only Bitcoin has a price; "Gone Coin" (id 999) is missing from the list
 	default: () => ({
-		data: [{ cmc_id: 1, cmc_rank: 1, name: 'Bitcoin', price: 60000, slug: 'bitcoin' }],
+		data: [{ change24h: 2.5, cmc_id: 1, cmc_rank: 1, name: 'Bitcoin', price: 60000, slug: 'bitcoin' }],
 		isError: false,
 		isLoading: false,
 	}),
@@ -83,6 +83,13 @@ describe('a held coin without a price', () => {
 			);
 			// Bitcoin alone: 1 × 60.000. Counting Gone Coin as zero would have shown a loss.
 			expect(screen.getAllByText(/60\.000,00/).length).toBeGreaterThan(0);
+		});
+
+		it("shows each coin's 24h change, and the portfolio's", () => {
+			renderAt('/');
+
+			expect(screen.getAllByText('+2.50%').length).toBeGreaterThan(0);
+			expect(screen.getByText('in 24h')).toBeTruthy();
 		});
 
 		it('shows no note when every held coin has a price', () => {

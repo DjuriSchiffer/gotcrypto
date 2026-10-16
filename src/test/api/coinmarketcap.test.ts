@@ -8,7 +8,7 @@ type Coin = {
 	cmc_rank: null | number;
 	id: number;
 	name: string;
-	quote: Record<string, { price: number }>;
+	quote: Record<string, { percent_change_24h: null | number; price: number }>;
 	slug: string;
 };
 type Body = { data: Array<Coin> | null; status: { error_code: number; stale?: boolean } };
@@ -132,8 +132,23 @@ describe('combineListings', () => {
 			cmc_rank: 1,
 			id: 1,
 			name: 'Coin 1',
-			quote: { EUR: { price: 900 }, USD: { price: 1000 } },
+			quote: {
+				EUR: { percent_change_24h: 1.5, price: 900 },
+				USD: { percent_change_24h: 1.5, price: 1000 },
+			},
 			slug: 'coin-1',
+		});
+	});
+
+	it('keeps the 24h change per currency, or null when CoinMarketCap leaves it out', () => {
+		const usd = cmcCoin(1, 'USD', 1000);
+		const eur = { ...cmcCoin(1, 'EUR', 900), quote: { EUR: { price: 900 } } };
+
+		const [coin] = combineListings([usd], [eur]);
+
+		expect(coin.quote).toEqual({
+			EUR: { percent_change_24h: null, price: 900 },
+			USD: { percent_change_24h: 1.5, price: 1000 },
 		});
 	});
 

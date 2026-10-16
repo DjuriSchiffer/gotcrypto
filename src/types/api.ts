@@ -1,10 +1,12 @@
+type Quote = {
+	/** Price change over the last 24 hours, in percent; missing in older cached data */
+	percent_change_24h?: null | number;
+	price: number;
+};
+
 export type CurrencyQuote = {
-	EUR: {
-		price: number;
-	};
-	USD: {
-		price: number;
-	};
+	EUR: Quote;
+	USD: Quote;
 };
 
 export type CurrencyData = {

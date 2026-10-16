@@ -3,6 +3,7 @@ export type FetchedCurrency = {
 	cmc_rank: null | number;
 	name: string;
 	price: number;
+	change24h?: null | number;
 	slug: string;
 };
 

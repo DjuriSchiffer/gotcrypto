@@ -14,6 +14,7 @@ import StalePricesNote from '../components/ui/StalePricesNote';
 import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
+import { getPortfolioDayChange } from '../utils/dayChange';
 import { getHighlights, getPortfolioBreakdown } from '../utils/portfolio';
 import { getGlobalTotals, getUnpricedHoldings } from '../utils/totals';
 
@@ -39,6 +40,10 @@ function Insights() {
 	const highlights = useMemo(() => getHighlights(rows), [rows]);
 	const unpricedNames = useMemo(
 		() => getUnpricedHoldings(selectedCurrencies, fetchedCurrencies).map((asset) => asset.name),
+		[selectedCurrencies, fetchedCurrencies]
+	);
+	const dayChange = useMemo(
+		() => getPortfolioDayChange(selectedCurrencies, fetchedCurrencies),
 		[selectedCurrencies, fetchedCurrencies]
 	);
 	const openPositions = rows.filter((row) => !row.isClosed).length;
@@ -72,6 +77,7 @@ function Insights() {
 						<>
 							<PortfolioStats
 								currencyQuote={currencyQuote}
+								dayChange={dayChange}
 								openPositions={openPositions}
 								totals={totals}
 								unpricedNames={unpricedNames}
