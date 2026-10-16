@@ -41,7 +41,8 @@ import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import { useToast } from '../hooks/useToast';
-import { currencyFormat } from '../utils/helpers';
+import { signedPercentage } from '../utils/dayChange';
+import { currencyFormat, profitClass } from '../utils/helpers';
 import { getImage } from '../utils/images';
 import { findDetailCoin } from '../utils/assets';
 import { getAssetSummary } from '../utils/totals';
@@ -107,9 +108,7 @@ function Detail() {
 		}
 	}, [chartsAvailable]);
 
-	const closeDialog = () => {
-		setDialog(null);
-	};
+	const closeDialog = () => { setDialog(null); };
 
 	/** Saves the asset; shows an error and keeps the dialog open if that fails. */
 	const save = async (update: () => Parameters<typeof updateCurrency>[0]) => {
@@ -168,12 +167,7 @@ function Detail() {
 	};
 
 	const addButton = (
-		<Button
-			color="primary"
-			onClick={() => {
-				setDialog({ type: 'add' });
-			}}
-		>
+		<Button color="primary" onClick={() => { setDialog({ type: 'add' }); }}>
 			<FaPlus className="mr-2" />
 			Add transaction
 		</Button>
@@ -207,9 +201,7 @@ function Detail() {
 										>
 											<DropdownItem
 												icon={FaTrashAlt}
-												onClick={() => {
-													setDialog({ type: 'removeAll' });
-												}}
+												onClick={() => { setDialog({ type: 'removeAll' }); }}
 											>
 												Remove all transactions
 											</DropdownItem>
@@ -218,9 +210,22 @@ function Detail() {
 								</>
 							}
 							description={
-								currentPrice === null
-									? 'Price unavailable'
-									: `${currencyFormat(currentPrice, currencyQuote)} current price`
+								currentPrice === null ? (
+									'Price unavailable'
+								) : (
+									<>
+										{currencyFormat(currentPrice, currencyQuote)} current price
+										{typeof currency.change24h === 'number' && (
+											<>
+												{' · '}
+												<span className={profitClass(currency.change24h)}>
+													{signedPercentage(currency.change24h)}
+												</span>{' '}
+												in 24h
+											</>
+										)}
+									</>
+								)
 							}
 							icon={
 								<img
@@ -239,8 +244,8 @@ function Detail() {
 
 					{currentPrice === null && hasTransactions && (
 						<Alert color="warning" icon={FaExclamationTriangle}>
-							There's no current price for {currency.name}, so its value and unrealized profit can't
-							be shown. Your transactions are safe and still count toward realized profit.
+							There's no current price for {currency.name}, so its value and unrealized profit
+							can't be shown. Your transactions are safe and still count toward realized profit.
 						</Alert>
 					)}
 
@@ -266,12 +271,8 @@ function Detail() {
 									<TransactionTable
 										currencyQuote={currencyQuote}
 										currentPrice={currentPrice}
-										onEdit={(transaction) => {
-											setDialog({ transaction, type: 'edit' });
-										}}
-										onRemove={(transaction) => {
-											setDialog({ transaction, type: 'remove' });
-										}}
+										onEdit={(transaction) => { setDialog({ transaction, type: 'edit' }); }}
+										onRemove={(transaction) => { setDialog({ transaction, type: 'remove' }); }}
 										transactions={transactions}
 									/>
 								) : (

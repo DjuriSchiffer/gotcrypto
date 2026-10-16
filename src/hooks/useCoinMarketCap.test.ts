@@ -22,9 +22,27 @@ describe('toPriceList', () => {
 		const { coins } = toPriceList(response(), 'EUR');
 
 		expect(coins).toEqual([
-			{ cmc_id: 1, cmc_rank: 1, name: 'Coin 1', price: 55000, slug: 'coin-1' },
-			{ cmc_id: 2, cmc_rank: null, name: 'Coin 2', price: 0.9, slug: 'coin-2' },
+			{ change24h: null, cmc_id: 1, cmc_rank: 1, name: 'Coin 1', price: 55000, slug: 'coin-1' },
+			{ change24h: null, cmc_id: 2, cmc_rank: null, name: 'Coin 2', price: 0.9, slug: 'coin-2' },
 		]);
+	});
+
+	it("passes on each coin's 24h change in the chosen currency", () => {
+		const withChange: GetCurrenciesResponse = {
+			data: [
+				{
+					...coin(1, 1, 60000, 55000),
+					quote: {
+						EUR: { percent_change_24h: -3.2, price: 55000 },
+						USD: { percent_change_24h: -3, price: 60000 },
+					},
+				},
+			],
+			status: { error_code: 0, error_message: null },
+		};
+
+		expect(toPriceList(withChange, 'EUR').coins[0].change24h).toBe(-3.2);
+		expect(toPriceList(withChange, 'USD').coins[0].change24h).toBe(-3);
 	});
 
 	it('passes on that prices are stale, and from when', () => {

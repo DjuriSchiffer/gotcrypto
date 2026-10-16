@@ -34,6 +34,7 @@ export const transformCurrencies = (
 ): Array<FetchedCurrency> =>
 	data
 		.map((asset) => ({
+			change24h: asset.quote[currencyQuote].percent_change_24h ?? null,
 			cmc_id: asset.id,
 			cmc_rank: asset.cmc_rank ?? null,
 			name: asset.name,

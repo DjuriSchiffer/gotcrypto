@@ -23,6 +23,7 @@ import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import { useToast } from '../hooks/useToast';
 import { applyAssetChanges, getDashboardAssets } from '../utils/assets';
+import { getPortfolioDayChange } from '../utils/dayChange';
 import { createCryptoMap } from '../utils/helpers';
 import { getGlobalTotals, getUnpricedHoldings } from '../utils/totals';
 import { transactionFromForm, upsertTransaction } from '../utils/transactions';
@@ -57,6 +58,11 @@ function Dashboard() {
 
 	const unpricedNames = useMemo(
 		() => getUnpricedHoldings(selectedCurrencies, fetchedCurrencies).map((asset) => asset.name),
+		[selectedCurrencies, fetchedCurrencies]
+	);
+
+	const dayChange = useMemo(
+		() => getPortfolioDayChange(selectedCurrencies, fetchedCurrencies),
 		[selectedCurrencies, fetchedCurrencies]
 	);
 
@@ -122,6 +128,7 @@ function Dashboard() {
 					{assetMap.size > 0 && (
 						<PortfolioStats
 							currencyQuote={currencyQuote}
+							dayChange={dayChange}
 							openPositions={openPositions}
 							totals={totals}
 							unpricedNames={unpricedNames}

@@ -3,12 +3,16 @@ import type { GlobalTotals } from 'store';
 
 import { FaInfoCircle } from 'react-icons/fa';
 
+import type { DayChange } from '../utils/dayChange';
+
 import { currencyFormat, profitClass } from '../utils/helpers';
 import ProfitBadge from './ui/ProfitBadge';
 import StatCard from './ui/StatCard';
 
 type PortfolioStatsProps = {
 	currencyQuote: keyof CurrencyQuote;
+	/** Change in value of the current holdings over the last 24 hours; hidden when null */
+	dayChange?: DayChange | null;
 	openPositions: number;
 	totals: GlobalTotals;
 	/** Names of held coins without a current price; they're left out of the totals */
@@ -27,6 +31,7 @@ const unpricedNote = (names: Array<string>): string =>
 /** The four key portfolio figures, shared by the Dashboard and Insights pages. */
 function PortfolioStats({
 	currencyQuote,
+	dayChange = null,
 	openPositions,
 	totals,
 	unpricedNames = [],
@@ -36,8 +41,30 @@ function PortfolioStats({
 	return (
 		<div className="flex flex-col gap-3">
 			<section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-				<StatCard label="Total value" value={money(totals.totalValue)}>
-					{openPositions} open {openPositions === 1 ? 'position' : 'positions'}
+				<StatCard
+					hint={
+						dayChange
+							? 'The 24h change is what your current holdings gained or lost from price moves over the last 24 hours.'
+							: undefined
+					}
+					label="Total value"
+					value={money(totals.totalValue)}
+				>
+					<div className="flex flex-col gap-1">
+						{dayChange && (
+							<span className="flex flex-wrap items-center gap-2">
+								<span className={profitClass(dayChange.change)}>
+									{dayChange.change > 0 ? '+' : ''}
+									{money(dayChange.change)}
+								</span>
+								<ProfitBadge percentage={dayChange.percentage} />
+								in 24h
+							</span>
+						)}
+						<span>
+							{openPositions} open {openPositions === 1 ? 'position' : 'positions'}
+						</span>
+					</div>
 				</StatCard>
 				<StatCard
 					hint="What the coins you currently hold cost you. Selling lowers it by the average cost of the coins sold."

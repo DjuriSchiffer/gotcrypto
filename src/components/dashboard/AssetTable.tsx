@@ -18,6 +18,7 @@ import { Link } from 'react-router-dom';
 import type { DisplayCoin } from '../../utils/assets';
 
 import { coinPath } from '../../utils/assets';
+import { signedPercentage } from '../../utils/dayChange';
 import { amountFormat, currencyFormat, profitClass } from '../../utils/helpers';
 import { getImage } from '../../utils/images';
 import { getAssetSummary } from '../../utils/totals';
@@ -58,6 +59,15 @@ function AssetRow({ asset, currencyQuote, fetchedCurrency, onAddTransaction }: A
 						) : (
 							<span className="text-xs text-gray-500 dark:text-gray-400">
 								{money(fetchedCurrency.price)}
+								{typeof fetchedCurrency.change24h === 'number' && (
+									<span
+										className={profitClass(fetchedCurrency.change24h)}
+										title="Price change over the last 24 hours"
+									>
+										{' '}
+										{signedPercentage(fetchedCurrency.change24h)}
+									</span>
+								)}
 							</span>
 						)}
 					</span>
