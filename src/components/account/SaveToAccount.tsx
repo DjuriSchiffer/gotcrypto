@@ -6,7 +6,6 @@ import { useState } from 'react';
 import type { ProviderId } from '../../config/authProviders';
 
 import { ENABLED_PROVIDERS, PROVIDER_LABELS } from '../../config/authProviders';
-
 import { auth } from '../../firebase/firebaseConfig';
 import { useAuth } from '../../hooks/useAuth';
 import { useStorage } from '../../hooks/useStorage';

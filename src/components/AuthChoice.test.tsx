@@ -1,6 +1,6 @@
-import { FirebaseError } from 'firebase/app';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { FirebaseError } from 'firebase/app';
+import { beforeEach, describe, expect, it, vi, vitest } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
 	signInAnonymouslyUser: vi.fn(),
@@ -103,7 +103,7 @@ describe('AuthChoice', () => {
 	});
 
 	it('disables both options while signing in', () => {
-		mocks.signInWithGoogle.mockReturnValue(new Promise(() => {}));
+		mocks.signInWithGoogle.mockReturnValue(new Promise(() => vitest.fn()));
 		render(<AuthChoice />);
 
 		fireEvent.click(googleButton());
