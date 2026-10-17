@@ -5,6 +5,7 @@ import { linkWithPopup, signInWithCredential } from 'firebase/auth';
 import { runTransaction } from 'firebase/firestore';
 import localforage from 'localforage';
 
+import type { ProviderId } from '../config/authProviders';
 import type { LocalData, MigrationPlan } from '../utils/migration';
 
 import { auth, db } from '../firebase/firebaseConfig';
@@ -12,7 +13,7 @@ import { getUserDocRef } from '../firebase/firebaseHelpers';
 import { classifyLinkError } from '../utils/authErrors';
 import { planMigration } from '../utils/migration';
 import { LOCAL_PORTFOLIO_KEY, PREFERENCE_KEYS } from '../utils/preferences';
-import { googleProvider } from './authService';
+import { createProvider, credentialFromError } from './authService';
 
 export type UpgradeResult =
 	| { credential: OAuthCredential; email: null | string; status: 'account-exists' }
@@ -66,12 +67,17 @@ export const copyLocalPortfolio = async (uid: string): Promise<MigrationPlan> =>
 	return plan;
 };
 
-/** Turns the current anonymous session into a Google account and moves its data along. */
-export const upgradeAnonymousAccount = async (): Promise<UpgradeResult> => {
+/**
+ * Turns the current anonymous session into an account with the given provider (Google by default)
+ * and moves its data along.
+ */
+export const upgradeAnonymousAccount = async (
+	providerId: ProviderId = 'google.com'
+): Promise<UpgradeResult> => {
 	const current = auth.currentUser;
 	if (!current?.isAnonymous) {
 		return {
-			message: 'Only an anonymous session can be saved to a Google account.',
+			message: 'Only an anonymous session can be saved to an account.',
 			status: 'error',
 		};
 	}
@@ -80,9 +86,11 @@ export const upgradeAnonymousAccount = async (): Promise<UpgradeResult> => {
 	try {
 		({
 			user: { uid },
-		} = await linkWithPopup(current, googleProvider()));
+		} = await linkWithPopup(current, createProvider(providerId)));
 	} catch (error) {
-		return classifyLinkError(error);
+		return classifyLinkError(error, (firebaseError) =>
+			credentialFromError(providerId, firebaseError)
+		);
 	}
 
 	try {
@@ -98,7 +106,7 @@ export const upgradeAnonymousAccount = async (): Promise<UpgradeResult> => {
 };
 
 /**
- * Signs in to a Google account that is already in use, then tries to move this session's
+ * Signs in to an account (Google, Microsoft, Facebook or X) that is already in use, then tries to move this session's
  * portfolio into it. The copy only happens if that account's portfolio is empty
  * (see planMigration): an existing portfolio is never overwritten or merged into.
  *

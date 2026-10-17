@@ -2,7 +2,10 @@ import type { OAuthCredential } from 'firebase/auth';
 
 import { Alert, Button, Spinner } from 'flowbite-react';
 import { useState } from 'react';
-import { FaGoogle } from 'react-icons/fa';
+
+import type { ProviderId } from '../../config/authProviders';
+
+import { ENABLED_PROVIDERS, PROVIDER_LABELS } from '../../config/authProviders';
 
 import { auth } from '../../firebase/firebaseConfig';
 import { useAuth } from '../../hooks/useAuth';
@@ -12,6 +15,7 @@ import {
 	signInToExistingAccount,
 	upgradeAnonymousAccount,
 } from '../../services/accountUpgrade';
+import { PROVIDER_ICONS } from '../auth/providerIcons';
 import Modal from '../Modal';
 
 type State =
@@ -22,17 +26,20 @@ type State =
 	| { status: 'working' };
 
 /**
- * Lets an anonymous user move their portfolio to a Google account, without ever
- * overwriting or merging into an account that already has data.
+ * Lets an anonymous user move their portfolio to an account (Google, Microsoft, Facebook or X),
+ * without ever overwriting or merging into an account that already has data.
  */
-function SaveToGoogle() {
+function SaveToAccount() {
 	const { refreshAuth } = useAuth();
 	const { reload } = useStorage();
 	const [state, setState] = useState<State>({ status: 'idle' });
+	/** The provider the user clicked, for the spinner and the dialog's wording */
+	const [chosen, setChosen] = useState<ProviderId>('google.com');
 
-	const handleSave = async () => {
+	const handleSave = async (providerId: ProviderId) => {
+		setChosen(providerId);
 		setState({ status: 'working' });
-		const result = await upgradeAnonymousAccount();
+		const result = await upgradeAnonymousAccount(providerId);
 
 		switch (result.status) {
 			case 'account-exists':
@@ -45,7 +52,7 @@ function SaveToGoogle() {
 				setState({ status: 'idle' });
 				break;
 			case 'linked':
-				// Only now switch the app to the Google account: its portfolio is in place
+				// Only now switch the app to the account: its portfolio is in place
 				refreshAuth();
 				break;
 		}
@@ -87,18 +94,33 @@ function SaveToGoogle() {
 
 	const isWorking = state.status === 'working';
 	const existingEmail = state.status === 'account-exists' ? state.email : null;
+	const chosenLabel = PROVIDER_LABELS[chosen];
 
 	return (
 		<div className="flex flex-col gap-3">
-			<Button
-				className="w-fit"
-				color="primary"
-				disabled={isWorking || state.status === 'copy-failed'}
-				onClick={() => void handleSave()}
-			>
-				{isWorking ? <Spinner className="mr-2" size="sm" /> : <FaGoogle className="mr-2" />}
-				Save to a Google account
-			</Button>
+			<p className="text-sm text-gray-600 dark:text-gray-300">
+				Save this portfolio to an account to keep it safe and use it on other devices.
+			</p>
+			<div className="flex flex-wrap gap-2">
+				{ENABLED_PROVIDERS.map((providerId) => {
+					const Icon = PROVIDER_ICONS[providerId];
+					return (
+						<Button
+							color={providerId === 'google.com' ? 'primary' : 'gray'}
+							disabled={isWorking || state.status === 'copy-failed'}
+							key={providerId}
+							onClick={() => void handleSave(providerId)}
+						>
+							{isWorking && chosen === providerId ? (
+								<Spinner className="mr-2" size="sm" />
+							) : (
+								<Icon aria-hidden className="mr-2" />
+							)}
+							Save to {PROVIDER_LABELS[providerId]}
+						</Button>
+					);
+				})}
+			</div>
 
 			{state.status === 'error' && <Alert color="failure">{state.message}</Alert>}
 
@@ -106,8 +128,8 @@ function SaveToGoogle() {
 				<Alert color="warning">
 					<div className="flex flex-col gap-2">
 						<span>
-							Your Google account is connected, but copying your portfolio didn't work. Your data is
-							still safe in this browser.
+							Your {chosenLabel} account is connected, but copying your portfolio didn&apos;t work.
+							Your data is still safe in this browser.
 						</span>
 						<Button className="w-fit" color="gray" onClick={() => void handleRetryCopy()} size="xs">
 							Try again
@@ -122,7 +144,7 @@ function SaveToGoogle() {
 				}}
 				open={state.status === 'account-exists'}
 				size="lg"
-				title="This Google account is already in use"
+				title={`This ${chosenLabel} account is already in use`}
 			>
 				<div className="flex flex-col gap-3 text-sm text-gray-600 dark:text-gray-300">
 					<p>
@@ -140,7 +162,7 @@ function SaveToGoogle() {
 						</li>
 						<li>
 							<strong className="text-gray-900 dark:text-white">Stay anonymous</strong> to keep
-							working as you are. You can choose a different Google account next time.
+							working as you are. You can choose a different account next time.
 						</li>
 					</ul>
 				</div>
@@ -162,4 +184,4 @@ function SaveToGoogle() {
 	);
 }
 
-export default SaveToGoogle;
+export default SaveToAccount;

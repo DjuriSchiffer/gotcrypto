@@ -20,7 +20,13 @@ const ACCOUNT_EXISTS_CODES = new Set([
 ]);
 
 export const GENERIC_LINK_ERROR =
-	'Something went wrong while connecting your Google account. Your data is unchanged.';
+	'Something went wrong while connecting your account. Your data is unchanged.';
+
+/** One email, one account: the email already signs in with a different option (e.g. Google) */
+const OTHER_METHOD_MESSAGE =
+	'This email already has a Got Crypto account with a different sign-in option. Use that option instead, for example Google.';
+
+const NOT_ENABLED_MESSAGE = "This sign-in option isn't switched on yet. Choose another one.";
 
 const POPUP_BLOCKED_MESSAGE =
 	'Your browser blocked the sign-in window. Allow pop-ups for this site and try again.';
@@ -56,6 +62,12 @@ export const classifyLinkError = (
 			status: 'error',
 		};
 	}
+	if (error.code === 'auth/account-exists-with-different-credential') {
+		return { message: `${OTHER_METHOD_MESSAGE} Your data is unchanged.`, status: 'error' };
+	}
+	if (error.code === 'auth/operation-not-allowed') {
+		return { message: NOT_ENABLED_MESSAGE, status: 'error' };
+	}
 
 	return { message: GENERIC_LINK_ERROR, status: 'error' };
 };
@@ -72,6 +84,12 @@ export const signInErrorMessage = (error: unknown): null | string => {
 		}
 		if (error.code === 'auth/network-request-failed') {
 			return "Couldn't reach the sign-in service. Check your connection and try again.";
+		}
+		if (error.code === 'auth/account-exists-with-different-credential') {
+			return OTHER_METHOD_MESSAGE;
+		}
+		if (error.code === 'auth/operation-not-allowed') {
+			return NOT_ENABLED_MESSAGE;
 		}
 	}
 	return "Signing in didn't work. Please try again.";

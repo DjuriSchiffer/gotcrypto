@@ -1,7 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-	auth: { currentUser: null as null | { email: string; isAnonymous: boolean; uid: string } },
+	auth: {
+		currentUser: null as null | {
+			email: string;
+			isAnonymous: boolean;
+			providerData?: Array<{ providerId: string }>;
+			uid: string;
+		},
+	},
 	calls: [] as Array<string>,
 	deleteDoc: vi.fn(),
 	deleteUser: vi.fn(),
@@ -11,13 +18,34 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('../firebase/firebaseConfig', () => ({ auth: mocks.auth, db: {} }));
-vi.mock('firebase/auth', () => ({
-	deleteUser: mocks.deleteUser,
-	GoogleAuthProvider: class {
-		setCustomParameters() {
+/** A fake provider that remembers how it was set up (hoisted, because vi.mock below uses it) */
+const fakeProvider = vi.hoisted(() => (providerId: string) =>
+	class {
+		providerId = providerId;
+		parameters: Record<string, string> = {};
+		scopes: Array<string> = [];
+		setCustomParameters(parameters: Record<string, string>) {
+			this.parameters = parameters;
 			return this;
 		}
+		addScope(scope: string) {
+			this.scopes.push(scope);
+			return this;
+		}
+	}
+);
+
+vi.mock('firebase/auth', () => ({
+	deleteUser: mocks.deleteUser,
+	FacebookAuthProvider: fakeProvider('facebook.com'),
+	GoogleAuthProvider: fakeProvider('google.com'),
+	OAuthProvider: class extends fakeProvider('') {
+		constructor(id: string) {
+			super();
+			this.providerId = id;
+		}
 	},
+	TwitterAuthProvider: fakeProvider('twitter.com'),
 	reauthenticateWithPopup: mocks.reauthenticateWithPopup,
 	signInAnonymously: vi.fn(),
 	signInWithPopup: vi.fn(),
@@ -30,7 +58,7 @@ vi.mock('firebase/firestore', () => ({
 }));
 vi.mock('localforage', () => ({ default: { removeItem: mocks.removeItem } }));
 
-import { deleteAccount } from './authService';
+import { createProvider, deleteAccount } from './authService';
 
 /** Every mock records its name when called, so the tests can check the order */
 const record = (name: string, result?: () => unknown) =>
@@ -57,6 +85,21 @@ describe('deleteAccount', () => {
 	describe('with a Google account', () => {
 		beforeEach(() => {
 			mocks.auth.currentUser = { email: 'me@example.com', isAnonymous: false, uid: 'uid-1' };
+		});
+
+		it('confirms with the provider the user signs in with', async () => {
+			mocks.auth.currentUser = {
+				email: 'me@example.com',
+				isAnonymous: false,
+				providerData: [{ providerId: 'microsoft.com' }],
+				uid: 'uid-1',
+			};
+
+			await deleteAccount();
+
+			expect(mocks.reauthenticateWithPopup.mock.calls[0][1]).toMatchObject({
+				providerId: 'microsoft.com',
+			});
 		});
 
 		it('confirms with Google first, then deletes the document, then the login', async () => {
@@ -129,5 +172,23 @@ describe('deleteAccount', () => {
 		mocks.auth.currentUser = null;
 
 		await expect(deleteAccount()).rejects.toThrow('Nobody is signed in');
+	});
+});
+
+describe('createProvider', () => {
+	it('always shows the account chooser for Google and Microsoft', () => {
+		expect(createProvider('google.com')).toMatchObject({ parameters: { prompt: 'select_account' } });
+		expect(createProvider('microsoft.com')).toMatchObject({
+			parameters: { prompt: 'select_account' },
+			providerId: 'microsoft.com',
+		});
+	});
+
+	it('asks Facebook for the email address', () => {
+		expect(createProvider('facebook.com')).toMatchObject({ scopes: ['email'] });
+	});
+
+	it('creates an X provider', () => {
+		expect(createProvider('twitter.com')).toMatchObject({ providerId: 'twitter.com' });
 	});
 });
