@@ -17,9 +17,9 @@ export type PriceOnDate =
 
 type Options = {
 	cmcId: number;
+	currencyQuote: keyof CurrencyQuote;
 	/** Today's price from the price list, used when the date is today; null if there is none */
 	currentPrice: null | number;
-	currencyQuote: keyof CurrencyQuote;
 	/** The date as the form stores it */
 	date: string;
 	/** Only look anything up once this is true (e.g. a quantity has been entered) */
@@ -32,8 +32,8 @@ type Options = {
  */
 export const usePriceOnDate = ({
 	cmcId,
-	currentPrice,
 	currencyQuote,
+	currentPrice,
 	date,
 	enabled,
 }: Options): PriceOnDate => {

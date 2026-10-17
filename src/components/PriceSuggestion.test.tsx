@@ -1,7 +1,7 @@
-import type { PriceOnDate } from '../hooks/usePriceOnDate';
-
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import type { PriceOnDate } from '../hooks/usePriceOnDate';
 
 const mocks = vi.hoisted(() => {
 	const idle = (): PriceOnDate => ({ status: 'idle' });

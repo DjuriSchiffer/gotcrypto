@@ -21,15 +21,15 @@ vi.mock('../firebase/firebaseConfig', () => ({ auth: mocks.auth, db: {} }));
 /** A fake provider that remembers how it was set up (hoisted, because vi.mock below uses it) */
 const fakeProvider = vi.hoisted(() => (providerId: string) =>
 	class {
-		providerId = providerId;
 		parameters: Record<string, string> = {};
+		providerId = providerId;
 		scopes: Array<string> = [];
-		setCustomParameters(parameters: Record<string, string>) {
-			this.parameters = parameters;
-			return this;
-		}
 		addScope(scope: string) {
 			this.scopes.push(scope);
+			return this;
+		}
+		setCustomParameters(parameters: Record<string, string>) {
+			this.parameters = parameters;
 			return this;
 		}
 	}
@@ -45,11 +45,11 @@ vi.mock('firebase/auth', () => ({
 			this.providerId = id;
 		}
 	},
-	TwitterAuthProvider: fakeProvider('twitter.com'),
 	reauthenticateWithPopup: mocks.reauthenticateWithPopup,
 	signInAnonymously: vi.fn(),
 	signInWithPopup: vi.fn(),
 	signOut: mocks.signOut,
+	TwitterAuthProvider: fakeProvider('twitter.com'),
 }));
 vi.mock('firebase/firestore', () => ({
 	deleteDoc: mocks.deleteDoc,

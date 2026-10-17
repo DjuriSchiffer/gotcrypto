@@ -2,10 +2,10 @@ import { Alert, Button, Spinner } from 'flowbite-react';
 import { useState } from 'react';
 import { FaUserTimes } from 'react-icons/fa';
 
+import { PROVIDER_LABELS } from '../../config/authProviders';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import { deleteAccount } from '../../services/authService';
-import { PROVIDER_LABELS } from '../../config/authProviders';
 import { deleteAccountErrorMessage } from '../../utils/accountDeletion';
 import { primaryProvider } from '../../utils/signInMethod';
 import ConfirmModal from '../ui/ConfirmModal';

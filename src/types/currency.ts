@@ -1,9 +1,9 @@
 export type FetchedCurrency = {
+	change24h?: null | number;
 	cmc_id: number;
 	cmc_rank: null | number;
 	name: string;
 	price: number;
-	change24h?: null | number;
 	slug: string;
 };
 

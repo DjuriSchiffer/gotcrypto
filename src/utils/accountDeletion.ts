@@ -20,6 +20,7 @@ export const deleteAccountErrorMessage = (error: unknown, email: null | string):
 			return email
 				? `That's a different account. Choose ${email} to confirm.`
 				: "That's a different account. Choose the one you're signed in with.";
+		case undefined:
 		default:
 			return 'Your account could not be deleted completely. Please try again.';
 	}
