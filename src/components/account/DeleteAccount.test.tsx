@@ -1,8 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+type TestUser = { email: string; providerData?: Array<{ providerId: string }> };
+
 const mocks = vi.hoisted(() => ({
-	auth: { isAnonymous: false, user: { email: 'me@example.com' } },
+	auth: { isAnonymous: false, user: null as null | TestUser },
 	deleteAccount: vi.fn(),
 }));
 
@@ -21,6 +23,7 @@ const confirmWith = (word: string) => {
 describe('DeleteAccount', () => {
 	beforeEach(() => {
 		mocks.auth.isAnonymous = false;
+		mocks.auth.user = { email: 'me@example.com' };
 		mocks.deleteAccount.mockReset();
 	});
 
@@ -50,7 +53,15 @@ describe('DeleteAccount', () => {
 		fireEvent.click(screen.getByRole('button', { name: /Delete account/ }));
 
 		expect(screen.getByText('me@example.com')).toBeTruthy();
-		expect(screen.getByText(/choose your Google account once more/)).toBeTruthy();
+		expect(screen.getByText(/sign in with Google once more/)).toBeTruthy();
+	});
+
+	it('names the provider the user signs in with', () => {
+		mocks.auth.user = { email: 'me@example.com', providerData: [{ providerId: 'microsoft.com' }] };
+		render(<DeleteAccount />);
+		fireEvent.click(screen.getByRole('button', { name: /Delete account/ }));
+
+		expect(screen.getByText(/sign in with Microsoft once more/)).toBeTruthy();
 	});
 
 	it('shows what went wrong', async () => {

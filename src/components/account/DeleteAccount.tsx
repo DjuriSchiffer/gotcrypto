@@ -5,7 +5,9 @@ import { FaUserTimes } from 'react-icons/fa';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import { deleteAccount } from '../../services/authService';
+import { PROVIDER_LABELS } from '../../config/authProviders';
 import { deleteAccountErrorMessage } from '../../utils/accountDeletion';
+import { primaryProvider } from '../../utils/signInMethod';
 import ConfirmModal from '../ui/ConfirmModal';
 
 const CONFIRM_WORD = 'DELETE';
@@ -17,6 +19,8 @@ function DeleteAccount() {
 	const [pending, setPending] = useState(false);
 	const [error, setError] = useState<null | string>(null);
 	const { showSuccess } = useToast();
+	const provider = user ? primaryProvider(user) : 'anonymous';
+	const providerLabel = provider === 'anonymous' ? 'your account' : PROVIDER_LABELS[provider];
 
 	const handleDelete = async () => {
 		setConfirmOpen(false);
@@ -76,8 +80,8 @@ function DeleteAccount() {
 									for <strong>{user.email}</strong>
 								</>
 							) : null}
-							. You&apos;ll be asked to choose your Google account once more to confirm. Export your
-							data first if you want to keep a copy. This can&apos;t be undone.
+							. You&apos;ll be asked to sign in with {providerLabel} once more to confirm. Export
+							your data first if you want to keep a copy. This can&apos;t be undone.
 						</>
 					)
 				}

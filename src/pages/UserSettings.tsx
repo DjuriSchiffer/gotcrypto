@@ -5,7 +5,7 @@ import { FaSignOutAlt, FaTrashAlt } from 'react-icons/fa';
 import DeleteAccount from '../components/account/DeleteAccount';
 import ExportDataCard from '../components/account/ExportDataCard';
 import ImportDataCard from '../components/account/ImportDataCard';
-import SaveToGoogle from '../components/account/SaveToGoogle';
+import SaveToAccount from '../components/account/SaveToAccount';
 import Page from '../components/layout/Page';
 import SettingsDateFormat from '../components/SettingsDateFormat';
 import SettingsLightDarkMode from '../components/SettingsLightDarkMode';
@@ -13,6 +13,7 @@ import SettingsPriceFormat from '../components/SettingsPriceFormat';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import PageHeader from '../components/ui/PageHeader';
 import SectionCard from '../components/ui/SectionCard';
+import { PROVIDER_LABELS } from '../config/authProviders';
 import { contactMailto } from '../config/contact';
 import { useAppState } from '../hooks/useAppState';
 import { useAuth } from '../hooks/useAuth';
@@ -20,6 +21,7 @@ import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
 import { useToast } from '../hooks/useToast';
 import { signOutUser } from '../services/authService';
+import { primaryProvider } from '../utils/signInMethod';
 
 const CONFIRM_WORD = 'DELETE';
 const linkClass = 'font-medium text-primary-700 hover:underline dark:text-primary-400';
@@ -32,6 +34,7 @@ function UserSettings() {
 	const { selectedCurrencies, setSelectedCurrencies } = useStorage();
 	const [confirmOpen, setConfirmOpen] = useState(false);
 	const { showError, showSuccess } = useToast();
+	const provider = user ? primaryProvider(user) : 'anonymous';
 
 	const assetCount = selectedCurrencies.length;
 	const transactionCount = selectedCurrencies.reduce(
@@ -77,7 +80,9 @@ function UserSettings() {
 						</div>
 						<div className="flex items-center gap-2">
 							<Badge color={isAnonymous ? 'warning' : 'success'}>
-								{isAnonymous ? 'Browser only' : 'Synced with Google'}
+								{isAnonymous || provider === 'anonymous'
+									? 'Browser only'
+									: `Synced with ${PROVIDER_LABELS[provider]}`}
 							</Badge>
 							<Button color="gray" onClick={() => void signOutUser()} size="sm">
 								<FaSignOutAlt className="mr-2" />
@@ -85,7 +90,7 @@ function UserSettings() {
 							</Button>
 						</div>
 					</div>
-					{isAnonymous && <SaveToGoogle />}
+					{isAnonymous && <SaveToAccount />}
 				</SectionCard>
 
 				<SectionCard

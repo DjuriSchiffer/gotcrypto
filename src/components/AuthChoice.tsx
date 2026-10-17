@@ -2,11 +2,19 @@ import type { IconType } from 'react-icons';
 
 import { Alert, Button, Card, Spinner } from 'flowbite-react';
 import { useState } from 'react';
-import { FaChartPie, FaExchangeAlt, FaGoogle, FaUserSecret } from 'react-icons/fa';
+import { FaChartPie, FaExchangeAlt, FaUserSecret } from 'react-icons/fa';
 
+import type { ProviderId } from '../config/authProviders';
+
+import { ENABLED_PROVIDERS, PROVIDER_LABELS } from '../config/authProviders';
 import logo from '../public/images/logo.svg';
-import { signInAnonymouslyUser, signInWithGoogle } from '../services/authService';
+import {
+	signInAnonymouslyUser,
+	signInWithGoogle,
+	signInWithProvider,
+} from '../services/authService';
 import { signInErrorMessage } from '../utils/authErrors';
+import { PROVIDER_ICONS } from './auth/providerIcons';
 
 const FEATURES: Array<{ description: string; icon: IconType; title: string }> = [
 	{
@@ -20,13 +28,21 @@ const FEATURES: Array<{ description: string; icon: IconType; title: string }> = 
 		title: 'Every transaction in one place',
 	},
 	{
-		description: 'Start in your browser without signing up, and save to Google whenever you like.',
+		description:
+			'Start in your browser without signing up, and save to an account whenever you like.',
 		icon: FaUserSecret,
 		title: 'Try it without an account',
 	},
 ];
 
-type Method = 'anonymous' | 'google';
+type Method = 'anonymous' | ProviderId;
+
+const signInWith = (method: Method) => {
+	if (method === 'anonymous') return signInAnonymouslyUser();
+	// Google keeps its own function, which other parts of the app (and tests) already use
+	if (method === 'google.com') return signInWithGoogle();
+	return signInWithProvider(method);
+};
 
 function AuthChoice() {
 	const [pending, setPending] = useState<Method | null>(null);
@@ -36,7 +52,7 @@ function AuthChoice() {
 		setPending(method);
 		setError(null);
 		try {
-			await (method === 'google' ? signInWithGoogle() : signInAnonymouslyUser());
+			await signInWith(method);
 			// On success the app switches pages by itself (onAuthStateChanged)
 		} catch (signInError) {
 			setError(signInErrorMessage(signInError));
@@ -87,18 +103,24 @@ function AuthChoice() {
 						{error && <Alert color="failure">{error}</Alert>}
 
 						<div className="flex flex-col gap-2">
-							<Button
-								color="primary"
-								disabled={pending !== null}
-								onClick={() => void signIn('google')}
-							>
-								{pending === 'google' ? (
-									<Spinner className="mr-2" size="sm" />
-								) : (
-									<FaGoogle className="mr-2" />
-								)}
-								Continue with Google
-							</Button>
+							{ENABLED_PROVIDERS.map((providerId, index) => {
+								const Icon = PROVIDER_ICONS[providerId];
+								return (
+									<Button
+										color={index === 0 ? 'primary' : 'gray'}
+										disabled={pending !== null}
+										key={providerId}
+										onClick={() => void signIn(providerId)}
+									>
+										{pending === providerId ? (
+											<Spinner className="mr-2" size="sm" />
+										) : (
+											<Icon aria-hidden className="mr-2" />
+										)}
+										Continue with {PROVIDER_LABELS[providerId]}
+									</Button>
+								);
+							})}
 							<p className="text-center text-xs text-gray-500 dark:text-gray-400">
 								Saved to your account and available on any device.
 							</p>
@@ -120,7 +142,7 @@ function AuthChoice() {
 								Continue without an account
 							</Button>
 							<p className="text-center text-xs text-gray-500 dark:text-gray-400">
-								Stored in this browser only. You can save it to a Google account later.
+								Stored in this browser only. You can save it to an account later.
 							</p>
 						</div>
 

@@ -12,7 +12,7 @@ describe('deleteAccountErrorMessage', () => {
 
 	it('names the account to pick when the wrong one was chosen', () => {
 		expect(deleteAccountErrorMessage(error('auth/user-mismatch'), 'me@example.com')).toBe(
-			"That's a different Google account. Choose me@example.com to confirm."
+			"That's a different account. Choose me@example.com to confirm."
 		);
 	});
 

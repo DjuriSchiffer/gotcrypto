@@ -82,7 +82,7 @@ describe('Settings page', () => {
 
 		expect(screen.getByText('Anonymous session')).toBeTruthy();
 		expect(screen.getByText(/stored in this browser only/)).toBeTruthy();
-		expect(screen.getByRole('button', { name: 'Save to a Google account' })).toBeTruthy();
+		expect(screen.getByRole('button', { name: 'Save to Google' })).toBeTruthy();
 	});
 
 	it('does not offer saving to Google when already signed in', () => {

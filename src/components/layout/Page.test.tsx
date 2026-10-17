@@ -85,7 +85,9 @@ describe('Page layout', () => {
 		renderAt('/');
 
 		expect(desktopNav().queryByRole('link', { name: 'Privacy' })).toBeNull();
-		expect(screen.getAllByRole('link', { name: 'Privacy' })[0].getAttribute('href')).toBe('/privacy');
+		expect(screen.getAllByRole('link', { name: 'Privacy' })[0].getAttribute('href')).toBe(
+			'/privacy'
+		);
 	});
 
 	it('points anonymous users to saving their data', () => {
@@ -93,7 +95,7 @@ describe('Page layout', () => {
 		renderAt('/');
 
 		expect(screen.getAllByText('Anonymous session').length).toBeGreaterThan(0);
-		expect(screen.getAllByRole('link', { name: /Save to Google/ })[0].getAttribute('href')).toBe(
+		expect(screen.getAllByRole('link', { name: /Save to account/ })[0].getAttribute('href')).toBe(
 			'/user-settings'
 		);
 	});

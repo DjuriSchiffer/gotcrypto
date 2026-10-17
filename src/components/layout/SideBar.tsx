@@ -100,7 +100,7 @@ function SideBar({ onNavigate, showBrand = true }: SideBarProps) {
 								onClick={onNavigate}
 								to="/user-settings"
 							>
-								Browser only · Save to Google
+								Browser only · Save to account
 							</Link>
 						) : (
 							<p className="truncate text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>

@@ -5,7 +5,7 @@ const errorCode = (error: unknown): string | undefined =>
 
 /**
  * What to tell the user when deleting their account failed.
- * Returns null when they closed the Google window themselves: nothing to report then.
+ * Returns null when they closed the sign-in window themselves: nothing to report then.
  */
 export const deleteAccountErrorMessage = (error: unknown, email: null | string): null | string => {
 	switch (errorCode(error)) {
@@ -15,12 +15,11 @@ export const deleteAccountErrorMessage = (error: unknown, email: null | string):
 		case 'auth/network-request-failed':
 			return "Couldn't reach the server. Check your connection and try again.";
 		case 'auth/popup-blocked':
-			return 'Your browser blocked the Google window. Allow pop-ups for this site and try again.';
+			return 'Your browser blocked the sign-in window. Allow pop-ups for this site and try again.';
 		case 'auth/user-mismatch':
 			return email
-				? `That's a different Google account. Choose ${email} to confirm.`
-				: "That's a different Google account. Choose the one you're signed in with.";
-		case undefined:
+				? `That's a different account. Choose ${email} to confirm.`
+				: "That's a different account. Choose the one you're signed in with.";
 		default:
 			return 'Your account could not be deleted completely. Please try again.';
 	}
