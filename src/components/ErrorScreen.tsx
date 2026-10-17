@@ -1,6 +1,7 @@
 import { FaRedo } from 'react-icons/fa';
 
 import { contactMailto } from '../config/contact';
+import CoinMarketCapAttribution from './ui/CoinMarketCapAttribution';
 import ErrorState from './ui/ErrorState';
 
 type ErrorScreenProps = {
@@ -63,6 +64,8 @@ function ErrorScreen({ eventId }: ErrorScreenProps) {
 					)}
 				</ErrorState>
 			</div>
+			{/* The crash screen replaces App, so it shows its own credit */}
+			<CoinMarketCapAttribution />
 		</main>
 	);
 }

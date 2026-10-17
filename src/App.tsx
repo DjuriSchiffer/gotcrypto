@@ -5,6 +5,7 @@ import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-d
 import AuthChoice from './components/AuthChoice';
 import ErrorComponent from './components/Error';
 import LoadingIndicator from './components/LoadingIndicator';
+import CoinMarketCapAttribution from './components/ui/CoinMarketCapAttribution';
 import { useAuth } from './hooks/useAuth';
 import useCoinMarketCap from './hooks/useCoinMarketCap';
 import { useStorage } from './hooks/useStorage';
@@ -82,6 +83,8 @@ function App() {
 					</Router>
 				)}
 			</ToastProvider>
+			{/* Required by CoinMarketCap's terms: one credit, bottom right, on every screen */}
+			<CoinMarketCapAttribution />
 		</ThemeProvider>
 	);
 }
