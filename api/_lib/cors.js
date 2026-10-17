@@ -1,11 +1,15 @@
-const PRODUCTION_ORIGIN = 'https://gotcrypto.vercel.app';
+const PRODUCTION_ORIGIN = 'https://gotcrypto.nl';
+const VERCEL_PRODUCTION_ORIGIN = 'https://gotcrypto.vercel.app';
 const PREVIEW_ORIGIN = /^https:\/\/gotcrypto-[a-z0-9-]+-djurischiffers-projects\.vercel\.app$/;
 const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/;
 
 /** The app itself, its Vercel preview deployments, and local development. */
 const isAllowedOrigin = (origin) =>
 	typeof origin === 'string' &&
-	(origin === PRODUCTION_ORIGIN || PREVIEW_ORIGIN.test(origin) || LOCAL_ORIGIN.test(origin));
+	(origin === PRODUCTION_ORIGIN ||
+		origin === VERCEL_PRODUCTION_ORIGIN ||
+		PREVIEW_ORIGIN.test(origin) ||
+		LOCAL_ORIGIN.test(origin));
 
 /**
  * Sets the CORS headers. Note that CORS only limits which websites can read the response in a
