@@ -85,9 +85,7 @@ describe('Page layout', () => {
 		renderAt('/');
 
 		expect(desktopNav().queryByRole('link', { name: 'Privacy' })).toBeNull();
-		expect(screen.getAllByRole('link', { name: 'Privacy' })[0].getAttribute('href')).toBe(
-			'/privacy'
-		);
+		expect(screen.getAllByRole('link', { name: 'Privacy' })[0].getAttribute('href')).toBe('/privacy');
 	});
 
 	it('points anonymous users to saving their data', () => {

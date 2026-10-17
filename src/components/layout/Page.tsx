@@ -42,7 +42,8 @@ function Page({ children }: PageProps) {
 					<SideBar />
 				</aside>
 
-				<main className="min-w-0 flex-1 px-4 py-6 lg:px-8 lg:py-8">
+				{/* pb-14: room for the CoinMarketCap credit fixed in the bottom-right corner */}
+				<main className="min-w-0 flex-1 px-4 pb-14 pt-6 lg:px-8 lg:pt-8">
 					<div className="mx-auto max-w-7xl">{children}</div>
 				</main>
 			</div>

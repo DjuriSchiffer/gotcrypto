@@ -56,11 +56,6 @@ function ToastProvider({ children }: { children: ReactNode }) {
 		[dismiss]
 	);
 
-	useEffect(() => {
-		if (!import.meta.env.DEV) return;
-		(window as unknown as { toast?: typeof notify }).toast = notify;
-	}, [notify]);
-
 	// Don't leave timers running after the app is gone
 	useEffect(() => {
 		const pending = timers.current;
@@ -78,7 +73,8 @@ function ToastProvider({ children }: { children: ReactNode }) {
 			{children}
 			<div
 				aria-label="Notifications"
-				className="pointer-events-none fixed inset-x-4 bottom-4 z-[60] flex flex-col items-end gap-2 sm:left-auto sm:w-96"
+				// bottom-12: above the CoinMarketCap credit in the corner
+				className="pointer-events-none fixed inset-x-4 bottom-12 z-[60] flex flex-col items-end gap-2 sm:left-auto sm:w-96"
 				role="region"
 			>
 				{toasts.map((toast) => {
