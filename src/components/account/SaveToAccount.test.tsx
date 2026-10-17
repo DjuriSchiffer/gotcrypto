@@ -25,7 +25,7 @@ const providers = vi.hoisted(() => ({
 	enabled: ['google.com', 'microsoft.com', 'facebook.com', 'twitter.com'] as Array<string>,
 }));
 vi.mock('../../config/authProviders', async (importOriginal) => ({
-	...(await importOriginal<typeof import('../../config/authProviders')>()),
+	...(await importOriginal()),
 	get ENABLED_PROVIDERS() {
 		return providers.enabled;
 	},
