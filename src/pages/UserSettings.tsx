@@ -15,6 +15,7 @@ import PageHeader from '../components/ui/PageHeader';
 import SectionCard from '../components/ui/SectionCard';
 import { PROVIDER_LABELS } from '../config/authProviders';
 import { contactMailto } from '../config/contact';
+import { KOFI_URL } from '../config/support';
 import { useAppState } from '../hooks/useAppState';
 import { useAuth } from '../hooks/useAuth';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
@@ -155,6 +156,12 @@ function UserSettings() {
 							</a>
 						</p>
 					)}
+					<p>
+						Got Crypto is free and ad-free. Like it?{' '}
+						<a className={linkClass} href={KOFI_URL} rel="noopener noreferrer" target="_blank">
+							Buy me a coffee
+						</a>
+					</p>
 					<p>
 						Read what is stored and how in the{' '}
 						<a className={linkClass} href="/privacy">

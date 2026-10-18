@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import type { GetCurrenciesResponse, QuoteByTimestampResponse } from './types/api';
 
-const API_HOST = import.meta.env.VITE_REACT_APP_HOST ?? '';
+const API_HOST = (import.meta.env.VITE_REACT_APP_HOST as string | undefined) ?? '';
 
 export const getCurrencies = async (): Promise<GetCurrenciesResponse> => {
 	try {

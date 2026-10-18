@@ -8,6 +8,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import logo from '../../public/images/logo.svg';
 import { signOutUser } from '../../services/authService';
+import { KOFI_URL } from '../../config/support';
 
 type NavItem = {
 	icon: IconType;
@@ -111,13 +112,23 @@ function SideBar({ onNavigate, showBrand = true }: SideBarProps) {
 					<FaSignOutAlt className="mr-2" />
 					Sign out
 				</Button>
-				<Link
-					className="px-2 text-xs text-gray-500 hover:underline dark:text-gray-400"
-					onClick={onNavigate}
-					to="/privacy"
-				>
-					Privacy
-				</Link>
+				<div className="flex justify-between">
+					<Link
+						className="px-2 text-xs text-gray-500 hover:underline dark:text-gray-400"
+						onClick={onNavigate}
+						to="/privacy"
+					>
+						Privacy
+					</Link>
+					<Link
+						rel="noopener noreferrer"
+						target="_blank"
+						className="px-2 text-xs text-gray-500 hover:underline dark:text-gray-400"
+						to={KOFI_URL}
+					>
+						Buy me a coffee
+					</Link>
+				</div>
 			</div>
 		</div>
 	);

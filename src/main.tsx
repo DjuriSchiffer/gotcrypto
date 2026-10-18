@@ -28,7 +28,8 @@ Sentry.init({
 	replaysSessionSampleRate: 0,
 	// Don't send IP addresses, cookies or other personal details
 	sendDefaultPii: false,
-	tracePropagationTargets: [/^https:\/\/gotcrypto\.nl/],
+	// Our own API, on every domain the app runs on (the API is called with relative URLs)
+	tracePropagationTargets: [/^\/api\//, /^https:\/\/(gotcrypto\.vercel\.app|(www\.)?gotcrypto\.nl)\/api\//],
 	// Performance Monitoring
 	tracesSampleRate: 1.0,
 });
@@ -50,9 +51,7 @@ if (!rootElement) throw new Error('Failed to find the root element');
 ReactDOM.createRoot(rootElement).render(
 	<React.StrictMode>
 		{/* If the app crashes, show a friendly screen instead of a blank page; Sentry gets the report */}
-		<Sentry.ErrorBoundary
-			fallback={({ eventId }) => <ErrorScreen eventId={eventId || undefined} />}
-		>
+		<Sentry.ErrorBoundary fallback={({ eventId }) => <ErrorScreen eventId={eventId || undefined} />}>
 			<ReducerProvider>
 				<AuthProvider>
 					<StorageProvider>
