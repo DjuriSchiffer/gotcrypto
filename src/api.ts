@@ -4,10 +4,12 @@ import axios from 'axios';
 
 import type { GetCurrenciesResponse, QuoteByTimestampResponse } from './types/api';
 
+const API_HOST = import.meta.env.VITE_REACT_APP_HOST ?? '';
+
 export const getCurrencies = async (): Promise<GetCurrenciesResponse> => {
 	try {
 		const response: AxiosResponse<GetCurrenciesResponse> = await axios.get(
-			`${import.meta.env.VITE_REACT_APP_HOST}/api/coinmarketcap`
+			`${API_HOST}/api/coinmarketcap`
 		);
 		return response.data;
 	} catch (error) {
@@ -29,7 +31,7 @@ export const getQuoteByTimestamp = async (
 ): Promise<QuoteByTimestampResponse> => {
 	try {
 		const response: AxiosResponse<QuoteByTimestampResponse> = await axios.get(
-			`${import.meta.env.VITE_REACT_APP_HOST}/api/quote-by-timestamp`,
+			`${API_HOST}/api/quote-by-timestamp`,
 			{
 				params: {
 					coinId,
