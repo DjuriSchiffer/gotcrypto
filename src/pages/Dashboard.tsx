@@ -18,6 +18,7 @@ import TransactionForm from '../components/TransactionForm';
 import EmptyState from '../components/ui/EmptyState';
 import PageHeader from '../components/ui/PageHeader';
 import StalePricesNote from '../components/ui/StalePricesNote';
+import SupportPrompt from '../components/support/SupportPrompt';
 import { useAppState } from '../hooks/useAppState';
 import useCoinMarketCap from '../hooks/useCoinMarketCap';
 import { useStorage } from '../hooks/useStorage';
@@ -25,6 +26,7 @@ import { useToast } from '../hooks/useToast';
 import { applyAssetChanges, getDashboardAssets } from '../utils/assets';
 import { getPortfolioDayChange } from '../utils/dayChange';
 import { createCryptoMap } from '../utils/helpers';
+import { countTransactions } from '../utils/supportPrompt';
 import { getGlobalTotals, getUnpricedHoldings } from '../utils/totals';
 import { transactionFromForm, upsertTransaction } from '../utils/transactions';
 
@@ -134,6 +136,8 @@ function Dashboard() {
 							unpricedNames={unpricedNames}
 						/>
 					)}
+
+					<SupportPrompt transactionCount={countTransactions(selectedCurrencies)} />
 
 					{dashboardAssets.length === 0 && (
 						<Card>

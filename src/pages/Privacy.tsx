@@ -5,6 +5,7 @@ import { FaArrowLeft } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 import { PRIVACY } from '../config/privacy';
+import { KOFI_URL } from '../config/support';
 import logo from '../public/images/logo.svg';
 
 function Section({ children, title }: { children: ReactNode; title: string }) {
@@ -132,7 +133,20 @@ function Privacy() {
 							<p>
 								There are no advertising or tracking cookies and no analytics. The app stores your
 								sign-in session, your settings and (without an account) your portfolio in your
-								browser, only because the app needs them to work.
+								browser, only because the app needs them to work. It also remembers there whether
+								you closed the &quot;buy me a coffee&quot; message.
+							</p>
+						</Section>
+
+						<Section title="Donations">
+							<p>
+								You can support the app through{' '}
+								<a className={linkClass} href={KOFI_URL} rel="noopener noreferrer" target="_blank">
+									Ko-fi
+								</a>
+								. That happens on Ko-fi&apos;s website and their privacy policy applies there: payments
+								go through Ko-fi, Stripe or PayPal, and we never see your card or bank details. We only
+								see what Ko-fi shows us, such as the name and message you choose to leave.
 							</p>
 						</Section>
 
