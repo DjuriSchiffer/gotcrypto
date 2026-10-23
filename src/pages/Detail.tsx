@@ -29,7 +29,7 @@ import type { Transaction } from '../types/currency';
 
 import DetailCharts from '../components/detail/DetailCharts';
 import DetailModals from '../components/detail/DetailModals';
-import PositionStats from '../components/detail/PositionStats';
+import PositionStats from '../components/PositionStats';
 import TransactionTable from '../components/detail/TransactionTable';
 import Page from '../components/layout/Page';
 import LoadingErrorWrapper from '../components/LoadingErrorWrapper';
@@ -108,7 +108,9 @@ function Detail() {
 		}
 	}, [chartsAvailable]);
 
-	const closeDialog = () => { setDialog(null); };
+	const closeDialog = () => {
+		setDialog(null);
+	};
 
 	/** Saves the asset; shows an error and keeps the dialog open if that fails. */
 	const save = async (update: () => Parameters<typeof updateCurrency>[0]) => {
@@ -167,7 +169,12 @@ function Detail() {
 	};
 
 	const addButton = (
-		<Button color="primary" onClick={() => { setDialog({ type: 'add' }); }}>
+		<Button
+			color="primary"
+			onClick={() => {
+				setDialog({ type: 'add' });
+			}}
+		>
 			<FaPlus className="mr-2" />
 			Add transaction
 		</Button>
@@ -201,7 +208,9 @@ function Detail() {
 										>
 											<DropdownItem
 												icon={FaTrashAlt}
-												onClick={() => { setDialog({ type: 'removeAll' }); }}
+												onClick={() => {
+													setDialog({ type: 'removeAll' });
+												}}
 											>
 												Remove all transactions
 											</DropdownItem>
@@ -244,8 +253,8 @@ function Detail() {
 
 					{currentPrice === null && hasTransactions && (
 						<Alert color="warning" icon={FaExclamationTriangle}>
-							There's no current price for {currency.name}, so its value and unrealized profit
-							can't be shown. Your transactions are safe and still count toward realized profit.
+							There's no current price for {currency.name}, so its value and unrealized profit can't
+							be shown. Your transactions are safe and still count toward realized profit.
 						</Alert>
 					)}
 
@@ -271,8 +280,12 @@ function Detail() {
 									<TransactionTable
 										currencyQuote={currencyQuote}
 										currentPrice={currentPrice}
-										onEdit={(transaction) => { setDialog({ transaction, type: 'edit' }); }}
-										onRemove={(transaction) => { setDialog({ transaction, type: 'remove' }); }}
+										onEdit={(transaction) => {
+											setDialog({ transaction, type: 'edit' });
+										}}
+										onRemove={(transaction) => {
+											setDialog({ transaction, type: 'remove' });
+										}}
 										transactions={transactions}
 									/>
 								) : (
